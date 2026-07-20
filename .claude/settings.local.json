@@ -27,7 +27,11 @@
       "Bash(curl -s -o /dev/null -w \"root:%{http_code} \" \"http://localhost:3000/\")",
       "Bash(curl -s -o /dev/null -w \"pv:%{http_code} \" \"http://localhost:3000/product%20view.html\")",
       "Bash(npx prisma *)",
-      "Bash(node --env-file=.env prisma/seed.mjs)"
+      "Bash(node --env-file=.env prisma/seed.mjs)",
+      "Bash(curl -s \"http://localhost:3000/api/catalog\")",
+      "Bash(curl -s \"http://localhost:3000/api/products?q=mug&limit=2\")",
+      "Bash(curl -s \"http://localhost:3000/api/products/does-not-exist\" -o /dev/null -w \"404check:%{http_code}\\\\n\")",
+      "Bash(curl -s \"http://localhost:3000/api/categories\")"
     ]
   }
 }
