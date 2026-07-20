@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shelves & Stands</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
+            vertical-align: middle
+        }
+        body {
+            font-family: "Inter", sans-serif
+        }
+        h1, h2, h3, .nav-item {
+            font-family: "Manrope", sans-serif
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none
+        }
+        /* Custom Checkbox Style */
+        input[type="checkbox"] {
+            appearance: none;
+            background-color: transparent;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 14px;
+            height: 14px;
+            border: 1px solid #74777c;
+            border-radius: 2px;
+            display: grid;
+            place-content: center;
+            cursor: pointer
+        }
+        input[type="checkbox"]::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #000308;
+            border-radius: 1px
+        }
+        input[type="checkbox"]:checked::before {
+            transform: scale(1)
+        }
+        /* Accordion styles */
+        details summary::-webkit-details-marker {
+            display: none
+        }
+        details[open] .arrow-icon {
+            transform: rotate(180deg)
+        }
+        /* Editorial Grain Effect */
+        .editorial-bg {
+            background-color: #f7f9ff;
+            background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuDhnFJt8MYgJ47FKf6Xv9btYysJpoh2r5wBRryFaPZngghro_jm88LEdsOCiqUtK3wGV_QWqBtTC-W8mJRkIm5RYMIcJgQkTUElEfEPkWD7_0vzJdRJwVjsGLBwAW16rtgV17yuBVnBsjf1ihkW1wGDY971ItV5nH1hALHFgPcGkFPgzmrjmOIzB9-fiomGQiBbX9pOT58Ng5HLNYUhRnQp9Nu3MU0rBIiZokFdhJjjH7K6DUWcWBwM0xGeKvXUEtMpNygEFxzaP7g)
+        }
+        .glass-nav {
+            background: rgba(247, 249, 255, 0.7);
+            backdrop-filter: blur(20px);
+        }
+        .dark-glass-dropdown {
+            background: rgba(247, 249, 255, 1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 3, 8, 0.1);
+            border-radius: 1rem;
+        }
+        .dark .dark-glass-dropdown {
+            background: rgba(255, 255, 255, 1);
+        }
+        .dark .dark-glass-dropdown a {
+            color: #111d27 !important;
+        }
+        .dark .dark-glass-dropdown a:hover {
+            color: #825335 !important;
+        }
+        /* Dropdown Trigger Logic */
+        .dropdown-trigger:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        /* Loading Screen Styles */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(247, 249, 255, 0.98);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        .dark #loading-screen {
+            background: rgba(10, 15, 20, 0.98);
+        }
+        .loading-dots {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .loading-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #000308 0%, #825335 100%);
+            animation: bounce 0.6s infinite alternate;
+        }
+        .dark .loading-dot {
+            background: linear-gradient(135deg, #ffffff 0%, #d8e4f3 100%);
+        }
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes bounce {
+            from {
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+            to {
+                transform: translateY(-20px);
+                opacity: 1;
+            }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error": "#ffffff",
+                      "primary-fixed": "#d8e4f3",
+                      "primary-container": "#131e29",
+                      "surface-variant": "#d8e4f3",
+                      "on-tertiary": "#ffffff",
+                      "on-surface": "#111d27",
+                      "surface-tint": "#545f6c",
+                      "background": "#f7f9ff",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-on-surface": "#e8f1ff",
+                      "error": "#ba1a1a",
+                      "secondary-fixed-dim": "#f7b994",
+                      "on-error-container": "#93000a",
+                      "surface-container": "#e4efff",
+                      "tertiary-fixed": "#ffdbcd",
+                      "surface-container-low": "#edf4ff",
+                      "surface-container-highest": "#d8e4f3",
+                      "outline": "#74777c",
+                      "on-secondary-container": "#794b2e",
+                      "on-secondary-fixed": "#321300",
+                      "on-tertiary-fixed": "#2a170e",
+                      "on-primary-fixed-variant": "#3d4854",
+                      "inverse-surface": "#27313d",
+                      "primary-fixed-dim": "#bcc8d7",
+                      "on-tertiary-fixed-variant": "#5a4137",
+                      "primary": "#000308",
+                      "on-secondary": "#ffffff",
+                      "tertiary": "#090100",
+                      "secondary": "#825335",
+                      "outline-variant": "#c4c6cc",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed-variant": "#673c20",
+                      "on-primary-container": "#7b8694",
+                      "tertiary-fixed-dim": "#e3bfb1",
+                      "inverse-primary": "#bcc8d7",
+                      "secondary-container": "#fdbf99",
+                      "on-surface-variant": "#44474b",
+                      "on-background": "#111d27",
+                      "tertiary-container": "#2c1810",
+                      "surface": "#f7f9ff",
+                      "on-primary": "#ffffff",
+                      "surface-dim": "#d0dbea",
+                      "secondary-fixed": "#ffdbc8",
+                      "on-primary-fixed": "#111d27",
+                      "surface-bright": "#f7f9ff",
+                      "surface-container-high": "#dee9f9"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              }
+            }
+          }
+        }
+      </script>
+</head>
+<body class="bg-background text-on-surface dark:bg-[#0a0f14] dark:text-white">
+<!-- Loading Screen -->
+<div id="loading-screen">
+    <div class="loading-dots">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+    </div>
+</div>
+
+<!-- TopAppBar Section -->
+<nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 top-0">
+<div class="flex justify-between items-center w-full px-8 py-2 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-12">
+<a href="home.html" class="flex items-center gap-2 group cursor-pointer">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[4.3rem] w-auto"/>
+</a>
+<div class="hidden md:flex gap-8">
+<!-- Nav Items with Dropdowns -->
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="cleaning-tools.html">Cleaning Tools</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="home-outdoor.html">Home & Outdoor</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="kitchenware.html">Kitchenware</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="cooling.html">Cooling Appliances</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trolly.html">Trolleys & Baskets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="shelves.html">Shelves & Stands</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="checkout.html">Checkout Solutions</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="accessories.html">Accessories</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trollies.html">Trolleys & Baskets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="forklift.html">Forklifts & Pallets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="rack.html">Heavy Duty Racking</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="#">Customized<br/><span class="block text-[11px]">Packaging</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Custom Crates</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Sustainable Wrap</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Archive Systems</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="#">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Thermal Inserts</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Climate Sensors</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Cold Storage Units</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6"><button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">search</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center">
+<span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
+<span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
+<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
+</button>
+<div class="relative group" id="download-btn-container">
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
+<span class="material-symbols-outlined dark:text-slate-300" style="font-size: 30px;">download</span>
+</button>
+<!-- Premium Dropdown Menu -->
+<div class="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 z-50" id="download-popup">
+<div class="bg-[#135bec] rounded-2xl shadow-2xl overflow-hidden">
+<!-- Header -->
+<div class="px-6 py-4 border-b border-white/20" style="background-color: #135bec;">
+<h3 class="text-white font-headline font-bold text-sm uppercase tracking-wider">DOWNLOAD OUR APP</h3>
+<p class="text-white/80 text-xs mt-1 font-light">Upgrade Your Experience</p>
+</div>
+<!-- Download Options -->
+<div class="space-y-3 flex flex-col items-center bg-transparent">
+<a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
+<img src="topcar/aple.png" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+</a>
+<a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
+<img src="topcar/ggle.png" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+</a>
+</div>
+</div>
+</div>
+</div>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined dark:text-slate-300" style="font-size: 30px;">shopping_cart</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">person</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="pt-20 pb-24">
+<!-- Breadcrumbs & Editorial Header -->
+<section class="relative overflow-hidden pt-10 md:pt-12 pb-6 md:pb-8 mb-0">
+<!-- Background image with blur and dark tint -->
+<div class="absolute inset-0">
+<img src="topcar/shelf nd stand.png" alt="Background" class="w-full h-full object-cover blur-sm"/>
+<div class="absolute inset-0 bg-black/50"></div>
+</div>
+<div class="px-12 max-w-[1920px] mx-auto relative z-10">
+<nav class="flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-semibold text-white/60 mb-6">
+<a class="hover:text-white transition-colors" href="home.html">Home</a>
+<span class="opacity-30">/</span>
+<a class="hover:text-white transition-colors" href="supermarket.html">Supermarket</a>
+<span class="opacity-30">/</span>
+<span class="text-white border-b border-white/20 pb-0.5">Shelves & Stands</span>
+</nav>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+<div class="lg:col-span-12">
+<span class="block text-[11px] font-bold tracking-[0.4em] uppercase text-white/80 mb-4">Display & Storage Solutions</span>
+<h1 class="text-7xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-white font-['Manrope'] leading-[0.9]">
+                        Shelves<span class="text-white/60"></span>
+                        <span class="text-white">& Stands</span>
+</h1>
+</div>
+
+</div>
+</section>
+<!-- Refined Filter & Sort Bar (Horizontal & Thin) - Center Category Links -->
+<section id="filter-bar" class="sticky top-[80px] z-40 px-12 py-4 bg-black dark:bg-white backdrop-blur-md max-w-[1920px] mx-auto border-y border-outline-variant/10 dark:border-white/10 transition-opacity duration-300">
+<div class="flex justify-center">
+<!-- Centralized Category Links -->
+<div class="flex items-center gap-8 overflow-x-auto hide-scrollbar whitespace-nowrap">
+<button class="category-btn text-[11px] font-bold tracking-[0.2em] uppercase text-white dark:text-black border-b-2 border-white dark:border-black pb-1">All</button>
+<a href="#" class="text-[11px] font-bold tracking-[0.2em] uppercase text-white/60 dark:text-black/60 hover:text-white dark:hover:text-black transition-colors pb-1 border-b-2 border-transparent hover:border-white dark:hover:border-black">Shelves</a>
+<a href="#" class="text-[11px] font-bold tracking-[0.2em] uppercase text-white/60 dark:text-black/60 hover:text-white dark:hover:text-black transition-colors pb-1 border-b-2 border-transparent hover:border-white dark:hover:border-black">Stands</a>
+</div>
+</div>
+</section>
+<div class="flex flex-col lg:flex-row gap-0 px-12 mt-16 max-w-[1920px] mx-auto">
+<!-- Sidebar Filter Panel -->
+<aside class="w-full lg:w-56 flex-shrink-0 lg:pr-12 mb-12 lg:mb-0 lg:sticky lg:top-[160px] lg:h-[calc(100vh-200px)] lg:overflow-y-auto hide-scrollbar">
+<div class="space-y-6">
+<div>
+<h2 class="text-[12px] font-bold tracking-[0.25em] uppercase text-primary dark:text-white mb-8 pb-4 border-b border-outline-variant/20 dark:border-white/20 text-center">FILTER By</h2>
+<div class="space-y-4">
+<!-- Sorting Accordion -->
+<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
+<summary class="flex items-center justify-between cursor-pointer list-none">
+<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Sort By</h3>
+<span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="pt-6 space-y-3">
+<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
+<input class="rounded-sm flex-shrink-0 filter-radio" name="sorting" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Price: Low to High</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
+<input class="rounded-sm flex-shrink-0 filter-radio" name="sorting" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Price: High to Low</span>
+</label>
+</div>
+</details>
+<!-- Price Filter Accordion -->
+<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
+<summary class="flex items-center justify-between cursor-pointer list-none">
+<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Price (KWD)</h3>
+<span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="pt-6 space-y-6">
+<div class="space-y-3">
+<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
+<input class="rounded-sm flex-shrink-0 filter-checkbox" name="price-range" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">0-50 KWD</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
+<input class="rounded-sm flex-shrink-0 filter-checkbox" name="price-range" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">50-100 KWD</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
+<input class="rounded-sm flex-shrink-0 filter-checkbox" name="price-range" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">100-200 KWD</span>
+</label>
+</div>
+<div class="pt-2">
+<div class="flex gap-2 items-center mb-4">
+<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-min" placeholder="Min" type="text"/>
+<span class="text-outline-variant dark:text-white/40">-</span>
+<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-max" placeholder="Max" type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2 border border-outline-variant/30 dark:border-white/20 text-[9px] uppercase tracking-widest font-bold text-on-surface-variant dark:text-white/70 hover:border-primary dark:hover:border-white hover:text-primary dark:hover:text-white transition-all" id="clear-price">Clear</button>
+<button class="flex-1 py-2 bg-primary text-on-primary text-[9px] uppercase tracking-widest font-bold" id="apply-price">Apply</button>
+</div>
+</div>
+</div>
+</details>
+<!-- Material Filter Accordion -->
+<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
+<summary class="flex items-center justify-between cursor-pointer list-none">
+<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Material</h3>
+<span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="pt-6 space-y-6">
+<div class="relative">
+<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white pl-8 pr-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Search Material..." type="text"/>
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline dark:text-white/70 text-sm" data-icon="search">search</span>
+</div>
+<div class="space-y-3">
+<label class="flex items-center justify-between group/label cursor-pointer pl-1">
+<div class="flex items-center gap-3">
+<input class="rounded-sm flex-shrink-0 filter-checkbox" name="material" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Steel</span>
+</div>
+<span class="text-[10px] text-outline dark:text-white/70 opacity-60"></span>
+</label>
+<label class="flex items-center justify-between group/label cursor-pointer pl-1">
+<div class="flex items-center gap-3">
+<input class="rounded-sm flex-shrink-0 filter-checkbox" name="material" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Wood</span>
+</div>
+<span class="text-[10px] text-outline dark:text-white/70 opacity-60"></span>
+</label>
+<label class="flex items-center justify-between group/label cursor-pointer pl-1">
+<div class="flex items-center gap-3">
+<input class="rounded-sm flex-shrink-0 filter-checkbox" name="material" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Wire Mesh</span>
+</div>
+<span class="text-[10px] text-outline dark:text-white/70 opacity-60"></span>
+</label>
+</div>
+</div>
+</details>
+</div>
+</div>
+</aside>
+<!-- Product Grid Area -->
+<section class="flex-grow">
+<!-- Active Filters Display -->
+<div id="active-filters" class="hidden mb-8 pb-6 border-b border-outline-variant/20 dark:border-white/20">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-[11px] font-bold tracking-[0.2em] uppercase text-primary dark:text-white">Filtered By</h3>
+<button id="clear-all-filters" class="text-[10px] font-bold tracking-[0.15em] uppercase text-secondary hover:text-primary dark:hover:text-white transition-colors">Clear All</button>
+</div>
+<div id="filter-tags" class="flex flex-wrap gap-3">
+<!-- Filter tags will be dynamically added here -->
+</div>
+</div>
+<div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-8 gap-y-16">
+<!-- Products will be dynamically rendered here -->
+</div>
+</section>
+</div>
+</section>
+<!-- Pagination - Centered on full screen -->
+<div id="pagination-section" class="mt-12 flex justify-center max-w-[1920px] mx-auto">
+<div class="flex items-center gap-2 px-6 py-4">
+<button id="prev-page" class="flex items-center justify-center w-10 h-10 border border-outline-variant/30 dark:border-white/20 text-outline dark:text-white/70 hover:border-primary dark:hover:border-white hover:text-primary dark:hover:text-white transition-all rounded-sm disabled:opacity-30 disabled:cursor-not-allowed" disabled>
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<div id="page-numbers" class="flex items-center gap-1">
+<!-- Page numbers will be dynamically generated -->
+</div>
+<button id="next-page" class="flex items-center justify-center w-10 h-10 border border-outline-variant/30 dark:border-white/20 text-outline dark:text-white/70 hover:border-primary dark:hover:border-white hover:text-primary dark:hover:text-white transition-all rounded-sm">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
+<!-- Column 1 -->
+<div class="col-span-1">
+<a href="index.html" class="flex items-center gap-2 mb-6">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto">
+</a>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
+</div>
+<!-- Column 2 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Houseware Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Customized Packaging</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Cold Rooms</a></li>
+</ul>
+</div>
+<!-- Column 3 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">General Information</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Help</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Terms & Conditions</a></li>
+</ul>
+</div>
+<!-- Column 4 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Customer Service</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Return and refund policy</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Shipping & delivery</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Privacy and security</a></li>
+</ul>
+</div>
+<!-- Column 5 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact Us</h4>
+<ul class="space-y-4 text-sm">
+<li class="flex items-start gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">location_on</span>
+<span>Shuwaikh Industrial Area, Kuwait</span>
+</li>
+<li class="flex items-center gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">mail</span>
+<span>info@al-nassim.com</span>
+</li>
+<li class="flex items-center gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">call</span>
+<span>+965 609 000 59</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-xs text-slate-500">© 2026 AL-Nassim Golden Group. All rights reserved.</p>
+<div class="flex items-center gap-6">
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.facebook.com/Al.Nassim.Central.Market/" target="_blank" rel="noopener noreferrer"><img src="topcar/Facebook_icon.png" alt="Facebook" class="w-6 h-6 object-contain"/></a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==" target="_blank" rel="noopener noreferrer"><img src="topcar/Instagram_icon.png" alt="Instagram" class="w-6 h-6 object-contain"/></a>
+</div>
+</div>
+</div>
+</footer>
+
+<script>
+// Hide loading screen after page loads
+window.addEventListener('load', function() {
+    setTimeout(() => {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 500);
+        }
+    }, 1000);
+});
+
+// Theme toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    
+    // Check for saved user preference, if any, on load
+    if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+    } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+    }
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', function() {
+            // if set via local storage previously
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.classList.add('light');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            // if NOT set via local storage previously
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.classList.add('light');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
+    }
+});
+
+    // Product data for shelves and stands
+    const allProducts = [
+        { name: "Retail Display Shelf YD1006", price: 450.000, img: "topcar/shelfYD1006.png", description: "Multi-tier retail display shelving unit", category: "Shelf", material: "Steel", slug: "display-shelf-yd1006" },
+        { name: "Supermarket Stand SY225", price: 320.000, img: "topcar/standSY225.png", description: "Adjustable height display stand", category: "Stand", material: "Metal", slug: "display-stand-sy225" },
+        { name: "Galvanized Steel Shelf", price: 280.000, img: "topcar/galvanized.png", description: "Heavy-duty galvanized storage shelf", category: "Shelf", material: "Galvanized Steel", slug: "galvanized-steel-shelf" },
+        { name: "Wooden Display Stand", price: 380.000, img: "topcar/wooden.png", description: "Premium wooden display stand for retail", category: "Stand", material: "Wood", slug: "wooden-display-stand" },
+        { name: "Hook Display Rack", price: 150.000, img: "topcar/hook.png", description: "Wall-mounted hook display system", category: "Rack", material: "Steel", slug: "hook-display-rack" },
+        { name: "Basket Display Stand", price: 220.000, img: "topcar/basket SY115.png", description: "Wire basket display stand for produce", category: "Stand", material: "Wire Mesh", slug: "basket-display-stand" }
+    ];
+
+    // Function to render products
+    function renderProducts(productsToRender) {
+        const productGrid = document.getElementById('product-grid');
+        
+        if (productsToRender.length === 0) {
+            productGrid.innerHTML = `
+                <div class="col-span-full text-center py-20">
+                    <p class="text-lg text-on-surface-variant dark:text-white/70">No products found matching your filters.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        productGrid.innerHTML = productsToRender.map((p, i) => `
+            <article class="group relative flex flex-col" data-slug="${p.slug || ''}">
+                <div class="aspect-[16/10] bg-surface-container-low dark:bg-[#1a1f2e] overflow-hidden transition-all duration-500 ease-out group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)]">
+                    <img src="${p.img}" 
+                         alt="${p.name}" 
+                         class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">
+                </div>
+                <div class="mt-6 flex flex-col gap-2">
+                    <h3 class="text-sm font-semibold tracking-tight text-primary dark:text-white uppercase font-headline leading-tight break-words">${p.name}</h3>
+                    <span class="text-[10px] text-on-surface-variant dark:text-white/70 font-medium tracking-wide">${p.description}</span>
+                    <span class="text-sm font-medium text-secondary dark:text-white mt-1">${p.price.toFixed(3)} KD</span>
+                </div>
+            </article>
+        `).join('');
+    }
+
+    // Function to apply filters and sorting
+    function applyFiltersAndSort() {
+        let filteredProducts = [...allProducts];
+        
+        // Get sort options
+        const sortCheckboxes = document.querySelectorAll('.filter-radio[name="sorting"]');
+        const sortLowToHighChecked = sortCheckboxes[0]?.checked;
+        const sortHighToLowChecked = sortCheckboxes[1]?.checked;
+        
+        // Apply sorting
+        if (sortLowToHighChecked) {
+            filteredProducts.sort((a, b) => a.price - b.price);
+        } else if (sortHighToLowChecked) {
+            filteredProducts.sort((a, b) => b.price - a.price);
+        }
+        
+        // Get price range filters
+        const priceCheckboxes = document.querySelectorAll('.filter-checkbox[name="price-range"]:checked');
+        const priceMin = document.getElementById('price-min').value.trim();
+        const priceMax = document.getElementById('price-max').value.trim();
+        
+        if (priceMin || priceMax) {
+            // Custom min/max range
+            const min = priceMin ? parseFloat(priceMin) : 0;
+            const max = priceMax ? parseFloat(priceMax) : Infinity;
+            filteredProducts = filteredProducts.filter(p => p.price >= min && p.price <= max);
+        } else if (priceCheckboxes.length > 0) {
+            // Preset price ranges
+            const priceRanges = [];
+            priceCheckboxes.forEach(checkbox => {
+                const labelText = checkbox.closest('label').querySelector('span').textContent;
+                if (labelText.includes('0-50')) priceRanges.push({ min: 0, max: 50 });
+                if (labelText.includes('50-100')) priceRanges.push({ min: 50, max: 100 });
+                if (labelText.includes('100-200')) priceRanges.push({ min: 100, max: 200 });
+            });
+            
+            // Filter products that match ANY of the selected ranges
+            filteredProducts = filteredProducts.filter(p => 
+                priceRanges.some(range => p.price >= range.min && p.price < range.max)
+            );
+        }
+        
+        // Store filtered products globally for pagination
+        window.currentFilteredProducts = filteredProducts;
+        
+        // Calculate total pages based on filtered products
+        const totalProducts = filteredProducts.length;
+        const calculatedTotalPages = Math.ceil(totalProducts / itemsPerPage);
+        
+        // Update totalPages and reset currentPage if necessary
+        if (currentPage > calculatedTotalPages) {
+            currentPage = 1;
+        }
+        
+        // Apply pagination and render
+        updatePagination();
+        renderCurrentPage();
+    }
+
+    // Pagination functionality
+        const totalPages = 5; // Total number of pages
+        let currentPage = 1;
+        const pagesToShow = 3; // Show 3 page numbers at a time
+        const itemsPerPage = 20; // 20 products per page (4 cols x 5 rows)
+        
+        function updatePagination() {
+            const pageNumbersContainer = document.getElementById('page-numbers');
+            const prevButton = document.getElementById('prev-page');
+            const nextButton = document.getElementById('next-page');
+            
+            // Get current filtered products and calculate total pages
+            const filteredProducts = window.currentFilteredProducts || allProducts;
+            const totalProducts = filteredProducts.length;
+            const calculatedTotalPages = Math.ceil(totalProducts / itemsPerPage);
+            
+            // Always show pagination controls
+            prevButton.style.display = 'flex';
+            nextButton.style.display = 'flex';
+            
+            // Clear existing page numbers
+            pageNumbersContainer.innerHTML = '';
+            
+            // Calculate start and end page numbers
+            let startPage = Math.max(1, currentPage - 1);
+            let endPage = Math.min(calculatedTotalPages, startPage + pagesToShow - 1);
+            
+            // Adjust if we're near the end
+            if (endPage - startPage < pagesToShow - 1) {
+                startPage = Math.max(1, endPage - pagesToShow + 1);
+            }
+            
+            // Add page numbers
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `flex items-center justify-center w-10 h-10 border transition-all rounded-sm ${
+                    i === currentPage 
+                        ? 'border-primary dark:border-white text-primary dark:text-white' 
+                        : 'border-outline-variant/30 dark:border-white/20 text-outline dark:text-white/70 hover:border-primary dark:hover:border-white hover:text-primary dark:hover:text-white'
+                }`;
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', function() {
+                    currentPage = i;
+                    updatePagination();
+                    renderCurrentPage();
+                });
+                pageNumbersContainer.appendChild(pageBtn);
+            }
+            
+            // Update prev/next button states
+            prevButton.disabled = currentPage === 1;
+            nextButton.disabled = currentPage === calculatedTotalPages;
+        }
+        
+        // Function to render current page of filtered products
+        function renderCurrentPage() {
+            const filteredProducts = window.currentFilteredProducts || allProducts;
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+            
+            renderProducts(paginatedProducts);
+        }
+
+        // Event listeners for prev/next buttons
+        document.getElementById('prev-page').addEventListener('click', function() {
+            const filteredProducts = window.currentFilteredProducts || allProducts;
+            const calculatedTotalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+            
+            if (currentPage > 1) {
+                currentPage--;
+                updatePagination();
+                renderCurrentPage();
+            }
+        });
+        
+        document.getElementById('next-page').addEventListener('click', function() {
+            const filteredProducts = window.currentFilteredProducts || allProducts;
+            const calculatedTotalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+            
+            if (currentPage < calculatedTotalPages) {
+                currentPage++;
+                updatePagination();
+                renderCurrentPage();
+            }
+        });
+        
+        // Initialize pagination
+        updatePagination();
+
+    // Hide loading screen after page loads
+    window.addEventListener('load', function() {
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 500);
+            }
+            
+            // Initial render of all products
+            applyFiltersAndSort();
+        }, 1000);
+    });
+
+    // Highlight active navigation item based on current page
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    const navLinks = document.querySelectorAll('.dropdown-trigger > a');
+    
+    // Define page categories
+    const supermarketPages = ['supermarket.html', 'cooling.html', 'trolly.html', 'shelves.html', 'checkout.html', 'accessories.html'];
+    const housewarePages = ['houseware.html', 'cleaning-tools.html', 'home-outdoor.html', 'kitchenware.html'];
+    const warehousePages = ['warehouse.html', 'trollies.html', 'forklift.html', 'rack.html'];
+    
+    let activeCategory = null;
+    
+    if (supermarketPages.includes(currentPath)) {
+        activeCategory = 'supermarket';
+    } else if (housewarePages.includes(currentPath)) {
+        activeCategory = 'houseware';
+    } else if (warehousePages.includes(currentPath)) {
+        activeCategory = 'warehouse';
+    }
+    
+    // Apply active styling to the correct nav item
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (activeCategory === 'supermarket' && href === 'supermarket.html') {
+            link.classList.remove('text-on-background', 'dark:text-white');
+            link.classList.add('text-secondary', 'dark:text-secondary');
+        } else if (activeCategory === 'houseware' && href === 'houseware.html') {
+            link.classList.remove('text-on-background', 'dark:text-white');
+            link.classList.add('text-secondary', 'dark:text-secondary');
+        } else if (activeCategory === 'warehouse' && href === 'warehouse.html') {
+            link.classList.remove('text-on-background', 'dark:text-white');
+            link.classList.add('text-secondary', 'dark:text-secondary');
+        }
+    });
+
+    // Filter bar visibility based on scroll position
+    const filterBar = document.getElementById('filter-bar');
+    const paginationSection = document.getElementById('pagination-section');
+
+    window.addEventListener('scroll', function() {
+        if (!filterBar || !paginationSection) return;
+
+        const paginationRect = paginationSection.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+
+        // Check if pagination section is out of view (scrolled past)
+        if (paginationRect.bottom < windowHeight) {
+            // Scrolled past pagination - hide filter bar
+            filterBar.style.opacity = '0';
+            filterBar.style.pointerEvents = 'none';
+        } else {
+            // Pagination section is in view - show filter bar
+            filterBar.style.opacity = '1';
+            filterBar.style.pointerEvents = 'auto';
+        }
+    });
+</script>
+<!-- WhatsApp Chat Button -->
+<a aria-label="Chat on WhatsApp" class="fixed bottom-6 right-6 z-[100] flex items-center justify-center w-14 h-14 text-white rounded-full hover:scale-110 transition-all duration-300 md:w-16 md:h-16 group" href="https://wa.me/96560900059" rel="noopener noreferrer" target="_blank">
+<img src="topcar/whatsapp.png" alt="Chat on WhatsApp" class="w-full h-full object-contain"/>
+</a>
+<script src="assets/js/dark-overrides.js"></script>
+<script src="assets/js/cart-nav.js"></script>
+<script src="assets/js/product-nav.js"></script>
+<script src="assets/js/account.js"></script>
+</body></html>

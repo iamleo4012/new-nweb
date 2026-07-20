@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout | AL-NASSIM</title>
+<script>(function(){try{var t=localStorage.getItem('color-theme');var d=t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;r.classList.toggle('dark',d);r.classList.toggle('light',!d);}catch(e){}})();</script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="assets/js/tailwind-config.js"></script>
+<style>
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;}
+.glass-nav{background:rgba(247,249,255,0.7);backdrop-filter:blur(20px);}
+.dark .glass-nav{background:rgba(10,15,20,0.9);}
+.dark-glass-dropdown{background:rgba(247,249,255,0.96);backdrop-filter:blur(20px);border:1px solid rgba(0,3,8,0.1);border-radius:1rem;}
+.dark .dark-glass-dropdown{background:rgba(255,255,255,0.98);}
+.dark .dark-glass-dropdown a{color:#111d27!important;}
+.dark .dark-glass-dropdown a:hover{color:#825335!important;}
+.dropdown-trigger:hover .dropdown-menu{opacity:1;visibility:visible;transform:translateY(0);}
+.dropdown-menu{opacity:0;visibility:hidden;transform:translateY(10px);transition:all 0.3s ease;}
+</style>
+</head>
+<body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
+<!-- Shared Header -->
+<nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
+<div class="flex justify-between items-center w-full px-8 py-2 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-12">
+<a href="home.html" class="flex items-center gap-2"><img src="LOGO.png" alt="AL-Nassim Logo" class="h-[4.3rem] w-auto"/></a>
+<div class="hidden md:flex gap-8">
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="cleaning-tools.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="kitchenware.html">Kitchenware</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="cooling.html">Cooling Appliances</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="trolly.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="shelves.html">Shelves &amp; Stands</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="checkout.html">Checkout Solutions</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="accessories.html">Accessories</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="trollies.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="forklift.html">Forklifts &amp; Pallets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="rack.html">Heavy Duty Racking</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="#">Customized<br/><span class="block text-[11px]">Packaging</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="#">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">search</span></button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center"><span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span><span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span><span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span></button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span></button>
+<a href="cart.html" class="hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center gap-1 text-secondary border-b-2 border-secondary pb-1"><span class="material-symbols-outlined dark:text-white" style="font-size:30px;">shopping_cart</span><span class="text-[10px] font-black" id="header-cart-count">00</span></a>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="account-btn"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">person</span></button>
+</div>
+</div>
+</nav>
+
+<main class="pt-32 pb-20 px-6 max-w-7xl mx-auto min-h-screen">
+<h1 class="font-headline text-4xl font-extrabold tracking-tight text-primary dark:text-white mb-8">Checkout</h1>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left: Form -->
+<div class="lg:col-span-2">
+<form id="checkout-form" class="space-y-6">
+<div class="bg-surface-container-lowest dark:bg-surface-container p-6 rounded-xl space-y-4">
+<h2 class="font-headline text-lg font-bold text-primary dark:text-white mb-2">Delivery Information</h2>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Full Name *</label><input id="cust-name" type="text" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Your full name"/></div>
+<div class="grid grid-cols-2 gap-4">
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Phone Number *</label><input id="cust-phone" type="tel" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="+965 6000 0000"/></div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Email (optional)</label><input id="cust-email" type="email" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="you@example.com"/></div>
+</div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Delivery Address *</label><textarea id="cust-address" required rows="3" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Street, building, apartment, area"></textarea></div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">City / Area</label><input id="cust-city" type="text" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="e.g. Shuwaikh"/></div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Order Notes (optional)</label><textarea id="cust-notes" rows="2" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Any special instructions"></textarea></div>
+</div>
+<button type="submit" id="place-order-btn" class="w-full bg-primary text-on-primary py-5 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Place Order</button>
+</form>
+</div>
+<!-- Right: Summary -->
+<div class="lg:col-span-1">
+<div class="sticky top-28 bg-surface-container-high dark:bg-surface-container border border-outline-variant/30 p-6 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.03)]">
+<h2 class="font-headline text-xl font-bold text-primary dark:text-white mb-4 border-b border-outline-variant/30 pb-4">Order Summary</h2>
+<div id="checkout-summary"></div>
+</div>
+</div>
+</div>
+</main>
+
+<!-- Shared Footer -->
+<footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
+<div class="col-span-1"><a href="home.html" class="flex items-center gap-2 mb-6"><img src="LOGO.png" alt="Logo" class="h-[3.9rem] w-auto"></a><p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in Kuwait.</p></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary" href="houseware.html">Houseware</a></li><li><a class="text-slate-400 hover:text-primary" href="supermarket.html">Supermarket</a></li><li><a class="text-slate-400 hover:text-primary" href="warehouse.html">Warehouse</a></li></ul></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Information</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary" href="#">Help</a></li><li><a class="text-slate-400 hover:text-primary" href="#">About</a></li><li><a class="text-slate-400 hover:text-primary" href="#">FAQ</a></li></ul></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Customer Service</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary" href="#">Returns</a></li><li><a class="text-slate-400 hover:text-primary" href="#">Shipping</a></li><li><a class="text-slate-400 hover:text-primary" href="#">Privacy</a></li></ul></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact</h4><p class="text-sm text-slate-400">Shuwaikh Industrial Area, Kuwait</p><p class="text-sm text-slate-400">info@al-nassim.com</p><p class="text-sm text-slate-400">+965 609 000 59</p></div>
+</div>
+<div class="border-t border-white/10 pt-8 text-center"><p class="text-xs text-slate-500">© 2026 AL-Nassim Golden Group. All rights reserved.</p></div>
+</div>
+</footer>
+
+<a aria-label="WhatsApp" class="fixed bottom-6 right-6 z-[100] w-14 h-14 md:w-16 md:h-16 hover:scale-110 transition-all" href="https://wa.me/96560900059" target="_blank"><img src="topcar/whatsapp.png" alt="WhatsApp" class="w-full h-full object-contain"/></a>
+
+<script src="assets/js/dark-overrides.js"></script>
+<script src="assets/js/checkout.js"></script>
+<script src="assets/js/cart-nav.js"></script>
+<script src="assets/js/account.js"></script>
+<script>
+var t=document.getElementById('theme-toggle');if(t){t.addEventListener('click',function(){var d=document.documentElement.classList.contains('dark');document.documentElement.classList.toggle('dark',!d);document.documentElement.classList.toggle('light',d);localStorage.setItem('color-theme',!d?'dark':'light');var i=t.querySelector('.material-symbols-outlined');if(i)i.textContent=!d?'light_mode':'dark_mode';});var i=t.querySelector('.material-symbols-outlined');if(i)i.textContent=document.documentElement.classList.contains('dark')?'light_mode':'dark_mode';}
+</script>
+</body>
+</html>

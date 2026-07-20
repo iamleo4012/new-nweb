@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Supermarket Equipment</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Signate&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+              "outline": "#74777c",
+              "surface-variant": "#d8e4f3",
+              "on-tertiary-fixed": "#2a170e",
+              "on-primary-fixed": "#111d27",
+              "on-surface-variant": "#44474b",
+              "on-background": "#111d27",
+              "surface-container-low": "#edf4ff",
+              "primary-container": "#131e29",
+              "on-secondary-fixed": "#321300",
+              "surface-bright": "#f7f9ff",
+              "tertiary-fixed-dim": "#e3bfb1",
+              "surface-dim": "#d0dbea",
+              "inverse-on-surface": "#e8f1ff",
+              "on-tertiary": "#ffffff",
+              "on-surface": "#111d27",
+              "on-error-container": "#93000a",
+              "on-secondary-fixed-variant": "#673c20",
+              "primary-fixed-dim": "#bcc8d7",
+              "on-error": "#ffffff",
+              "on-primary-fixed-variant": "#3d4854",
+              "on-primary-container": "#7b8694",
+              "on-tertiary-fixed-variant": "#5a4137",
+              "inverse-surface": "#27313d",
+              "secondary": "#825335",
+              "secondary-container": "#fdbf99",
+              "outline-variant": "#c4c6cc",
+              "tertiary": "#090100",
+              "error": "#ba1a1a",
+              "secondary-fixed-dim": "#f7b994",
+              "surface-container-highest": "#d8e4f3",
+              "surface-container-high": "#dee9f9",
+              "error-container": "#ffdad6",
+              "secondary-fixed": "#ffdbc8",
+              "surface-container": "#e4efff",
+              "surface": "#f7f9ff",
+              "surface-tint": "#545f6c",
+              "background": "#f7f9ff",
+              "on-tertiary-container": "#9e7e72",
+              "primary-fixed": "#d8e4f3",
+              "on-secondary": "#ffffff",
+              "tertiary-container": "#2c1810",
+              "inverse-primary": "#bcc8d7",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-container": "#794b2e",
+              "primary": "#000308",
+              "on-primary": "#ffffff",
+              "tertiary-fixed": "#ffdbcd"
+            },
+            "fontFamily": {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"],
+              "signate": ["Signate"]
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        @keyframes fade-swap {
+            0%, 40% { opacity: 1; }
+            50%, 90% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        @keyframes fade-swap-delayed {
+            0%, 10% { opacity: 0; }
+            20%, 70% { opacity: 1; }
+            80%, 100% { opacity: 0; }
+        }
+        .fade-animate {
+            animation: fade-swap 10s ease-in-out infinite;
+        }
+        .fade-animate-delayed {
+            animation: fade-swap-delayed 10s ease-in-out infinite;
+            animation-delay: 5s;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-nav {
+            background: rgba(247, 249, 255, 0.7);
+            backdrop-filter: blur(20px);
+        }
+        .dark-glass-dropdown {
+            background: rgba(247, 249, 255, 1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 3, 8, 0.1);
+            border-radius: 1rem;
+        }
+        .dark .dark-glass-dropdown {
+            background: rgba(255, 255, 255, 1);
+        }
+        .dark .dark-glass-dropdown a {
+            color: #111d27 !important;
+        }
+        .dark .dark-glass-dropdown a:hover {
+            color: #825335 !important;
+        }
+        /* Dropdown Trigger Logic */
+        .dropdown-trigger:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        /* Improved column expansion logic */
+        .column-hover-group {
+            display: flex;
+            width: 100%;
+        }
+        .column-item {
+            flex: 1;
+            transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+            min-width: 0; /* Ensures columns can shrink below content size */
+        }
+        .column-hover-group:hover .column-item {
+            flex: 0.5; /* Shrink others when group is hovered */
+        }
+        .column-hover-group .column-item:hover {
+            flex: 2.5; /* Expand the hovered item */
+        }
+        .column-item .expanded-content {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease-in-out;
+        }
+        .column-item:hover .expanded-content {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .column-item:hover .collapsed-title {
+            opacity: 0;
+        }
+        /* Loading Screen Styles */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(247, 249, 255, 0.98);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        .dark #loading-screen {
+            background: rgba(10, 15, 20, 0.98);
+        }
+        .loading-dots {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .loading-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #000308 0%, #825335 100%);
+            animation: bounce 0.6s infinite alternate;
+        }
+        .dark .loading-dot {
+            background: linear-gradient(135deg, #ffffff 0%, #d8e4f3 100%);
+        }
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes bounce {
+            from {
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+            to {
+                transform: translateY(-20px);
+                opacity: 1;
+            }
+        }
+        /* Carousel Fade Transition */
+        .carousel-slide {
+            opacity: 0;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .carousel-slide.active {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
+<!-- Loading Screen -->
+<div id="loading-screen">
+    <div class="loading-dots">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+    </div>
+</div>
+
+<!-- Top Notification Bar -->
+<!-- TopNavBar -->
+<nav class="fixed w-full z-[80] glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
+<div class="flex justify-between items-center w-full px-8 py-2 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-12">
+<a href="home.html" class="flex items-center gap-2 group cursor-pointer">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[4.3rem] w-auto"/>
+</a>
+<div class="hidden md:flex gap-8">
+<!-- Nav Items with Dropdowns -->
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[70]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="cleaning-tools.html">Cleaning Tools</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="home-outdoor.html">Home & Outdoor</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="kitchenware.html">Kitchenware</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[70]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="cooling.html">Cooling Appliances</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trolly.html">Trolleys & Baskets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="shelves.html">Shelves & Stands</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="checkout.html">Checkout Solutions</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="accessories.html">Accessories</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[70]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trollies.html">Trolleys & Baskets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="forklift.html">Forklifts & Pallets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="rack.html">Heavy Duty Racking</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="#">Customized<br/><span class="block text-[11px]">Packaging</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[70]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Custom Crates</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Sustainable Wrap</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Archive Systems</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="#">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[70]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="cool.html">Thermal Inserts</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Climate Sensors</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Cold Storage Units</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6"><button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">search</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center">
+<span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
+<span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
+<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
+</button>
+<div class="relative group" id="download-btn-container">
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
+<span class="material-symbols-outlined dark:text-slate-300" style="font-size: 30px;">download</span>
+</button>
+<!-- Premium Dropdown Menu -->
+<div class="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 z-50" id="download-popup">
+<div class="bg-[#135bec] rounded-2xl shadow-2xl overflow-hidden">
+<!-- Header -->
+<div class="px-6 py-4 border-b border-white/20" style="background-color: #135bec;">
+<h3 class="text-white font-headline font-bold text-sm uppercase tracking-wider">DOWNLOAD OUR APP</h3>
+<p class="text-white/80 text-xs mt-1 font-light">Upgrade Your Experience</p>
+</div>
+<!-- Download Options -->
+<div class="space-y-3 flex flex-col items-center bg-transparent">
+<a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
+<img src="topcar/aple.png" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+</a>
+<a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
+<img src="topcar/ggle.png" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+</a>
+</div>
+</div>
+</div>
+</div>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined dark:text-slate-300" style="font-size: 30px;">shopping_cart</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">person</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="pt-[72px]">
+<!-- Breadcrumb Navigation (Overlapping) -->
+<section class="absolute top-[72px] left-0 right-0 z-[60] px-12 max-w-[1920px] mx-auto py-4">
+<nav class="flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-semibold text-on-surface dark:text-white/60">
+<a class="hover:text-secondary transition-colors" href="home.html">Home</a>
+<span class="opacity-30">/</span>
+<span class="text-on-surface dark:text-white border-b border-outline-variant/30 dark:border-white/20 pb-0.5">Supermarket Equipment</span>
+</nav>
+</section>
+<!-- Professional Hero Header -->
+<section class="relative pt-10 md:pt-12 pb-6 md:pb-8 flex items-center justify-center bg-white dark:bg-[#0a0f14]">
+<!-- Content -->
+<div class="relative z-10 text-center px-6">
+<!-- Main Heading -->
+<h1 class="font-headline font-extrabold text-4xl md:text-5xl tracking-tighter leading-[0.85] uppercase text-primary dark:text-white">
+                    Supermarket <span class="font-light">Equipment</span>
+                </h1>
+<!-- Subtitle -->
+<div class="flex items-center justify-center gap-3 mt-5">
+<div class="h-px w-12 bg-secondary/30 dark:bg-white/30"></div>
+<span class="font-label text-[14px] font-semibold uppercase tracking-[0.2em] text-secondary dark:text-white/80">Explore Our Collection</span>
+<div class="h-px w-12 bg-secondary/30 dark:bg-white/30"></div>
+</div>
+</div>
+</section>
+<!-- Interactive Column Showcase -->
+<section class="w-full flex flex-row overflow-hidden column-hover-group bg-white dark:bg-[#0a0f14] px-4 py-2 gap-2 h-[450px]">
+<!-- Column 1: Cooling -->
+<div class="column-item group relative h-full transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer overflow-hidden rounded-xl">
+<img class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105" data-alt="professional industrial glass door refrigerators" src="topcar/cooling appliances XG035.png"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/40 via-primary/5 to-transparent"></div>
+<div class="collapsed-title absolute bottom-0 left-0 right-0 flex items-end justify-center pb-6 pt-12 bg-gradient-to-t from-primary/80 via-primary/40 to-transparent transition-opacity duration-300">
+<h3 class="font-display font-semibold text-white text-sm uppercase tracking-[0.2em] drop-shadow-md text-center w-full">Cooling Appliances</h3>
+</div>
+<!-- Expanded Content -->
+<div class="expanded-content absolute inset-0 flex p-10 bg-gradient-to-t from-primary/60 via-transparent to-transparent">
+<div class="w-full mt-auto transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100">
+<span class="font-label text-[10px] text-secondary-container uppercase tracking-widest mb-2 block"></span>
+<h2 class="font-display text-4xl font-bold text-white mb-6">Cooling Appliances</h2>
+<a href="cooling.html" class="inline-block">
+<button class="text-white font-label text-[12px] uppercase tracking-widest px-6 py-2 rounded-full transition-all duration-300 transform hover:-translate-y-1" style="background: linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3), 0 12px 24px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: none;">
+                        Explore Collection
+</button>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 2: Trollies -->
+<div class="column-item group relative h-full transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer overflow-hidden rounded-xl">
+<img class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105" data-alt="modern ergonomic chrome shopping trolleys" src="topcar/trollies & basket.png"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/40 via-primary/5 to-transparent"></div>
+<div class="collapsed-title absolute bottom-0 left-0 right-0 flex items-end justify-center pb-6 pt-12 bg-gradient-to-t from-primary/80 via-primary/40 to-transparent transition-opacity duration-300">
+<h3 class="font-display font-semibold text-white text-sm uppercase tracking-[0.2em] drop-shadow-md text-center w-full">Trollies &amp; Baskets</h3>
+</div>
+<div class="expanded-content absolute inset-0 flex p-10 bg-gradient-to-t from-primary/60 via-transparent to-transparent">
+<div class="w-full mt-auto transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100">
+<span class="font-label text-[10px] text-secondary-container uppercase tracking-widest mb-2 block"></span>
+<h2 class="font-display text-4xl font-bold text-white mb-6">Trollies &amp; Baskets</h2>
+<a href="trolly.html" class="inline-block">
+<button class="text-white font-label text-[12px] uppercase tracking-widest px-6 py-2 rounded-full transition-all duration-300 transform hover:-translate-y-1" style="background: linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3), 0 12px 24px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: none;">
+                        Explore Collection
+</button>
+</a>
+</div>
+</div>
+</div>
+<!-- Column 3: Shelves -->
+<div class="column-item group relative h-full transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer overflow-hidden rounded-xl">
+<img class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105" data-alt="minimalist architectural shelving units" src="topcar/shelf nd stand.png"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/40 via-primary/5 to-transparent"></div>
+<div class="collapsed-title absolute bottom-0 left-0 right-0 flex items-end justify-center pb-6 pt-12 bg-gradient-to-t from-primary/80 via-primary/40 to-transparent transition-opacity duration-300">
+<h3 class="font-display font-semibold text-white text-sm uppercase tracking-[0.2em] drop-shadow-md text-center w-full">Shelves &amp; Stands</h3>
+</div>
+<div class="expanded-content absolute inset-0 flex p-10 bg-gradient-to-t from-primary/60 via-transparent to-transparent">
+<div class="w-full mt-auto transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100">
+<span class="font-label text-[10px] text-secondary-container uppercase tracking-widest mb-2 block"></span>
+<h2 class="font-display text-4xl font-bold text-white mb-6">Shelves &amp; Stands</h2>
+<a href="shelves.html" class="inline-block">
+<button class="text-white font-label text-[12px] uppercase tracking-widest px-6 py-2 rounded-full transition-all duration-300 transform hover:-translate-y-1" style="background: linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3), 0 12px 24px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: none;">
+                        Explore Collection
+</button>
+</a>
+</div>
+</div>
+</div>
+<!-- Column 4: Others -->
+<!-- Column: Checkout Counters -->
+<div class="column-item group relative h-full transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer overflow-hidden rounded-xl">
+<img class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105" data-alt="Modern minimalist supermarket checkout counter" src="topcar/checkoutSY236.png"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/40 via-primary/5 to-transparent"></div>
+<div class="collapsed-title absolute bottom-0 left-0 right-0 flex items-end justify-center pb-6 pt-12 bg-gradient-to-t from-primary/80 via-primary/40 to-transparent transition-opacity duration-300">
+<h3 class="font-display font-semibold text-white text-sm uppercase tracking-[0.2em] drop-shadow-md text-center w-full">Checkout Solutions</h3>
+</div>
+<!-- Expanded Content -->
+<div class="expanded-content absolute inset-0 flex p-10 bg-gradient-to-t from-primary/60 via-transparent to-transparent">
+<div class="w-full mt-auto transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100">
+<span class="font-label text-[10px] text-secondary-container uppercase tracking-widest mb-2 block"></span>
+<h2 class="font-display text-4xl font-bold text-white mb-6">Checkout Solutions</h2>
+<a href="checkout.html" class="inline-block">
+<button class="text-white font-label text-[12px] uppercase tracking-widest px-6 py-2 rounded-full transition-all duration-300 transform hover:-translate-y-1" style="background: linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3), 0 12px 24px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: none;">
+        Explore Collection
+</button>
+</a>
+</div>
+</div>
+</div>
+</div><div class="column-item group relative h-full transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer overflow-hidden rounded-xl">
+<img class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105" data-alt="high-precision digital weighing scale" src="topcar/wheel.png"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/40 via-primary/5 to-transparent"></div>
+<div class="collapsed-title absolute bottom-0 left-0 right-0 flex items-end justify-center pb-6 pt-12 bg-gradient-to-t from-primary/80 via-primary/40 to-transparent transition-opacity duration-300">
+<h3 class="font-display font-semibold text-white text-sm uppercase tracking-[0.2em] drop-shadow-md text-center w-full">accessories</h3>
+</div>
+<div class="expanded-content absolute inset-0 flex p-10 bg-gradient-to-t from-primary/60 via-transparent to-transparent">
+<div class="w-full mt-auto max-w-2xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100">
+<span class="font-label text-[10px] text-secondary-container uppercase tracking-widest mb-2 block"></span>
+<h2 class="font-display text-4xl font-bold text-white mb-6">Accessories</h2>
+<a href="accessories.html" class="inline-block">
+<button class="text-white font-label text-[12px] uppercase tracking-widest px-6 py-2 rounded-full transition-all duration-300 transform hover:-translate-y-1" style="background: linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3), 0 12px 24px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: none;">
+        Explore Collection
+</button>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Premium Section Heading -->
+<section class="w-[95%] mx-auto bg-white dark:bg-[#0a0f14] px-4 pt-8 pb-6 mt-8">
+<div class="text-center">
+<div class="inline-flex items-center gap-3 mb-6">
+<div class="h-px w-20 bg-gradient-to-r from-transparent via-secondary to-transparent"></div>
+<span class="font-headline font-black text-2xl md:text-3xl uppercase tracking-[0.15em] text-primary dark:text-white">Complete Retail Solutions Under One Roof</span>
+<div class="h-px w-20 bg-gradient-to-r from-transparent via-secondary to-transparent"></div>
+</div>
+
+</div>
+</section>
+<!-- Premium Advertisement Carousel Section -->
+<section id="warehouse-ad-carousel" class="relative w-[95%] mx-auto min-h-[5.625vh] bg-white dark:bg-[#0a0f14] px-4 pb-16 flex items-center overflow-hidden rounded-3xl mt-0">
+<div class="relative w-full h-[440px] overflow-hidden rounded-3xl group shadow-2xl shadow-black/20">
+<!-- Slides Container -->
+<div class="relative h-full w-full">
+<!-- Slide 1: Advertisement 1 -->
+<div class="carousel-slide active absolute inset-0 z-10">
+<img class="absolute inset-0 w-full h-full object-cover" alt="Cooling Advertisement" src="topcar/coolingadv.png"/>
+</div>
+
+<!-- Slide 2: Advertisement 2 -->
+<div class="carousel-slide absolute inset-0 z-0">
+<img class="absolute inset-0 w-full h-full object-cover" alt="Baskets Advertisement" src="topcar/basketsdv.png"/>
+</div>
+<!-- Slide 3: Advertisement 4 -->
+<div class="carousel-slide absolute inset-0 z-0">
+<img class="absolute inset-0 w-full h-full object-cover" alt="Stand Advertisement" src="topcar/standadv.png"/>
+</div>
+
+<!-- Slide 4: Advertisement 3 -->
+<div class="carousel-slide absolute inset-0 z-0">
+<img class="absolute inset-0 w-full h-full object-cover" alt="Trolly Advertisement" src="topcar/trollyadv.png"/>
+</div>
+</div>
+<!-- Left Arrow -->
+<button class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black border-2 border-black text-white rounded-full hover:bg-white hover:text-primary transition-all duration-300 z-20" id="warehousePrevSlide">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+</button>
+<!-- Right Arrow -->
+<button class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black border-2 border-black text-white rounded-full hover:bg-white hover:text-primary transition-all duration-300 z-20" id="warehouseNextSlide">
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+<!-- Centered Controls -->
+<div class="absolute bottom-8 left-0 w-full flex flex-col items-center gap-6 z-20">
+<div class="flex gap-3">
+<div class="warehouse-carousel-dot w-2 h-2 rounded-full bg-white transition-all duration-500 cursor-pointer scale-125"></div>
+<div class="warehouse-carousel-dot w-2 h-2 rounded-full bg-white/30 transition-all duration-500 cursor-pointer"></div>
+<div class="warehouse-carousel-dot w-2 h-2 rounded-full bg-white/30 transition-all duration-500 cursor-pointer"></div>
+<div class="warehouse-carousel-dot w-2 h-2 rounded-full bg-white/30 transition-all duration-500 cursor-pointer"></div>
+</div>
+</div>
+</div>
+</section>
+<div class="mt-8"></div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
+<!-- Column 1 -->
+<div class="col-span-1">
+<a href="index.html" class="flex items-center gap-2 mb-6">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto">
+</a>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
+</div>
+<!-- Column 2 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Warehouse Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Customized Packaging</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="cool.html">Cold Rooms</a></li>
+</ul>
+</div>
+<!-- Column 3 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">General Information</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Help</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Terms & Conditions</a></li>
+</ul>
+</div>
+<!-- Column 4 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Customer Service</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Return and refund policy</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Shipping & delivery</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Privacy and security</a></li>
+</ul>
+</div>
+<!-- Column 5 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact Us</h4>
+<ul class="space-y-4 text-sm">
+<li class="flex items-start gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">location_on</span>
+<span>Shuwaikh Industrial Area, Kuwait</span>
+</li>
+<li class="flex items-center gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">mail</span>
+<span>info@al-nassim.com</span>
+</li>
+<li class="flex items-center gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">call</span>
+<span>+965 609 000 59</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-xs text-slate-500">© 2026 AL-Nassim Golden Group. All rights reserved.</p>
+<div class="flex items-center gap-6">
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.facebook.com/Al.Nassim.Central.Market/" target="_blank" rel="noopener noreferrer"><img src="topcar/Facebook_icon.png" alt="Facebook" class="w-6 h-6 object-contain"/></a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==" target="_blank" rel="noopener noreferrer"><img src="topcar/Instagram_icon.png" alt="Instagram" class="w-6 h-6 object-contain"/></a>
+</div>
+</div>
+</div>
+</footer>
+<!-- WhatsApp Chat Button -->
+<a aria-label="Chat on WhatsApp" class="fixed bottom-6 right-6 z-[100] flex items-center justify-center w-14 h-14 text-white rounded-full hover:scale-110 transition-all duration-300 md:w-16 md:h-16 group" href="https://wa.me/96560900059" rel="noopener noreferrer" target="_blank">
+<img src="topcar/whatsapp.png" alt="Chat on WhatsApp" class="w-full h-full object-contain"/>
+</a>
+<script>
+    // Hide loading screen after 1 second
+    window.addEventListener('load', function() {
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('loading-screen');
+            
+            if (loadingScreen) {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 500);
+            }
+        }, 1000);
+    });
+</script>
+<script>
+    // Dark Mode Toggle
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    
+    // Check for saved user preference, if any, on load
+    if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+    } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+    }
+
+    themeToggleBtn.addEventListener('click', function() {
+        // if set via local storage previously
+        if (localStorage.getItem('color-theme')) {
+            if (localStorage.getItem('color-theme') === 'light') {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+                localStorage.setItem('color-theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+                localStorage.setItem('color-theme', 'light');
+            }
+        // if NOT set via local storage previously
+        } else {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        }
+    });
+    // Warehouse Advertisement Carousel Logic
+    document.addEventListener('DOMContentLoaded', () => {
+        const warehouseSlides = document.querySelectorAll('#warehouse-ad-carousel .carousel-slide');
+        const warehouseDots = document.querySelectorAll('.warehouse-carousel-dot');
+        const warehousePrevBtn = document.getElementById('warehousePrevSlide');
+        const warehouseNextBtn = document.getElementById('warehouseNextSlide');
+        let currentWarehouseSlide = 0;
+
+        const updateWarehouseCarousel = (index) => {
+            warehouseSlides.forEach(s => s.classList.remove('active', 'z-10'));
+            warehouseSlides.forEach(s => s.classList.add('z-0'));
+            warehouseDots.forEach(d => d.classList.remove('bg-white', 'scale-125'));
+            warehouseDots.forEach(d => d.classList.add('bg-white/30'));
+            
+            if(warehouseSlides[index]) {
+                warehouseSlides[index].classList.add('active', 'z-10');
+                warehouseSlides[index].classList.remove('z-0');
+            }
+            if(warehouseDots[index]) {
+                warehouseDots[index].classList.add('bg-white', 'scale-125');
+                warehouseDots[index].classList.remove('bg-white/30');
+            }
+            currentWarehouseSlide = index;
+        };
+
+        const nextWarehouseSlide = () => {
+            let next = (currentWarehouseSlide + 1) % warehouseSlides.length;
+            updateWarehouseCarousel(next);
+        };
+
+        const prevWarehouseSlide = () => {
+            let prev = (currentWarehouseSlide - 1 + warehouseSlides.length) % warehouseSlides.length;
+            updateWarehouseCarousel(prev);
+        };
+
+        if(warehouseNextBtn) warehouseNextBtn.addEventListener('click', nextWarehouseSlide);
+        if(warehousePrevBtn) warehousePrevBtn.addEventListener('click', prevWarehouseSlide);
+        warehouseDots.forEach((dot, i) => dot.addEventListener('click', () => updateWarehouseCarousel(i)));
+
+        // Auto-play with hover pause functionality
+        let warehouseCarouselInterval = setInterval(nextWarehouseSlide, 4000);
+        let isWarehousePaused = false;
+        
+        // Pause on hover - attach directly to the section element
+        const warehouseCarouselSection = document.getElementById('warehouse-ad-carousel');
+        if (warehouseCarouselSection) {
+            warehouseCarouselSection.addEventListener('mouseenter', function() {
+                if (!isWarehousePaused) {
+                    clearInterval(warehouseCarouselInterval);
+                    isWarehousePaused = true;
+                }
+            });
+            
+            warehouseCarouselSection.addEventListener('mouseleave', function() {
+                if (isWarehousePaused) {
+                    warehouseCarouselInterval = setInterval(nextWarehouseSlide, 4000);
+                    isWarehousePaused = false;
+                }
+            });
+        }
+    });
+        </script>
+<script src="assets/js/dark-overrides.js"></script>
+<script src="assets/js/cart-nav.js"></script>
+<script src="assets/js/product-nav.js"></script>
+<script src="assets/js/account.js"></script>
+</body></html>

@@ -1,0 +1,31 @@
+
+// Featured Carousel Functionality
+let featuredCurrentSlide = 0;
+const featuredSlides = document.querySelectorAll('.carousel-slide');
+const featuredIndicators = document.querySelectorAll('.carousel-indicator');
+const featuredTotalSlides = featuredSlides.length;
+
+function updateFeaturedCarousel() {
+    featuredSlides.forEach((slide, index) => {
+        slide.style.opacity = index === featuredCurrentSlide ? '1' : '0';
+    });
+    featuredIndicators.forEach((indicator, index) => {
+        indicator.classList.toggle('bg-white', index === featuredCurrentSlide);
+        indicator.classList.toggle('bg-white/50', index !== featuredCurrentSlide);
+    });
+}
+
+function nextFeaturedSlide() {
+    featuredCurrentSlide = (featuredCurrentSlide + 1) % featuredTotalSlides;
+    updateFeaturedCarousel();
+}
+
+function prevFeaturedSlide() {
+    featuredCurrentSlide = (featuredCurrentSlide - 1 + featuredTotalSlides) % featuredTotalSlides;
+    updateFeaturedCarousel();
+}
+
+document.getElementById('carousel-next-btn').addEventListener('click', nextFeaturedSlide);
+document.getElementById('carousel-prev-btn').addEventListener('click', prevFeaturedSlide);
+setInterval(nextFeaturedSlide, 5000);
+updateFeaturedCarousel();

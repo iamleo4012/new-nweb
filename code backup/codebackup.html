@@ -1,0 +1,752 @@
+<html class="light" lang="en"><head></head><body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
+
+
+
+    <meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AL-NASSIM</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Signate&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "outline": "#74777c",
+              "surface-variant": "#d8e4f3",
+              "on-tertiary-fixed": "#2a170e",
+              "on-primary-fixed": "#111d27",
+              "on-surface-variant": "#44474b",
+              "on-background": "#111d27",
+              "surface-container-low": "#edf4ff",
+              "primary-container": "#131e29",
+              "on-secondary-fixed": "#321300",
+              "surface-bright": "#f7f9ff",
+              "tertiary-fixed-dim": "#e3bfb1",
+              "surface-dim": "#d0dbea",
+              "inverse-on-surface": "#e8f1ff",
+              "on-tertiary": "#ffffff",
+              "on-surface": "#111d27",
+              "on-error-container": "#93000a",
+              "on-secondary-fixed-variant": "#673c20",
+              "primary-fixed-dim": "#bcc8d7",
+              "on-error": "#ffffff",
+              "on-primary-fixed-variant": "#3d4854",
+              "on-primary-container": "#7b8694",
+              "on-tertiary-fixed-variant": "#5a4137",
+              "inverse-surface": "#27313d",
+              "secondary": "#825335",
+              "outline-variant": "#c4c6cc",
+              "tertiary": "#090100",
+              "error": "#ba1a1a",
+              "secondary-fixed-dim": "#f7b994",
+              "surface-container-highest": "#d8e4f3",
+              "surface-container-high": "#dee9f9",
+              "error-container": "#ffdad6",
+              "secondary-fixed": "#ffdbc8",
+              "surface-container": "#e4efff",
+              "surface": "#f7f9ff",
+              "surface-tint": "#545f6c",
+              "background": "#f7f9ff",
+              "on-tertiary-container": "#9e7e72",
+              "primary-fixed": "#d8e4f3",
+              "on-secondary": "#ffffff",
+              "tertiary-container": "#2c1810",
+              "inverse-primary": "#bcc8d7",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-container": "#794b2e",
+              "primary": "#000308",
+              "on-primary": "#ffffff",
+              "tertiary-fixed": "#ffdbcd"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"],
+              "signate": ["Signate"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-nav {
+            background: rgba(247, 249, 255, 0.7);
+            backdrop-filter: blur(20px);
+        }
+        .dark-glass-dropdown {
+            background: rgba(247, 249, 255, 0.96);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 3, 8, 0.1);
+            border-radius: 1rem;
+        }
+        .dark .dark-glass-dropdown {
+            background: rgba(255, 255, 255, 0.98);
+        }
+        .dark .dark-glass-dropdown a {
+            color: #111d27 !important;
+        }
+        .dark .dark-glass-dropdown a:hover {
+            color: #825335 !important;
+        }
+        .text-vertical {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .preserve-3d {
+            transform-style: preserve-3d;
+        }
+        .hover-3d:hover {
+            transform: rotateX(2deg) rotateY(-2deg) translateZ(20px);
+        }
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .carousel-slide {
+            opacity: 0;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .carousel-slide.active {
+            opacity: 1;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-anim {
+            animation: float 6s ease-in-out infinite;
+        }
+        /* Dropdown Trigger Logic */
+        .dropdown-trigger:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+    </style>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                threshold: 0.1
+            };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+
+            // Carousel Logic
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.carousel-dot');
+            const prevBtn = document.getElementById('prevSlide');
+            const nextBtn = document.getElementById('nextSlide');
+            let currentSlide = 0;
+
+            const updateCarousel = (index) => {
+                slides.forEach(s => s.classList.remove('active', 'z-10'));
+                slides.forEach(s => s.classList.add('z-0'));
+                dots.forEach(d => d.classList.remove('bg-primary', 'scale-125'));
+                dots.forEach(d => d.classList.add('bg-primary/30'));
+                
+                if(slides[index]) {
+                    slides[index].classList.add('active', 'z-10');
+                    slides[index].classList.remove('z-0');
+                }
+                if(dots[index]) {
+                    dots[index].classList.add('bg-primary', 'scale-125');
+                    dots[index].classList.remove('bg-primary/30');
+                }
+                currentSlide = index;
+            };
+
+            const nextSlide = () => {
+                let next = (currentSlide + 1) % slides.length;
+                updateCarousel(next);
+            };
+
+            const prevSlide = () => {
+                let prev = (currentSlide - 1 + slides.length) % slides.length;
+                updateCarousel(prev);
+            };
+
+            if(nextBtn) nextBtn.addEventListener('click', nextSlide);
+            if(prevBtn) prevBtn.addEventListener('click', prevSlide);
+            dots.forEach((dot, i) => dot.addEventListener('click', () => updateCarousel(i)));
+
+            // Auto-play with hover pause functionality
+            let carouselInterval = setInterval(nextSlide, 8000);
+            let isPaused = false;
+            
+            // Pause on hover - attach directly to the section element
+            const carouselSection = document.getElementById('featured-carousel');
+            if (carouselSection) {
+                carouselSection.addEventListener('mouseenter', function() {
+                    if (!isPaused) {
+                        clearInterval(carouselInterval);
+                        isPaused = true;
+                    }
+                });
+                
+                carouselSection.addEventListener('mouseleave', function() {
+                    if (isPaused) {
+                        carouselInterval = setInterval(nextSlide, 8000);
+                        isPaused = false;
+                    }
+                });
+            }
+        });
+    </script>
+<!-- Top Notification Bar -->
+<!-- TopNavBar -->
+<nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
+<div class="flex justify-between items-center w-full px-8 py-6 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-12">
+<a href="code.html" class="flex items-center gap-2 group cursor-pointer">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[4.3rem] w-auto"/>
+</a>
+<div class="hidden md:flex gap-8">
+<!-- Nav Items with Dropdowns -->
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300" href="#">Houseware<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full left-0 mt-4 w-64 dark-glass-dropdown p-6 z-50">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Cleaning Tools</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Cutlery</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Kitchenware</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Food Storage</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Outdoor</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300" href="#">Supermarket<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full left-0 mt-4 w-64 dark-glass-dropdown p-6 z-50">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Supermarket Equipment</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Refrigerators</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Shelving Systems</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Checkout Counters</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Shopping Trolleys</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300" href="#">Warehouse<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full left-0 mt-4 w-64 dark-glass-dropdown p-6 z-50">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Heavy Duty Trolley</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Plastic Pallets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Basket</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Heavy Duty Rack</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300" href="#">Customized<br/><span class="block text-[11px]">Packaging</span></a>
+<div class="dropdown-menu absolute top-full left-0 mt-4 w-64 dark-glass-dropdown p-6 z-50">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Custom Crates</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Sustainable Wrap</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Archive Systems</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300" href="#">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+<div class="dropdown-menu absolute top-full left-0 mt-4 w-64 dark-glass-dropdown p-6 z-50">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Thermal Inserts</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Climate Sensors</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Cold Storage Units</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6"><button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">search</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center">
+<span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
+<span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
+<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined dark:text-slate-300" style="font-size: 30px;">shopping_cart</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">person</span>
+</button>
+</div>
+</div>
+</nav>
+<main>
+<!-- Featured Carousel -->
+<section id="featured-carousel" class="relative w-full overflow-hidden bg-white dark:bg-[#0a0f14] mt-[5%] h-[500px]">
+<!-- Slides Container -->
+<div class="relative h-full w-full">
+<!-- Slide 1: Cookware -->
+
+<div class="carousel-slide active absolute inset-0 z-10">
+
+<img alt="Cookware" class="absolute inset-0 w-full h-full object-cover transition-all duration-[3s]" src="topcar/cookware.png"/>
+
+<div class="relative h-full max-w-screen-2xl mx-auto px-8 flex items-center">
+
+<div class="max-w-xl">
+
+<span class="font-label text-[10px] uppercase tracking-[0.4em] text-secondary mb-4 block"></span>
+
+<h2 class="font-headline text-6xl font-extrabold text-white tracking-tighter mb-6 leading-[1.1]">GOURMET COOKWARE.</h2>
+
+<p class="text-white/90 text-lg mb-10 font-light leading-relaxed">Designed for seamless cooking and perfect results.</p>
+
+<button class="bg-primary text-white px-12 py-5 font-label uppercase text-[10px] tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl">View Details</button>
+
+</div>
+
+</div>
+
+</div>
+<!-- Slide 2: Mopping Trolley -->
+<div class="carousel-slide absolute inset-0 z-0">
+<img alt="Mopping Trolley" class="absolute inset-0 w-full h-full object-cover transition-all duration-[3s]" src="advertisment/houseware/clean.png"/>
+<div class="absolute inset-0 bg-white/10"></div>
+<div class="relative h-full max-w-screen-2xl mx-auto px-8 flex items-center">
+<div class="max-w-xl">
+<span class="font-label text-[10px] uppercase tracking-[0.4em] text-secondary mb-4 block"></span>
+<h2 class="font-headline text-6xl font-extrabold text-primary tracking-tighter mb-6 leading-[1.1]">MOPPING<br/>TROLLEY.</h2>
+<p class="text-on-surface-variant text-lg mb-10 font-light leading-relaxed">Efficiency in every swipe. The ultimate solution for a spotless environment.</p>
+<button class="bg-primary text-white px-12 py-5 font-label uppercase text-[10px] tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl">Discover More</button>
+</div>
+</div>
+</div>
+<!-- Slide 3: Basket -->
+<div class="carousel-slide absolute inset-0 z-0">
+<img alt="Basket" class="absolute inset-0 w-full h-full object-cover transition-all duration-[3s]" src="topcar/basket.png"/>
+<div class="absolute inset-0 bg-white/10"></div>
+<div class="relative h-full max-w-screen-2xl mx-auto px-8 flex items-center">
+<div class="max-w-xl">
+<span class="font-label text-[10px] uppercase tracking-[0.4em] text-secondary mb-4 block"></span>
+<h2 class="font-headline text-6xl font-extrabold text-primary tracking-tighter mb-6 leading-[1.1]">COLLAPSIBLE BASKET.</h2>
+<p class="text-on-surface-variant text-lg mb-10 font-light leading-relaxed">Push it down to fold flat or pull it up to fill with snacks and fruit.</p>
+<button class="bg-primary text-white px-12 py-5 font-label uppercase text-[10px] tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl">View Product</button>
+</div>
+</div>
+</div>
+<!-- Slide 4: Upright Display Chiller -->
+<div class="carousel-slide absolute inset-0 z-0">
+<img alt="Upright Display Chiller" class="absolute inset-0 w-full h-full object-cover transition-all duration-[3s]" src="advertisment/supermarket/fridge.png"/>
+<div class="absolute inset-0 bg-white/10"></div>
+<div class="relative h-full max-w-screen-2xl mx-auto px-8 flex items-center">
+<div class="max-w-xl">
+<span class="font-label text-[10px] uppercase tracking-[0.4em] text-secondary mb-4 block"></span>
+<h2 class="font-headline text-6xl font-extrabold text-white tracking-tighter mb-6 leading-[1.1]">UPRIGHT<br/>FREEZER.</h2>
+<p class="text-white/90 text-lg mb-10 font-light leading-relaxed">Crystal clear cooling. Maximum visibility for your best-selling products.</p>
+<button class="bg-primary text-white px-12 py-5 font-label uppercase text-[10px] tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl">Learn More</button>
+</div>
+</div>
+</div>
+<!-- Slide 5: Junior Shopping Trolley -->
+<div class="carousel-slide absolute inset-0 z-0">
+<img alt="Junior Shopping Trolley" class="absolute inset-0 w-full h-full object-cover transition-all duration-[3s]" src="advertisment/supermarket/childrentrolly.png"/>
+<div class="absolute inset-0 bg-white/10"></div>
+<div class="relative h-full max-w-screen-2xl mx-auto px-8 flex items-center">
+<div class="max-w-xl">
+<span class="font-label text-[10px] uppercase tracking-[0.4em] text-secondary mb-4 block"></span>
+<h2 class="font-headline text-6xl font-extrabold text-primary tracking-tighter mb-6 leading-[1.1]">JUNIOR<br/>SHOPPING TROLLEY.</h2>
+<p class="text-on-surface-variant text-lg mb-10 font-light leading-relaxed">Engaging the next generation. Small-scale design for big-time family fun.</p>
+<button class="bg-primary text-white px-12 py-5 font-label uppercase text-[10px] tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl">Discover More</button>
+</div>
+</div>
+</div>
+<!-- Slide 6: Industrial Pedal Bin -->
+<div class="carousel-slide absolute inset-0 z-0">
+<img alt="Industrial Pedal Bin" class="absolute inset-0 w-full h-full object-cover transition-all duration-[3s]" src="advertisment/supermarket/trashbin.png"/>
+<div class="absolute inset-0 bg-white/10"></div>
+<div class="relative h-full max-w-screen-2xl mx-auto px-8 flex items-center">
+<div class="max-w-xl">
+<span class="font-label text-[10px] uppercase tracking-[0.4em] text-secondary mb-4 block"></span>
+<h2 class="font-headline text-6xl font-extrabold text-primary tracking-tighter mb-6 leading-[1.1]">OUTDOOR<br/>PEDAL BIN.</h2>
+<p class="text-on-surface-variant text-lg mb-10 font-light leading-relaxed">Hands-free hygiene. Rugged durability for a cleaner workspace.</p>
+<button class="bg-primary text-white px-12 py-5 font-label uppercase text-[10px] tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl">Shop Now</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Centered Controls -->
+<div class="absolute bottom-8 left-0 w-full flex flex-col items-center gap-6 z-20">
+<div class="flex gap-4">
+<button class="w-12 h-12 flex items-center justify-center border border-primary/20 text-primary rounded-full hover:bg-primary hover:text-white transition-all duration-300" id="prevSlide">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center border border-primary/20 text-primary rounded-full hover:bg-primary hover:text-white transition-all duration-300" id="nextSlide">
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="flex gap-3">
+<div class="carousel-dot w-2 h-2 rounded-full bg-primary transition-all duration-500 cursor-pointer scale-125"></div>
+<div class="carousel-dot w-2 h-2 rounded-full bg-primary/30 transition-all duration-500 cursor-pointer"></div>
+<div class="carousel-dot w-2 h-2 rounded-full bg-primary/30 transition-all duration-500 cursor-pointer"></div>
+<div class="carousel-dot w-2 h-2 rounded-full bg-primary/30 transition-all duration-500 cursor-pointer"></div>
+<div class="carousel-dot w-2 h-2 rounded-full bg-primary/30 transition-all duration-500 cursor-pointer"></div>
+<div class="carousel-dot w-2 h-2 rounded-full bg-primary/30 transition-all duration-500 cursor-pointer"></div>
+</div>
+</div>
+</section>
+<!-- Dynamic Bento-style Categories Section -->
+<section class="py-12 bg-white dark:bg-[#0a0f14] overflow-hidden">
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="mb-10 reveal-on-scroll text-center">
+<h2 class="font-headline text-4xl font-extrabold text-primary dark:text-white tracking-tighter inline-block">OUR CATEGORIES</h2>
+</div>
+<!-- Premium Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 md:grid-rows-6 gap-4 h-auto md:h-[980px] perspective-1000">
+<!-- Houseware: Tall Hero Card -->
+<div class="md:col-span-5 md:row-span-4 group relative overflow-hidden rounded-xl reveal-on-scroll transition-all duration-700">
+<div class="absolute inset-0 bg-primary z-0"></div>
+<img alt="Houseware" class="absolute inset-0 w-full h-full object-cover grayscale transition-transform duration-[2s] group-hover:scale-110 group-hover:grayscale-0" src="topcar/homeware.png"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80"></div>
+<!-- Overlays -->
+<div class="absolute inset-x-6 bottom-6 md:inset-x-12 md:bottom-12 p-10 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out flex flex-col items-start">
+<h3 class="font-headline text-4xl font-extrabold text-white tracking-tighter uppercase mb-4 leading-none">Houseware</h3>
+<p class="font-headline text-[13px] text-white/60 font-light max-w-xs mb-10 leading-relaxed uppercase tracking-[0.25em]">Simple tools to make everyday home tasks easier</p>
+<a class="flex items-center gap-4 font-headline text-[10px] text-white uppercase tracking-[0.3em] group/link" href="#">
+<span class="border-b border-white/30 pb-1 group-hover/link:border-secondary transition-all">Explore Selection</span>
+<span class="material-symbols-outlined text-sm group-hover/link:translate-x-2 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Default Static Label -->
+<div class="absolute top-12 left-12 group-hover:opacity-0 transition-opacity duration-300">
+<h4 class="font-headline text-2xl font-bold text-white tracking-widest uppercase">Houseware</h4>
+</div>
+</div>
+<!-- Supermarket: Large Wide Card -->
+<div class="md:col-span-7 md:row-span-2 group relative overflow-hidden rounded-xl reveal-on-scroll delay-150 transition-all duration-700">
+<img alt="Supermarket" class="absolute inset-0 w-full h-full object-cover grayscale transition-transform duration-[2s] group-hover:scale-110 group-hover:grayscale-0" src="topcar/supermarket.png"/>
+<div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+<div class="absolute inset-y-10 left-10 p-10 bg-black/60 backdrop-blur-md border border-white/5 rounded-lg max-w-md flex flex-col justify-center transform -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 delay-75">
+<h3 class="font-headline text-3xl font-extrabold text-white tracking-tighter uppercase mb-3">Supermarket</h3>
+<p class="text-white/50 font-headline text-[12px] tracking-[0.3em] uppercase mb-8 leading-loose">Everything needed to run a smart store</p>
+<a class="flex items-center gap-3 font-headline text-[10px] text-white uppercase tracking-[0.3em] hover:text-secondary transition-colors" href="#">
+<span>Shop Pantry</span>
+<span class="material-symbols-outlined text-sm">trending_flat</span>
+</a>
+</div>
+<div class="absolute top-10 right-10 group-hover:opacity-0 transition-opacity duration-300">
+<h4 class="font-headline text-xl font-bold text-white tracking-widest uppercase">Supermarket</h4>
+</div>
+</div>
+<!-- Warehouse: Medium Card -->
+<div class="md:col-span-3 md:row-span-2 group relative overflow-hidden rounded-xl reveal-on-scroll delay-300 transition-all duration-700">
+<img alt="Warehouse" class="absolute inset-0 w-full h-full object-cover grayscale transition-transform duration-[2s] group-hover:scale-110 group-hover:grayscale-0" src="topcar/warehouse.png"/>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+<div class="absolute inset-x-4 bottom-4 p-6 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+<h3 class="font-headline text-xl font-extrabold text-white tracking-tighter uppercase mb-2">Warehouse</h3>
+<p class="text-white/50 font-headline text-[11px] tracking-[0.4em] uppercase mb-4 leading-relaxed">Structural Logistics &amp; Heavy Storage</p>
+<a class="text-white font-headline text-[9px] uppercase tracking-[0.4em] border-b border-white/20 pb-1 w-fit hover:border-secondary transition-colors" href="#">Access</a>
+</div>
+<div class="absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-300">
+<h4 class="font-headline text-lg font-bold text-white tracking-widest uppercase">Warehouse</h4>
+</div>
+</div>
+<!-- Packaging: Medium Card -->
+<div class="md:col-span-4 md:row-span-4 group relative overflow-hidden rounded-xl reveal-on-scroll delay-450 transition-all duration-700" id="packaging-card">
+<img alt="Packaging" class="absolute inset-0 w-full h-full object-cover grayscale transition-transform duration-[2s] group-hover:scale-110 group-hover:grayscale-0" src="topcar/packaging.png"/>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+<div class="absolute inset-x-4 bottom-4 p-8 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
+<h3 class="font-headline text-2xl font-extrabold text-white tracking-tighter uppercase mb-3">Packaging</h3>
+<p class="text-white/50 font-headline text-[12px] tracking-[0.4em] uppercase mb-6 leading-relaxed">Protection &amp; Design</p>
+<a class="text-white font-headline text-[10px] uppercase tracking-[0.4em] border-b border-white/20 pb-1 w-fit hover:border-secondary transition-colors" href="#">Solutions</a>
+</div>
+<div class="absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-300">
+<h4 class="font-headline text-lg font-bold text-white tracking-widest uppercase">Packaging</h4>
+</div>
+</div>
+<!-- Cooling Rooms: Integrated Wide Card Aligned with Houseware -->
+<div class="md:col-span-8 md:row-span-2 group relative overflow-hidden rounded-xl reveal-on-scroll delay-600 transition-all duration-700" id="cooling-card">
+<img alt="Cooling Rooms" class="absolute inset-0 w-full h-full object-cover grayscale transition-transform duration-[2s] group-hover:scale-105 group-hover:grayscale-0" src="topcar/coolroom.png"/>
+<div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent"></div>
+<div class="absolute inset-0 flex items-center p-6 md:p-10">
+<div class="max-w-lg p-5 md:p-7 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl transform scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-700">
+<h3 class="font-headline text-2xl md:text-3xl font-extrabold text-white tracking-tighter uppercase mb-2 md:mb-3 leading-none">Cold Rooms</h3>
+<p class="font-headline text-[11px] md:text-[12px] text-white/50 font-light mb-5 md:mb-7 tracking-[0.2em] leading-relaxed uppercase">Thermal stability systems for high-integrity precision storage.</p>
+<a class="inline-block bg-white/10 backdrop-blur-md text-white border border-white/20 px-6 md:px-9 py-2.5 md:py-3.5 font-headline text-[7px] md:text-[8px] uppercase tracking-[0.5em] font-bold hover:bg-white hover:text-primary transition-all duration-500 rounded-sm" href="#">Systems Access</a>
+</div>
+<div class="absolute bottom-5 right-8 md:bottom-9 md:right-14 group-hover:opacity-0 transition-opacity duration-300">
+<h4 class="font-headline text-xl md:text-2xl font-bold text-white tracking-[0.5em] uppercase">Cold Rooms</h4>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+<!-- Elevate Your Outdoors Section -->
+<section class="py-20 bg-surface dark:bg-[#0a0f14]">
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="text-center reveal-on-scroll">
+<span class="font-label text-[10px] uppercase tracking-[0.4em] text-secondary mb-4 block">OUTDOOR LIVING</span>
+<h2 class="font-headline text-5xl font-extrabold text-primary dark:text-white tracking-tighter inline-block">ELEVATE YOUR OUTDOORS</h2>
+<p class="font-body text-on-surface-variant dark:text-white/70 text-lg mt-6 max-w-2xl mx-auto leading-relaxed"> For the stories told around the fire and the moments that linger.</p>
+</div>
+</div>
+</section>
+<!-- Hero Section (Ad 1: Hero Promotion) -->
+<section class="relative h-[921px] flex items-center overflow-hidden">
+<div class="absolute inset-0 z-0 scale-105 hover:scale-100 transition-transform duration-[3s] ease-out">
+<img alt="Luxury interior" class="w-full h-full object-cover" src="topcar/grillday.png"/>
+<div class="absolute inset-0 bg-primary/20"></div>
+</div>
+<div class="relative z-10 max-w-screen-2xl mx-auto px-8 w-full">
+<div class="max-w-lg p-8 reveal-on-scroll mt-[40%] mr-[10%]">
+<span class="font-label text-[0.45rem] uppercase tracking-[0.2em] text-secondary dark:text-white/70 mb-3 block">WEEKEND</span>
+<h1 class="font-headline text-[2.36rem] leading-none font-extrabold text-white mb-4 tracking-tighter">FIRE.</h1>
+<p class="font-body text-white text-sm mb-8 max-w-sm leading-relaxed">
+                        Built for outdoor moments that matter. From grilling to gathering — everything you need to cook, serve, and enjoy.
+                    </p>
+<div class="flex gap-4">
+<button class="bg-primary text-on-primary px-7 py-2.5 font-label uppercase text-xs tracking-widest rounded-sm hover:bg-secondary transition-all duration-300">Explore Collection</button>
+<button class="border border-outline-variant/30 text-white px-7 py-2.5 font-label uppercase text-xs tracking-widest rounded-sm hover:bg-surface-container-high transition-all duration-300">Outdoor Essentials</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Ad 4: Wide 'Brand Story' Ad -->
+<section class="relative h-[425px] bg-primary-container overflow-hidden group reveal-on-scroll mt-12">
+<img alt="Brand heritage" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" src="topcar/1kd.png"/>
+<div class="absolute inset-0 flex items-center justify-center pt-[20%]">
+<div class="text-center max-w-3xl px-8">
+<button class="bg-white text-primary px-12 py-4 font-label uppercase text-[10px] tracking-widest hover:bg-secondary hover:text-white transition-all duration-300">Buy Now</button>
+</div>
+</div>
+</section>
+<!-- Ad 2 & 3: Dual-banner 'Collection Spotlight' -->
+<section class="py-24 bg-surface dark:bg-[#0a0f14] perspective-1000">
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+<!-- Spot 1: Glassware -->
+<div class="relative h-[600px] overflow-hidden group preserve-3d transition-all duration-700 hover-3d reveal-on-scroll">
+<img alt="Glassware collection" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="topcar/ladle.png"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-12 left-12 right-12 text-white">
+<span class="font-label text-[10px] uppercase tracking-[0.4em] mb-4 block">KITCHEN</span>
+<h3 class="font-headline text-3xl font-extrabold tracking-tighter mb-4">ESSENTIALS.</h3>
+<p class="text-sm opacity-80 mb-8 max-w-xs font-light">Crafted with natural wood and refined design.<br/>Tools made for everyday cooking, built to feel premium.</p>
+<a class="inline-block border-b border-white pb-1 font-label text-[10px] uppercase tracking-widest hover:text-secondary hover:border-secondary transition-colors" href="#">Explore Collection</a>
+</div>
+</div>
+<!-- Spot 2: Textiles -->
+<div class="relative h-[600px] overflow-hidden group preserve-3d transition-all duration-700 hover-3d reveal-on-scroll" style="transition-delay: 200ms;">
+<img alt="Textile collection" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="topcar/heavylift.png"/>
+<div class="absolute inset-0 bg-gradient-to-t from-secondary/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-12 left-12 right-12 text-white">
+<span class="font-label text-[10px] uppercase tracking-[0.4em] mb-4 block">INDUSTRIAL</span>
+<h3 class="font-headline text-3xl font-extrabold tracking-tighter mb-4">STRENGTH.</h3>
+<p class="text-sm opacity-80 mb-8 max-w-xs font-light">Built for heavy-duty performance and long-term reliability.<br/>Engineered to support warehouses that never slow down.</p>
+<a class="inline-block border-b border-white pb-1 font-label text-[10px] uppercase tracking-widest hover:text-primary hover:border-primary transition-colors" href="#">Explore Equipment</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Seasonal Highlights Section -->
+<section class="py-32 bg-surface dark:bg-[#0a0f14]">
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="text-center mb-20">
+<span class="font-label text-xs uppercase tracking-[0.3em] text-secondary dark:text-white">THE PIZZA COLLECTION</span>
+<h2 class="font-headline text-4xl font-extrabold text-primary dark:text-white tracking-tighter mt-4">Tools made for every perfect slice.</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-16">
+<!-- Product Card 1 -->
+<div class="group">
+<div class="aspect-[4/5] bg-surface-container-lowest overflow-hidden mb-6 relative">
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="topcar/measuring1.png"/>
+<img alt="Product Hover" class="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" src="topcar/measuring2.png"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline font-bold text-primary dark:text-white text-sm uppercase">Measuring Cups</h4>
+<p class="font-body text-on-surface-variant dark:text-white/70 text-xs mt-1">Kitchen Essentials</p>
+</div>
+<span class="font-body font-medium text-sm dark:text-white">0.500 KD</span>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group md:mt-12">
+<div class="aspect-[4/5] bg-surface-container-lowest overflow-hidden mb-6 relative">
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="topcar/roll1.png"/>
+<img alt="Product Hover" class="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" src="topcar/roll2.png"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline font-bold text-primary dark:text-white text-sm uppercase">Dough Roller</h4>
+<p class="font-body text-on-surface-variant dark:text-white/70 text-xs mt-1">Baking Tools</p>
+</div>
+<span class="font-body font-medium text-sm dark:text-white">0.750 KD</span>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group">
+<div class="aspect-[4/5] bg-surface-container-lowest overflow-hidden mb-6 relative">
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="topcar/slice1.png"/>
+<img alt="Product Hover" class="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" src="topcar/slice2.png"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline font-bold text-primary dark:text-white text-sm uppercase">Pizza Slicer</h4>
+<p class="font-body text-on-surface-variant dark:text-white/70 text-xs mt-1">Cutting Tools</p>
+</div>
+<span class="font-body font-medium text-sm dark:text-white">0.250 KD</span>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group md:mt-12">
+<div class="aspect-[4/5] bg-surface-container-lowest overflow-hidden mb-6 relative">
+<img alt="Product" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="topcar/picker1.png"/>
+<img alt="Product Hover" class="w-full h-full object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" src="topcar/picker2.png"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline font-bold text-primary dark:text-white text-sm uppercase">PIZZA SERVER</h4>
+<p class="font-body text-on-surface-variant dark:text-white/70 text-xs mt-1">Serving Tools</p>
+</div>
+<span class="font-body font-medium text-sm dark:text-white">0.400 KD</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#0f172a] border-t border-white/5 mt-20 pt-16 pb-12 transition-colors">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+<!-- Column 1 -->
+<div class="col-span-1">
+<a href="index.html" class="flex items-center gap-2 mb-6">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto">
+</a>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
+</div>
+<!-- Column 2 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Products</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Projects</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Maintenance</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Career</a></li>
+</ul>
+</div>
+<!-- Column 3 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Support</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Help Center</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Shipping Policy</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Warranty Info</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Catalogue Download</a></li>
+</ul>
+</div>
+<!-- Column 4 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact Us</h4>
+<ul class="space-y-4 text-sm">
+<li class="flex items-start gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">location_on</span>
+<span>Shuwaikh Industrial Area, Kuwait</span>
+</li>
+<li class="flex items-center gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">mail</span>
+<span>info@al-nassim.com</span>
+</li>
+<li class="flex items-center gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">call</span>
+<span>+965 609 000 59</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-xs text-slate-500">© 2024 AL-Nassim Golden Group. All rights reserved.</p>
+<div class="flex items-center gap-6">
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.facebook.com/Al.Nassim.Central.Market/" target="_blank" rel="noopener noreferrer"><span class="material-symbols-outlined text-xl">facebook</span></a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==" target="_blank" rel="noopener noreferrer"><span class="material-symbols-outlined text-xl">share</span></a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined text-xl">linked_services</span></a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    
+    // Check for saved user preference, if any, on load
+    if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+    } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+    }
+
+    themeToggleBtn.addEventListener('click', function() {
+        // if set via local storage previously
+        if (localStorage.getItem('color-theme')) {
+            if (localStorage.getItem('color-theme') === 'light') {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+                localStorage.setItem('color-theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+                localStorage.setItem('color-theme', 'light');
+            }
+        // if NOT set via local storage previously
+        } else {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        }
+    });
+</script>
+</body></html>
+
+
+
+
+
+

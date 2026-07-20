@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /tmp)",
+      "Bash(cd \"/c/Users/leojo/Downloads/nassim-main \\(1\\)/nassim-main\" && find . -type f | sed 's|.*\\\\.|.|' | sort | uniq -c | sort -rn && echo \"---TOTAL FILES---\" && find . -type f | wc -l && echo \"---DIRS---\" && find . -type d | sort)",
+      "Bash(xargs ls -la)",
+      "Bash(awk '{print $5, $9, $10, $11}')",
+      "Bash(awk '/<script>/,/<\\\\/script>/' cart.html)",
+      "Bash(awk '/<script>/,/<\\\\/script>/' \"product view.html\")",
+      "Bash(awk '/<script>/,/<\\\\/script>/' wishlist.html)",
+      "Bash(npm -v)",
+      "Bash(where psql *)",
+      "Bash(sc query *)",
+      "Bash(env)",
+      "Read(//c/Users/leojo/AppData/Roaming/postgresql/**)",
+      "Bash(PGPASSWORD=__TRACKED_VAR__ psql -U postgres -h localhost -c 'select version\\(\\);' -t)",
+      "Bash(PGPASSWORD=postgres psql -U postgres -h localhost -c \"CREATE DATABASE nassim;\")",
+      "Bash(PGPASSWORD=postgres psql -U postgres -h localhost -d nassim -c \"select 1;\" -t)",
+      "Bash(PGPASSWORD=__TRACKED_VAR__ psql -U postgres -h localhost -c 'select 1;')",
+      "Bash(break)",
+      "Bash(PGPASSWORD=apple123 psql -U postgres -h localhost -d postgres -c \"select version\\(\\);\" -t)",
+      "Bash(cd \"/c/Users/leojo/Downloads/nassim-main \\(1\\)/nassim-main\" && mv *.html assets topcar categories advertisment LOGO.png carousel_js.txt public/ && ls public | head -40)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /dev/null -w \"index:%{http_code} \" \"http://localhost:3000/index.html\")",
+      "Bash(curl -s -o /dev/null -w \"root:%{http_code} \" \"http://localhost:3000/\")",
+      "Bash(curl -s -o /dev/null -w \"pv:%{http_code} \" \"http://localhost:3000/product%20view.html\")"
+    ]
+  }
+}

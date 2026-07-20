@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Arctic Precision | Industrial Cold Storage Engineering</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#004370",
+              "surface-container": "#eceef0",
+              "primary-container": "#005b96",
+              "on-secondary-fixed": "#131b2e",
+              "on-secondary-container": "#5c647a",
+              "surface": "#f7f9fb",
+              "on-surface": "#191c1e",
+              "surface-tint": "#12629d",
+              "surface-container-high": "#e6e8ea",
+              "tertiary-container": "#005f7d",
+              "surface-container-low": "#f2f4f6",
+              "primary-fixed-dim": "#9ccaff",
+              "tertiary-fixed": "#c0e8ff",
+              "secondary-fixed": "#dae2fd",
+              "on-secondary": "#ffffff",
+              "error": "#ba1a1a",
+              "surface-container-highest": "#e0e3e5",
+              "on-tertiary-container": "#89d8ff",
+              "on-secondary-fixed-variant": "#3f465c",
+              "inverse-primary": "#9ccaff",
+              "error-container": "#ffdad6",
+              "on-surface-variant": "#414750",
+              "surface-dim": "#d8dadc",
+              "on-tertiary-fixed-variant": "#004d66",
+              "primary-fixed": "#d0e4ff",
+              "on-error": "#ffffff",
+              "on-tertiary-fixed": "#001e2b",
+              "surface-variant": "#e0e3e5",
+              "outline-variant": "#c1c7d1",
+              "on-error-container": "#93000a",
+              "tertiary-fixed-dim": "#7bd1fa",
+              "secondary": "#565e74",
+              "on-tertiary": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "surface-bright": "#f7f9fb",
+              "secondary-fixed-dim": "#bec6e0",
+              "on-background": "#191c1e",
+              "on-primary-container": "#abd2ff",
+              "outline": "#717781",
+              "on-primary": "#ffffff",
+              "on-primary-fixed-variant": "#00497a",
+              "on-primary-fixed": "#001d35",
+              "secondary-container": "#dae2fd",
+              "background": "#f7f9fb",
+              "tertiary": "#00465d",
+              "inverse-surface": "#2d3133",
+              "inverse-on-surface": "#eff1f3"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-nav {
+            background: rgba(247, 249, 255, 0.7);
+            backdrop-filter: blur(20px);
+        }
+        .dark-glass-dropdown {
+            background: rgba(247, 249, 255, 0.96);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 3, 8, 0.1);
+            border-radius: 1rem;
+        }
+        .dark .dark-glass-dropdown {
+            background: rgba(255, 255, 255, 0.98);
+        }
+        .dark .dark-glass-dropdown a {
+            color: #111d27 !important;
+        }
+        .dark .dark-glass-dropdown a:hover {
+            color: #825335 !important;
+        }
+        .text-vertical {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .preserve-3d {
+            transform-style: preserve-3d;
+        }
+        .hover-3d:hover {
+            transform: rotateX(2deg) rotateY(-2deg) translateZ(20px);
+        }
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .carousel-slide {
+            opacity: 0;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .carousel-slide.active {
+            opacity: 1;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-anim {
+            animation: float 6s ease-in-out infinite;
+        }
+        /* Dropdown Trigger Logic */
+        .dropdown-trigger:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .hero-gradient-overlay {
+            background: linear-gradient(to right, rgba(0, 29, 53, 0.85) 0%, rgba(0, 29, 53, 0.4) 50%, rgba(0, 29, 53, 0.2) 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Top Notification Bar -->
+<!-- TopNavBar -->
+<nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
+<div class="flex justify-between items-center w-full px-8 py-6 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-12">
+<a href="code.html" class="flex items-center gap-2 group cursor-pointer">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[4.3rem] w-auto"/>
+</a>
+<div class="hidden md:flex gap-8">
+<!-- Nav Items with Dropdowns -->
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300" href="#">Houseware<br/><span class="block text-[11px]">Equipment</span></a>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300" href="#">Supermarket<br/><span class="block text-[11px]">Equipment</span></a>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300" href="#">Warehouse<br/><span class="block text-[11px]">Equipment</span></a>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300" href="#">Customized<br/><span class="block text-[11px]">Packaging</span></a>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300" href="#">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6"><button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined w-[26px] h-[26px]">search</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center">
+<span class="text-[13px] font-label font-bold tracking-widest">EN</span>
+<span class="mx-1 font-light text-[13px]">|</span>
+<span class="text-[13px] font-label font-bold tracking-widest hover:text-secondary transition-colors">AR</span>
+</button>
+<div class="relative group" id="download-btn-container">
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
+<span class="material-symbols-outlined" style="font-size: 30px;">download</span>
+</button>
+<!-- Premium Dropdown Menu -->
+<div class="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 z-50" id="download-popup">
+<div class="bg-[#135bec] rounded-2xl shadow-2xl overflow-hidden">
+<!-- Header -->
+<div class="px-6 py-4 border-b border-white/20" style="background-color: #135bec;">
+<h3 class="text-white font-headline font-bold text-sm uppercase tracking-wider">DOWNLOAD OUR APP</h3>
+<p class="text-white/80 text-xs mt-1 font-light">Upgrade Your Experience</p>
+</div>
+<!-- Download Options -->
+<div class="space-y-3 flex flex-col items-center bg-transparent">
+<a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
+<img src="topcar/aple.png" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+</a>
+<a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
+<img src="topcar/ggle.png" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+</a>
+</div>
+</div>
+</div>
+</div>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle">
+<span class="material-symbols-outlined w-[26px] h-[26px]">dark_mode</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined" style="font-size: 30px;">shopping_cart</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined w-[26px] h-[26px]">person</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative min-h-screen flex items-center pt-16 overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="Industrial Cold Storage" class="w-full h-full object-cover" data-alt="Modern industrial cold storage warehouse interior with high-tech shelving, metallic surfaces, and bright blue LED lighting in a vast refrigerated space" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcEa6uoQeBzTQtZ1WHvBKixO1Ygp_tzrz3VBSh5Aw3u88GCjxcMtDTIUz3jVV3V46NYvFvNQhESiquB6vZnvWWKdWEnTYS4eT3lxYy6YoI4qZ-oGGIidyDgnIGrLoeg4k4T1lk51qW0LJ749edPaVuzdWKq1M_pesyUbMjo69OxvE79AVMvZb24CKf7BJLzcHbAtNfBegaMr7ztz-1O0Ex64vTXsJaCREhgA5_OPAp9QgsroLvm1_mm2tKRJO_fmSdKv_FbCZHzUU"/>
+<div class="absolute inset-0 hero-gradient-overlay"></div>
+</div>
+<div class="container mx-auto px-8 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<!-- Left Side: Content -->
+<div class="max-w-2xl">
+<span class="inline-block py-1 px-3 mb-6 bg-tertiary-container text-on-tertiary-container text-xs font-bold tracking-widest uppercase rounded">
+                    Industrial Excellence
+                </span>
+<h1 class="font-headline text-5xl md:text-7xl font-extrabold text-white leading-tight tracking-tighter mb-8">
+                    Precision Cold Rooms <br/><span class="text-primary-fixed-dim">Built for Your Needs</span>
+</h1>
+<p class="text-xl text-slate-200 font-light leading-relaxed mb-10 max-w-xl">
+                    Reliable cold storage solutions, built with engineering excellence.
+                </p>
+</div>
+<!-- Right Side: Contact Card -->
+<div class="flex justify-center lg:justify-end">
+<div class="glass-card w-full max-w-md p-10 rounded-2xl shadow-2xl">
+<h3 class="font-headline text-2xl font-bold text-primary mb-6">Contact Us</h3>
+<div class="space-y-4 mb-8">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary">call</span>
+<span class="font-medium">+1 (800) ARCTIC-01</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary">mail</span>
+<span class="font-medium">precision@arctic-industrial.com</span>
+</div>
+</div>
+<form class="space-y-4">
+<div>
+<label class="block text-xs font-bold uppercase text-on-surface-variant mb-1 ml-1">Full Name</label>
+<input class="w-full bg-white/50 border-none rounded-xl p-4 text-on-surface placeholder:text-slate-400 focus:ring-2 focus:ring-primary focus:bg-white transition-all" placeholder="John Doe" type="text"/>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase text-on-surface-variant mb-1 ml-1">Message</label>
+<textarea class="w-full bg-white/50 border-none rounded-xl p-4 text-on-surface placeholder:text-slate-400 focus:ring-2 focus:ring-primary focus:bg-white transition-all" placeholder="Tell us about your project..." rows="3"></textarea>
+</div>
+<button class="w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary-container transition-colors shadow-lg shadow-primary/20">
+                            Send Inquiry
+                        </button>
+</form>
+</div>
+</div>
+</div>
+</header>
+<!-- Second Section: Map & Team -->
+<section class="bg-surface relative overflow-hidden py-12">
+<div class="container mx-auto px-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-3xl overflow-hidden shadow-2xl shadow-primary/5">
+<!-- Left: Map Container -->
+<div class="lg:h-auto bg-surface-container-high relative group h-[300px]">
+<iframe src="https://www.google.com/maps/embed?pb=!1m12!1m8!1m3!1d13915.182926822612!2d47.93244!3d29.317667!3m2!1i1024!2i768!4f13.1!2m1!1sAl-Nassim%20Golden%20Group%208WGH%2BR9X%2C%20Shuwaikh%20Industrial%2C%20Kuwait!5e0!3m2!1sen!2sus!4v1775028978979!5m2!1sen!2sus" width="600" height="450" style="border:0; width: 100%; height: 100%;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+<div class="absolute bottom-8 left-8 bg-white p-6 rounded-xl shadow-xl max-w-xs">
+<p class="font-headline font-bold text-primary mb-1">Global Headquarters</p>
+<p class="text-sm text-on-surface-variant leading-relaxed">Innovation District, Cold Spine Road, Reykjavik, Iceland</p>
+</div>
+</div>
+<!-- Right: Professional Team -->
+<div class="bg-surface-container-lowest p-12 lg:p-20 flex flex-col justify-center border-l border-white p-8 lg:p-12">
+<div class="max-w-lg">
+<h2 class="font-headline text-4xl font-bold text-on-surface leading-tight mb-8">
+                            We care about every project and every customer.
+                        </h2>
+<p class="text-lg text-on-surface-variant leading-relaxed mb-10 italic">
+                            "Our team ensures precision, quality, and satisfaction from start to finish. In the world of industrial cooling, a single degree matters—and so does every relationship we build."
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="w-full rounded-t-2xl mt-12 bg-slate-50 dark:bg-slate-900 border-t border-slate-200/50">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-12 max-w-screen-2xl mx-auto px-12 py-20">
+<div class="col-span-2 md:col-span-1">
+<div class="text-xl font-extrabold text-blue-900 dark:text-blue-200 mb-6">
+                    Arctic Precision
+                </div>
+<p class="font-inter text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                    © 2024 Arctic Precision Industrial. Engineering the Architectural Frost.
+                </p>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-blue-900 dark:text-blue-400 font-semibold uppercase text-xs tracking-widest mb-2">Services</h4>
+<a class="font-inter text-sm text-slate-500 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-400 transition-all" href="#">Custom Design</a>
+<a class="font-inter text-sm text-slate-500 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-400 transition-all" href="#">Rapid Deployment</a>
+<a class="font-inter text-sm text-slate-500 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-400 transition-all" href="#">Maintenance</a>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-blue-900 dark:text-blue-400 font-semibold uppercase text-xs tracking-widest mb-2">Resources</h4>
+<a class="font-inter text-sm text-slate-500 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-400 transition-all" href="#">Technical Specs</a>
+<a class="font-inter text-sm text-slate-500 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-400 transition-all" href="#">Global Logistics</a>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-blue-900 dark:text-blue-400 font-semibold uppercase text-xs tracking-widest mb-2">Company</h4>
+<a class="font-inter text-sm text-slate-500 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-400 transition-all underline decoration-blue-400 underline-offset-4" href="#">Privacy Policy</a>
+<a class="font-inter text-sm text-slate-500 dark:text-slate-400 hover:text-blue-900 dark:hover:text-blue-400 transition-all" href="#">Careers</a>
+</div>
+</div>
+</footer>
+<script src="assets/js/dark-overrides.js"></script>
+<script src="assets/js/cart-nav.js"></script>
+<script src="assets/js/product-nav.js"></script>
+<script src="assets/js/account.js"></script>
+</body></html>

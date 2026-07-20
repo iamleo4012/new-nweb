@@ -1,0 +1,116 @@
+/**
+ * AL-NASSIM Dark Mode Color Overrides
+ * ============================================================================
+ * The Tailwind CDN config defines surface/primary/etc. as fixed hex colors,
+ * so `dark:bg-surface-container` applies the SAME light color in dark mode.
+ * This stylesheet overrides those colors when `.dark` is on <html>, making
+ * all bg-surface-*, text-on-surface-*, border-outline-variant, etc. utilities
+ * flip correctly in dark mode.
+ * ============================================================================
+ */
+
+:root {
+  --color-surface: #f7f9ff;
+  --color-on-surface: #111d27;
+  --color-on-surface-variant: #44474b;
+  --color-surface-variant: #d8e4f3;
+  --color-surface-dim: #d0dbea;
+  --color-surface-bright: #f7f9ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #edf4ff;
+  --color-surface-container: #e4efff;
+  --color-surface-container-high: #dee9f9;
+  --color-surface-container-highest: #d8e4f3;
+  --color-outline: #74777c;
+  --color-outline-variant: #c4c6cc;
+  --color-primary: #000308;
+  --color-on-primary: #ffffff;
+  --color-secondary: #825335;
+  --color-on-secondary: #ffffff;
+  --color-on-background: #111d27;
+  --color-background: #f7f9ff;
+  --color-error: #ba1a1a;
+}
+
+.dark {
+  --color-surface: #0a0f14;
+  --color-on-surface: #e8f1ff;
+  --color-on-surface-variant: #bcc8d7;
+  --color-surface-variant: #27313d;
+  --color-surface-dim: #0a0f14;
+  --color-surface-bright: #27313d;
+  --color-surface-container-lowest: #11161c;
+  --color-surface-container-low: #13181f;
+  --color-surface-container: #171d25;
+  --color-surface-container-high: #1b222b;
+  --color-surface-container-highest: #202832;
+  --color-outline: #8a929c;
+  --color-outline-variant: #3a424c;
+  --color-primary: #000308;
+  --color-on-primary: #ffffff;
+  --color-secondary: #f7b994;
+  --color-on-secondary: #0a0f14;
+  --color-on-background: #e8f1ff;
+  --color-background: #0a0f14;
+  --color-error: #ffb4ab;
+}
+
+/* Override Tailwind-generated utilities in dark mode */
+.dark .bg-surface { background-color: var(--color-surface) !important; }
+.dark .bg-surface-container-lowest { background-color: var(--color-surface-container-lowest) !important; }
+.dark .bg-surface-container-low { background-color: var(--color-surface-container-low) !important; }
+.dark .bg-surface-container { background-color: var(--color-surface-container) !important; }
+.dark .bg-surface-container-high { background-color: var(--color-surface-container-high) !important; }
+.dark .bg-surface-container-highest { background-color: var(--color-surface-container-highest) !important; }
+.dark .bg-surface-dim { background-color: var(--color-surface-dim) !important; }
+.dark .bg-surface-bright { background-color: var(--color-surface-bright) !important; }
+
+.dark .text-on-surface { color: var(--color-on-surface) !important; }
+.dark .text-on-surface-variant { color: var(--color-on-surface-variant) !important; }
+.dark .text-primary { color: var(--color-on-surface) !important; }
+.dark .text-secondary { color: var(--color-secondary) !important; }
+.dark .text-on-background { color: var(--color-on-background) !important; }
+
+.dark .border-outline-variant { border-color: var(--color-outline-variant) !important; }
+.dark .border-primary { border-color: var(--color-on-surface) !important; }
+
+.dark .bg-primary { background-color: var(--color-primary) !important; }
+.dark .text-on-primary { color: var(--color-on-primary) !important; }
+.dark .bg-secondary { background-color: var(--color-secondary) !important; }
+.dark .text-on-secondary { color: var(--color-on-secondary) !important; }
+
+/* dark: prefixed utilities — override the light colors they currently resolve to */
+.dark .dark\:bg-surface-container { background-color: var(--color-surface-container) !important; }
+.dark .dark\:bg-surface-container-low { background-color: var(--color-surface-container-low) !important; }
+.dark .dark\:bg-surface-container-high { background-color: var(--color-surface-container-high) !important; }
+.dark .dark\:bg-surface-container-lowest { background-color: var(--color-surface-container-lowest) !important; }
+
+.dark body { background-color: var(--color-surface) !important; }
+.dark body.bg-surface { background-color: var(--color-surface) !important; }
+.dark .glass-nav { background-color: rgba(10, 15, 20, 0.9) !important; }
+.dark #auth-panel { background-color: var(--color-surface) !important; }
+.dark #quickview-modal-content { background-color: var(--color-surface-container-lowest) !important; }
+.dark .product-image-container.active-spotlight { background-color: var(--color-surface-container) !important; }
+
+/* Product view buttons dark mode */
+.dark .bg-surface\/80 { background-color: rgba(23, 29, 37, 0.8) !important; }
+.dark .dark\:bg-surface-container\/80 { background-color: rgba(23, 29, 37, 0.8) !important; }
+.dark .dark\:bg-surface-container-high\/90 { background-color: rgba(27, 34, 43, 0.9) !important; }
+
+/* Loading skeleton */
+.dark #product-title { color: #e8f1ff !important; }
+
+/* Fix product view buttons: override Tailwind's dark: utilities that resolve to light colors */
+.dark .bg-surface\/80,
+.dark\:bg-surface-container\/80:is(.dark *),
+.dark .dark\:bg-surface-container\/80 {
+  background-color: rgba(23, 29, 37, 0.8) !important;
+}
+.dark\:bg-surface-container-high\/90:is(.dark *),
+.dark .dark\:bg-surface-container-high\/90 {
+  background-color: rgba(27, 34, 43, 0.9) !important;
+}
+.dark\:bg-surface-container\/90:is(.dark *),
+.dark .dark\:bg-surface-container\/90 {
+  background-color: rgba(23, 29, 37, 0.9) !important;
+}
