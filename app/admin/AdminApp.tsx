@@ -1,8 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { MasterDataTab } from "@/app/admin/_components/MasterDataTab";
 
-type Tab = "dashboard" | "products" | "orders";
+type Tab = "dashboard" | "products" | "orders" | "master-data";
+
+const TAB_LABELS: Record<Tab, string> = {
+  dashboard: "dashboard",
+  products: "products",
+  orders: "orders",
+  "master-data": "Master Data",
+};
 
 interface Totals {
   orders: number;
@@ -134,13 +142,13 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
           <div className="flex items-center gap-3">
             <span className="font-bold text-lg tracking-wide">AL-NASSIM Admin</span>
             <nav className="flex gap-1 ml-6">
-              {(["dashboard", "products", "orders"] as Tab[]).map((t) => (
+              {(["dashboard", "products", "orders", "master-data"] as Tab[]).map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
                   className={`px-3 py-1.5 rounded-md text-sm capitalize ${tab === t ? "bg-white text-gray-900 font-semibold" : "text-gray-300 hover:text-white"}`}
                 >
-                  {t}
+                  {TAB_LABELS[t]}
                 </button>
               ))}
             </nav>
@@ -157,6 +165,7 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
         {tab === "dashboard" && <DashboardTab />}
         {tab === "products" && <ProductsTab />}
         {tab === "orders" && <OrdersTab />}
+        {tab === "master-data" && <MasterDataTab />}
       </main>
     </div>
   );
