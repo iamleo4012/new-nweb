@@ -436,21 +436,21 @@
 <label class="flex items-center justify-between group/label cursor-pointer pl-1">
 <div class="flex items-center gap-3">
 <input class="rounded-sm flex-shrink-0 filter-checkbox" name="type" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Refrigerators</span>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Trolleys</span>
 </div>
 <span class="text-[10px] text-outline dark:text-white/70 opacity-60"></span>
 </label>
 <label class="flex items-center justify-between group/label cursor-pointer pl-1">
 <div class="flex items-center gap-3">
 <input class="rounded-sm flex-shrink-0 filter-checkbox" name="type" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Freezers</span>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Baskets</span>
 </div>
 <span class="text-[10px] text-outline dark:text-white/70 opacity-60"></span>
 </label>
 <label class="flex items-center justify-between group/label cursor-pointer pl-1">
 <div class="flex items-center gap-3">
 <input class="rounded-sm flex-shrink-0 filter-checkbox" name="type" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Display Coolers</span>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Children Trolleys</span>
 </div>
 <span class="text-[10px] text-outline dark:text-white/70 opacity-60"></span>
 </label>
@@ -701,6 +701,21 @@ document.addEventListener('DOMContentLoaded', function() {
             );
         }
         
+        // Get type filters
+        const typeCheckboxes = document.querySelectorAll('.filter-checkbox[name="type"]:checked');
+        if (typeCheckboxes.length > 0) {
+            const selectedTypes = [];
+            typeCheckboxes.forEach(checkbox => {
+                const labelText = checkbox.closest('label').querySelector('span').textContent;
+                if (labelText.includes('Children')) selectedTypes.push('Children');
+                else if (labelText.includes('Trolley')) selectedTypes.push('Trolley');
+                if (labelText.includes('Basket')) selectedTypes.push('Basket');
+            });
+            filteredProducts = filteredProducts.filter(p =>
+                selectedTypes.some(t => t === 'Children' ? p.name.includes('Children') : p.category === t)
+            );
+        }
+
         // Store filtered products globally for pagination
         window.currentFilteredProducts = filteredProducts;
         
@@ -887,5 +902,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="assets/js/dark-overrides.js"></script>
 <script src="assets/js/cart-nav.js"></script>
 <script src="assets/js/product-nav.js"></script>
+<script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js"></script>
 </body></html>

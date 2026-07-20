@@ -701,6 +701,19 @@ document.addEventListener('DOMContentLoaded', function() {
             );
         }
         
+        // Get type filters
+        const typeCheckboxes = document.querySelectorAll('.filter-checkbox[name="type"]:checked');
+        if (typeCheckboxes.length > 0) {
+            const selectedTypes = [];
+            typeCheckboxes.forEach(checkbox => {
+                const labelText = checkbox.closest('label').querySelector('span').textContent;
+                if (labelText.includes('Refrigerator')) selectedTypes.push('Refrigerator');
+                if (labelText.includes('Freezer')) selectedTypes.push('Freezer');
+                if (labelText.includes('Cooler')) selectedTypes.push('Cooler');
+            });
+            filteredProducts = filteredProducts.filter(p => selectedTypes.includes(p.category));
+        }
+
         // Store filtered products globally for pagination
         window.currentFilteredProducts = filteredProducts;
         
@@ -902,5 +915,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="assets/js/dark-overrides.js"></script>
 <script src="assets/js/cart-nav.js"></script>
 <script src="assets/js/product-nav.js"></script>
+<script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js"></script>
 </body></html>
