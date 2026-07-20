@@ -1,8 +1,9 @@
 /**
- * AL-NASSIM Account System
+ * AL-NASSIM Account System (server-backed)
  * ============================================================================
- * Full frontend auth: slide-in panel with Sign In, Sign Up, Forgot Password,
- * Profile, and Edit Profile views. State persisted in localStorage.
+ * Slide-in auth panel: Sign In, Sign Up, Forgot Password, Profile, Edit
+ * Profile, and My Orders. Backed by the real API (/api/auth/*, /api/orders)
+ * with httpOnly JWT session cookies — no credentials stored in the browser.
  *
  * Include on every page: <script src="assets/js/account.js"></script>
  * The script auto-injects the panel HTML into the page.
@@ -11,31 +12,44 @@
 (function () {
   "use strict";
 
-  var AUTH_KEY = "nassim_auth";
+  // Remove legacy localStorage auth state (previously stored plaintext passwords).
+  try { localStorage.removeItem("nassim_auth"); } catch (e) {}
 
-  // ===== State helpers =====
-  function readState() {
-    try {
-      var raw = localStorage.getItem(AUTH_KEY);
-      if (!raw) return { users: [], currentUserId: null };
-      var parsed = JSON.parse(raw);
-      return parsed && parsed.state ? parsed.state : parsed;
-    } catch (e) {
-      return { users: [], currentUserId: null };
-    }
+  var currentUser = null;
+
+  function normalizeUser(u) {
+    if (!u) return null;
+    return {
+      id: u.id,
+      fullName: u.name || "",
+      email: u.email || "",
+      phone: u.phone || "",
+      role: u.role || "CUSTOMER",
+      isAdmin: u.role === "ADMIN" || u.role === "STAFF"
+    };
   }
-  function saveState(state) {
-    try { localStorage.setItem(AUTH_KEY, JSON.stringify({ state: state })); } catch (e) {}
+
+  function getCurrentUser() { return currentUser; }
+
+  function refreshSession() {
+    return fetch("/api/auth/me", { credentials: "same-origin" })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        currentUser = data && data.success ? normalizeUser(data.data.user) : null;
+        updateAccountButton();
+        return currentUser;
+      })
+      .catch(function () { currentUser = null; updateAccountButton(); return null; });
   }
-  function getCurrentUser() {
-    var s = readState();
-    if (!s.users || !s.currentUserId) return null;
-    for (var i = 0; i < s.users.length; i++) {
-      if (s.users[i].id === s.currentUserId) return s.users[i];
-    }
-    return null;
+
+  function apiPost(url, body) {
+    return fetch(url, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); });
   }
-  function genId() { return "u_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
   // ===== Panel HTML (injected into the page) =====
   var PANEL_HTML = '\
@@ -70,9 +84,8 @@
   <form id="signup-form" class="space-y-4" novalidate>\
     <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Full Name</label><input id="su-name" type="text" required class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Your full name"></div>\
     <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Email Address</label><input id="su-email" type="email" required class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="you@example.com"></div>\
-    <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Phone Number</label><input id="su-phone" type="tel" required class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="+965 6000 0000"></div>\
-    <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Address Line 1</label><input id="su-address" type="text" required class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Street, building, area"></div>\
-    <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Password</label><input id="su-password" type="password" required class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="At least 6 characters"></div>\
+    <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Phone Number</label><input id="su-phone" type="tel" class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="+965 6000 0000"></div>\
+    <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Password</label><input id="su-password" type="password" required class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="At least 8 characters"></div>\
     <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Confirm Password</label><input id="su-confirm" type="password" required class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Re-enter password"></div>\
     <div id="signup-error" class="hidden text-xs text-error font-bold"></div>\
     <button type="submit" id="signup-submit" class="w-full bg-primary text-on-primary py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Create Account</button>\
@@ -96,14 +109,14 @@
 
   function renderProfile(user) {
     var initial = (user.fullName || "?").charAt(0).toUpperCase();
-    var isAdmin = user.isAdmin === true || user.email === "admin@gmail.com";
+    var isAdmin = user.isAdmin === true;
     var menuItems = "";
     if (isAdmin) {
       menuItems = '\
       <a href="/admin" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">dashboard</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Go to Dashboard</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></a>\
-      <a href="/admin" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">inventory_2</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Product Management</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></a>\
-      <a href="/admin" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">category</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Department Management</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></a>\
-      <a href="/admin" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">receipt_long</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Orders Management</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></a>';
+      <a href="/admin/products" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">inventory_2</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Product Management</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></a>\
+      <a href="/admin/orders" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">receipt_long</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Orders Management</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></a>\
+      <button onclick="NassimAccount.showView(\'edit-profile\')" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">person</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Edit Profile</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></button>';
     } else {
       menuItems = '\
       <button onclick="NassimAccount.showView(\'edit-profile\')" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">person</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Edit Profile</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></button>\
@@ -116,7 +129,7 @@
     <div class="w-20 h-20 rounded-full bg-secondary text-white flex items-center justify-center font-display text-3xl font-extrabold uppercase mb-4">' + initial + '</div>\
     <h2 class="font-display text-2xl font-extrabold text-primary dark:text-white uppercase tracking-tight">' + escapeHtml(user.fullName) + '</h2>\
     <p class="font-body text-sm text-on-surface-variant dark:text-white/70 mt-1">' + escapeHtml(user.email) + '</p>\
-    ' + (isAdmin ? '<span class="mt-2 text-[10px] font-bold uppercase tracking-widest text-secondary bg-secondary/10 px-3 py-1 rounded-full">Admin</span>' : '') + '\
+    ' + (isAdmin ? '<span class="mt-2 text-[10px] font-bold uppercase tracking-widest text-secondary bg-secondary/10 px-3 py-1 rounded-full">' + (user.role === "ADMIN" ? "Admin" : "Staff") + '</span>' : '') + '\
   </div>\
   <div class="flex-1 px-8 pb-8">\
     <div class="bg-surface-container-lowest dark:bg-surface-container rounded-xl divide-y divide-outline-variant/20 overflow-hidden">\
@@ -134,8 +147,7 @@
   <form id="edit-form" class="space-y-4" novalidate>\
     <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Full Name</label><input id="ep-name" type="text" required value="' + escapeAttr(user.fullName) + '" class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary"></div>\
     <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Email Address</label><input id="ep-email" type="email" required value="' + escapeAttr(user.email) + '" class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary"></div>\
-    <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Phone Number</label><input id="ep-phone" type="tel" required value="' + escapeAttr(user.phone || "") + '" class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary"></div>\
-    <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Address Line 1</label><input id="ep-address" type="text" required value="' + escapeAttr(user.address || "") + '" class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary"></div>\
+    <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">Phone Number</label><input id="ep-phone" type="tel" value="' + escapeAttr(user.phone || "") + '" class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary"></div>\
     <div><label class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 font-bold mb-2 block">New Password (optional)</label><input id="ep-password" type="password" class="w-full bg-surface-container-low dark:bg-surface-container border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Leave blank to keep current"></div>\
     <div id="edit-error" class="hidden text-xs text-error font-bold"></div>\
     <button type="submit" id="edit-submit" class="w-full bg-primary text-on-primary py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Save Changes</button>\
@@ -146,23 +158,27 @@
   function escapeHtml(s) { return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
   function escapeAttr(s) { return escapeHtml(s); }
 
-  // ===== Panel controller =====
-  var currentView = "signin";
-
+  // ===== Orders view =====
   function renderOrders(content, user) {
     content.innerHTML = '<div class="nassim-auth-view px-8 pt-8 pb-8 flex flex-col h-full" style="animation: fade-in 0.3s ease-out;"><div class="flex items-center gap-3 mb-6"><button onclick="NassimAccount.showView(\'profile\')" class="text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors"><span class="material-symbols-outlined">arrow_back</span></button><h2 class="font-display text-2xl font-extrabold text-primary dark:text-white uppercase tracking-tight">My Orders</h2></div><div id="orders-list" class="flex-1 overflow-y-auto"><p class="text-on-surface-variant dark:text-white/70 text-sm text-center py-8">Loading orders...</p></div></div>';
-    fetch("/api/orders").then(function(r) { return r.json(); }).then(function(data) {
-      var orders = (data.orders || []).filter(function(o) { return o.customerEmail === user.email; });
+    fetch("/api/orders", { credentials: "same-origin" }).then(function (r) { return r.json(); }).then(function (data) {
+      var orders = data.orders || data.data || [];
       var list = document.getElementById("orders-list");
-      if (!orders.length) { list.innerHTML = '<div class="text-center py-12"><span class="material-symbols-outlined text-5xl text-on-surface-variant/40 mb-4 block">receipt_long</span><p class="text-on-surface-variant dark:text-white/70 text-sm mb-4">No orders yet.</p><a href="home.html" class="text-secondary font-bold text-xs uppercase tracking-widest hover:underline">Start Shopping</a></div>'; return; }
-      var statusColors = { pending: "#f59e0b", confirmed: "#3b82f6", preparing: "#8b5cf6", out_for_delivery: "#06b6d4", delivered: "#22c55e", cancelled: "#ef4444" };
-      list.innerHTML = orders.map(function(o) {
+      if (!list) return;
+      if (!orders.length) { list.innerHTML = '<div class="text-center py-12"><span class="material-symbols-outlined text-5xl text-on-surface-variant/40 mb-4 block">receipt_long</span><p class="text-on-surface-variant dark:text-white/70 text-sm mb-4">No orders yet.</p><a href="index.html" class="text-secondary font-bold text-xs uppercase tracking-widest hover:underline">Start Shopping</a></div>'; return; }
+      var statusColors = { PENDING: "#f59e0b", CONFIRMED: "#3b82f6", PACKING: "#8b5cf6", OUT_FOR_DELIVERY: "#06b6d4", DELIVERED: "#22c55e", COMPLETED: "#16a34a", CANCELLED: "#ef4444", REJECTED: "#ef4444" };
+      list.innerHTML = orders.map(function (o) {
         var items = o.items || [];
+        var status = String(o.status || "PENDING").toUpperCase();
+        var color = statusColors[status] || "#64748b";
         var date = new Date(o.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-        return '<div class="bg-surface-container-lowest dark:bg-surface-container rounded-xl p-4 mb-4"><div class="flex justify-between items-start mb-2"><div><p class="font-headline font-bold text-sm text-primary dark:text-white">' + escapeHtml(o.orderNumber) + '</p><p class="text-xs text-on-surface-variant dark:text-white/70">' + date + '</p></div><span class="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full" style="background:' + (statusColors[o.status] || "#64748b") + "20;color:" + (statusColors[o.status] || "#64748b") + '">' + o.status.replace(/_/g, " ") + '</span></div><div class="space-y-1 mb-3">' + items.slice(0, 3).map(function(i) { return '<div class="flex justify-between text-xs"><span class="text-on-surface-variant dark:text-white/70">' + escapeHtml(i.name) + ' ×' + i.qty + '</span><span class="font-medium">' + (o.currency||"KD") + " " + (i.price * i.qty).toFixed(3) + "</span></div>"; }).join("") + (items.length > 3 ? '<p class="text-xs text-on-surface-variant/60">+' + (items.length - 3) + " more items</p>" : "") + '</div><div class="flex justify-between pt-2 border-t border-outline-variant/20"><span class="text-xs font-bold text-on-surface dark:text-white">Total</span><span class="text-sm font-extrabold text-primary dark:text-white">' + (o.currency||"KD") + " " + o.total.toFixed(3) + "</span></div></div>";
+        return '<div class="bg-surface-container-lowest dark:bg-surface-container rounded-xl p-4 mb-4"><div class="flex justify-between items-start mb-2"><div><p class="font-headline font-bold text-sm text-primary dark:text-white">' + escapeHtml(o.orderNumber) + '</p><p class="text-xs text-on-surface-variant dark:text-white/70">' + date + '</p></div><span class="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full" style="background:' + color + "20;color:" + color + '">' + status.replace(/_/g, " ") + '</span></div><div class="space-y-1 mb-3">' + items.slice(0, 3).map(function (i) { var qty = i.qty || i.quantity || 1; return '<div class="flex justify-between text-xs"><span class="text-on-surface-variant dark:text-white/70">' + escapeHtml(i.name) + ' ×' + qty + '</span><span class="font-medium">' + (o.currency || "KD") + " " + (Number(i.price) * qty).toFixed(3) + "</span></div>"; }).join("") + (items.length > 3 ? '<p class="text-xs text-on-surface-variant/60">+' + (items.length - 3) + " more items</p>" : "") + '</div><div class="flex justify-between pt-2 border-t border-outline-variant/20"><span class="text-xs font-bold text-on-surface dark:text-white">Total</span><span class="text-sm font-extrabold text-primary dark:text-white">' + (o.currency || "KD") + " " + Number(o.total).toFixed(3) + "</span></div></div>";
       }).join("");
-    }).catch(function() { document.getElementById("orders-list").innerHTML = '<p class="text-error text-sm text-center py-8">Failed to load orders.</p>'; });
+    }).catch(function () { var list = document.getElementById("orders-list"); if (list) list.innerHTML = '<p class="text-error text-sm text-center py-8">Failed to load orders.</p>'; });
   }
+
+  // ===== Panel controller =====
+  var currentView = "signin";
 
   function showView(view) {
     currentView = view;
@@ -183,9 +199,8 @@
       renderOrders(content, user);
     }
     wireForms();
-    // Focus first input
     var firstInput = content.querySelector("input");
-    if (firstInput) setTimeout(function() { firstInput.focus(); }, 100);
+    if (firstInput) setTimeout(function () { firstInput.focus(); }, 100);
   }
 
   function openPanel() {
@@ -206,6 +221,11 @@
     document.body.style.overflow = "";
   }
 
+  function showError(el, message) {
+    el.textContent = message;
+    el.classList.remove("hidden");
+  }
+
   function wireForms() {
     // Sign In
     var signinForm = document.getElementById("signin-form");
@@ -216,38 +236,25 @@
         var password = document.getElementById("signin-password").value;
         var errEl = document.getElementById("signin-error");
         var btn = document.getElementById("signin-submit");
-        if (!email || !password) { errEl.textContent = "Please fill in all fields."; errEl.classList.remove("hidden"); return; }
+        if (!email || !password) { showError(errEl, "Please fill in all fields."); return; }
         btn.textContent = "Signing In..."; btn.disabled = true;
-        setTimeout(function () {
-          // ===== Admin login check =====
-          if (email === "admin@gmail.com" && password === "admin123") {
-            var adminUser = { id: "admin", fullName: "Admin", email: "admin@gmail.com", isAdmin: true };
-            var adminState = readState();
-            adminState.currentUserId = "admin";
-            // Ensure admin user exists in users array
-            var adminExists = false;
-            for (var ai = 0; ai < adminState.users.length; ai++) { if (adminState.users[ai].id === "admin") { adminExists = true; break; } }
-            if (!adminExists) adminState.users.push(adminUser);
-            saveState(adminState);
-            updateAccountButton();
-            closePanel();
-            showAuthToast("Welcome, Admin! Redirecting...");
-            setTimeout(function () { window.location.href = "/admin"; }, 800);
-            btn.textContent = "Sign In"; btn.disabled = false;
-            return;
-          }
-          // ===== Normal user login =====
-          var s = readState();
-          var user = null;
-          for (var i = 0; i < s.users.length; i++) { if (s.users[i].email.toLowerCase() === email) { user = s.users[i]; break; } }
-          if (!user) { errEl.textContent = "No account found with this email."; errEl.classList.remove("hidden"); btn.textContent = "Sign In"; btn.disabled = false; return; }
-          if (user.password !== password) { errEl.textContent = "Incorrect password. Please try again."; errEl.classList.remove("hidden"); btn.textContent = "Sign In"; btn.disabled = false; return; }
-          s.currentUserId = user.id; saveState(s);
-          updateAccountButton();
-          showAuthToast("Signed in — welcome back!");
-          setTimeout(function () { showView("profile"); }, 800);
+        apiPost("/api/auth/login", { email: email, password: password }).then(function (res) {
           btn.textContent = "Sign In"; btn.disabled = false;
-        }, 600);
+          if (!res.ok || !res.data.success) { showError(errEl, res.data.error || "Invalid email or password."); return; }
+          currentUser = normalizeUser(res.data.data.user);
+          updateAccountButton();
+          if (currentUser.isAdmin) {
+            closePanel();
+            showAuthToast("Welcome back! Redirecting to dashboard...");
+            setTimeout(function () { window.location.href = "/admin"; }, 800);
+          } else {
+            showAuthToast("Signed in — welcome back!");
+            setTimeout(function () { showView("profile"); }, 400);
+          }
+        }).catch(function () {
+          btn.textContent = "Sign In"; btn.disabled = false;
+          showError(errEl, "Network error. Please try again.");
+        });
       });
     }
     // Sign Up
@@ -258,25 +265,25 @@
         var name = document.getElementById("su-name").value.trim();
         var email = document.getElementById("su-email").value.trim().toLowerCase();
         var phone = document.getElementById("su-phone").value.trim();
-        var address = document.getElementById("su-address").value.trim();
         var password = document.getElementById("su-password").value;
         var confirm = document.getElementById("su-confirm").value;
         var errEl = document.getElementById("signup-error");
         var btn = document.getElementById("signup-submit");
-        if (!name || !email || !phone || !address || !password) { errEl.textContent = "Please fill in all fields."; errEl.classList.remove("hidden"); return; }
-        if (password.length < 6) { errEl.textContent = "Password must be at least 6 characters."; errEl.classList.remove("hidden"); return; }
-        if (password !== confirm) { errEl.textContent = "Passwords do not match."; errEl.classList.remove("hidden"); return; }
+        if (!name || !email || !password) { showError(errEl, "Please fill in all required fields."); return; }
+        if (password.length < 8) { showError(errEl, "Password must be at least 8 characters."); return; }
+        if (password !== confirm) { showError(errEl, "Passwords do not match."); return; }
         btn.textContent = "Creating Account..."; btn.disabled = true;
-        setTimeout(function () {
-          var s = readState();
-          for (var i = 0; i < s.users.length; i++) { if (s.users[i].email.toLowerCase() === email) { errEl.textContent = "An account with this email already exists."; errEl.classList.remove("hidden"); btn.textContent = "Create Account"; btn.disabled = false; return; } }
-          var user = { id: genId(), fullName: name, email: email, phone: phone, address: address, password: password, createdAt: Date.now() };
-          s.users.push(user); s.currentUserId = user.id; saveState(s);
+        apiPost("/api/auth/register", { name: name, email: email, phone: phone, password: password }).then(function (res) {
+          btn.textContent = "Create Account"; btn.disabled = false;
+          if (!res.ok || !res.data.success) { showError(errEl, res.data.error || "Could not create account."); return; }
+          currentUser = normalizeUser(res.data.data.user);
           updateAccountButton();
           showAuthToast("Account created — welcome!");
-          setTimeout(function () { showView("profile"); }, 800);
+          setTimeout(function () { showView("profile"); }, 400);
+        }).catch(function () {
           btn.textContent = "Create Account"; btn.disabled = false;
-        }, 600);
+          showError(errEl, "Network error. Please try again.");
+        });
       });
     }
     // Forgot
@@ -302,25 +309,30 @@
         var name = document.getElementById("ep-name").value.trim();
         var email = document.getElementById("ep-email").value.trim().toLowerCase();
         var phone = document.getElementById("ep-phone").value.trim();
-        var address = document.getElementById("ep-address").value.trim();
         var password = document.getElementById("ep-password").value;
         var errEl = document.getElementById("edit-error");
         var btn = document.getElementById("edit-submit");
-        if (!name || !email || !phone || !address) { errEl.textContent = "Please fill in all required fields."; errEl.classList.remove("hidden"); return; }
+        if (!name || !email) { showError(errEl, "Name and email are required."); return; }
+        if (password && password.length < 8) { showError(errEl, "New password must be at least 8 characters."); return; }
         btn.textContent = "Saving..."; btn.disabled = true;
-        setTimeout(function () {
-          var s = readState();
-          for (var i = 0; i < s.users.length; i++) {
-            if (s.users[i].id === s.currentUserId) {
-              s.users[i].fullName = name; s.users[i].email = email; s.users[i].phone = phone; s.users[i].address = address;
-              if (password) s.users[i].password = password;
-            }
-          }
-          saveState(s); updateAccountButton();
-          showAuthToast("Changes saved successfully.");
-          setTimeout(function () { showView("profile"); }, 800);
+        var body = { name: name, email: email, phone: phone };
+        if (password) body.password = password;
+        fetch("/api/auth/me", {
+          method: "PATCH",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        }).then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); }).then(function (res) {
           btn.textContent = "Save Changes"; btn.disabled = false;
-        }, 600);
+          if (!res.ok || !res.data.success) { showError(errEl, res.data.error || "Could not save changes."); return; }
+          currentUser = normalizeUser(res.data.data.user);
+          updateAccountButton();
+          showAuthToast("Changes saved successfully.");
+          setTimeout(function () { showView("profile"); }, 400);
+        }).catch(function () {
+          btn.textContent = "Save Changes"; btn.disabled = false;
+          showError(errEl, "Network error. Please try again.");
+        });
       });
     }
   }
@@ -338,16 +350,16 @@
   }
 
   function logout() {
-    var s = readState(); s.currentUserId = null; saveState(s);
-    updateAccountButton();
-    closePanel();
-    showAuthToast("Signed out successfully.");
+    apiPost("/api/auth/logout").catch(function () {}).then(function () {
+      currentUser = null;
+      updateAccountButton();
+      closePanel();
+      showAuthToast("Signed out successfully.");
+    });
   }
 
   // ===== Update the account button in the header =====
   function updateAccountButton() {
-    // Find the account button by data-account-btn marker (set during init)
-    // or fall back to searching for a 'person' icon.
     var btn = document.querySelector("[data-account-btn]");
     if (!btn) {
       var buttons = document.querySelectorAll("header button, nav button, header a, nav a");
@@ -360,7 +372,7 @@
       }
     }
     if (!btn) return;
-    btn.dataset.accountBtn = "1"; // mark for future lookups
+    btn.dataset.accountBtn = "1";
     var user = getCurrentUser();
     btn.innerHTML = "";
     btn.style.display = "flex";
@@ -387,20 +399,16 @@
 
   // ===== Init =====
   function init() {
-    // Inject panel HTML
     if (!document.getElementById("auth-panel")) {
       var container = document.createElement("div");
       container.innerHTML = PANEL_HTML;
       while (container.firstChild) document.body.appendChild(container.firstChild);
     }
-    // Wire close
     var closeBtn = document.getElementById("auth-close");
     if (closeBtn) closeBtn.addEventListener("click", closePanel);
     var backdrop = document.getElementById("auth-backdrop");
     if (backdrop) backdrop.addEventListener("click", closePanel);
-    // Escape key
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") closePanel(); });
-    // Wire account button (person icon) — mark with data-account-btn
     var buttons = document.querySelectorAll("header button, nav button, header a, nav a");
     for (var i = 0; i < buttons.length; i++) {
       var icon = buttons[i].querySelector(".material-symbols-outlined");
@@ -413,16 +421,13 @@
         break;
       }
     }
-    // Update button state
     updateAccountButton();
-    // Sync across tabs/pages
-    window.addEventListener("storage", function (e) { if (e.key === AUTH_KEY) updateAccountButton(); });
+    refreshSession();
   }
 
   // Expose API
-  window.NassimAccount = { showView: showView, openPanel: openPanel, closePanel: closePanel, logout: logout, getCurrentUser: getCurrentUser };
+  window.NassimAccount = { showView: showView, openPanel: openPanel, closePanel: closePanel, logout: logout, getCurrentUser: getCurrentUser, refreshSession: refreshSession };
 
-  // Add fade-in animation if not present
   if (!document.getElementById("auth-anim-style")) {
     var style = document.createElement("style");
     style.id = "auth-anim-style";
