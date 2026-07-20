@@ -27,6 +27,15 @@ enum OrderStatus {
   COMPLETED
   CANCELLED
   REJECTED
+  REFUNDED
+}
+
+enum StockStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+  PREORDER
+  DISCONTINUED
 }
 
 model Department {
@@ -35,33 +44,219 @@ model Department {
   name         String
   purchaseMode PurchaseMode @default(ONLINE)
   categories   Category[]
+  sections     Section[]
 }
 
-model Category {
+model Section {
   id           Int        @id @default(autoincrement())
   slug         String     @unique
   name         String
   departmentId Int
   department   Department @relation(fields: [departmentId], references: [id])
-  products     Product[]
+  categories   Category[]
+
+  @@index([departmentId])
+}
+
+model Category {
+  id            Int           @id @default(autoincrement())
+  slug          String        @unique
+  name          String
+  departmentId  Int
+  department    Department    @relation(fields: [departmentId], references: [id])
+  sectionId     Int?
+  section       Section?      @relation(fields: [sectionId], references: [id])
+  subcategories Subcategory[]
+  products      Product[]
+
+  @@index([sectionId])
+}
+
+model Subcategory {
+  id         Int       @id @default(autoincrement())
+  slug       String    @unique
+  name       String
+  categoryId Int
+  category   Category  @relation(fields: [categoryId], references: [id])
+  products   Product[]
+
+  @@index([categoryId])
+}
+
+model Brand {
+  id       Int       @id @default(autoincrement())
+  slug     String    @unique
+  name     String
+  products Product[]
+}
+
+model Material {
+  id       Int       @id @default(autoincrement())
+  slug     String    @unique
+  name     String
+  products Product[]
+}
+
+model Color {
+  id       Int            @id @default(autoincrement())
+  slug     String         @unique
+  name     String
+  hex      String         @default("")
+  products ProductColor[]
+}
+
+model Size {
+  id       Int           @id @default(autoincrement())
+  slug     String        @unique
+  name     String
+  products ProductSize[]
+}
+
+model Supplier {
+  id       Int       @id @default(autoincrement())
+  slug     String    @unique
+  name     String
+  contact  String    @default("")
+  phone    String    @default("")
+  email    String    @default("")
+  products Product[]
+}
+
+model Unit {
+  id       Int       @id @default(autoincrement())
+  slug     String    @unique
+  name     String
+  products Product[]
+}
+
+model Country {
+  id       Int       @id @default(autoincrement())
+  slug     String    @unique
+  name     String
+  products Product[]
+}
+
+model Tax {
+  id       Int       @id @default(autoincrement())
+  slug     String    @unique
+  name     String
+  rate     Decimal   @db.Decimal(6, 3) @default(0)
+  products Product[]
+}
+
+model ProductColor {
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorId   Int
+  color     Color   @relation(fields: [colorId], references: [id], onDelete: Cascade)
+
+  @@id([productId, colorId])
+}
+
+model ProductSize {
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sizeId    Int
+  size      Size    @relation(fields: [sizeId], references: [id], onDelete: Cascade)
+
+  @@id([productId, sizeId])
+}
+
+model ProductImage {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int     @default(0)
+  isPrimary Boolean @default(false)
+
+  @@index([productId])
+}
+
+model StockMovement {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  delta     Int
+  reason    String
+  note      String   @default("")
+  actorId   Int?
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model Address {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String  @default("Home")
+  fullName  String  @default("")
+  phone     String  @default("")
+  address   String
+  city      String
+  area      String  @default("")
+  isDefault Boolean @default(false)
+
+  @@index([userId])
 }
 
 model Product {
-  id          Int         @id @default(autoincrement())
-  slug        String      @unique
-  name        String
-  description String      @default("")
-  price       Decimal     @db.Decimal(10, 3)
-  currency    String      @default("KD")
-  image       String      @default("")
-  images      String[]    @default([])
-  line        String      @default("")
-  sku         String      @default("")
-  specs       Json        @default("[]")
-  stock       Int         @default(100)
-  isActive    Boolean     @default(true)
-  categoryId  Int
-  category    Category    @relation(fields: [categoryId], references: [id])
+  id             Int         @id @default(autoincrement())
+  slug           String      @unique
+  name           String
+  description    String      @default("")
+  longDescription String     @default("")
+  price          Decimal     @db.Decimal(10, 3)
+  discount       Decimal     @db.Decimal(10, 3) @default(0)
+  costPrice      Decimal     @db.Decimal(10, 3) @default(0)
+  currency       String      @default("KD")
+  image          String      @default("")
+  images         String[]    @default([])
+  line           String      @default("")
+  sku            String      @default("")
+  barcode        String      @default("")
+  ndNumber       String      @default("")
+  internalCode   String      @default("")
+  specs          Json        @default("[]")
+  applications   String      @default("")
+  additionalInfo String      @default("")
+  seoTitle       String      @default("")
+  seoDescription String      @default("")
+  tags           String[]    @default([])
+  weight         Decimal?    @db.Decimal(10, 3)
+  length         Decimal?    @db.Decimal(10, 3)
+  width          Decimal?    @db.Decimal(10, 3)
+  height         Decimal?    @db.Decimal(10, 3)
+  warranty       String      @default("")
+  stock          Int         @default(100)
+  minStock       Int         @default(10)
+  stockStatus    StockStatus @default(IN_STOCK)
+  isActive       Boolean     @default(true)
+  isFeatured     Boolean     @default(false)
+  isNewArrival   Boolean     @default(false)
+  isBestSeller   Boolean     @default(false)
+  categoryId     Int
+  category       Category    @relation(fields: [categoryId], references: [id])
+  subcategoryId  Int?
+  subcategory    Subcategory? @relation(fields: [subcategoryId], references: [id])
+  brandId        Int?
+  brand          Brand?      @relation(fields: [brandId], references: [id])
+  materialId     Int?
+  material       Material?   @relation(fields: [materialId], references: [id])
+  supplierId     Int?
+  supplier       Supplier?   @relation(fields: [supplierId], references: [id])
+  unitId         Int?
+  unit           Unit?       @relation(fields: [unitId], references: [id])
+  countryId      Int?
+  country        Country?    @relation(fields: [countryId], references: [id])
+  taxId          Int?
+  tax            Tax?        @relation(fields: [taxId], references: [id])
+  colors         ProductColor[]
+  sizes          ProductSize[]
+  mediaImages    ProductImage[]
+  stockMovements StockMovement[]
   orderItems  OrderItem[]
   wishlist    WishlistItem[]
   cartItems   CartItem[]
@@ -70,6 +265,9 @@ model Product {
 
   @@index([categoryId])
   @@index([isActive])
+  @@index([brandId])
+  @@index([supplierId])
+  @@index([barcode])
 }
 
 model User {
@@ -82,6 +280,7 @@ model User {
   isActive     Boolean    @default(true)
   sessions     Session[]
   orders       Order[]
+  addresses    Address[]
   wishlist     WishlistItem[]
   cartItems    CartItem[]
   createdAt    DateTime   @default(now())
