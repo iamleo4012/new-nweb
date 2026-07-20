@@ -464,13 +464,12 @@
         updateCartBadge();
     }
 
-    /* ===== Account button -> /account (or alert for now) ===== */
+    /* ===== Account button -> account panel ===== */
     var acctBtn = document.getElementById('account-btn');
     if (acctBtn) {
         acctBtn.style.cursor = 'pointer';
         acctBtn.addEventListener('click', function() {
-            // For now, just show an alert; later this opens the account panel
-            alert('Account panel will open here');
+            if (window.NassimAccount) window.NassimAccount.openPanel();
         });
     }
 

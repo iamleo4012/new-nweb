@@ -212,7 +212,7 @@
 
     /* ===== Account button ===== */
     var acctBtn = document.getElementById('account-btn');
-    if (acctBtn) { acctBtn.style.cursor = 'pointer'; acctBtn.addEventListener('click', function() { alert('Account panel will open here'); }); }
+    if (acctBtn) { acctBtn.style.cursor = 'pointer'; acctBtn.addEventListener('click', function() { if (window.NassimAccount) window.NassimAccount.openPanel(); }); }
 
     /* ===== Cart Logic (from the attached design) ===== */
     document.addEventListener('DOMContentLoaded', () => {

@@ -190,7 +190,35 @@
     function updateMainImage(thumbElement, imageUrl) { const mainImg = document.getElementById('main-product-image'); mainImg.style.opacity = '0.5'; setTimeout(() => { mainImg.src = imageUrl; mainImg.style.opacity = '1'; if (window.lens) window.lens.style.backgroundImage = `url("${imageUrl}")`; }, 150); document.querySelectorAll('.thumbnail-item').forEach(item => { item.classList.remove('thumb-active'); item.classList.add('border-transparent'); }); thumbElement.classList.add('thumb-active'); thumbElement.classList.remove('border-transparent'); }
     function toggleAccordion(id) { const content = document.getElementById(id); const icon = document.getElementById('accordion-icon'); const isExpanded = content.classList.contains('expanded'); if (isExpanded) { content.classList.remove('expanded'); icon.style.transform = 'rotate(0deg)'; } else { content.classList.add('expanded'); icon.style.transform = 'rotate(180deg)'; } }
     let isFavorite = false;
-    function toggleFavorite() { const icon = document.getElementById('fav-icon'); const btn = document.getElementById('add-favorite-btn'); isFavorite = !isFavorite; if (isFavorite) { icon.style.fontVariationSettings = "'FILL' 1"; icon.style.color = "#ef4444"; btn.classList.add('scale-110'); setTimeout(() => btn.classList.remove('scale-110'), 200); showToast("Added to favorites"); } else { icon.style.fontVariationSettings = "'FILL' 0"; icon.style.color = ""; showToast("Removed from favorites"); } }
+    var WISH_KEY = 'nassim_wishlist';
+    function readWishlist() { try { var raw = localStorage.getItem(WISH_KEY); if (!raw) return []; var p = JSON.parse(raw); var s = p && p.state ? p.state : p; return s && s.items ? s.items : []; } catch(e) { return []; } }
+    function saveWishlistItems(items) { try { localStorage.setItem(WISH_KEY, JSON.stringify({ state: { items: items } })); } catch(e) {} }
+    function setFavoriteUI(fav) { const icon = document.getElementById('fav-icon'); if (!icon) return; if (fav) { icon.style.fontVariationSettings = "'FILL' 1"; icon.style.color = "#ef4444"; } else { icon.style.fontVariationSettings = "'FILL' 0"; icon.style.color = ""; } }
+    function initFavoriteState() { var id = getQueryParam('id'); isFavorite = readWishlist().some(function(i) { return i.id === id; }); setFavoriteUI(isFavorite); }
+    function toggleFavorite() {
+      var product = window.NassimGetProduct ? window.NassimGetProduct(getQueryParam('id')) : null;
+      if (!product) { showToast("Product not found"); return; }
+      const btn = document.getElementById('add-favorite-btn');
+      isFavorite = !isFavorite;
+      var items = readWishlist();
+      if (isFavorite) {
+        if (!items.some(function(i) { return i.id === product.id; })) {
+          items.push({ id: product.id, name: product.name, image: product.img || product.image, price: product.price, currency: product.currency || 'KD', line: product.line || '', sku: product.sku || '' });
+        }
+        saveWishlistItems(items);
+        setFavoriteUI(true);
+        if (btn) { btn.classList.add('scale-110'); setTimeout(() => btn.classList.remove('scale-110'), 200); }
+        showToast("Added to favorites");
+      } else {
+        saveWishlistItems(items.filter(function(i) { return i.id !== product.id; }));
+        setFavoriteUI(false);
+        showToast("Removed from favorites");
+      }
+      if (window.NassimAccount && window.NassimAccount.getCurrentUser && window.NassimAccount.getCurrentUser()) {
+        if (isFavorite) { fetch('/api/wishlist', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: product.id }) }).catch(function() {}); }
+        else { fetch('/api/wishlist?slug=' + encodeURIComponent(product.id), { method: 'DELETE', credentials: 'same-origin' }).catch(function() {}); }
+      }
+    }
     function copyProductLink() { const text = window.location.href; navigator.clipboard.writeText(text).then(() => showToast("Link copied to clipboard")).catch(() => { const dummy = document.createElement('input'); document.body.appendChild(dummy); dummy.value = text; dummy.select(); document.execCommand('copy'); document.body.removeChild(dummy); showToast("Link copied to clipboard"); }); }
     function addToCart() {
       var product = window.NassimGetProduct ? window.NassimGetProduct(getQueryParam('id')) : null;
@@ -210,7 +238,7 @@
       var badge = document.getElementById('header-cart-count');
       if (badge) { var count = cart.state.items.reduce(function(s,i){return s+i.quantity;},0); badge.textContent = String(count).padStart(2,'0'); }
     }
-    function buyNow() { showToast("Proceeding to checkout"); }
+    function buyNow() { addToCart(); showToast("Proceeding to checkout"); setTimeout(function() { window.location.href = 'checkout.html'; }, 400); }
     function scrollRelated(dir) { const grid = document.getElementById('related-grid'); if (!grid) return; const card = grid.querySelector('[data-product-card]'); const step = card ? (card.offsetWidth + 32) * dir : 300 * dir; grid.scrollBy({ left: step, behavior: 'smooth' }); }
     let toastTimeout;
     function showToast(message) { const container = document.getElementById('toast-container'); while (container.firstChild) container.removeChild(container.firstChild); if (toastTimeout) clearTimeout(toastTimeout); const toast = document.createElement('div'); toast.className = 'toast-animate bg-primary/90 text-on-primary px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest shadow-2xl backdrop-blur-md border border-white/10 flex items-center gap-2 mb-4 pointer-events-auto'; let iconName = 'check_circle'; if (message.includes('Removed')) iconName = 'heart_minus'; if (message.includes('Link copied')) iconName = 'content_copy'; toast.innerHTML = `<span class="material-symbols-outlined text-sm">${iconName}</span>${message}`; container.appendChild(toast); toastTimeout = setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(-20px)'; toast.style.transition = 'all 0.4s ease'; setTimeout(() => { if (toast.parentNode === container) toast.remove(); }, 400); }, 3000); }
@@ -230,6 +258,7 @@
         return;
       }
       document.title = product.name + ' | AL-NASSIM';
+      initFavoriteState();
       // Breadcrumb
       document.getElementById('bc-category').textContent = product.category;
       document.getElementById('bc-line').textContent = product.line;
