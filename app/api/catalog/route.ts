@@ -23,7 +23,14 @@ export async function GET() {
     specs: p.specs,
   }));
 
-  const js = `window.NASSIM_PRODUCTS = ${JSON.stringify(catalog)};`;
+  const js = `window.NASSIM_PRODUCTS = ${JSON.stringify(catalog)};
+window.NassimGetProduct = function (id) {
+  if (!id) return null;
+  for (var i = 0; i < window.NASSIM_PRODUCTS.length; i++) {
+    if (window.NASSIM_PRODUCTS[i].id === id) return window.NASSIM_PRODUCTS[i];
+  }
+  return null;
+};`;
   return new Response(js, {
     headers: {
       "Content-Type": "application/javascript; charset=utf-8",
