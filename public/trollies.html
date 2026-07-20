@@ -887,6 +887,34 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize pagination
         updatePagination();
 
+        // Wire filter controls
+        document.querySelectorAll('.filter-checkbox, .filter-radio').forEach(function(el) {
+            el.addEventListener('change', function() {
+                if (el.classList.contains('filter-radio') && el.checked) {
+                    document.querySelectorAll('.filter-radio[name="' + el.name + '"]').forEach(function(o) { if (o !== el) o.checked = false; });
+                }
+                currentPage = 1;
+                applyFiltersAndSort();
+            });
+        });
+        var applyPriceBtn = document.getElementById('apply-price');
+        if (applyPriceBtn) applyPriceBtn.addEventListener('click', function() { currentPage = 1; applyFiltersAndSort(); });
+        var clearPriceBtn = document.getElementById('clear-price');
+        if (clearPriceBtn) clearPriceBtn.addEventListener('click', function() {
+            var pm = document.getElementById('price-min'); if (pm) pm.value = '';
+            var px = document.getElementById('price-max'); if (px) px.value = '';
+            document.querySelectorAll('.filter-checkbox[name="price-range"]').forEach(function(c) { c.checked = false; });
+            currentPage = 1; applyFiltersAndSort();
+        });
+        var clearAllBtn = document.getElementById('clear-all-filters');
+        if (clearAllBtn) clearAllBtn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-checkbox, .filter-radio').forEach(function(c) { c.checked = false; });
+            var pm = document.getElementById('price-min'); if (pm) pm.value = '';
+            var px = document.getElementById('price-max'); if (px) px.value = '';
+            currentPage = 1; applyFiltersAndSort();
+        });
+
+
     // Category button functionality
     const categoryButtons = document.querySelectorAll('.category-btn');
     categoryButtons.forEach(button => {
