@@ -6,10 +6,6 @@ const nextConfig = {
   async redirects() {
     return [
       { source: "/home.html", destination: "/index.html", permanent: true },
-      { source: "/house_temp.html", destination: "/houseware.html", permanent: true },
-      { source: "/dummy12.html", destination: "/index.html", permanent: true },
-      { source: "/code.html", destination: "/index.html", permanent: true },
-      { source: "/code_temp.html", destination: "/index.html", permanent: true },
     ];
   },
   async headers() {

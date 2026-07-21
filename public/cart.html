@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
 <title>Shopping Cart | AL-NASSIM</title>
 <script>(function(){try{var t=localStorage.getItem('color-theme');var d=t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;r.classList.toggle('dark',d);r.classList.toggle('light',!d);}catch(e){}})();</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -89,45 +90,21 @@
 <div class="lg:w-[70%]">
 <div class="flex justify-between items-baseline mb-8">
 <h1 class="font-headline text-4xl font-extrabold tracking-tight text-primary dark:text-white">Shopping Cart</h1>
-<span class="font-label text-sm text-on-surface-variant dark:text-white/70 italic" id="cart-items-total-label">02 Items</span>
+<span class="font-label text-sm text-on-surface-variant dark:text-white/70 italic" id="cart-items-total-label">00 Items</span>
 </div>
-<div class="space-y-6" id="cart-items-container">
-<div class="cart-item bg-surface-container-lowest dark:bg-surface-container p-6 rounded-xl flex flex-col md:flex-row gap-6 group transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,3,8,0.04)]" data-price="65.000">
-<div class="w-full md:w-40 h-40 bg-surface-container dark:bg-surface-container-high rounded-lg overflow-hidden shrink-0"><img alt="Hand-Forged Damascus Knife" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj0qcHiMH-CniPt6TyRE25hZt9Ye3oVrXXHg7-OgavICa-pTaZ28u4faOM7y1S3-BVLXkfHsIA-me1P9X5y1pG9lC8kgpgMIBgxbfDcav93BQCjWchM2_jxP1_-a4tu5J6Rx81yXXT9r3N1WzWqStTwKNRLXOfeE-7Znr4jKLuro9W6Xr2qmYjPcS6_a6IjOeUMcaHlBv-Xk8-WETEGfu3n-F0SwY1r-n0oJVNmByVkcVSRcRq03bSPGplrlmcVNrUiREwOJhmSO0"/></div>
-<div class="flex-grow flex flex-col justify-between">
-<div class="flex justify-between items-start">
-<div><span class="font-label text-[10px] uppercase tracking-widest text-secondary font-bold mb-1 block">Artisan Collection</span><h3 class="font-headline text-lg font-bold text-primary dark:text-white mb-1">Hand-Forged Damascus Knife</h3><p class="font-label text-[10px] text-on-surface-variant dark:text-white/70">SKU: AN-KN-DM-8</p></div>
-<div class="text-right"><p class="item-total-price font-headline text-lg font-bold text-primary dark:text-white">KD 65.000</p><p class="font-label text-[10px] text-on-surface-variant dark:text-white/70 uppercase tracking-wider">Unit: KD 65.000</p></div>
-</div>
-<div class="flex flex-wrap items-center justify-between gap-4 mt-6">
-<div class="flex items-center border border-outline-variant dark:border-outline-variant/50 rounded-sm overflow-hidden"><button class="quantity-btn-minus px-3 py-1.5 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-primary dark:text-white"><span class="material-symbols-outlined text-sm">remove</span></button><span class="quantity-value px-4 font-headline font-bold text-sm text-primary dark:text-white">1</span><button class="quantity-btn-plus px-3 py-1.5 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-primary dark:text-white"><span class="material-symbols-outlined text-sm">add</span></button></div>
-<div class="flex gap-4 text-[10px] font-black uppercase tracking-widest"><button class="remove-btn flex items-center gap-1.5 text-on-surface-variant dark:text-white/70 hover:text-error transition-colors"><span class="material-symbols-outlined text-sm">delete</span> Remove</button><button class="wishlist-btn flex items-center gap-1.5 text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors"><span class="material-symbols-outlined text-sm">favorite</span> Wishlist</button></div>
-</div>
-</div>
-</div>
-<div class="cart-item bg-surface-container-lowest dark:bg-surface-container p-6 rounded-xl flex flex-col md:flex-row gap-6 group transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,3,8,0.04)]" data-price="12.000">
-<div class="w-full md:w-40 h-40 bg-surface-container dark:bg-surface-container-high rounded-lg overflow-hidden shrink-0"><img alt="Artisan Steel Fork Set" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9VUTP3wKtx8P0hvGK8xNaFTBAhEKWB2FGXoPGbZQ4C1vXbFfz1OYo2piKmPTYqMeNnaNP4mtI_BmBNdBDwCUy2_ohw1MjBNelrO31pDhJFghcYYSvORPoTmP_-P_ZIYAZTdYemUEo1cz0XJk06JFqW8r2wlVhpQdYAqcL74vD3wO7JOc9byKPv40DY9qfhAR8dXRQ341196VyzEN5aWEsbprfMzCK7fpUiuI0v3cFuLMwBnikMm5zYMH--vs5sXsyPD1KATYoB4A"/></div>
-<div class="flex-grow flex flex-col justify-between">
-<div class="flex justify-between items-start">
-<div><span class="font-label text-[10px] uppercase tracking-widest text-secondary font-bold mb-1 block">Tableware</span><h3 class="font-headline text-lg font-bold text-primary dark:text-white mb-1">Artisan Steel Fork Set</h3><p class="font-label text-[10px] text-on-surface-variant dark:text-white/70">SKU: AN-FK-ST-04</p></div>
-<div class="text-right"><p class="item-total-price font-headline text-lg font-bold text-primary dark:text-white">KD 24.000</p><p class="font-label text-[10px] text-on-surface-variant dark:text-white/70 uppercase tracking-wider">Unit: KD 12.000</p></div>
-</div>
-<div class="flex flex-wrap items-center justify-between gap-4 mt-6">
-<div class="flex items-center border border-outline-variant dark:border-outline-variant/50 rounded-sm overflow-hidden"><button class="quantity-btn-minus px-3 py-1.5 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-primary dark:text-white"><span class="material-symbols-outlined text-sm">remove</span></button><span class="quantity-value px-4 font-headline font-bold text-sm text-primary dark:text-white">2</span><button class="quantity-btn-plus px-3 py-1.5 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-primary dark:text-white"><span class="material-symbols-outlined text-sm">add</span></button></div>
-<div class="flex gap-4 text-[10px] font-black uppercase tracking-widest"><button class="remove-btn flex items-center gap-1.5 text-on-surface-variant dark:text-white/70 hover:text-error transition-colors"><span class="material-symbols-outlined text-sm">delete</span> Remove</button><button class="wishlist-btn flex items-center gap-1.5 text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors"><span class="material-symbols-outlined text-sm">favorite</span> Wishlist</button></div>
-</div>
-</div>
-</div>
-</div>
+<!-- Cart items are rendered client-side by cart.html JS from localStorage.
+     The container starts empty so first-time visitors correctly see the
+     empty-cart state rather than placeholder products. -->
+<div class="space-y-6" id="cart-items-container"></div>
 </div>
 <div class="lg:w-[30%]">
 <div class="sticky top-28 bg-surface-container-high dark:bg-surface-container border border-outline-variant/30 text-on-surface dark:text-white p-8 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.03)]">
 <h2 class="font-headline text-xl font-bold text-primary dark:text-white mb-8 border-b border-outline-variant/30 pb-4">Order Summary</h2>
 <div class="space-y-4 mb-8">
-<div class="flex justify-between font-body text-sm text-on-surface-variant dark:text-white/70"><span>Subtotal</span><span class="text-primary dark:text-white font-medium" id="summary-subtotal">KD 89.000</span></div>
+<div class="flex justify-between font-body text-sm text-on-surface-variant dark:text-white/70"><span>Subtotal</span><span class="text-primary dark:text-white font-medium" id="summary-subtotal">KD 0.000</span></div>
 <div class="flex justify-between font-body text-sm text-on-surface-variant dark:text-white/70"><span>Shipping</span><span class="text-primary dark:text-white font-medium" id="summary-shipping">KD 2.500</span></div>
 </div>
-<div class="flex justify-between items-baseline mb-8"><span class="font-headline text-xs font-black uppercase tracking-widest text-on-surface-variant dark:text-white/70">Total</span><span class="font-headline text-3xl font-black text-primary dark:text-white" id="summary-total">KD 91.500</span></div>
+<div class="flex justify-between items-baseline mb-8"><span class="font-headline text-xs font-black uppercase tracking-widest text-on-surface-variant dark:text-white/70">Total</span><span class="font-headline text-3xl font-black text-primary dark:text-white" id="summary-total">KD 2.500</span></div>
 <div class="space-y-4"><a href="checkout.html" class="block text-center w-full bg-primary text-on-primary py-5 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Proceed to Checkout</a></div>
 </div>
 </div>

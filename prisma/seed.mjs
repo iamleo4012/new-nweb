@@ -15,11 +15,35 @@ function loadCatalog() {
   return window.NASSIM_PRODUCTS;
 }
 
-const INQUIRY_CATEGORIES = new Set(["racking", "shelving", "trolleys", "forklifts", "cold-room", "supermarket"]);
+/**
+ * Convert a display name into a URL-safe slug matching ^[a-z0-9-]+$.
+ * Examples: "Trolleys & Baskets" -> "trolleys-baskets",
+ *           "Cooling Appliances"  -> "cooling-appliances".
+ */
+function slugify(value) {
+  return String(value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 function titleCase(slug) {
   return slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
+
+/**
+ * Categories that belong to the warehouse (INQUIRY purchase mode) department.
+ * Matched against the raw catalog `category` display name (not the slugified
+ * value) so the comparison is robust to naming drift.
+ */
+const INQUIRY_CATEGORY_NAMES = new Set([
+  "Cooling Appliances",
+  "Trolleys & Baskets",
+  "Shelves & Stands",
+  "Warehouse Equipment",
+  "Checkout Solutions",
+]);
 
 async function main() {
   const products = loadCatalog();
@@ -36,38 +60,59 @@ async function main() {
     create: { slug: "warehouse", name: "Supermarket & Warehouse", purchaseMode: "INQUIRY" },
   });
 
-  const categorySlugs = [...new Set(products.map((p) => p.category || "general"))];
+  // Derive a slug for every distinct catalog category and route it to the
+  // correct department based on the display name.
+  const rawCategories = [...new Set(products.map((p) => p.category || "General"))];
   const categories = {};
-  for (const slug of categorySlugs) {
-    const dept = INQUIRY_CATEGORIES.has(slug) ? warehouse : houseware;
-    categories[slug] = await prisma.category.upsert({
+  for (const rawName of rawCategories) {
+    const slug = slugify(rawName);
+    const dept = INQUIRY_CATEGORY_NAMES.has(rawName) ? warehouse : houseware;
+    categories[rawName] = await prisma.category.upsert({
       where: { slug },
-      update: {},
-      create: { slug, name: titleCase(slug), departmentId: dept.id },
+      update: { name: rawName, departmentId: dept.id },
+      create: { slug, name: rawName, departmentId: dept.id },
     });
   }
-  console.log(`Upserted ${categorySlugs.length} categories`);
+  console.log(`Upserted ${rawCategories.length} categories`);
 
+  // Idempotency: products are created on first run and never overwritten on
+  // subsequent runs, so admin edits (price, images, flags, etc.) survive
+  // re-seeding. A product is only created if its slug does not already exist.
+  let created = 0;
+  let skipped = 0;
   for (const p of products) {
-    const data = {
-      name: p.name,
-      description: p.description || "",
-      price: String(p.price ?? 0),
-      currency: p.currency || "KD",
-      image: p.img || "",
-      images: Array.isArray(p.images) ? p.images : [],
-      line: p.line || "",
-      sku: p.sku || "",
-      specs: Array.isArray(p.specs) ? p.specs : [],
-      categoryId: categories[p.category || "general"].id,
-    };
-    await prisma.product.upsert({ where: { slug: p.id }, update: data, create: { slug: p.id, ...data } });
+    const slug = p.id;
+    const existing = await prisma.product.findUnique({ where: { slug } });
+    if (existing) {
+      skipped += 1;
+      continue;
+    }
+    await prisma.product.create({
+      slug,
+      data: {
+        slug,
+        name: p.name,
+        description: p.description || "",
+        price: String(p.price ?? 0),
+        currency: p.currency || "KD",
+        image: p.img || "",
+        images: Array.isArray(p.images) ? p.images : [],
+        line: p.line || "",
+        sku: p.sku || "",
+        specs: Array.isArray(p.specs) ? p.specs : [],
+        categoryId: categories[p.category || "General"].id,
+      },
+    });
+    created += 1;
   }
-  console.log(`Upserted ${products.length} products`);
+  console.log(`Products: ${created} created, ${skipped} skipped (already present)`);
 
   const adminEmail = process.env.ADMIN_SEED_EMAIL || "admin@alnassim.com";
   const adminPassword = process.env.ADMIN_SEED_PASSWORD;
   if (!adminPassword) throw new Error("ADMIN_SEED_PASSWORD missing in .env");
+  // Admin user: created on first run; on subsequent runs only the role is
+  // refreshed. The password is never overwritten, so rotated credentials
+  // survive re-seeding.
   await prisma.user.upsert({
     where: { email: adminEmail },
     update: { role: "ADMIN" },
