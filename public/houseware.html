@@ -1,9 +1,12 @@
-<html class="light" lang="en"><head></head><body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
+﻿<html class="light" lang="en"><head>
+</head><body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 
 <!-- Loading Screen -->
 <div id="loading-screen">
     <div class="loading-dots">
         <div class="loading-dot"></div>
+<!-- fail-safe loader removal -->
+<script>setTimeout(function(){var l=document.getElementById("loading-screen");if(l){l.style.display="none";}},3000);</script>
         <div class="loading-dot"></div>
         <div class="loading-dot"></div>
     </div>
@@ -14,78 +17,46 @@
 
 
 
-    <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+    <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"||(!s&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<link rel="icon" href="/LOGO.png" type="image/png"/>
 <title>AL-NASSIM</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Signate&display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
         theme: {
           extend: {
             colors: {
-              "outline": "#74777c",
-              "surface-variant": "#d8e4f3",
-              "on-tertiary-fixed": "#2a170e",
-              "on-primary-fixed": "#111d27",
-              "on-surface-variant": "#44474b",
-              "on-background": "#111d27",
-              "surface-container-low": "#edf4ff",
-              "primary-container": "#131e29",
-              "on-secondary-fixed": "#321300",
-              "surface-bright": "#f7f9ff",
-              "tertiary-fixed-dim": "#e3bfb1",
-              "surface-dim": "#d0dbea",
-              "inverse-on-surface": "#e8f1ff",
-              "on-tertiary": "#ffffff",
-              "on-surface": "#111d27",
-              "on-error-container": "#93000a",
-              "on-secondary-fixed-variant": "#673c20",
-              "primary-fixed-dim": "#bcc8d7",
-              "on-error": "#ffffff",
-              "on-primary-fixed-variant": "#3d4854",
-              "on-primary-container": "#7b8694",
-              "on-tertiary-fixed-variant": "#5a4137",
-              "inverse-surface": "#27313d",
-              "secondary": "#825335",
-              "outline-variant": "#c4c6cc",
-              "tertiary": "#090100",
-              "error": "#ba1a1a",
-              "secondary-fixed-dim": "#f7b994",
-              "surface-container-highest": "#d8e4f3",
-              "surface-container-high": "#dee9f9",
-              "error-container": "#ffdad6",
-              "secondary-fixed": "#ffdbc8",
-              "surface-container": "#e4efff",
-              "surface": "#f7f9ff",
-              "surface-tint": "#545f6c",
-              "background": "#f7f9ff",
-              "on-tertiary-container": "#9e7e72",
-              "primary-fixed": "#d8e4f3",
-              "on-secondary": "#ffffff",
-              "tertiary-container": "#2c1810",
-              "inverse-primary": "#bcc8d7",
-              "surface-container-lowest": "#ffffff",
-              "on-secondary-container": "#794b2e",
-              "primary": "#000308",
-              "on-primary": "#ffffff",
-              "tertiary-fixed": "#ffdbcd"
+              "outline": "#74777c", "surface-variant": "#d8e4f3", "on-tertiary-fixed": "#2a170e",
+              "on-primary-fixed": "#111d27", "on-surface-variant": "#44474b", "on-background": "#111d27",
+              "surface-container-low": "#edf4ff", "primary-container": "#131e29", "on-secondary-fixed": "#321300",
+              "surface-bright": "#f7f9ff", "tertiary-fixed-dim": "#e3bfb1", "surface-dim": "#d0dbea",
+              "inverse-on-surface": "#e8f1ff", "on-tertiary": "#ffffff", "on-surface": "#111d27",
+              "on-error-container": "#93000a", "on-secondary-fixed-variant": "#673c20", "primary-fixed-dim": "#bcc8d7",
+              "on-error": "#ffffff", "on-primary-fixed-variant": "#3d4854", "on-primary-container": "#7b8694",
+              "on-tertiary-fixed-variant": "#5a4137", "inverse-surface": "#27313d", "secondary": "#825335",
+              "outline-variant": "#c4c6cc", "tertiary": "#090100", "error": "#ba1a1a",
+              "secondary-fixed-dim": "#f7b994", "surface-container-highest": "#d8e4f3",
+              "surface-container-high": "#dee9f9", "error-container": "#ffdad6", "secondary-fixed": "#ffdbc8",
+              "surface-container": "#e4efff", "surface": "#f7f9ff", "surface-tint": "#545f6c",
+              "background": "#f7f9ff", "on-tertiary-container": "#9e7e72", "primary-fixed": "#d8e4f3",
+              "on-secondary": "#ffffff", "tertiary-fixed": "#ffdbcd", "on-secondary-container": "#794b2e",
+              "primary": "#000308", "on-primary": "#ffffff", "tertiary-container": "#2c1810",
+              "inverse-primary": "#bcc8d7", "surface-container-lowest": "#ffffff",
+              "primary-fixed-dim": "#bcc8d7"
             },
-            fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Inter"],
-              "label": ["Inter"],
-              "signate": ["Signate"]
-            },
+            fontFamily: { "headline": ["Manrope"], "display": ["Manrope"], "body": ["Inter"], "label": ["Inter"] },
             borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
           },
         },
       }
     </script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Signate&display=swap" rel="stylesheet"/>
+
 <style>
         @keyframes fade-swap {
             0%, 40% { opacity: 1; }
@@ -201,17 +172,13 @@
             pointer-events: none
         }
         /* Dropdown Trigger Logic */
-        .dropdown-trigger:hover .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
+        /* Dropdown show/hide is now JS-driven (250ms close delay) */
         .dropdown-menu {
             opacity: 0;
             visibility: hidden;
             transform: translateY(10px);
-            transition: all 0.3s ease;
-        }
+            }
+
         .product-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1rem; }
         .add-to-cart-btn {
             transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -285,6 +252,10 @@
                 position: relative !important;
                 height: 300px;
             }
+        }
+        /* MOBILE BREADCRUMB HIDE (≤767px) */
+        @media (max-width: 767px) {
+            section[class*="top-[72px]"] { display: none !important; margin: 0 !important; padding: 0 !important; height: 0 !important; }
         }
     </style>
 <style>
@@ -369,21 +340,188 @@
             clip-path: circle(0px at var(--spotlight-x) var(--spotlight-y));
         }
     </style>
-<script>
-        // Hide loading screen after 1 second
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                const loadingScreen = document.getElementById('loading-screen');
-                
-                if (loadingScreen) {
-                    loadingScreen.style.opacity = '0';
-                    setTimeout(() => {
-                        loadingScreen.style.display = 'none';
-                    }, 500);
-                }
-            }, 1000);
-        });
-    </script>
+<!-- ==================== MOBILE-ONLY RESPONSIVE (≤767px) ====================
+     A TRUE proportional, responsive version of the desktop page — NOT a
+     redesign, NOT a restack. The desktop side-by-side composition (TEXT |
+     IMAGE) is PRESERVED at phone width by forcing the columns back to a row
+     with half-width cells, exactly like desktop — only every height, font
+     size and padding is scaled down so the whole thing compresses vertically.
+     Desktop (≥768px) is byte-identical; every rule is scoped to
+     @media (max-width: 767px). Typography hierarchy is preserved: section H2s
+     stay LARGER than the hero H1 (desktop: hero text-4xl, sections text-5xl). -->
+<style>
+    @media (max-width: 767px) {
+        /* ---- Floating Filter button: non-functional on this page, hide ---- */
+        #mobile-filter-btn { display: none !important; }
+
+        /* ---- Breadcrumb: hidden on mobile (unnecessary vertical space).
+                Desktop keeps it. ---- */
+        .houseware-breadcrumb { display: none !important; }
+
+        /* ---- Main padding-top: desktop uses pt-[72px] to clear the taller
+                desktop nav. The mobile header is more compact, so reduce this
+                to seat the hero flush under the fixed mobile nav with no gap. ---- */
+        main { padding-top: 3.25rem !important; }
+
+        /* ---- HERO: preserve the desktop split-screen (image | text) by
+                forcing the 2-column grid back on. Compress vertically. ---- */
+        .houseware-hero {
+            min-height: 200px !important;          /* desktop 300 -> ~200 */
+            grid-template-columns: 1fr 1fr !important;
+        }
+        .houseware-hero > div {                    /* both hero columns */
+            min-height: 200px !important;
+        }
+        .houseware-hero-text {
+            padding: 1rem 0.9rem !important;       /* desktop p-12 (3rem) */
+            justify-content: center !important;
+        }
+        .houseware-hero-text .hero-eyebrow {
+            font-size: 0.55rem !important;         /* desktop 10px */
+            letter-spacing: 0.15em !important;
+            margin-bottom: 0.4rem !important;
+        }
+        /* Hero H1: desktop text-4xl (2.25rem). Mobile 1.05rem — scaled down,
+           still clearly smaller than section H2s (desktop hierarchy). */
+        .houseware-hero-text h1 {
+            font-size: 1.05rem !important;
+            line-height: 1.1 !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .houseware-hero-text .hero-lines {
+            white-space: normal !important;        /* nowrap overflows */
+            font-size: 0.6rem !important;
+            line-height: 1.4 !important;
+            margin-bottom: 0.25rem !important;
+            max-width: 100% !important;
+        }
+        .houseware-hero-text .hero-sub {
+            font-size: 0.65rem !important;
+            line-height: 1.4 !important;
+            margin-bottom: 0.5rem !important;
+            max-width: 100% !important;
+        }
+
+        /* ---- CATEGORY BUTTONS: same pills, same wrapping/centred layout,
+                only resized/re-spaced for the phone. ---- */
+        .houseware-bubbles-row {
+            gap: 0.4rem !important;
+        }
+        .houseware-bubble {
+            padding: 0.4rem 0.75rem !important;
+            font-size: 0.6rem !important;
+            letter-spacing: 0.1em !important;
+        }
+
+        /* ---- CONTENT SECTIONS: PRESERVE the desktop side-by-side composition
+                (TEXT | IMAGE). The markup is flex-col md:flex-row, which
+                stacks at <768px — we override it back to a row with two
+                ~half-width columns so it reads like a scaled-down desktop. ---- */
+        .houseware-section {
+            padding: 1rem 0.9rem !important;       /* desktop px-8 + py */
+        }
+        .houseware-section .section-row {
+            flex-direction: row !important;        /* keep TEXT | IMAGE side-by-side */
+            gap: 0.75rem !important;               /* desktop gap-12 */
+            align-items: stretch !important;       /* both columns share the same height */
+        }
+        .houseware-section .section-row > div {
+            flex: 1 1 0 !important;                /* equal half-width columns */
+            width: 50% !important;
+            min-width: 0 !important;
+        }
+        /* Remove the desktop-only large left indents (pl-[15%]/pl-[10%]); the
+           text column is already half-width on mobile. */
+        .houseware-section .section-text-indent {
+            padding-left: 0 !important;
+            padding-top: 0 !important;
+        }
+        .houseware-section .section-eyebrow {
+            font-size: 0.6rem !important;          /* desktop text-base (1rem) */
+            letter-spacing: 0.18em !important;
+            margin-bottom: 0.35rem !important;
+        }
+        /* Section H2: desktop text-5xl (3rem). Mobile 1.35rem — remains visibly
+           LARGER than the hero H1 (1.05rem), preserving hierarchy. */
+        .houseware-section h2 {
+            font-size: 1.35rem !important;
+            line-height: 1.0 !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .houseware-section .section-body {
+            font-size: 0.65rem !important;
+            line-height: 1.5 !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .houseware-section .section-explore {
+            margin-top: 0 !important;
+            font-size: 0.6rem !important;
+            letter-spacing: 0.12em !important;
+        }
+
+        /* ---- TEASER IMAGES: fill the image column to match the text column.
+                align-items: stretch on .section-row already makes both columns
+                the same height.  We propagate that down so the image fills it.
+
+                iOS WebKit bug: height: 100 % fails to resolve through multiple
+                nested flex children (link → container → img).  Workaround:
+                make the roll-image-container fill the column via flex, then
+                absolutely-position the img inside it.  Absolute positioning
+                resolves against the nearest positioned ancestor (the container
+                already has position: relative from the base CSS), bypassing
+                the nested-flex height-resolution bug entirely. ---- */
+        .houseware-section .section-row > div {
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        .houseware-teaser-link {
+            display: flex !important;
+            flex-direction: column !important;
+            flex: 1 1 0% !important;
+            min-height: 0 !important;
+        }
+        .houseware-teaser-link .roll-image-container {
+            flex: 1 1 0% !important;
+            min-height: 0 !important;
+        }
+        /* Images: position:absolute fills the container without relying on
+           height:100 % through the flex chain (iOS WebKit safe). */
+        .houseware-teaser-img,
+        .houseware-teaser-img-sm {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+        /* Kitchenware right column: text block + kitchen.png.  The wrapper div
+           after the text must flex-grow to fill remaining vertical space, so the
+           absolutely-positioned img inside has a non-zero container height.
+           Selector targets div+div inside a column — only matches Kitchenware's
+           right column (the other sections' image columns contain an <a>, not a
+           sibling <div>).  The wrapper also becomes a flex column so the
+           houseware-teaser-link inside can stretch via its flex:1 1 auto.
+           min-height ensures the kitchen image is always visible even when the
+           text block is tall (flex-shrink can reduce it, but never below this). */
+        .houseware-section .section-row > div > div + div {
+            flex: 1 1 auto !important;
+            min-height: 4rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            margin-top: 0.5rem !important;
+        }
+
+        /* ---- Touch feedback for the now-tappable teaser cards ---- */
+        .houseware-teaser-link {
+            display: block;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .houseware-teaser-link:active { transform: scale(0.98); }
+        .houseware-teaser-link .roll-image-container { transition: transform 0.2s ease; }
+    }
+</style>
+<script>document.addEventListener("DOMContentLoaded",function(){var l=document.getElementById("loading-screen");if(l){l.style.opacity="0";setTimeout(function(){if(l)l.style.display="none";},300);}});</script>
 <script>
         document.addEventListener('DOMContentLoaded', () => {
             const observerOptions = {
@@ -463,18 +601,17 @@
 <!-- Top Notification Bar -->
 <!-- TopNavBar -->
 <nav class="fixed w-full z-[80] glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
-<div class="flex justify-between items-center w-full px-8 py-2 max-w-screen-2xl mx-auto">
+<div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
 <div class="flex items-center gap-12">
-<a href="home.html" class="flex items-center gap-2 group cursor-pointer">
-<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[4.3rem] w-auto"/>
+<a href="home.html" class="flex items-center gap-2 group cursor-pointer shrink-0">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/>
 </a>
 <div class="hidden md:flex gap-8">
-<!-- Nav Items with Dropdowns -->
 <div class="dropdown-trigger relative py-1">
 <a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a>
 <div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[70]">
 <ul class="space-y-4">
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="cleaning-tools.html">Cleaning Tools</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="subcategoryui.html">Cleaning Tools</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="home-outdoor.html">Home & Outdoor</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="kitchenware.html">Kitchenware</a></li>
 </ul>
@@ -487,7 +624,7 @@
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="cooling.html">Cooling Appliances</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trolly.html">Trolleys & Baskets</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="shelves.html">Shelves & Stands</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="checkout.html">Checkout Solutions</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="checkout-solutions.html">Checkout Solutions</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="accessories.html">Accessories</a></li>
 </ul>
 </div>
@@ -502,37 +639,30 @@
 </ul>
 </div>
 </div>
-<div class="dropdown-trigger relative py-1">
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="#">Customized<br/><span class="block text-[11px]">Packaging</span></a>
-<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[70]">
-<ul class="space-y-4">
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Custom Crates</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Sustainable Wrap</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Archive Systems</a></li>
-</ul>
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a>
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a>
 </div>
 </div>
-<div class="dropdown-trigger relative py-1">
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="#">Cold<br/><span class="block text-[11px]">Rooms</span></a>
-<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[70]">
-<ul class="space-y-4">
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Thermal Inserts</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Climate Sensors</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="#">Cold Storage Units</a></li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div class="flex items-center gap-6"><button class="hover:opacity-80 transition-all duration-300 active:scale-95">
-<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">search</span>
-</button>
-<button class="hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center">
+<!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
+     direct flex child of the header row so all three elements share the same
+     vertical centre via the parent items-center. The search icon lives inside a
+     <label> so search.js bindTriggers() skips it. -->
+<form class="flex-1 mx-2 md:hidden relative m-0" id="mobile-inline-search" role="search" autocomplete="off">
+<label class="absolute inset-y-0 left-2 flex items-center pointer-events-none" for="mobile-inline-search-input">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-white/60" style="font-size:20px;">search</span>
+</label>
+<input id="mobile-inline-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-full h-9 pl-8 pr-3 rounded-lg bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 outline-none focus:ring-2 focus:ring-primary/40 transition"/>
+</form>
+<div class="flex items-center gap-2 md:gap-6 shrink-0"><!-- Desktop inline search bar -->
+<form class="hidden md:flex relative m-0 items-center" id="desktop-inline-search" role="search" autocomplete="off">
+<input id="desktop-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-44 lg:w-56 h-9 px-3 py-2 rounded-full bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 dark:border-white/20 outline-none focus:ring-2 focus:ring-primary/40 focus:w-64 transition-all duration-300"/>
+</form>
+<button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center">
 <span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
 <span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
 <span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
 </button>
-<div class="relative group" id="download-btn-container">
+<div class="relative group hidden md:block" id="download-btn-container">
 <button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
 <span class="material-symbols-outlined dark:text-slate-300" style="font-size: 30px;">download</span>
 </button>
@@ -547,30 +677,33 @@
 <!-- Download Options -->
 <div class="space-y-3 flex flex-col items-center bg-transparent">
 <a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
-<img src="topcar/aple.png" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+<img loading="lazy" src="topcar/aple.png" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg"/>
 </a>
 <a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
-<img src="topcar/ggle.png" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+<img loading="lazy" src="topcar/ggle.png" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg"/>
 </a>
 </div>
 </div>
 </div>
 </div>
-<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle">
+<button class="hidden md:block hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle">
 <span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span>
 </button>
-<button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<button class="hidden md:block hover:opacity-80 transition-all duration-300 active:scale-95">
 <span class="material-symbols-outlined dark:text-slate-300" style="font-size: 30px;">shopping_cart</span>
 </button>
-<button class="hover:opacity-80 transition-all duration-300 active:scale-95">
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95 hidden md:flex" id="account-btn">
 <span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">person</span>
+</button>
+<button id="hamburger-slot" class="md:hidden hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center justify-center p-0" aria-label="Open menu">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">menu</span>
 </button>
 </div>
 </div>
 </nav>
 <main class="pt-[72px]">
 <!-- Breadcrumb Navigation (Overlapping) -->
-<section class="absolute top-[72px] left-0 right-0 z-[60] px-12 max-w-[1920px] mx-auto py-4">
+<section class="houseware-breadcrumb absolute top-[72px] left-0 right-0 z-[60] px-12 max-w-[1920px] mx-auto py-4">
 <nav class="flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-semibold text-black">
 <a class="hover:text-secondary transition-colors" href="home.html">Home</a>
 <span class="opacity-30">/</span>
@@ -578,17 +711,17 @@
 </nav>
 </section>
 <!-- Slimmed Split-Screen Hero Header -->
-<section class="grid grid-cols-1 md:grid-cols-2 min-h-[300px] md:min-h-[350px] items-center overflow-hidden bg-primary-container">
+<section class="houseware-hero grid grid-cols-1 md:grid-cols-2 min-h-[300px] md:min-h-[350px] items-center overflow-hidden bg-primary-container">
 <div class="relative h-full">
-<img class="absolute inset-0 w-full h-full object-cover" src="topcar/house.png"/>
+<img loading="lazy" class="absolute inset-0 w-full h-full object-cover" src="topcar/house.png"/>
 </div>
-<div class="p-12 md:p-16 lg:p-20 flex flex-col justify-center text-on-primary">
-<span class="font-label text-[10px] tracking-[0.2em] uppercase text-secondary mb-4 block">Collection 2026</span>
+<div class="houseware-hero-text p-12 md:p-16 lg:p-20 flex flex-col justify-center text-on-primary">
+<span class="hero-eyebrow font-label text-[10px] tracking-[0.2em] uppercase text-secondary mb-4 block">Collection 2026</span>
 <h1 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tighter leading-tight mb-6">The Houseware Collective</h1>
-<p class="font-body text-base text-on-primary-container max-w-lg leading-relaxed mb-2 whitespace-nowrap">
+<p class="hero-lines font-body text-base text-on-primary-container max-w-lg leading-relaxed mb-2 whitespace-nowrap">
                     HOME & OUTDOOR • KITCHENWARE • CLEANING TOOLS
                 </p>
-<p class="font-body text-base text-on-primary-container max-w-md leading-relaxed mb-8">
+<p class="hero-sub font-body text-base text-on-primary-container max-w-md leading-relaxed mb-8">
                     Everything you need, all in one place.
                 </p>
 <div class="flex gap-4">
@@ -600,14 +733,14 @@
 <!-- Category Navigation Bubbles -->
 <section class="py-3 px-8 bg-surface dark:bg-[#0a0f14]">
 <div class="max-w-7xl mx-auto">
-<div class="flex flex-wrap justify-center gap-4">
-<a href="home-outdoor.html" class="inline-block px-8 py-4 bg-secondary text-on-secondary rounded-full font-label text-sm uppercase tracking-widest hover:bg-on-secondary-fixed-variant transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
+<div class="houseware-bubbles-row flex flex-wrap justify-center gap-4">
+<a href="home-outdoor.html" class="houseware-bubble inline-block px-8 py-4 bg-secondary text-on-secondary rounded-full font-label text-sm uppercase tracking-widest hover:bg-on-secondary-fixed-variant transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
 HOME & OUTDOOR
 </a>
-<a href="kitchenware.html" class="inline-block px-8 py-4 bg-secondary text-on-secondary rounded-full font-label text-sm uppercase tracking-widest hover:bg-on-secondary-fixed-variant transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
+<a href="kitchenware.html" class="houseware-bubble inline-block px-8 py-4 bg-secondary text-on-secondary rounded-full font-label text-sm uppercase tracking-widest hover:bg-on-secondary-fixed-variant transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
 KITCHENWARE
 </a>
-<a href="cleaning-tools.html" class="inline-block px-8 py-4 bg-secondary text-on-secondary rounded-full font-label text-sm uppercase tracking-widest hover:bg-on-secondary-fixed-variant transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
+<a href="cleaning-tools.html" class="houseware-bubble inline-block px-8 py-4 bg-secondary text-on-secondary rounded-full font-label text-sm uppercase tracking-widest hover:bg-on-secondary-fixed-variant transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
 CLEANING TOOLS
 </a>
 </div>
@@ -615,24 +748,25 @@ CLEANING TOOLS
 </section>
 
 <!-- Philosophy Section -->
-<section class="pt-10 pb-10 px-8 bg-surface dark:bg-[#0a0f14]">
-<div class="flex flex-col md:flex-row gap-12">
+<section class="houseware-section pt-10 pb-10 px-8 bg-surface dark:bg-[#0a0f14]">
+<div class="section-row flex flex-col md:flex-row gap-12">
 <div class="md:w-1/2 flex flex-col justify-between">
-<div class="pl-[15%] pt-4">
-<span class="font-label text-base uppercase tracking-[0.3em] text-primary dark:text-white mb-6 block">Comfort Without Limits</span>
+<div class="section-text-indent pl-[15%] pt-4">
+<span class="section-eyebrow font-label text-base uppercase tracking-[0.3em] text-primary dark:text-white mb-6 block">Comfort Without Limits</span>
 <h2 class="font-headline text-5xl md:text-6xl tracking-tight leading-tight mb-8 dark:text-white">HOME & OUTDOOR</h2>
-<p class="font-body text-on-surface-variant dark:text-white/70 leading-loose mb-10 text-lg">
+<p class="section-body font-body text-on-surface-variant dark:text-white/70 leading-loose mb-10 text-lg">
                     Discover products built for comfort, function, and lasting quality, whether at home or beyond your walls—featuring smart storage, laundry solutions, functional furniture, and outdoor essentials for every setting.
                 </p>
-<a href="home-outdoor.html" class="inline-flex items-center gap-2 mt-3 font-label text-sm uppercase tracking-widest text-primary dark:text-white hover:text-secondary transition-colors duration-300 group font-bold">
+<a href="home-outdoor.html" class="section-explore inline-flex items-center gap-2 mt-3 font-label text-sm uppercase tracking-widest text-primary dark:text-white hover:text-secondary transition-colors duration-300 group font-bold">
                     EXPLORE HOME & OUTDOOR
                     <span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
                 </a>
 </div>
 </div>
 <div class="md:w-1/2">
+<a href="home-outdoor.html" class="houseware-teaser-link" aria-label="Explore Home & Outdoor products">
 <div class="roll-image-container">
-<img class="w-full h-[405px] object-cover" src="topcar/indoor.png"/>
+<img loading="lazy" class="houseware-teaser-img w-full h-[405px] object-cover" src="topcar/indoor.png"/>
 <div class="roll-overlay">
 <span class="roll-overlay-text">
 View Products
@@ -640,16 +774,18 @@ View Products
 </span>
 </div>
 </div>
+</a>
 </div>
 </div>
 </section>
 
 <!-- Behind the Craft Section -->
-<section class="max-w-screen-2xl mx-auto px-8 pt-0 pb-10 dark:bg-[#0a0f14]">
-<div class="flex flex-col md:flex-row gap-12">
+<section class="houseware-section max-w-screen-2xl mx-auto px-8 pt-0 pb-10 dark:bg-[#0a0f14]">
+<div class="section-row flex flex-col md:flex-row gap-12">
 <div class="md:w-1/2">
+<a href="kitchenware.html" class="houseware-teaser-link" aria-label="Explore Kitchenware products">
 <div class="roll-image-container">
-<img class="w-full h-[450px] object-cover" src="topcar/roll.png"/>
+<img loading="lazy" class="houseware-teaser-img w-full h-[450px] object-cover" src="topcar/roll.png"/>
 <div class="roll-overlay">
 <span class="roll-overlay-text">
 View Product
@@ -657,24 +793,26 @@ View Product
 </span>
 </div>
 </div>
+</a>
 </div>
 <div class="md:w-1/2 flex flex-col justify-between">
 <div>
-<span class="font-label text-base uppercase tracking-[0.3em] text-primary dark:text-white mb-6">Made for Everyday Cooking</span>
+<span class="section-eyebrow font-label text-base uppercase tracking-[0.3em] text-primary dark:text-white mb-6">Made for Everyday Cooking</span>
 <h2 class="font-headline text-5xl md:text-6xl tracking-tight leading-tight mb-8 dark:text-white">
                         KITCHENWARE
                     </h2>
-<p class="font-body text-on-surface-variant dark:text-white/70 leading-loose mb-10 text-lg">
+<p class="section-body font-body text-on-surface-variant dark:text-white/70 leading-loose mb-10 text-lg">
                         Built to last, kitchen essentials that make cooking easier and enjoyable.
                     </p>
-<a href="kitchenware.html" class="inline-flex items-center gap-2 mt-3 font-label text-sm uppercase tracking-widest text-primary dark:text-white hover:text-secondary transition-colors duration-300 group font-bold">
-                    EXPLORE KITCHENWARE 
+<a href="kitchenware.html" class="section-explore inline-flex items-center gap-2 mt-3 font-label text-sm uppercase tracking-widest text-primary dark:text-white hover:text-secondary transition-colors duration-300 group font-bold">
+                    EXPLORE KITCHENWARE
                     <span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
                 </a>
 </div>
 <div>
+<a href="kitchenware.html" class="houseware-teaser-link" aria-label="Explore Kitchenware products">
 <div class="roll-image-container">
-<img class="w-full h-[200px] object-cover" src="topcar/kitchen.png"/>
+<img loading="lazy" class="houseware-teaser-img-sm w-full h-[200px] object-cover" src="topcar/kitchen.png"/>
 <div class="roll-overlay">
 <span class="roll-overlay-text">
 View Product
@@ -682,30 +820,32 @@ View Product
 </span>
 </div>
 </div>
+</a>
 </div>
 </div>
 </div>
 </section>
 
 <!-- Cleaning Section -->
-<section class="max-w-screen-2xl mx-auto px-8 pt-0 pb-10 dark:bg-[#0a0f14]">
-<div class="flex flex-col md:flex-row gap-12">
+<section class="houseware-section max-w-screen-2xl mx-auto px-8 pt-0 pb-10 dark:bg-[#0a0f14]">
+<div class="section-row flex flex-col md:flex-row gap-12">
 <div class="md:w-1/2 flex flex-col justify-between">
-<div class="pl-[10%] pt-4">
-<span class="font-label text-base uppercase tracking-[0.3em] text-primary dark:text-white mb-6">Home Care</span>
+<div class="section-text-indent pl-[10%] pt-4">
+<span class="section-eyebrow font-label text-base uppercase tracking-[0.3em] text-primary dark:text-white mb-6">Home Care</span>
 <h2 class="font-headline text-5xl md:text-6xl tracking-tight leading-tight mb-8 dark:text-white">CLEANING TOOLS</h2>
-<p class="font-body text-on-surface-variant dark:text-white/70 leading-loose mb-10 text-lg">
+<p class="section-body font-body text-on-surface-variant dark:text-white/70 leading-loose mb-10 text-lg">
                         Keep your home fresh and spotless with reliable cleaning tools and essentials designed to simplify everyday upkeep.
                     </p>
-<a href="cleaning-tools.html" class="inline-flex items-center gap-2 mt-3 font-label text-sm uppercase tracking-widest text-primary dark:text-white hover:text-secondary transition-colors duration-300 group font-bold">
+<a href="cleaning-tools.html" class="section-explore inline-flex items-center gap-2 mt-3 font-label text-sm uppercase tracking-widest text-primary dark:text-white hover:text-secondary transition-colors duration-300 group font-bold">
                     EXPLORE CLEANING TOOLS
                     <span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
                 </a>
 </div>
 </div>
 <div class="md:w-1/2">
+<a href="cleaning-tools.html" class="houseware-teaser-link" aria-label="Explore Cleaning Tools products">
 <div class="roll-image-container">
-<img class="w-full h-[405px] object-cover" src="topcar/clean.png"/>
+<img loading="lazy" class="houseware-teaser-img w-full h-[405px] object-cover" src="topcar/clean.png"/>
 <div class="roll-overlay">
 <span class="roll-overlay-text">
 View Products
@@ -713,6 +853,7 @@ View Products
 </span>
 </div>
 </div>
+</a>
 </div>
 </div>
 </section>
@@ -726,8 +867,8 @@ View Products
 <div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
 <!-- Column 1 -->
 <div class="col-span-1">
-<a href="index.html" class="flex items-center gap-2 mb-6">
-<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto">
+<a href="home.html" class="flex items-center gap-2 mb-6">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
 </a>
 <p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
 </div>
@@ -735,11 +876,11 @@ View Products
 <div>
 <h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4>
 <ul class="space-y-4 text-sm font-medium">
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Houseware Equipment</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Supermarket Equipment</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Warehouse Equipment</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Customized Packaging</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Cold Rooms</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Customized Packaging</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li>
 </ul>
 </div>
 <!-- Column 3 -->
@@ -783,18 +924,130 @@ View Products
 <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
 <p class="text-xs text-slate-500">© 2026 AL-Nassim Golden Group. All rights reserved.</p>
 <div class="flex items-center gap-6">
-<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.facebook.com/Al.Nassim.Central.Market/" target="_blank" rel="noopener noreferrer"><img src="topcar/Facebook_icon.png" alt="Facebook" class="w-6 h-6 object-contain"/></a>
-<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==" target="_blank" rel="noopener noreferrer"><img src="topcar/Instagram_icon.png" alt="Instagram" class="w-6 h-6 object-contain"/></a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.facebook.com/Al.Nassim.Central.Market/" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/Facebook_icon.png" alt="Facebook" class="w-6 h-6 object-contain"/></a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/Instagram_icon.png" alt="Instagram" class="w-6 h-6 object-contain"/></a>
 </div>
 </div>
 </div>
 </footer>
+<!-- ==================== MOBILE BOTTOM NAVIGATION ====================
+     Reuses existing systems — no duplication:
+       Home       -> home.html (no-op if already here)
+       Categories -> #hamburger-slot.click()  (existing mobile drawer, mobile-nav.js)
+       Account    -> window.NassimAccount.openPanel()  (Login if guest / Profile if logged in)
+       Cart       -> cart.html (existing Cart page); badge #header-cart-count is
+                    auto-synced by cart-nav.js — we only toggle its visibility.
+     Implemented as <div role="navigation"> (not <nav>) so the auto-wiring in
+     cart-nav.js / account.js / search.js (which scan header/nav) is NOT
+     re-triggered here, avoiding duplicate event listeners. -->
+<style>
+    #mobile-bottom-nav-inner { padding-bottom: env(safe-area-inset-bottom); }
+    .mbnav-item { color: #44474b; }                       /* on-surface-variant */
+    .dark .mbnav-item { color: rgba(255,255,255,0.6); }
+    .mbnav-item:hover { color: #825335; }                 /* secondary */
+    .dark .mbnav-item:hover { color: #f7b994; }           /* secondary-fixed-dim */
+    .mbnav-item.mbnav-active { color: #825335; }
+    .dark .mbnav-item.mbnav-active { color: #f7b994; }
+    .mbnav-item.mbnav-active .material-symbols-outlined {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    /* Keep page content (footer) clear of the fixed bar on mobile only. */
+    @media (max-width: 767px) {
+        body { padding-bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
+    }
+</style>
+<div id="mobile-bottom-nav" role="navigation" aria-label="Mobile" class="mbnav-vv md:hidden fixed inset-x-0 bottom-0 z-[90] glass-nav dark:bg-[#0a0f14]/90 border-t border-outline-variant/30 shadow-[0_-20px_40px_rgba(0,3,8,0.04)]">
+    <div id="mobile-bottom-nav-inner" class="grid grid-cols-4 items-stretch max-w-screen-sm mx-auto">
+        <button type="button" data-mbnav="home" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">home</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Home</span>
+        </button>
+        <button type="button" data-mbnav="categories" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">grid_view</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Categories</span>
+        </button>
+        <button type="button" data-mbnav="account" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">person</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Account</span>
+        </button>
+        <button type="button" data-mbnav="cart" class="mbnav-item relative flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="relative inline-flex">
+                <span class="material-symbols-outlined" style="font-size:24px;">shopping_cart</span>
+                <span id="header-cart-count" class="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full bg-secondary text-white text-[9px] font-bold flex items-center justify-center leading-none" style="display:none;">00</span>
+            </span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Cart</span>
+        </button>
+    </div>
+</div>
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+        ready(function () {
+            var nav = document.getElementById('mobile-bottom-nav');
+            if (!nav || nav.dataset.bound) return;
+            nav.dataset.bound = '1';
+
+            // Active state — Houseware page is part of the Houseware department,
+            // so no bottom-nav item is force-highlighted here (matches home.html
+            // approach where only the homepage highlights Home).
+            var path = (location.pathname.split('/').pop() || location.pathname || '').toLowerCase();
+            var onHome = (path === '' || path === 'home.html' || path === 'index.html');
+            var homeBtn = nav.querySelector('[data-mbnav="home"]');
+            if (homeBtn && onHome) homeBtn.classList.add('mbnav-active');
+
+            // Home -> home.html (no-op if already here)
+            if (homeBtn) homeBtn.addEventListener('click', function () {
+                if (onHome) return;
+                window.location.href = 'home.html';
+            });
+
+            // Categories -> reuse the existing hamburger drawer toggle
+            var catBtn = nav.querySelector('[data-mbnav="categories"]');
+            if (catBtn) catBtn.addEventListener('click', function () {
+                var slot = document.getElementById('hamburger-slot');
+                if (slot) slot.click(); // exactly as if the hamburger was pressed
+            });
+
+            // Account -> reuse existing account panel (Login if guest, Profile if logged in)
+            var accBtn = nav.querySelector('[data-mbnav="account"]');
+            if (accBtn) accBtn.addEventListener('click', function () {
+                if (window.NassimAccount && window.NassimAccount.openPanel) window.NassimAccount.openPanel();
+            });
+
+            // Cart -> reuse existing Cart page
+            var cartBtn = nav.querySelector('[data-mbnav="cart"]');
+            if (cartBtn) cartBtn.addEventListener('click', function () {
+                window.location.href = 'cart.html';
+            });
+
+            // Cart badge: #header-cart-count is synced by cart-nav.js. We only
+            // toggle its visibility based on the synced value (presentation only).
+            var badge = document.getElementById('header-cart-count');
+            function syncBadge() {
+                if (!badge) return;
+                var n = parseInt((badge.textContent || '').trim(), 10);
+                badge.style.display = (isNaN(n) || n <= 0) ? 'none' : 'flex';
+            }
+            syncBadge();
+            if (badge && window.MutationObserver) {
+                new MutationObserver(syncBadge).observe(badge, { childList: true, characterData: true, subtree: true });
+            }
+            window.addEventListener('pageshow', syncBadge);
+            window.addEventListener('storage', syncBadge);
+        });
+    })();
+</script>
 <!-- WhatsApp Chat Button -->
-<a aria-label="Chat on WhatsApp" class="fixed bottom-6 right-6 z-[100] flex items-center justify-center w-14 h-14 text-white rounded-full hover:scale-110 transition-all duration-300 md:w-16 md:h-16 group" href="https://wa.me/96560900059" rel="noopener noreferrer" target="_blank">
-<img src="topcar/whatsapp.png" alt="Chat on WhatsApp" class="w-full h-full object-contain"/>
+<a aria-label="Chat on WhatsApp" class="fixed bottom-[5rem] right-4 md:bottom-6 md:right-6 z-[100] flex items-center justify-center w-14 h-14 text-white rounded-full hover:scale-110 transition-all duration-300 md:w-16 md:h-16 group" href="https://wa.me/96560900059" rel="noopener noreferrer" target="_blank">
+<img loading="lazy" src="topcar/whatsapp.png" alt="Chat on WhatsApp" class="w-full h-full object-contain"/>
 </a>
-<!-- Floating Quick Filters for Mobile -->
-<button class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-primary text-on-primary px-5 py-2.5 rounded-full flex items-center gap-2 shadow-xl z-40">
+<!-- Floating Quick Filters for Mobile (hidden on this page: no filter panel exists).
+     Kept intact for desktop parity; mobile-hidden via #mobile-filter-btn in the
+     mobile-only override <style> block to avoid showing a non-functional control. -->
+<button id="mobile-filter-btn" class="md:hidden fixed bottom-[5rem] left-1/2 -translate-x-1/2 bg-primary text-on-primary px-5 py-2.5 rounded-full flex items-center gap-2 shadow-xl z-40">
 <span class="material-symbols-outlined text-sm">tune</span>
 <span class="font-manrope font-bold text-[10px] uppercase tracking-widest">Filter</span>
 </button>
@@ -811,35 +1064,405 @@ View Products
         document.documentElement.classList.add('light');
     }
 
-    themeToggleBtn.addEventListener('click', function() {
-        // if set via local storage previously
-        if (localStorage.getItem('color-theme')) {
-            if (localStorage.getItem('color-theme') === 'light') {
-                document.documentElement.classList.add('dark');
-                document.documentElement.classList.remove('light');
-                localStorage.setItem('color-theme', 'dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.documentElement.classList.add('light');
-                localStorage.setItem('color-theme', 'light');
+    </script>
+<script src="assets/js/theme.js" defer></script>
+<script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/cart-nav.js" defer></script>
+<script src="assets/js/product-nav.js" defer></script>
+<script src="assets/js/search.js" defer></script>
+<script src="assets/js/account.js" defer></script>
+<script src="assets/js/mobile-nav.js" defer></script>
+<!-- ==================== MOBILE SEARCH WIRING ====================
+     Wires the mobile inline search bar to search directly in a dropdown below
+     the input. Reuses NassimSearch filtering logic; does NOT open the old
+     overlay popup when the user taps or types. Mirrors home.html. -->
+<script>
+    (function () {
+        var mobileResults = null;
+
+        function createMobileResults() {
+            mobileResults = document.createElement('div');
+            mobileResults.id = 'mobile-search-dropdown';
+            mobileResults.style.cssText = 'position:absolute;top:100%;left:0;right:0;z-index:200;background:#fff;color:#111;border-radius:0 0 12px 12px;box-shadow:0 8px 24px rgba(0,0,0,0.18);max-height:60vh;overflow-y:auto;display:none;';
+            var form = document.getElementById('mobile-inline-search');
+            if (form) form.appendChild(mobileResults);
+            return mobileResults;
+        }
+
+        function renderMobileResults(list) {
+            if (!mobileResults) mobileResults = createMobileResults();
+            mobileResults.innerHTML = '';
+            if (!list || !list.length) {
+                var empty = document.createElement('p');
+                empty.style.cssText = 'padding:16px;text-align:center;color:#888;font-size:13px;';
+                empty.textContent = 'No products found';
+                mobileResults.appendChild(empty);
+                mobileResults.style.display = 'block';
+                return;
             }
-        // if NOT set via local storage previously
-        } else {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                document.documentElement.classList.add('light');
-                localStorage.setItem('color-theme', 'light');
+            list.slice(0, 15).forEach(function (p) {
+                var a = document.createElement('a');
+                a.href = 'product view.html?id=' + encodeURIComponent(p.id);
+                a.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;text-decoration:none;color:inherit;border-bottom:1px solid rgba(0,0,0,0.06);';
+                a.onmouseenter = function () { a.style.background = 'rgba(0,0,0,0.04)'; };
+                a.onmouseleave = function () { a.style.background = ''; };
+
+                var img = document.createElement('img');
+                img.src = p.img || p.image || (p.images && p.images[0]) || '';
+                img.alt = p.name;
+                img.style.cssText = 'width:40px;height:40px;object-fit:cover;border-radius:8px;background:#f2f2f2;flex-shrink:0;';
+                img.onerror = function () { img.style.visibility = 'hidden'; };
+
+                var info = document.createElement('div');
+                info.style.cssText = 'min-width:0;flex:1;';
+                var name = document.createElement('div');
+                name.textContent = p.name;
+                name.style.cssText = 'font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                var meta = document.createElement('div');
+                meta.textContent = (p.line ? p.line + ' · ' : '') + Number(p.price).toFixed(3) + ' ' + (p.currency || 'KD');
+                meta.style.cssText = 'font-size:11px;color:#777;';
+                info.appendChild(name);
+                info.appendChild(meta);
+
+                a.appendChild(img);
+                a.appendChild(info);
+                mobileResults.appendChild(a);
+            });
+            mobileResults.style.display = 'block';
+        }
+
+        function closeMobileResults() {
+            if (mobileResults) mobileResults.style.display = 'none';
+        }
+
+        function doMobileSearch(q) {
+            var ns = window.NassimSearch;
+            if (!ns || !ns.loadProducts) return;
+            q = q.trim().toLowerCase();
+            ns.loadProducts().then(function (list) {
+                if (!q) { closeMobileResults(); return; }
+                var terms = q.split(/\s+/);
+                var filtered = list.filter(function (p) {
+                    var hay = (p.name + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
+                    return terms.every(function (t) { return hay.indexOf(t) !== -1; });
+                });
+                renderMobileResults(filtered);
+            });
+        }
+
+        function bind() {
+            var form = document.getElementById('mobile-inline-search');
+            if (!form || form.dataset.bound) return;
+            form.dataset.bound = '1';
+            var input = document.getElementById('mobile-inline-search-input');
+
+            createMobileResults();
+
+            if (input) {
+                var debounce = null;
+                input.addEventListener('input', function () {
+                    clearTimeout(debounce);
+                    debounce = setTimeout(function () {
+                        doMobileSearch(input.value);
+                    }, 150);
+                });
+                input.addEventListener('focus', function () {
+                    if (input.value.trim()) doMobileSearch(input.value);
+                });
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (input && input.value.trim()) doMobileSearch(input.value);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (mobileResults && !form.contains(e.target)) {
+                    closeMobileResults();
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+        else bind();
+    })();
+</script>
+<!-- ==================== MOBILE CATEGORIES DRAWER: NAME = LINK, ARROW = TOGGLE ======
+     Splits the department header so the NAME navigates and the ARROW only
+     expands/collapses. Reuses mobile-nav.js's existing toggle listener and the
+     desktop nav's existing hrefs — no new links, no duplicated JS. -->
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+
+        function buildDeptHrefMap() {
+            var map = {};
+            var triggers = document.querySelectorAll('.dropdown-trigger');
+            triggers.forEach(function (t) {
+                var link = t.querySelector('a');
+                if (!link) return;
+                var name = '';
+                for (var i = 0; i < link.childNodes.length; i++) {
+                    var n = link.childNodes[i];
+                    if (n.nodeType === 3 || n.nodeType === 1) {
+                        var txt = n.textContent.trim();
+                        if (txt) name += (name ? ' ' : '') + txt;
+                    }
+                }
+                if (name && link.href) map[name.toLowerCase()] = link.getAttribute('href');
+            });
+            if (triggers.length > 0) {
+                var sib = triggers[triggers.length - 1].nextElementSibling;
+                while (sib) {
+                    if (sib.tagName === 'A' && !sib.classList.contains('dropdown-trigger')) {
+                        var parts = [];
+                        for (var j = 0; j < sib.childNodes.length; j++) {
+                            var nn = sib.childNodes[j];
+                            if (nn.nodeType === 3 || nn.nodeType === 1) {
+                                var tt = nn.textContent.trim();
+                                if (tt) parts.push(tt);
+                            }
+                        }
+                        var nm = parts.join(' ');
+                        if (nm && sib.getAttribute('href')) map[nm.toLowerCase()] = sib.getAttribute('href');
+                    }
+                    sib = sib.nextElementSibling;
+                }
+            }
+            return map;
+        }
+
+        var hrefMap = {};
+
+        function hrefForName(rawName) {
+            if (!rawName) return null;
+            var norm = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            var keys = Object.keys(hrefMap);
+            for (var i = 0; i < keys.length; i++) {
+                if (keys[i].replace(/[^a-z0-9]/g, '') === norm) return hrefMap[keys[i]];
+            }
+            var firstWord = rawName.toLowerCase().trim().split(/\s+/)[0];
+            for (var j = 0; j < keys.length; j++) {
+                if (keys[j].replace(/[^a-z0-9]/g, '') === firstWord.replace(/[^a-z0-9]/g, '')) return hrefMap[keys[j]];
+            }
+            return null;
+        }
+
+        function transformItems() {
+            var dept = document.getElementById('mobile-nav-departments');
+            if (!dept) return;
+            var triggers = dept.querySelectorAll('.mobile-accordion-trigger');
+            triggers.forEach(function (trigger) {
+                if (trigger.getAttribute('data-name-linked') === '1') return;
+                var nameSpan = trigger.querySelector('span.flex.flex-col');
+                if (!nameSpan) { trigger.setAttribute('data-name-linked', '1'); return; }
+                var deptName = nameSpan.textContent.replace(/\s+/g, ' ').trim();
+                var href = hrefForName(deptName);
+                if (!href) { trigger.setAttribute('data-name-linked', '1'); return; }
+                var a = document.createElement('a');
+                a.href = href;
+                a.className = nameSpan.className;
+                a.innerHTML = nameSpan.innerHTML;
+                a.addEventListener('click', function (e) { e.stopPropagation(); }, true);
+                nameSpan.parentNode.replaceChild(a, nameSpan);
+                trigger.setAttribute('data-name-linked', '1');
+            });
+        }
+
+        function setupObserver() {
+            var dept = document.getElementById('mobile-nav-departments');
+            if (!dept) return false;
+            transformItems();
+            if (window.MutationObserver && !dept.dataset.splitObs) {
+                dept.dataset.splitObs = '1';
+                new MutationObserver(function () { transformItems(); })
+                    .observe(dept, { childList: true, subtree: true });
+            }
+            return true;
+        }
+
+        ready(function () {
+            hrefMap = buildDeptHrefMap();
+            var tries = 0;
+            (function poll() {
+                if (setupObserver()) return;
+                if (++tries > 60) return;
+                setTimeout(poll, 50);
+            })();
+        });
+    })();
+</script>
+<!-- ==================== MOBILE DRAWER CONTENT SPLIT ====================
+     Splits the single shared mobile drawer (owned by mobile-nav.js) so the two
+     mobile triggers serve different purposes, WITHOUT duplicating JS:
+       • Hamburger (#hamburger-slot, top-right) -> utilities ONLY
+         (EN|AR, Download App, Dark/Light)
+       • Categories (bottom nav)               -> departments ONLY
+     Reuses the drawer panel, open/close, accordion logic (mobile-nav.js), the
+     theme toggle (theme.js), and the desktop nav's EN|AR + download markup. -->
+<!-- Mobile-only: force the Hamburger icon bars to white in Dark Mode (Tailwind
+     Play CDN doesn't reliably generate dark: variants for nodes injected via
+     innerHTML after its initial scan). -->
+<style>
+    html.dark #mob-bar1,
+    html.dark #mob-bar2,
+    html.dark #mob-bar3 { background-color: #ffffff !important; }
+</style>
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+
+        function whenDrawerReady(cb, tries) {
+            tries = tries || 0;
+            if (document.getElementById('mobile-nav-drawer')) { cb(); return; }
+            if (tries > 40) return;
+            setTimeout(function () { whenDrawerReady(cb, tries + 1); }, 50);
+        }
+
+        function buildUtilitiesHTML() {
+            return '' +
+              '<div class="px-5 pt-3">' +
+              '  <button type="button" class="flex items-center justify-between w-full py-3 px-3 rounded-lg text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">' +
+              '    <span class="flex items-center gap-3"><span class="material-symbols-outlined text-lg">language</span> Language</span>' +
+              '    <span class="flex items-center">' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-900 dark:text-white">EN</span>' +
+              '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">AR</span>' +
+              '    </span>' +
+              '  </button>' +
+              '</div>' +
+              '<div class="px-5">' +
+              '  <div class="flex items-center justify-between w-full py-3 px-3 rounded-lg text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">' +
+              '    <span class="flex items-center gap-3"><span class="material-symbols-outlined text-lg">download</span> Download App</span>' +
+              '    <span class="flex items-center">' +
+              '      <a href="#" aria-label="Download on the App Store" class="flex items-center justify-center hover:opacity-80 transition-opacity">' +
+              '        <img src="topcar/app-store.png" alt="Download on the App Store" loading="lazy" class="h-5 w-auto dark:hidden"/>' +
+              '        <img src="topcar/app-store (1).png" alt="Download on the App Store" loading="lazy" class="h-5 w-auto hidden dark:block"/>' +
+              '      </a>' +
+              '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
+              '      <a href="#" aria-label="Get it on Google Play" class="flex items-center justify-center text-gray-900 dark:text-white hover:text-secondary dark:hover:text-[#f7b994] transition-colors">' +
+              '        <span class="material-symbols-outlined text-lg">android</span>' +
+              '      </a>' +
+              '    </span>' +
+              '  </div>' +
+              '</div>' +
+              '<div class="px-5 pb-4">' +
+              '  <button type="button" id="mobile-nav-theme-toggle" role="switch" aria-checked="false" class="flex items-center justify-between w-full py-3 px-3 rounded-lg text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">' +
+              '    <span class="flex items-center gap-3"><span class="material-symbols-outlined text-lg">dark_mode</span> Appearance</span>' +
+              '    <span class="mntheme-switch-track relative inline-flex items-center h-6 w-11 rounded-full bg-gray-300 dark:bg-secondary transition-colors duration-300 flex-shrink-0">' +
+              '      <span class="mntheme-switch-thumb inline-block h-5 w-5 rounded-full bg-white shadow translate-x-0.5 dark:translate-x-[22px] transition-transform duration-300"></span>' +
+              '    </span>' +
+              '  </button>' +
+              '</div>';
+        }
+
+        function setDrawerMode(mode) {
+            var drawer = document.getElementById('mobile-nav-drawer');
+            if (!drawer) return;
+            drawer.setAttribute('data-drawer-mode', mode);
+            var dept = document.getElementById('mobile-nav-departments');
+            var util = document.getElementById('mobile-nav-utilities');
+            if (mode === 'utilities') {
+                if (dept) dept.style.display = 'none';
+                if (util) util.style.display = '';
             } else {
-                document.documentElement.classList.add('dark');
-                document.documentElement.classList.remove('light');
-                localStorage.setItem('color-theme', 'dark');
+                if (dept) dept.style.display = '';
+                if (util) util.style.display = 'none';
             }
         }
-    });
+
+        var pendingDrawerMode = 'utilities';
+
+        function syncThemeIcon() {
+            var btn = document.getElementById('mobile-nav-theme-toggle');
+            if (!btn) return;
+            var isDark = document.documentElement.classList.contains('dark');
+            var icon = btn.querySelector('.material-symbols-outlined');
+            if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+            btn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+        }
+
+        function init() {
+            whenDrawerReady(function () {
+                var drawer = document.getElementById('mobile-nav-drawer');
+                if (!drawer || drawer.getAttribute('data-split-bound') === '1') return;
+                drawer.setAttribute('data-split-bound', '1');
+
+                if (!document.getElementById('mobile-nav-utilities')) {
+                    var util = document.createElement('div');
+                    util.id = 'mobile-nav-utilities';
+                    util.innerHTML = buildUtilitiesHTML();
+                    drawer.appendChild(util);
+                }
+
+                var themeBtn = document.getElementById('mobile-nav-theme-toggle');
+                if (themeBtn && themeBtn.getAttribute('data-theme-wired') !== '1') {
+                    themeBtn.setAttribute('data-theme-wired', '1');
+                    themeBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (typeof window.__nassimThemeToggle === 'function') window.__nassimThemeToggle();
+                        syncThemeIcon();
+                    });
+                }
+                syncThemeIcon();
+                window.addEventListener('storage', function (e) {
+                    if (e.key === 'color-theme') syncThemeIcon();
+                });
+
+                var slot = document.getElementById('hamburger-slot');
+                if (slot) {
+                    slot.addEventListener('click', function () {
+                        setDrawerMode(pendingDrawerMode);
+                        pendingDrawerMode = 'utilities';
+                    }, true);
+                }
+
+                var catBtn = document.querySelector('[data-mbnav="categories"]');
+                if (catBtn && catBtn.getAttribute('data-split-wired') !== '1') {
+                    catBtn.setAttribute('data-split-wired', '1');
+                    catBtn.addEventListener('click', function () {
+                        pendingDrawerMode = 'categories';
+                    }, true);
+                }
+            });
+        }
+
+        ready(init);
+    })();
 </script>
-<script src="assets/js/dark-overrides.js"></script>
-<script src="assets/js/cart-nav.js"></script>
-<script src="assets/js/product-nav.js"></script>
-<script src="assets/js/search.js" defer></script>
-<script src="assets/js/account.js"></script>
+<style>
+/* MOBILE BOTTOM-NAV: FIXED PIN — NO JS REPOSITIONING.
+   The nav is position:fixed (Tailwind) with bottom-0, so it is already pinned
+   to the VISIBLE bottom edge on iOS Safari/Chrome and Android. We do NOT drive
+   `bottom` from visualViewport anymore: the old tracker listened to
+   visualViewport 'scroll'/'resize' (and window 'resize'), which fire
+   continuously during scrolling, pull-to-refresh and toolbar hide/show, and
+   rewrote the inline bottom frame-by-frame — that is what caused the bounce.
+   The bottom is now owned by CSS only and never written from JS, so there is no
+   per-frame repositioning, no jumping, no flicker. Safe-area inset is still
+   handled by #mobile-bottom-nav-inner { padding-bottom: env(safe-area-inset-bottom) }. */
+#mobile-bottom-nav { bottom: 0 !important; }
+</style>
+<script>
+/* One-time cleanup only. Remove any inline `bottom` left behind by the old
+   tracker so the CSS bottom:0 (above) owns the position permanently. We never
+   write `bottom` again and we bind NO scroll/resize/visualViewport listeners,
+   so the bar cannot bounce, jump or flicker while scrolling or pull-to-refresh. */
+(function () {
+  function ready(fn){ if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
+  ready(function () {
+    var nav = document.getElementById('mobile-bottom-nav');
+    if (!nav) return;
+    nav.style.removeProperty('bottom');
+  });
+})();
+</script>
+<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script>
 </body></html>

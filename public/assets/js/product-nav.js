@@ -61,7 +61,8 @@
     "[data-product-wired], .quantity-btn-minus, .quantity-btn-plus, " +
     ".remove-btn, .wishlist-btn, .qv-qty-minus, .qv-qty-plus, " +
     "#theme-toggle, #account-btn, #download-btn, button[id], " +
-    ".accordion-content button, .dropdown-trigger, .nassim-dropdown-trigger";
+    ".accordion-content button, .dropdown-trigger, .nassim-dropdown-trigger, " +
+    "[data-yml-atc], .yml-atc";
 
   /** Selector for actual PRODUCT cards (NOT category showcases). */
   var PRODUCT_CARD_SELECTOR =
@@ -163,4 +164,16 @@
   } else {
     loadCatalog();
   }
+
+  // ---- bfcache (Back/Forward Cache) restore handling ----
+  // When the user navigates to a product and presses Back, mobile browsers
+  // restore this page from the bfcache WITHOUT re-running the script. The
+  // _navigating flag set at navigation time (goToProduct) survives the restore
+  // as `true`, which would make the delegated click handler (above) return early
+  // for every tap — so no product could be re-opened after returning. `pageshow`
+  // fires on BOTH normal loads and bfcache restores; when `event.persisted` is
+  // true the reset is mandatory (and harmless on a normal load otherwise).
+  window.addEventListener("pageshow", function (e) {
+    _navigating = false;
+  });
 })();

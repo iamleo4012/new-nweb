@@ -212,7 +212,7 @@
 <a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a>
 <div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
 <ul class="space-y-4">
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="cleaning-tools.html">Cleaning Tools</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="subcategoryui.html">Cleaning Tools</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="home-outdoor.html">Home & Outdoor</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="kitchenware.html">Kitchenware</a></li>
 </ul>
@@ -1878,18 +1878,116 @@ html.dark .subcat-tabs::after  { background: linear-gradient(to left, rgba(255,2
 }
 @media (min-width: 768px) {
     .subcat-listing-header { display: none !important; }
-    .sc-atc { display: none !important; }   /* desktop keeps original card, add-to-cart hidden */
+
+    /* ---- Desktop product grid: compact spacing, more cards visible ---- */
+    #product-grid { gap: 1rem 1.15rem !important; }
+
+    /* ---- Desktop card: compact, light elevation, small hover lift ---- */
+    #product-grid > article.group {
+        border-radius: 0.65rem;
+        background: #f8f9fb;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.025);
+        transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s cubic-bezier(.4,0,.2,1);
+        overflow: hidden;
+    }
+    #product-grid > article.group:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 8px 20px rgba(0,0,0,0.05);
+    }
+    html.dark #product-grid > article.group {
+        background: #1c2230;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.12);
+    }
+    html.dark #product-grid > article.group:hover {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.18);
+    }
+
+    /* ---- Image: compact landscape ratio (was tall 3/4), rounded top corners ----
+       4/3 is substantially shorter so the image no longer dominates the card,
+       while object-cover keeps the product clearly visible & undistorted. */
+    #product-grid > article.group > div:first-child {
+        aspect-ratio: 4 / 3 !important;
+        border-radius: 0.65rem 0.65rem 0 0;
+        box-shadow: none !important;
+    }
+
+    /* ---- Info column: horizontal name(left) | price(right) grid row, ATC below ----
+       CSS grid gives name and price completely independent, non-overlapping
+       areas. minmax(0,1fr) on the name column + min-width:0 lets long names
+       truncate; the price column is auto + flex-shrink:0 so it never wraps or
+       gets squeezed. Structure: [ NAME .......... ] [ PRICE ] / [ ATC full ]. */
+    #product-grid > article.group > div:nth-child(2) {
+        margin-top: 0 !important;
+        padding: 0.55rem 0.65rem 0.55rem;
+        position: relative;
+        flex: 1 1 auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        column-gap: 0.75rem;
+        row-gap: 0.5rem;
+        align-content: start;
+    }
+
+    /* ---- Product name: LEFT cell, strict 2-line clamp, bounded width ---- */
+    #product-grid > article.group h3 {
+        grid-column: 1; grid-row: 1;
+        min-width: 0;                       /* allow truncation inside grid track */
+        font-size: 0.72rem; line-height: 1.25;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        overflow: hidden; margin-bottom: 0;
+        text-align: left;
+    }
+
+    /* ---- Hide subtitle on desktop for cleaner card ---- */
+    #product-grid > article.group span[class*="text-[10px]"] { display: none !important; }
+
+    /* ---- Price: RIGHT cell, never shrinks/wraps, fully visible ---- */
+    #product-grid > article.group span.text-secondary,
+    #product-grid > article.group span[class*="text-sm font-medium text-secondary"] {
+        grid-column: 2; grid-row: 1;
+        flex-shrink: 0;                      /* price area is immune to long names */
+        white-space: nowrap;
+        text-align: right;
+        align-self: center;
+        font-size: 0.76rem; font-weight: 700; margin-top: 0 !important;
+    }
+
+    /* ---- Add-to-Cart: full card width, compact, ALL FOUR corners rounded ----
+       Sits in a full-width row below the name/price row. The info column's
+       padding gives the small horizontal margin so the button isn't flush with
+       the card edge; border-radius is uniform on every corner (no square tops). */
+    .sc-atc {
+        grid-column: 1 / -1; grid-row: 2;
+        margin-top: auto !important;
+        width: 100%;
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;
+        background: #000308; color: #fff;
+        font-family: 'Manrope', sans-serif; font-size: 0.62rem; font-weight: 800;
+        letter-spacing: 0.06em; text-transform: uppercase;
+        padding: 0.5rem 0.4rem;
+        border-radius: 0.45rem;              /* rounded on all four corners */
+        border: none; cursor: pointer;
+        transition: background .18s ease;
+    }
+    .sc-atc:hover { background: #1a1f2e; }
+    .sc-atc:active { background: #825335; }
+    .sc-atc .material-symbols-outlined { font-size: 14px; }
+    html.dark .sc-atc { background: rgba(255,255,255,0.08); color: #fff; }
+    html.dark .sc-atc:hover { background: rgba(255,255,255,0.14); }
+    html.dark .sc-atc:active { background: #825335; }
+
+    /* ---- Wishlist heart: hidden until card hover (always visible if active) ---- */
     .sc-wish {
-        position: absolute; top: 0.55rem; right: 0.55rem; z-index: 3;
-        width: 34px; height: 34px; border-radius: 9999px;
+        position: absolute; top: 0.4rem; right: 0.4rem; z-index: 3;
+        width: 30px; height: 30px; border-radius: 9999px;
         display: inline-flex; align-items: center; justify-content: center;
         background: rgba(255,255,255,0.92); color: #44474b;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        box-shadow: 0 1px 6px rgba(0,0,0,0.1);
         cursor: pointer; border: none; padding: 0;
         opacity: 0; transition: opacity .2s ease;
     }
     .group:hover .sc-wish { opacity: 1; }
-    .sc-wish .material-symbols-outlined { font-size: 18px; }
+    .sc-wish .material-symbols-outlined { font-size: 16px; }
     .sc-wish.is-on { color: #ef4444; opacity: 1; }
     .sc-wish.is-on .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
     html.dark .sc-wish { background: rgba(10,15,20,0.82); color: rgba(255,255,255,0.85); }

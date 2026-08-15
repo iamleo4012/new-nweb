@@ -1,67 +1,194 @@
 /**
- * AL-NASSIM Checkout Logic
- * Reads cart from localStorage, populates checkout summary, submits order to /api/orders.
+ * AL-NASSIM Checkout Logic (Sprint 3)
+ * ============================================================================
+ * - Reads cart from localStorage (guest) or falls back gracefully.
+ * - Auto-populates form fields when logged in.
+ * - Builds full address from Kuwait address components.
+ * - Supports guest checkout (email optional) + registered checkout.
+ * - Prevents double submission with loading state.
+ * - Clears cart after successful order.
+ * ============================================================================
  */
 (function () {
   "use strict";
   var CART_KEY = "nassim_cart";
+  var submitting = false;
+
   function readStore(key) { try { var raw = localStorage.getItem(key); if (!raw) return null; var p = JSON.parse(raw); return p && p.state ? p.state : p; } catch (e) { return null; } }
   function getCart() { var s = readStore(CART_KEY); return s && s.items ? s.items : []; }
   function formatKd(v, c) { return (c || "KD") + " " + Number(v).toFixed(3); }
 
+  function buildAddress() {
+    var parts = [];
+    var area = (document.getElementById("cust-area") || {}).value || "";
+    var block = (document.getElementById("cust-block") || {}).value || "";
+    var street = (document.getElementById("cust-street") || {}).value || "";
+    var building = (document.getElementById("cust-building") || {}).value || "";
+    var floor = (document.getElementById("cust-floor") || {}).value || "";
+    var apartment = (document.getElementById("cust-apartment") || {}).value || "";
+    var landmark = (document.getElementById("cust-landmark") || {}).value || "";
+    if (area) parts.push("Area: " + area);
+    if (block) parts.push("Block: " + block);
+    if (street) parts.push("Street: " + street);
+    if (building) parts.push("Building: " + building);
+    if (floor) parts.push("Floor: " + floor);
+    if (apartment) parts.push("Apartment: " + apartment);
+    if (landmark) parts.push("Landmark: " + landmark);
+    return parts.join(", ");
+  }
+
   function init() {
     var items = getCart();
     var shipping = 2.5;
-    var subtotal = items.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0);
+    var subtotal = items.reduce(function (s, i) { return s + (i.price * (i.quantity || 1)); }, 0);
     var total = subtotal + shipping;
+
+    // Redirect to cart if empty
+    if (items.length === 0) {
+      var main = document.querySelector("main");
+      if (main) {
+        main.innerHTML = '<div class="pt-32 pb-20 text-center max-w-md mx-auto"><div class="w-20 h-20 bg-surface-container dark:bg-surface-container-high rounded-full flex items-center justify-center mx-auto mb-6"><span class="material-symbols-outlined text-5xl text-on-surface-variant dark:text-white/70">shopping_cart</span></div><h1 class="font-headline text-2xl font-extrabold text-primary dark:text-white mb-4">Your cart is empty</h1><p class="text-on-surface-variant dark:text-white/70 mb-8">Add products before checking out.</p><a href="home.html" class="inline-block bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Continue Shopping</a></div>';
+      }
+      return;
+    }
 
     // Populate summary
     var summaryEl = document.getElementById("checkout-summary");
     if (summaryEl) {
-      var html = items.map(function(i) {
-        return '<div class="flex justify-between items-center py-3 border-b border-outline-variant/20"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">' + (i.image ? '<img src="' + i.image + '" alt="" class="w-full h-full object-cover"/>' : '') + '</div><div><p class="text-sm font-bold text-on-surface dark:text-white">' + (i.name||'') + '</p><p class="text-xs text-on-surface-variant dark:text-white/70">Qty: ' + (i.quantity||1) + '</p></div></div><span class="text-sm font-bold text-primary dark:text-white">' + formatKd(i.price * (i.quantity||1), i.currency) + '</span></div>';
+      var html = items.map(function (i) {
+        return '<div class="flex justify-between items-center py-3 border-b border-outline-variant/20"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">' + (i.image ? '<img src="' + i.image + '" alt="" class="w-full h-full object-cover"/>' : '') + '</div><div><p class="text-sm font-bold text-on-surface dark:text-white">' + (i.name || '') + '</p><p class="text-xs text-on-surface-variant dark:text-white/70">Qty: ' + (i.quantity || 1) + '</p></div></div><span class="text-sm font-bold text-primary dark:text-white">' + formatKd(i.price * (i.quantity || 1), i.currency) + '</span></div>';
       }).join('');
       html += '<div class="flex justify-between py-3 text-sm text-on-surface-variant dark:text-white/70"><span>Subtotal</span><span class="font-medium text-primary dark:text-white">' + formatKd(subtotal) + '</span></div>';
-      html += '<div class="flex justify-between py-3 text-sm text-on-surface-variant dark:text-white/70"><span>Shipping</span><span class="font-medium text-primary dark:text-white">' + formatKd(shipping) + '</span></div>';
-      html += '<div class="flex justify-between py-4 text-lg font-extrabold"><span class="text-on-surface dark:text-white">Total</span><span class="text-primary dark:text-white">' + formatKd(total) + '</span></div>';
+      html += '<div class="flex justify-between py-3 text-sm text-on-surface-variant dark:text-white/70"><span>Shipping (estimated)</span><span class="font-medium text-primary dark:text-white">' + formatKd(shipping) + '</span></div>';
+      html += '<div class="flex justify-between py-4 text-lg font-extrabold"><span class="text-on-surface dark:text-white">Estimated Total</span><span class="text-primary dark:text-white">' + formatKd(total) + '</span></div>';
+      html += '<p class="text-xs text-on-surface-variant/60 dark:text-white/40 mt-2">Final invoice is generated by our POS system. Total may vary based on actual delivered items.</p>';
       summaryEl.innerHTML = html;
     }
+
+    // Auto-populate form if logged in
+    fetch("/api/auth/me", { credentials: "same-origin" })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success && data.data && data.data.user) {
+          var u = data.data.user;
+          var banner = document.getElementById("logged-in-banner");
+          if (banner) banner.classList.remove("hidden");
+          var nameEl = document.getElementById("cust-name"); if (nameEl && !nameEl.value) nameEl.value = u.name || "";
+          var phoneEl = document.getElementById("cust-phone"); if (phoneEl && !phoneEl.value) phoneEl.value = u.phone || "";
+          var emailEl = document.getElementById("cust-email"); if (emailEl && !emailEl.value) emailEl.value = u.email || "";
+          // Try to load default address
+          fetch("/api/addresses", { credentials: "same-origin" })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d.success && d.data && d.data.addresses && d.data.addresses.length > 0) {
+                var addr = d.data.addresses.find(function (a) { return a.isDefault; }) || d.data.addresses[0];
+                populateAddressFields(addr);
+              }
+            })
+            .catch(function () {});
+        }
+      })
+      .catch(function () {});
 
     // Handle form submit
     var form = document.getElementById("checkout-form");
     if (form) {
-      form.addEventListener("submit", function(e) {
+      form.addEventListener("submit", function (e) {
         e.preventDefault();
+        if (submitting) return; // Prevent double submission
+        submitting = true;
+
         var btn = document.getElementById("place-order-btn");
-        if (btn) { btn.textContent = "Placing Order..."; btn.disabled = true; }
+        var btnText = btn ? btn.textContent : "";
+        if (btn) { btn.textContent = "Placing Order…"; btn.disabled = true; btn.classList.add("opacity-60", "cursor-not-allowed"); }
+
+        // Validate required fields
+        var name = (document.getElementById("cust-name") || {}).value || "";
+        var phone = (document.getElementById("cust-phone") || {}).value || "";
+        var area = (document.getElementById("cust-area") || {}).value || "";
+        var block = (document.getElementById("cust-block") || {}).value || "";
+        var street = (document.getElementById("cust-street") || {}).value || "";
+
+        if (name.length < 2) { showError("Please enter your full name."); resetBtn(); return; }
+        if (phone.length < 6) { showError("Please enter a valid phone number."); resetBtn(); return; }
+        if (!area || !block || !street) { showError("Please fill in Area, Block, and Street."); resetBtn(); return; }
+        if (items.length === 0) { showError("Your cart is empty."); resetBtn(); return; }
+
+        var address = buildAddress();
+        if (address.length < 3) { showError("Please provide delivery address details."); resetBtn(); return; }
 
         var body = {
-          customerName: (document.getElementById("cust-name")||{}).value || "",
-          customerEmail: (document.getElementById("cust-email")||{}).value || "",
-          customerPhone: (document.getElementById("cust-phone")||{}).value || "",
-          address: (document.getElementById("cust-address")||{}).value || "",
-          city: (document.getElementById("cust-city")||{}).value || "",
-          notes: (document.getElementById("cust-notes")||{}).value || "",
-          items: items.map(function(i) { return { slug: i.id, name: i.name, image: i.image, price: i.price, qty: i.quantity || 1 }; }),
+          customerName: name,
+          customerEmail: (document.getElementById("cust-email") || {}).value || "",
+          customerPhone: phone,
+          address: address,
+          city: area || "Kuwait",
+          notes: (document.getElementById("cust-notes") || {}).value || "",
+          items: items.map(function (i) { return { slug: i.id || i.slug, name: i.name, image: (i.image || ""), price: i.price, qty: i.quantity || 1 }; }),
           shipping: shipping,
           currency: "KD",
         };
 
-        fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
-          .then(function(r) { return r.json(); })
-          .then(function(data) {
-            if (data.error) { alert(data.error); if (btn) { btn.textContent = "Place Order"; btn.disabled = false; } return; }
-            // Clear cart
-            localStorage.setItem(CART_KEY, JSON.stringify({ state: { items: [], shipping: 2.5, currency: "KD" } }));
-            // Show success
-            var main = document.querySelector("main");
-            if (main) {
-              main.innerHTML = '<div class="pt-20 pb-20 text-center max-w-md mx-auto"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"><span class="material-symbols-outlined text-5xl text-green-600">check_circle</span></div><h1 class="font-display text-3xl font-extrabold text-primary dark:text-white mb-4">Order Placed!</h1><p class="text-on-surface-variant dark:text-white/70 mb-2">Your order number is:</p><p class="font-display text-2xl font-extrabold text-secondary mb-8">' + data.order.orderNumber + '</p><p class="text-sm text-on-surface-variant dark:text-white/70 mb-8">We will contact you shortly to confirm your order and delivery details.</p><a href="home.html" class="inline-block bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Continue Shopping</a></div>';
+        fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify(body) })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (!data.success || data.error) {
+              showError(data.error || "Could not place order. Please try again.");
+              resetBtn();
+              return;
             }
+            // Optionally save address
+            var saveAddr = document.getElementById("save-address");
+            if (saveAddr && saveAddr.checked) {
+              fetch("/api/addresses", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({
+                  label: "Checkout Address",
+                  fullName: name,
+                  phone: phone,
+                  address: address,
+                  city: area || "Kuwait",
+                  area: area,
+                  isDefault: true,
+                })
+              }).catch(function () {});
+            }
+            // Clear cart
+            try { localStorage.setItem(CART_KEY, JSON.stringify({ state: { items: [], shipping: 2.5, currency: "KD" } })); } catch (e) {}
+            // Update cart badge globally
+            if (window.NassimCartBadge) window.NassimCartBadge.update();
+            // Show success page
+            showSuccess(data.data.order.orderNumber, data.data.order.id);
           })
-          .catch(function(err) { alert("Failed to place order. Please try again."); if (btn) { btn.textContent = "Place Order"; btn.disabled = false; } });
+          .catch(function () {
+            showError("Network error. Please check your connection and try again.");
+            resetBtn();
+          });
+
+        function resetBtn() { submitting = false; if (btn) { btn.textContent = btnText; btn.disabled = false; btn.classList.remove("opacity-60", "cursor-not-allowed"); } }
+        function showError(msg) { var errEl = document.getElementById("checkout-error"); if (errEl) { errEl.textContent = msg; errEl.classList.remove("hidden"); } else { alert(msg); } }
+        function showSuccess(orderNumber, orderId) {
+          var m = document.querySelector("main");
+          if (m) {
+            m.innerHTML = '<div class="pt-20 pb-20 text-center max-w-md mx-auto"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"><span class="material-symbols-outlined text-5xl text-green-600">check_circle</span></div><h1 class="font-headline text-3xl font-extrabold text-primary dark:text-white mb-4">Order Placed!</h1><p class="text-on-surface-variant dark:text-white/70 mb-2">Your order number is:</p><p class="font-headline text-2xl font-extrabold text-secondary mb-8">' + orderNumber + '</p><p class="text-sm text-on-surface-variant dark:text-white/70 mb-2">We will review availability and contact you shortly.</p><div class="flex flex-col gap-3 items-center mt-8"><a href="order-detail.html?id=' + orderId + '" class="inline-block bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Track Your Order</a><a href="home.html" class="text-secondary text-sm hover:underline">Continue Shopping</a></div></div>';
+          }
+          window.scrollTo(0, 0);
+        }
       });
     }
+  }
+
+  function populateAddressFields(addr) {
+    function set(id, val) { var el = document.getElementById(id); if (el && val) el.value = val; }
+    set("cust-area", addr.area || addr.city || "");
+    set("cust-block", addr.block || "");
+    set("cust-street", addr.street || "");
+    set("cust-building", addr.building || "");
+    set("cust-floor", addr.floor || "");
+    set("cust-apartment", addr.apartment || "");
+    set("cust-landmark", addr.landmark || "");
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

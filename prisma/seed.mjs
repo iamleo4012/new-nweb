@@ -88,7 +88,6 @@ async function main() {
       continue;
     }
     await prisma.product.create({
-      slug,
       data: {
         slug,
         name: p.name,
@@ -119,7 +118,7 @@ async function main() {
     create: {
       email: adminEmail,
       name: "Administrator",
-      passwordHash: await bcrypt.hash(adminPassword, 10),
+      passwordHash: await bcrypt.hash(adminPassword, 12),
       role: "ADMIN",
     },
   });

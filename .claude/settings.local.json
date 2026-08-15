@@ -68,7 +68,24 @@
       "Bash(curl -s -o /dev/null -w \"search:%{http_code}\\\\n\" http://localhost:3000/assets/js/search.js)",
       "Bash(node -e ' *)",
       "Bash(git check-ignore *)",
-      "Bash(curl -s -X POST http://localhost:3000/api/orders -H \"Content-Type: application/json\" -d '{\"customerName\":\"Final Smoke\",\"customerEmail\":\"smoke@example.com\",\"customerPhone\":\"+96550000000\",\"address\":\"Block 1\",\"city\":\"Kuwait City\",\"notes\":\"\",\"items\":[{\"slug\":\"commercial-refrigerator-xg034\",\"name\":\"x\",\"image\":\"\",\"price\":1,\"qty\":1}],\"shipping\":2.5,\"currency\":\"KD\"}')"
+      "Bash(curl -s -X POST http://localhost:3000/api/orders -H \"Content-Type: application/json\" -d '{\"customerName\":\"Final Smoke\",\"customerEmail\":\"smoke@example.com\",\"customerPhone\":\"+96550000000\",\"address\":\"Block 1\",\"city\":\"Kuwait City\",\"notes\":\"\",\"items\":[{\"slug\":\"commercial-refrigerator-xg034\",\"name\":\"x\",\"image\":\"\",\"price\":1,\"qty\":1}],\"shipping\":2.5,\"currency\":\"KD\"}')",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 34972 //F)",
+      "Bash(sed -n '410,430p' assets/js/account.js)",
+      "Bash(sed -n '80,95p;130,145p' assets/js/product-nav.js)",
+      "Bash(sed -n '10,25p' assets/js/cart-nav.js)",
+      "Bash(PGPASSWORD=apple123 psql -h localhost -U postgres -d postgres -t -c \"SELECT \\\\\"orderNumber\\\\\", status, total FROM \\\\\"Order\\\\\" ORDER BY id;\" -c \"SELECT slug, stock, \\\\\"isActive\\\\\" FROM \\\\\"Product\\\\\" WHERE slug='qa-test-product-001';\" -c \"SELECT email, name FROM \\\\\"User\\\\\" ORDER BY id;\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/api/admin/products)",
+      "Bash(curl -s -b /tmp/pjar2.txt -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/api/admin/products)",
+      "Bash(curl -s -X POST -H \"Content-Type: application/json\" -d '{\"email\":\"patch@example.com\",\"password\":\"wrong\"}' http://localhost:3000/api/auth/login)",
+      "Bash(curl -s -b /tmp/adminjar.txt -X POST -H \"Content-Type: application/json\" -d '{\"slug\":\"\",\"price\":-5}' http://localhost:3000/api/admin/products)",
+      "Bash(curl -s -b /tmp/adminjar.txt -X PATCH -H \"Content-Type: application/json\" -d '{\"status\":\"BOGUS\"}' http://localhost:3000/api/admin/orders/4)",
+      "Bash(curl -s -b /tmp/adminjar.txt -X PATCH -H \"Content-Type: application/json\" -d '{\"id\":4,\"status\":\"BOGUS\"}' http://localhost:3000/api/admin/orders)",
+      "Bash(curl -s -b /tmp/adminjar.txt -X PATCH -H \"Content-Type: application/json\" -d '{\"id\":9999,\"status\":\"PACKING\"}' http://localhost:3000/api/admin/orders)",
+      "Bash(curl -s -X POST -H \"Content-Type: application/json\" -d '{\"customer\":{},\"items\":[]}' http://localhost:3000/api/orders)",
+      "Bash(PGPASSWORD=apple123 psql -h localhost -U postgres -d postgres -t -c \"SELECT stock FROM \\\\\"Product\\\\\" WHERE id=1;\" -c \"SELECT \\\\\"orderId\\\\\", status FROM \\\\\"OrderStatusHistory\\\\\" ORDER BY id DESC LIMIT 3;\" -c \"SELECT action, detail FROM \\\\\"AuditLog\\\\\" ORDER BY id DESC LIMIT 3;\")",
+      "Bash(PGPASSWORD=apple123 psql -h localhost -U postgres -d postgres -c \"DELETE FROM \\\\\"Product\\\\\" WHERE slug='qa-test-product-001';\")"
     ]
   }
 }

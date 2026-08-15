@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { createSession, publicUser } from "@/lib/auth";
+import { hashPassword } from "@/lib/security";
 
 const schema = z.object({
   name: z.string().trim().min(2).max(100),
@@ -33,8 +33,8 @@ export async function POST(req: Request) {
   }
 
   const user = await prisma.user.create({
-    data: { name, email, phone, passwordHash: await bcrypt.hash(password, 10) },
+    data: { name, email, phone, passwordHash: await hashPassword(password) },
   });
-  await createSession(user.id);
+  await createSession(user.id, user.role);
   return NextResponse.json({ success: true, data: { user: publicUser(user) }, error: null }, { status: 201 });
 }

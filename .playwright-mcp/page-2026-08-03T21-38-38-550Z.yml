@@ -1,0 +1,175 @@
+- generic [active] [ref=f2e1]:
+  - navigation [ref=f2e7]:
+    - generic [ref=f2e8]:
+      - generic [ref=f2e9]:
+        - link [ref=f2e10] [cursor=pointer]:
+          - /url: home.html
+          - img "AL-Nassim Logo" [ref=f2e11]
+        - generic [ref=f2e12]:
+          - link "Houseware Equipment" [ref=f2e14] [cursor=pointer]:
+            - /url: houseware.html
+            - text: Houseware
+            - generic [ref=f2e15]: Equipment
+          - link "Supermarket Equipment" [ref=f2e17] [cursor=pointer]:
+            - /url: supermarket.html
+            - text: Supermarket
+            - generic [ref=f2e18]: Equipment
+          - link "Warehouse Equipment" [ref=f2e20] [cursor=pointer]:
+            - /url: warehouse.html
+            - text: Warehouse
+            - generic [ref=f2e21]: Equipment
+          - link "Customized Packaging" [ref=f2e22] [cursor=pointer]:
+            - /url: customized-packaging.html
+            - text: Customized
+            - generic [ref=f2e23]: Packaging
+          - link "Cold Rooms" [ref=f2e24] [cursor=pointer]:
+            - /url: cold-room.html
+            - text: Cold
+            - generic [ref=f2e25]: Rooms
+      - generic [ref=f2e26]:
+        - button "search" [ref=f2e27] [cursor=pointer]
+        - button "EN | AR" [ref=f2e29] [cursor=pointer]:
+          - generic [ref=f2e30]: EN
+          - generic [ref=f2e31]: "|"
+          - generic [ref=f2e32]: AR
+        - button "download" [ref=f2e34] [cursor=pointer]
+        - button "dark_mode" [ref=f2e36] [cursor=pointer]
+        - button "shopping_cart" [ref=f2e38] [cursor=pointer]
+        - button "person" [ref=f2e40] [cursor=pointer]
+  - main [ref=f2e42]:
+    - navigation [ref=f2e44]:
+      - link "Home" [ref=f2e45] [cursor=pointer]:
+        - /url: home.html
+      - generic [ref=f2e46]: /
+      - generic [ref=f2e47]: Supermarket Equipment
+    - generic [ref=f2e49]:
+      - heading "Supermarket Equipment" [level=1] [ref=f2e50]
+      - generic [ref=f2e51]: Explore Our Collection
+    - generic [ref=f2e55]:
+      - generic [ref=f2e56] [cursor=pointer]:
+        - heading "Cooling Appliances" [level=3] [ref=f2e60]
+        - generic:
+          - generic:
+            - heading "Cooling Appliances" [level=2]
+            - link "Explore Collection":
+              - /url: cooling.html
+              - button "Explore Collection"
+      - generic [ref=f2e61] [cursor=pointer]:
+        - heading "Trollies & Baskets" [level=3] [ref=f2e65]
+        - generic:
+          - generic:
+            - heading "Trollies & Baskets" [level=2]
+            - link "Explore Collection":
+              - /url: trolly.html
+              - button "Explore Collection"
+      - generic [ref=f2e66] [cursor=pointer]:
+        - heading "Shelves & Stands" [level=3] [ref=f2e70]
+        - generic:
+          - generic:
+            - heading "Shelves & Stands" [level=2]
+            - link "Explore Collection":
+              - /url: shelves.html
+              - button "Explore Collection"
+      - generic [ref=f2e71] [cursor=pointer]:
+        - heading "Checkout Solutions" [level=3] [ref=f2e75]
+        - generic:
+          - generic:
+            - heading "Checkout Solutions" [level=2]
+            - link "Explore Collection":
+              - /url: checkout.html
+              - button "Explore Collection"
+      - generic [ref=f2e76] [cursor=pointer]:
+        - heading "accessories" [level=3] [ref=f2e80]
+        - generic:
+          - generic:
+            - heading "Accessories" [level=2]
+            - link "Explore Collection":
+              - /url: accessories.html
+              - button "Explore Collection"
+    - generic [ref=f2e81]: Complete Retail Solutions Under One Roof
+    - generic [ref=f2e88]:
+      - generic [ref=f2e89]:
+        - img "Cooling Advertisement" [ref=f2e91]
+        - img "Baskets Advertisement" [ref=f2e93]
+        - img "Stand Advertisement" [ref=f2e95]
+        - img "Trolly Advertisement" [ref=f2e97]
+      - button "arrow_back" [ref=f2e98] [cursor=pointer]
+      - button "arrow_forward" [ref=f2e100] [cursor=pointer]
+  - contentinfo [ref=f2e108]:
+    - generic [ref=f2e109]:
+      - generic [ref=f2e110]:
+        - generic [ref=f2e111]:
+          - link [ref=f2e112] [cursor=pointer]:
+            - /url: home.html
+            - img "AL-Nassim Logo" [ref=f2e113]
+          - paragraph [ref=f2e114]: The premier destination for professional industrial and retail equipment in the heart of Kuwait.
+        - generic [ref=f2e115]:
+          - heading "Quick Links" [level=4] [ref=f2e116]
+          - list [ref=f2e117]:
+            - listitem [ref=f2e118]:
+              - link "Houseware Equipment" [ref=f2e119] [cursor=pointer]:
+                - /url: houseware.html
+            - listitem [ref=f2e120]:
+              - link "Supermarket Equipment" [ref=f2e121] [cursor=pointer]:
+                - /url: supermarket.html
+            - listitem [ref=f2e122]:
+              - link "Warehouse Equipment" [ref=f2e123] [cursor=pointer]:
+                - /url: warehouse.html
+            - listitem [ref=f2e124]:
+              - link "Customized Packaging" [ref=f2e125] [cursor=pointer]:
+                - /url: customized-packaging.html
+            - listitem [ref=f2e126]:
+              - link "Cold Rooms" [ref=f2e127] [cursor=pointer]:
+                - /url: cold-room.html
+        - generic [ref=f2e128]:
+          - heading "General Information" [level=4] [ref=f2e129]
+          - list [ref=f2e130]:
+            - listitem [ref=f2e131]:
+              - link "Help" [ref=f2e132] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e133]:
+              - link "About" [ref=f2e134] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e135]:
+              - link "Frequently Asked Questions" [ref=f2e136] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e137]:
+              - link "Terms & Conditions" [ref=f2e138] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f2e139]:
+          - heading "Customer Service" [level=4] [ref=f2e140]
+          - list [ref=f2e141]:
+            - listitem [ref=f2e142]:
+              - link "Return and refund policy" [ref=f2e143] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e144]:
+              - link "Shipping & delivery" [ref=f2e145] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e146]:
+              - link "Privacy and security" [ref=f2e147] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f2e148]:
+          - heading "Contact Us" [level=4] [ref=f2e149]
+          - list [ref=f2e150]:
+            - listitem [ref=f2e151]:
+              - generic [ref=f2e152]: location_on
+              - generic [ref=f2e153]: Shuwaikh Industrial Area, Kuwait
+            - listitem [ref=f2e154]:
+              - generic [ref=f2e155]: mail
+              - generic [ref=f2e156]: info@al-nassim.com
+            - listitem [ref=f2e157]:
+              - generic [ref=f2e158]: call
+              - generic [ref=f2e159]: +965 609 000 59
+      - generic [ref=f2e160]:
+        - paragraph [ref=f2e161]: © 2026 AL-Nassim Golden Group. All rights reserved.
+        - generic [ref=f2e162]:
+          - link [ref=f2e163] [cursor=pointer]:
+            - /url: https://www.facebook.com/Al.Nassim.Central.Market/
+            - img "Facebook" [ref=f2e164]
+          - link [ref=f2e165] [cursor=pointer]:
+            - /url: https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==
+            - img "Instagram" [ref=f2e166]
+  - link "Chat on WhatsApp" [ref=f2e167] [cursor=pointer]:
+    - /url: https://wa.me/96560900059
+    - img "Chat on WhatsApp" [ref=f2e168]
+  - button "close" [ref=f2e170] [cursor=pointer]

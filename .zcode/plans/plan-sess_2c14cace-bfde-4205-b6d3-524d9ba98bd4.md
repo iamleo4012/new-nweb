@@ -1,0 +1,1 @@
+Implement the approved desktop card CSS upgrade in kitchenware.html ONLY. CSS-only change in the @media (min-width: 768px) block: card elevation, rounded corners, compact spacing, 2-line name clamp, bold price, full-width Add-to-Cart button, wishlist heart on hover. No JS, no template, no mobile changes, no other pages.

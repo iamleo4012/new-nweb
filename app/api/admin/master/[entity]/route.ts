@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { requireStaff } from "@/lib/auth";
+import { requireStaff, requireAdmin } from "@/lib/auth";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -206,8 +206,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ en
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ entity: string }> }) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  // Deleting master-data records is a destructive action.
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
 
   const { entity } = await params;
   if (!isMasterEntity(entity)) {
@@ -241,7 +242,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ e
 
   await prisma.auditLog.create({
     data: {
-      actorId: staff.id,
+      actorId: admin.id,
       action: "MASTER_DELETE",
       entity: cfg.model as string,
       entityId: String(id),

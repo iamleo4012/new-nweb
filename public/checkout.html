@@ -1,15 +1,17 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
+<script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"||(!s&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<link rel="icon" href="/LOGO.png" type="image/png"/>
 <title>Checkout | AL-NASSIM</title>
-<script>(function(){try{var t=localStorage.getItem('color-theme');var d=t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;r.classList.toggle('dark',d);r.classList.toggle('light',!d);}catch(e){}})();</script>
+<script></script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="assets/js/tailwind-config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="assets/js/tailwind-config.js"></script>
+
 <style>
 .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;}
 .glass-nav{background:rgba(247,249,255,0.7);backdrop-filter:blur(20px);}
@@ -18,30 +20,45 @@
 .dark .dark-glass-dropdown{background:rgba(255,255,255,0.98);}
 .dark .dark-glass-dropdown a{color:#111d27!important;}
 .dark .dark-glass-dropdown a:hover{color:#825335!important;}
-.dropdown-trigger:hover .dropdown-menu{opacity:1;visibility:visible;transform:translateY(0);}
-.dropdown-menu{opacity:0;visibility:hidden;transform:translateY(10px);transition:all 0.3s ease;}
+/* Dropdown show/hide is now JS-driven (250ms close delay) */
+.dropdown-menu{opacity:0;visibility:hidden;transform:translateY(10px);}
+
 </style>
 </head>
 <body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 <!-- Shared Header -->
 <nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
-<div class="flex justify-between items-center w-full px-8 py-2 max-w-screen-2xl mx-auto">
+<div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
 <div class="flex items-center gap-12">
-<a href="home.html" class="flex items-center gap-2"><img src="LOGO.png" alt="AL-Nassim Logo" class="h-[4.3rem] w-auto"/></a>
+<a href="home.html" class="flex items-center gap-2 shrink-0"><img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/></a>
 <div class="hidden md:flex gap-8">
-<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="cleaning-tools.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="kitchenware.html">Kitchenware</a></li></ul></div></div>
-<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="cooling.html">Cooling Appliances</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="trolly.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="shelves.html">Shelves &amp; Stands</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="checkout.html">Checkout Solutions</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="accessories.html">Accessories</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="subcategoryui.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="kitchenware.html">Kitchenware</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="cooling.html">Cooling Appliances</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="trolly.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="shelves.html">Shelves &amp; Stands</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="checkout-solutions.html">Checkout Solutions</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="accessories.html">Accessories</a></li></ul></div></div>
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="trollies.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="forklift.html">Forklifts &amp; Pallets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="rack.html">Heavy Duty Racking</a></li></ul></div></div>
-<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="#">Customized<br/><span class="block text-[11px]">Packaging</span></a></div>
-<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="#">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
 </div>
 </div>
-<div class="flex items-center gap-6">
-<button class="hover:opacity-80 transition-all duration-300 active:scale-95"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">search</span></button>
-<button class="hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center"><span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span><span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span><span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span></button>
-<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span></button>
-<a href="cart.html" class="hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center gap-1 text-secondary border-b-2 border-secondary pb-1"><span class="material-symbols-outlined dark:text-white" style="font-size:30px;">shopping_cart</span><span class="text-[10px] font-black" id="header-cart-count">00</span></a>
-<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="account-btn"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">person</span></button>
+<!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
+     direct flex child of the header row so all three elements share the same
+     vertical centre via the parent items-center. The search icon lives inside a
+     <label> so search.js bindTriggers() skips it. -->
+<form class="flex-1 mx-2 md:hidden relative m-0" id="mobile-inline-search" role="search" autocomplete="off">
+<label class="absolute inset-y-0 left-2 flex items-center pointer-events-none" for="mobile-inline-search-input">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-white/60" style="font-size:20px;">search</span>
+</label>
+<input id="mobile-inline-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-full h-9 pl-8 pr-3 rounded-lg bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 outline-none focus:ring-2 focus:ring-primary/40 transition"/>
+</form>
+<div class="flex items-center gap-2 md:gap-6 shrink-0">
+<!-- Desktop inline search bar -->
+<form class="hidden md:flex relative m-0 items-center" id="desktop-inline-search" role="search" autocomplete="off">
+<input id="desktop-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-44 lg:w-56 h-9 px-3 py-2 rounded-full bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 dark:border-white/20 outline-none focus:ring-2 focus:ring-primary/40 focus:w-64 transition-all duration-300"/>
+</form>
+<button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center"><span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span><span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span><span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span></button>
+<button class="hidden md:block hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span></button>
+<a href="cart.html" class="hover:opacity-80 transition-all duration-300 active:scale-95 hidden md:flex items-center gap-1 text-secondary border-b-2 border-secondary pb-1"><span class="material-symbols-outlined dark:text-white" style="font-size:30px;">shopping_cart</span></a>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95 hidden md:flex" id="account-btn"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">person</span></button>
+<button id="hamburger-slot" class="md:hidden hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center justify-center p-0" aria-label="Open menu"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">menu</span></button>
 </div>
 </div>
 </nav>
@@ -52,17 +69,45 @@
 <!-- Left: Form -->
 <div class="lg:col-span-2">
 <form id="checkout-form" class="space-y-6">
+<!-- Logged-in banner -->
+<div id="logged-in-banner" class="hidden bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-green-600">verified_user</span>
+<p class="text-sm text-green-800 dark:text-green-200">Using saved account information. You can edit any field below before placing your order.</p>
+</div>
+<!-- Error display -->
+<div id="checkout-error" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 text-red-700 dark:text-red-300 text-sm"></div>
+
 <div class="bg-surface-container-lowest dark:bg-surface-container p-6 rounded-xl space-y-4">
-<h2 class="font-headline text-lg font-bold text-primary dark:text-white mb-2">Delivery Information</h2>
+<h2 class="font-headline text-lg font-bold text-primary dark:text-white mb-2">Customer Information</h2>
 <div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Full Name *</label><input id="cust-name" type="text" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Your full name"/></div>
-<div class="grid grid-cols-2 gap-4">
-<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Phone Number *</label><input id="cust-phone" type="tel" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="+965 6000 0000"/></div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Mobile Number *</label><input id="cust-phone" type="tel" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="+965 6000 0000"/></div>
 <div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Email (optional)</label><input id="cust-email" type="email" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="you@example.com"/></div>
 </div>
-<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Delivery Address *</label><textarea id="cust-address" required rows="3" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Street, building, apartment, area"></textarea></div>
-<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">City / Area</label><input id="cust-city" type="text" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="e.g. Shuwaikh"/></div>
-<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Order Notes (optional)</label><textarea id="cust-notes" rows="2" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Any special instructions"></textarea></div>
 </div>
+
+<div class="bg-surface-container-lowest dark:bg-surface-container p-6 rounded-xl space-y-4">
+<h2 class="font-headline text-lg font-bold text-primary dark:text-white mb-2">Delivery Address</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Area *</label><input id="cust-area" type="text" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="e.g. Salmiya, Hawalli"/></div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Block *</label><input id="cust-block" type="text" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="e.g. Block 5"/></div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Street *</label><input id="cust-street" type="text" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="e.g. Salem Al Mubarak St"/></div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Building</label><input id="cust-building" type="text" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Building no."/></div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Floor</label><input id="cust-floor" type="text" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="e.g. 3rd floor"/></div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Apartment</label><input id="cust-apartment" type="text" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Apt no."/></div>
+</div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Landmark (optional)</label><input id="cust-landmark" type="text" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="e.g. Next to Al Hamra Tower"/></div>
+</div>
+
+<div class="bg-surface-container-lowest dark:bg-surface-container p-6 rounded-xl space-y-4">
+<h2 class="font-headline text-lg font-bold text-primary dark:text-white mb-2">Delivery Notes</h2>
+<div><textarea id="cust-notes" rows="3" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Any special delivery instructions (e.g. call before delivery, specific time)"></textarea></div>
+<div id="save-address-wrapper" class="hidden flex items-center gap-2">
+<input id="save-address" type="checkbox" class="rounded"/>
+<label for="save-address" class="text-xs text-on-surface-variant dark:text-white/70">Save this address to my account for future orders</label>
+</div>
+</div>
+
 <button type="submit" id="place-order-btn" class="w-full bg-primary text-on-primary py-5 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Place Order</button>
 </form>
 </div>
@@ -80,7 +125,7 @@
 <footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
-<div class="col-span-1"><a href="home.html" class="flex items-center gap-2 mb-6"><img src="LOGO.png" alt="Logo" class="h-[3.9rem] w-auto"></a><p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in Kuwait.</p></div>
+<div class="col-span-1"><a href="home.html" class="flex items-center gap-2 mb-6"><img src="LOGO.png" alt="Logo" class="h-[3.9rem] w-auto" fetchpriority="high"></a><p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in Kuwait.</p></div>
 <div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary" href="houseware.html">Houseware</a></li><li><a class="text-slate-400 hover:text-primary" href="supermarket.html">Supermarket</a></li><li><a class="text-slate-400 hover:text-primary" href="warehouse.html">Warehouse</a></li></ul></div>
 <div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Information</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary" href="#">Help</a></li><li><a class="text-slate-400 hover:text-primary" href="#">About</a></li><li><a class="text-slate-400 hover:text-primary" href="#">FAQ</a></li></ul></div>
 <div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Customer Service</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary" href="#">Returns</a></li><li><a class="text-slate-400 hover:text-primary" href="#">Shipping</a></li><li><a class="text-slate-400 hover:text-primary" href="#">Privacy</a></li></ul></div>
@@ -90,15 +135,498 @@
 </div>
 </footer>
 
-<a aria-label="WhatsApp" class="fixed bottom-6 right-6 z-[100] w-14 h-14 md:w-16 md:h-16 hover:scale-110 transition-all" href="https://wa.me/96560900059" target="_blank"><img src="topcar/whatsapp.png" alt="WhatsApp" class="w-full h-full object-contain"/></a>
+<a aria-label="WhatsApp" class="fixed bottom-[5rem] right-4 md:bottom-6 md:right-6 z-[100] w-14 h-14 md:w-16 md:h-16 hover:scale-110 transition-all" href="https://wa.me/96560900059" target="_blank"><img loading="lazy" src="topcar/whatsapp.png" alt="WhatsApp" class="w-full h-full object-contain"/></a>
 
-<script src="assets/js/dark-overrides.js"></script>
-<script src="assets/js/checkout.js"></script>
-<script src="assets/js/cart-nav.js"></script>
-<script src="assets/js/search.js" defer></script>
-<script src="assets/js/account.js"></script>
+<!-- ==================== MOBILE BOTTOM NAVIGATION ====================
+     Reuses existing systems — no duplication:
+       Home -> home.html, Categories -> existing mobile drawer (mobile-nav.js),
+       Account -> window.NassimAccount.openPanel(), Cart -> cart.html.
+     Implemented as <div role="navigation"> (not <nav>) so the auto-wiring in
+     cart-nav.js / account.js / search.js is NOT re-triggered here. -->
+<style>
+    #mobile-bottom-nav-inner { padding-bottom: env(safe-area-inset-bottom); }
+    .mbnav-item { color: #44474b; }
+    .dark .mbnav-item { color: rgba(255,255,255,0.6); }
+    .mbnav-item:hover { color: #825335; }
+    .dark .mbnav-item:hover { color: #f7b994; }
+    .mbnav-item.mbnav-active { color: #825335; }
+    .dark .mbnav-item.mbnav-active { color: #f7b994; }
+    .mbnav-item.mbnav-active .material-symbols-outlined {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    @media (max-width: 767px) {
+        body { padding-bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
+    }
+</style>
+<div id="mobile-bottom-nav" role="navigation" aria-label="Mobile" class="mbnav-vv md:hidden fixed inset-x-0 bottom-0 z-[90] glass-nav dark:bg-[#0a0f14]/90 border-t border-outline-variant/30 shadow-[0_-20px_40px_rgba(0,3,8,0.04)]">
+    <div id="mobile-bottom-nav-inner" class="grid grid-cols-4 items-stretch max-w-screen-sm mx-auto">
+        <button type="button" data-mbnav="home" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">home</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Home</span>
+        </button>
+        <button type="button" data-mbnav="categories" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">grid_view</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Categories</span>
+        </button>
+        <button type="button" data-mbnav="account" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">person</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Account</span>
+        </button>
+        <button type="button" data-mbnav="cart" class="mbnav-item relative flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="relative inline-flex">
+                <span class="material-symbols-outlined" style="font-size:24px;">shopping_cart</span>
+                <span id="header-cart-count" class="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full bg-secondary text-white text-[9px] font-bold flex items-center justify-center leading-none" style="display:none;">00</span>
+            </span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Cart</span>
+        </button>
+    </div>
+</div>
 <script>
-var t=document.getElementById('theme-toggle');if(t){t.addEventListener('click',function(){var d=document.documentElement.classList.contains('dark');document.documentElement.classList.toggle('dark',!d);document.documentElement.classList.toggle('light',d);localStorage.setItem('color-theme',!d?'dark':'light');var i=t.querySelector('.material-symbols-outlined');if(i)i.textContent=!d?'light_mode':'dark_mode';});var i=t.querySelector('.material-symbols-outlined');if(i)i.textContent=document.documentElement.classList.contains('dark')?'light_mode':'dark_mode';}
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+        ready(function () {
+            var nav = document.getElementById('mobile-bottom-nav');
+            if (!nav || nav.dataset.bound) return;
+            nav.dataset.bound = '1';
+
+            var path = (location.pathname.split('/').pop() || location.pathname || '').toLowerCase();
+            var onHome = (path === '' || path === 'home.html' || path === 'index.html');
+            var homeBtn = nav.querySelector('[data-mbnav="home"]');
+            if (homeBtn && onHome) homeBtn.classList.add('mbnav-active');
+
+            if (homeBtn) homeBtn.addEventListener('click', function () {
+                if (onHome) return;
+                window.location.href = 'home.html';
+            });
+
+            var catBtn = nav.querySelector('[data-mbnav="categories"]');
+            if (catBtn) catBtn.addEventListener('click', function () {
+                var slot = document.getElementById('hamburger-slot');
+                if (slot) slot.click();
+            });
+
+            var accBtn = nav.querySelector('[data-mbnav="account"]');
+            if (accBtn) accBtn.addEventListener('click', function () {
+                if (window.NassimAccount && window.NassimAccount.openPanel) window.NassimAccount.openPanel();
+            });
+
+            var cartBtn = nav.querySelector('[data-mbnav="cart"]');
+            if (cartBtn) cartBtn.addEventListener('click', function () {
+                window.location.href = 'cart.html';
+            });
+
+            var badge = document.getElementById('header-cart-count');
+            function syncBadge() {
+                if (!badge) return;
+                var n = parseInt((badge.textContent || '').trim(), 10);
+                badge.style.display = (isNaN(n) || n <= 0) ? 'none' : 'flex';
+            }
+            syncBadge();
+            if (badge && window.MutationObserver) {
+                new MutationObserver(syncBadge).observe(badge, { childList: true, characterData: true, subtree: true });
+            }
+            window.addEventListener('pageshow', syncBadge);
+            window.addEventListener('storage', syncBadge);
+        });
+    })();
 </script>
-</body>
+<script src="assets/js/theme.js" defer></script>
+<script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/checkout.js"></script>
+<script src="assets/js/cart-nav.js" defer></script>
+<script src="assets/js/search.js" defer></script>
+<script src="assets/js/account.js" defer></script>
+<script>
+</script>
+<script src="assets/js/mobile-nav.js" defer></script>
+<!-- ==================== MOBILE SEARCH WIRING ====================
+     Wires the mobile inline search bar to a dropdown below the input. Reuses
+     NassimSearch filtering logic; does NOT open the old overlay popup. -->
+<script>
+    (function () {
+        var mobileResults = null;
+
+        function createMobileResults() {
+            mobileResults = document.createElement('div');
+            mobileResults.id = 'mobile-search-dropdown';
+            mobileResults.style.cssText = 'position:absolute;top:100%;left:0;right:0;z-index:200;background:#fff;color:#111;border-radius:0 0 12px 12px;box-shadow:0 8px 24px rgba(0,0,0,0.18);max-height:60vh;overflow-y:auto;display:none;';
+            var form = document.getElementById('mobile-inline-search');
+            if (form) form.appendChild(mobileResults);
+            return mobileResults;
+        }
+
+        function renderMobileResults(list) {
+            if (!mobileResults) mobileResults = createMobileResults();
+            mobileResults.innerHTML = '';
+            if (!list || !list.length) {
+                var empty = document.createElement('p');
+                empty.style.cssText = 'padding:16px;text-align:center;color:#888;font-size:13px;';
+                empty.textContent = 'No products found';
+                mobileResults.appendChild(empty);
+                mobileResults.style.display = 'block';
+                return;
+            }
+            list.slice(0, 15).forEach(function (p) {
+                var a = document.createElement('a');
+                a.href = 'product view.html?id=' + encodeURIComponent(p.id);
+                a.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;text-decoration:none;color:inherit;border-bottom:1px solid rgba(0,0,0,0.06);';
+                a.onmouseenter = function () { a.style.background = 'rgba(0,0,0,0.04)'; };
+                a.onmouseleave = function () { a.style.background = ''; };
+
+                var img = document.createElement('img');
+                img.src = p.img || p.image || (p.images && p.images[0]) || '';
+                img.alt = p.name;
+                img.style.cssText = 'width:40px;height:40px;object-fit:cover;border-radius:8px;background:#f2f2f2;flex-shrink:0;';
+                img.onerror = function () { img.style.visibility = 'hidden'; };
+
+                var info = document.createElement('div');
+                info.style.cssText = 'min-width:0;flex:1;';
+                var name = document.createElement('div');
+                name.textContent = p.name;
+                name.style.cssText = 'font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                var meta = document.createElement('div');
+                meta.textContent = (p.line ? p.line + ' · ' : '') + Number(p.price).toFixed(3) + ' ' + (p.currency || 'KD');
+                meta.style.cssText = 'font-size:11px;color:#777;';
+                info.appendChild(name);
+                info.appendChild(meta);
+
+                a.appendChild(img);
+                a.appendChild(info);
+                mobileResults.appendChild(a);
+            });
+            mobileResults.style.display = 'block';
+        }
+
+        function closeMobileResults() {
+            if (mobileResults) mobileResults.style.display = 'none';
+        }
+
+        function doMobileSearch(q) {
+            var ns = window.NassimSearch;
+            if (!ns || !ns.loadProducts) return;
+            q = q.trim().toLowerCase();
+            ns.loadProducts().then(function (list) {
+                if (!q) { closeMobileResults(); return; }
+                var terms = q.split(/\s+/);
+                var filtered = list.filter(function (p) {
+                    var hay = (p.name + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
+                    return terms.every(function (t) { return hay.indexOf(t) !== -1; });
+                });
+                renderMobileResults(filtered);
+            });
+        }
+
+        function bind() {
+            var form = document.getElementById('mobile-inline-search');
+            if (!form || form.dataset.bound) return;
+            form.dataset.bound = '1';
+            var input = document.getElementById('mobile-inline-search-input');
+
+            createMobileResults();
+
+            if (input) {
+                var debounce = null;
+                input.addEventListener('input', function () {
+                    clearTimeout(debounce);
+                    debounce = setTimeout(function () {
+                        doMobileSearch(input.value);
+                    }, 150);
+                });
+                input.addEventListener('focus', function () {
+                    if (input.value.trim()) doMobileSearch(input.value);
+                });
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (input && input.value.trim()) doMobileSearch(input.value);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (mobileResults && !form.contains(e.target)) {
+                    closeMobileResults();
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+        else bind();
+    })();
+</script>
+<!-- ==================== MOBILE CATEGORIES DRAWER: NAME = LINK, ARROW = TOGGLE ======
+     Splits the department header so the NAME navigates and the ARROW only
+     expands/collapses. Reuses mobile-nav.js's existing toggle listener and the
+     desktop nav's existing hrefs — no new links, no duplicated JS. -->
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+
+        function buildDeptHrefMap() {
+            var map = {};
+            var triggers = document.querySelectorAll('.dropdown-trigger');
+            triggers.forEach(function (t) {
+                var link = t.querySelector('a');
+                if (!link) return;
+                var name = '';
+                for (var i = 0; i < link.childNodes.length; i++) {
+                    var n = link.childNodes[i];
+                    if (n.nodeType === 3 || n.nodeType === 1) {
+                        var txt = n.textContent.trim();
+                        if (txt) name += (name ? ' ' : '') + txt;
+                    }
+                }
+                if (name && link.href) map[name.toLowerCase()] = link.getAttribute('href');
+            });
+            if (triggers.length > 0) {
+                var sib = triggers[triggers.length - 1].nextElementSibling;
+                while (sib) {
+                    if (sib.tagName === 'A' && !sib.classList.contains('dropdown-trigger')) {
+                        var parts = [];
+                        for (var j = 0; j < sib.childNodes.length; j++) {
+                            var nn = sib.childNodes[j];
+                            if (nn.nodeType === 3 || nn.nodeType === 1) {
+                                var tt = nn.textContent.trim();
+                                if (tt) parts.push(tt);
+                            }
+                        }
+                        var nm = parts.join(' ');
+                        if (nm && sib.getAttribute('href')) map[nm.toLowerCase()] = sib.getAttribute('href');
+                    }
+                    sib = sib.nextElementSibling;
+                }
+            }
+            return map;
+        }
+
+        var hrefMap = {};
+
+        function hrefForName(rawName) {
+            if (!rawName) return null;
+            var norm = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            var keys = Object.keys(hrefMap);
+            for (var i = 0; i < keys.length; i++) {
+                if (keys[i].replace(/[^a-z0-9]/g, '') === norm) return hrefMap[keys[i]];
+            }
+            var firstWord = rawName.toLowerCase().trim().split(/\s+/)[0];
+            for (var j = 0; j < keys.length; j++) {
+                if (keys[j].replace(/[^a-z0-9]/g, '') === firstWord.replace(/[^a-z0-9]/g, '')) return hrefMap[keys[j]];
+            }
+            return null;
+        }
+
+        function transformItems() {
+            var dept = document.getElementById('mobile-nav-departments');
+            if (!dept) return;
+            var triggers = dept.querySelectorAll('.mobile-accordion-trigger');
+            triggers.forEach(function (trigger) {
+                if (trigger.getAttribute('data-name-linked') === '1') return;
+                var nameSpan = trigger.querySelector('span.flex.flex-col');
+                if (!nameSpan) { trigger.setAttribute('data-name-linked', '1'); return; }
+                var deptName = nameSpan.textContent.replace(/\s+/g, ' ').trim();
+                var href = hrefForName(deptName);
+                if (!href) { trigger.setAttribute('data-name-linked', '1'); return; }
+                var a = document.createElement('a');
+                a.href = href;
+                a.className = nameSpan.className;
+                a.innerHTML = nameSpan.innerHTML;
+                a.addEventListener('click', function (e) { e.stopPropagation(); }, true);
+                nameSpan.parentNode.replaceChild(a, nameSpan);
+                trigger.setAttribute('data-name-linked', '1');
+            });
+        }
+
+        function setupObserver() {
+            var dept = document.getElementById('mobile-nav-departments');
+            if (!dept) return false;
+            transformItems();
+            if (window.MutationObserver && !dept.dataset.splitObs) {
+                dept.dataset.splitObs = '1';
+                new MutationObserver(function () { transformItems(); })
+                    .observe(dept, { childList: true, subtree: true });
+            }
+            return true;
+        }
+
+        ready(function () {
+            hrefMap = buildDeptHrefMap();
+            var tries = 0;
+            (function poll() {
+                if (setupObserver()) return;
+                if (++tries > 60) return;
+                setTimeout(poll, 50);
+            })();
+        });
+    })();
+</script>
+<!-- ==================== MOBILE DRAWER CONTENT SPLIT ====================
+     Hamburger -> utilities ONLY (EN|AR, Download App, Dark/Light).
+     Categories -> departments ONLY. Reuses mobile-nav.js's drawer/open/close
+     and theme.js's __nassimThemeToggle. -->
+<style>
+    html.dark #mob-bar1,
+    html.dark #mob-bar2,
+    html.dark #mob-bar3 { background-color: #ffffff !important; }
+</style>
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+
+        function whenDrawerReady(cb, tries) {
+            tries = tries || 0;
+            if (document.getElementById('mobile-nav-drawer')) { cb(); return; }
+            if (tries > 40) return;
+            setTimeout(function () { whenDrawerReady(cb, tries + 1); }, 50);
+        }
+
+        function buildUtilitiesHTML() {
+            return '' +
+              '<div class="px-5 pt-3">' +
+              '  <button type="button" class="flex items-center justify-between w-full py-3 px-3 rounded-lg text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">' +
+              '    <span class="flex items-center gap-3"><span class="material-symbols-outlined text-lg">language</span> Language</span>' +
+              '    <span class="flex items-center">' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-900 dark:text-white">EN</span>' +
+              '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">AR</span>' +
+              '    </span>' +
+              '  </button>' +
+              '</div>' +
+              '<div class="px-5">' +
+              '  <div class="flex items-center justify-between w-full py-3 px-3 rounded-lg text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">' +
+              '    <span class="flex items-center gap-3"><span class="material-symbols-outlined text-lg">download</span> Download App</span>' +
+              '    <span class="flex items-center">' +
+              '      <a href="#" aria-label="Download on the App Store" class="flex items-center justify-center hover:opacity-80 transition-opacity">' +
+              '        <img src="topcar/app-store.png" alt="Download on the App Store" loading="lazy" class="h-5 w-auto dark:hidden"/>' +
+              '        <img src="topcar/app-store (1).png" alt="Download on the App Store" loading="lazy" class="h-5 w-auto hidden dark:block"/>' +
+              '      </a>' +
+              '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
+              '      <a href="#" aria-label="Get it on Google Play" class="flex items-center justify-center text-gray-900 dark:text-white hover:text-secondary dark:hover:text-[#f7b994] transition-colors">' +
+              '        <span class="material-symbols-outlined text-lg">android</span>' +
+              '      </a>' +
+              '    </span>' +
+              '  </div>' +
+              '</div>' +
+              '<div class="px-5 pb-4">' +
+              '  <button type="button" id="mobile-nav-theme-toggle" role="switch" aria-checked="false" class="flex items-center justify-between w-full py-3 px-3 rounded-lg text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">' +
+              '    <span class="flex items-center gap-3"><span class="material-symbols-outlined text-lg">dark_mode</span> Appearance</span>' +
+              '    <span class="mntheme-switch-track relative inline-flex items-center h-6 w-11 rounded-full bg-gray-300 dark:bg-secondary transition-colors duration-300 flex-shrink-0">' +
+              '      <span class="mntheme-switch-thumb inline-block h-5 w-5 rounded-full bg-white shadow translate-x-0.5 dark:translate-x-[22px] transition-transform duration-300"></span>' +
+              '    </span>' +
+              '  </button>' +
+              '</div>';
+        }
+
+        function setDrawerMode(mode) {
+            var drawer = document.getElementById('mobile-nav-drawer');
+            if (!drawer) return;
+            drawer.setAttribute('data-drawer-mode', mode);
+            var dept = document.getElementById('mobile-nav-departments');
+            var util = document.getElementById('mobile-nav-utilities');
+            if (mode === 'utilities') {
+                if (dept) dept.style.display = 'none';
+                if (util) util.style.display = '';
+            } else {
+                if (dept) dept.style.display = '';
+                if (util) util.style.display = 'none';
+            }
+        }
+
+        var pendingDrawerMode = 'utilities';
+
+        function syncThemeIcon() {
+            var btn = document.getElementById('mobile-nav-theme-toggle');
+            if (!btn) return;
+            var isDark = document.documentElement.classList.contains('dark');
+            var icon = btn.querySelector('.material-symbols-outlined');
+            if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+            btn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+        }
+
+        function init() {
+            whenDrawerReady(function () {
+                var drawer = document.getElementById('mobile-nav-drawer');
+                if (!drawer || drawer.getAttribute('data-split-bound') === '1') return;
+                drawer.setAttribute('data-split-bound', '1');
+
+                if (!document.getElementById('mobile-nav-utilities')) {
+                    var util = document.createElement('div');
+                    util.id = 'mobile-nav-utilities';
+                    util.innerHTML = buildUtilitiesHTML();
+                    drawer.appendChild(util);
+                }
+
+                var themeBtn = document.getElementById('mobile-nav-theme-toggle');
+                if (themeBtn && themeBtn.getAttribute('data-theme-wired') !== '1') {
+                    themeBtn.setAttribute('data-theme-wired', '1');
+                    themeBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (typeof window.__nassimThemeToggle === 'function') window.__nassimThemeToggle();
+                        syncThemeIcon();
+                    });
+                }
+                syncThemeIcon();
+                window.addEventListener('storage', function (e) {
+                    if (e.key === 'color-theme') syncThemeIcon();
+                });
+
+                var slot = document.getElementById('hamburger-slot');
+                if (slot) {
+                    slot.addEventListener('click', function () {
+                        setDrawerMode(pendingDrawerMode);
+                        pendingDrawerMode = 'utilities';
+                    }, true);
+                }
+
+                var catBtn = document.querySelector('[data-mbnav="categories"]');
+                if (catBtn && catBtn.getAttribute('data-split-wired') !== '1') {
+                    catBtn.setAttribute('data-split-wired', '1');
+                    catBtn.addEventListener('click', function () {
+                        pendingDrawerMode = 'categories';
+                    }, true);
+                }
+            });
+        }
+
+        ready(init);
+    })();
+</script>
+
+
+<style>
+/* MOBILE BOTTOM-NAV: FIXED PIN — NO JS REPOSITIONING.
+   The nav is position:fixed (Tailwind) with bottom-0, so it is already pinned
+   to the VISIBLE bottom edge on iOS Safari/Chrome and Android. We do NOT drive
+   `bottom` from visualViewport anymore: the old tracker listened to
+   visualViewport 'scroll'/'resize' (and window 'resize'), which fire
+   continuously during scrolling, pull-to-refresh and toolbar hide/show, and
+   rewrote the inline bottom frame-by-frame — that is what caused the bounce.
+   The bottom is now owned by CSS only and never written from JS, so there is no
+   per-frame repositioning, no jumping, no flicker. Safe-area inset is still
+   handled by #mobile-bottom-nav-inner { padding-bottom: env(safe-area-inset-bottom) }. */
+#mobile-bottom-nav { bottom: 0 !important; }
+</style>
+<script>
+/* One-time cleanup only. Remove any inline `bottom` left behind by the old
+   tracker so the CSS bottom:0 (above) owns the position permanently. We never
+   write `bottom` again and we bind NO scroll/resize/visualViewport listeners,
+   so the bar cannot bounce, jump or flicker while scrolling or pull-to-refresh. */
+(function () {
+  function ready(fn){ if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
+  ready(function () {
+    var nav = document.getElementById('mobile-bottom-nav');
+    if (!nav) return;
+    nav.style.removeProperty('bottom');
+  });
+})();
+</script>
+<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script></body>
 </html>

@@ -1,0 +1,2244 @@
+<!DOCTYPE html><html class="" lang="en"><head>
+<script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"||(!s&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>AL-Nassim | Cleaning Tools</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "tertiary-fixed": "#ffdbcd",
+                "tertiary-container": "#2c1810",
+                "surface-container-highest": "#d8e4f3",
+                "tertiary-fixed-dim": "#e3bfb1",
+                "on-primary": "#ffffff",
+                "primary-container": "#131e29",
+                "on-primary-fixed-variant": "#3d4854",
+                "on-tertiary-fixed-variant": "#5a4137",
+                "inverse-primary": "#bcc8d7",
+                "secondary-fixed": "#ffdbc8",
+                "surface-container-lowest": "#ffffff",
+                "surface-variant": "#d8e4f3",
+                "secondary-fixed-dim": "#f7b994",
+                "primary": "#000308",
+                "tertiary": "#090100",
+                "on-surface-variant": "#44474b",
+                "background": "#f7f9ff",
+                "outline-variant": "#c4c6cc",
+                "on-background": "#111d27",
+                "primary-fixed-dim": "#bcc8d7",
+                "surface-tint": "#545f6c",
+                "on-error": "#ffffff",
+                "on-tertiary-fixed": "#2a170e",
+                "secondary": "#825335",
+                "on-primary-fixed": "#111d27",
+                "surface": "#f7f9ff",
+                "primary-fixed": "#d8e4f3",
+                "surface-container-high": "#dee9f9",
+                "on-secondary": "#ffffff",
+                "surface-bright": "#f7f9ff",
+                "secondary-container": "#fdbf99",
+                "inverse-on-surface": "#e8f1ff",
+                "on-primary-container": "#7b8694",
+                "error-container": "#ffdad6",
+                "inverse-surface": "#27313d",
+                "outline": "#74777c",
+                "on-secondary-container": "#794b2e",
+                "on-tertiary": "#ffffff",
+                "surface-container": "#e4efff",
+                "on-secondary-fixed": "#321300",
+                "error": "#ba1a1a",
+                "on-surface": "#111d27",
+                "surface-container-low": "#edf4ff",
+                "surface-dim": "#d0dbea",
+                "on-tertiary-container": "#9e7e72",
+                "on-error-container": "#93000a",
+                "on-secondary-fixed-variant": "#673c20"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {},
+        "fontFamily": {
+                "headline": [
+                        "Manrope"
+                ],
+                "display": [
+                        "Manrope"
+                ],
+                "body": [
+                        "Inter"
+                ],
+                "label": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {}
+},
+    },
+  }
+</script>
+<style>
+        body {
+            font-family: theme('fontFamily.body');
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.surface-dim');
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline');
+        }
+
+        /* Shared header/footer nav styles (from home.html) */
+        .glass-nav {
+            background: rgba(247, 249, 255, 0.7);
+            backdrop-filter: blur(20px);
+        }
+        .dark .glass-nav {
+            background: rgba(10, 15, 20, 0.9);
+        }
+        .dark-glass-dropdown {
+            background: rgba(247, 249, 255, 1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 3, 8, 0.1);
+            border-radius: 1rem;
+        }
+        .dark .dark-glass-dropdown {
+            background: rgba(255, 255, 255, 1);
+        }
+        .dark .dark-glass-dropdown a {
+            color: #111d27 !important;
+        }
+        .dark .dark-glass-dropdown a:hover {
+            color: #825335 !important;
+        }
+        /* Dark mode: header search placeholders ("Search products...") —
+           white instead of the near-invisible grey (on-surface-variant/60).
+           Covers the desktop pill input and the mobile inline input; typed
+           text is already white via their dark: classes. */
+        html.dark #desktop-search-input::placeholder,
+        html.dark #mobile-inline-search-input::placeholder {
+            color: rgba(255, 255, 255, 0.78) !important;
+            opacity: 1;
+        }
+        /* Dropdown menu visibility — driven by the dropdown-trigger hover JS */
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+        }
+        /* Mobile header row: keep search + hamburger vertically centred */
+        @media (max-width: 767px) {
+            #mobile-inline-search { margin: 0 !important; align-self: center !important; }
+            #mobile-inline-search-input { box-sizing: border-box !important; }
+            #hamburger-slot { align-self: center !important; }
+        }
+        /* Mobile bottom nav */
+        #mobile-bottom-nav-inner { padding-bottom: env(safe-area-inset-bottom); }
+        .mbnav-item { color: #44474b; }
+        .dark .mbnav-item { color: rgba(255,255,255,0.6); }
+        .mbnav-item:hover { color: #825335; }
+        .dark .mbnav-item:hover { color: #f7b994; }
+        .mbnav-item.mbnav-active { color: #825335; }
+        .dark .mbnav-item.mbnav-active { color: #f7b994; }
+        .mbnav-item.mbnav-active .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        @media (max-width: 767px) {
+            body { padding-bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
+        }
+
+        .filter-checkbox:checked + div {
+            background-color: theme('colors.primary');
+            border-color: theme('colors.primary');
+        }
+        .filter-checkbox:checked + div svg {
+            display: block;
+        }
+        
+        .price-range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: theme('colors.surface-container-high');
+            outline: none;
+            border-radius: 2px;
+        }
+        .price-range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: theme('colors.primary');
+            cursor: pointer;
+            border: 2px solid theme('colors.surface');
+            box-shadow: 0 0 0 1px theme('colors.outline-variant');
+        }
+
+        /* ==================== MOBILE SUBCATEGORY UI (≤767px) ====================
+           Ported from cleaning-tools.html mobile UI. Desktop/tablet (≥768px) is
+           completely untouched — the existing subcategoryui desktop layout is the
+           source of truth there. On mobile only:
+             - hide the desktop sidebar (it reopens as a right-side drawer)
+             - show the .subcat-listing-header toolbar (title + Filter trigger)
+             - switch the product grid to a 2-column catalog with always-visible
+               card Add-to-Cart + wishlist, large square images, bottom-pinned ATC
+           All classes/IDs match what the mobile wiring JS expects. */
+        .subcat-listing-header { display: none; }
+        #subcat-drawer-backdrop {
+            position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 94;
+            opacity: 0; visibility: hidden; transition: opacity .3s;
+        }
+        #subcat-drawer-backdrop.show { opacity: 1; visibility: visible; }
+
+        /* ---- Category chips (cloned into the sidebar/drawer by JS from the
+               .category-btn source). GLOBAL on purpose so the chips render as a
+               vertical one-per-line list on BOTH mobile drawer AND the desktop
+               sidebar — without this, desktop shows them run together inline. ---- */
+        .subcat-category-group { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(196,198,204,0.35); }
+        html.dark .subcat-category-group { border-bottom-color: rgba(255,255,255,0.1); }
+        .subcat-category-group h3 {
+            font-size: 0.625rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+            color: rgba(17,29,39,0.6); margin-bottom: 0.85rem;
+        }
+        html.dark .subcat-category-group h3 { color: rgba(255,255,255,0.6); }
+        .subcat-category-group .subcat-cat-chip {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; padding: 0.65rem 0.25rem; border: none; background: transparent;
+            font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 500;
+            color: #44474b; cursor: pointer; -webkit-tap-highlight-color: transparent;
+            border-bottom: 1px solid rgba(196,198,204,0.2);
+        }
+        html.dark .subcat-category-group .subcat-cat-chip { color: rgba(255,255,255,0.8); border-bottom-color: rgba(255,255,255,0.08); }
+        .subcat-category-group .subcat-cat-chip.is-active { color: #825335; font-weight: 700; }
+        html.dark .subcat-category-group .subcat-cat-chip.is-active { color: #f7b994; }
+        .subcat-category-group .subcat-cat-chip .subcat-cat-tick { font-size: 18px; opacity: 0; transition: opacity .2s ease; }
+        .subcat-category-group .subcat-cat-chip.is-active .subcat-cat-tick { opacity: 1; }
+
+        @media (max-width: 767px) {
+            /* body adds no top padding on mobile — <main> clears the fixed nav
+               via its own padding-top (matches cleaning-tools.html layout).
+               main becomes a block stack on mobile so the listing header,
+               (hidden sidebar), and product section flow vertically with no gap. */
+            body { padding-top: 0 !important; }
+            main {
+                display: block !important;
+                padding-top: 3.25rem !important;   /* clears the fixed mobile nav */
+                padding-bottom: 0 !important;
+                padding-left: 0 !important; padding-right: 0 !important;
+                gap: 0 !important;
+            }
+            /* Hide desktop-only intro section on mobile */
+            .subcat-intro { display: none !important; }
+            /* Browse wrapper: stack vertically on mobile (sidebar is display:none) */
+            .subcat-browse { display: block !important; gap: 0 !important; }
+
+            /* Hide the desktop grid header (product count + sort) on mobile —
+               the compact .subcat-listing-header already shows the title +
+               count, and Sort lives inside the filter drawer. */
+            main > section > header,
+            .subcat-grid-header { display: none !important; }
+
+            /* Filter & Sorting: hide the inline sidebar on mobile; open as drawer.
+               Base rule also NEUTRALIZES the desktop-only Tailwind classes on the
+               shared <aside> (w-64, h-[calc(100vh-160px)], sticky top-24, pr-4)
+               so the drawer gets clean full-length geometry — exactly like
+               cleaning-tools.html, whose aside gates all of those behind lg:. */
+            .subcat-sidebar {
+                display: none !important;
+                position: static !important;
+                top: auto !important;
+                width: 100% !important;
+                height: auto !important;
+                max-height: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            /* Drawer (from cleaning-tools.html): fixed right panel, FULL viewport
+               height, 81vw wide (86vw minus the requested 5%), capped at 340px. */
+            .subcat-sidebar.subcat-drawer-open {
+                display: block !important;
+                position: fixed !important; top: 0 !important; right: 0 !important;
+                height: 100% !important; width: 81vw !important; max-width: 340px !important;
+                background: #fff !important; z-index: 95 !important; overflow-y: auto !important;
+                /* extra top padding pushes the Category + FILTER By content BELOW
+                   the fixed close arrow (which occupies ~14–50px at the top) */
+                padding: 4rem 1.25rem 1.25rem !important; margin: 0 !important;
+                transform: translateX(100%); transition: transform .3s ease;
+                box-shadow: -10px 0 40px rgba(0,0,0,0.15);
+            }
+            html.dark .subcat-sidebar.subcat-drawer-open { background: #0a0f14 !important; }
+            .subcat-sidebar.subcat-drawer-open.show { transform: translateX(0); }
+            /* WhatsApp FAB must sit BELOW the filter drawer (95) and its backdrop
+               (94) so it never overlaps the open right panel — but stays above
+               the mobile bottom nav (90). Desktop z-[100] is untouched. */
+            #whatsapp-fab { z-index: 93 !important; }
+
+            /* Drawer CLOSE button (right arrow, top-right of the open panel).
+               position:fixed pins it to the panel's top-right corner (the drawer
+               is anchored top:0/right:0 full-height, so viewport top-right ==
+               panel top-right) and it stays put while the drawer content
+               scrolls. Parent aside is display:none when closed, which hides
+               the button too — it only appears with the open drawer. */
+            #subcat-drawer-close {
+                position: fixed; top: 0.85rem; right: 0.85rem;
+                z-index: 96;
+                width: 36px; height: 36px; border-radius: 9999px;
+                display: inline-flex; align-items: center; justify-content: center;
+                background: #edf4ff; color: #111d27;
+                border: 1px solid rgba(196,198,204,0.4);
+                cursor: pointer; padding: 0;
+                -webkit-tap-highlight-color: transparent;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            }
+            html.dark #subcat-drawer-close {
+                background: #1a1f2e; color: #fff; border-color: rgba(255,255,255,0.15);
+            }
+            #subcat-drawer-close .material-symbols-outlined { font-size: 20px; }
+            /* Zero the aside's desktop space-y-10 sibling gap so drawer spacing
+               comes from the category group margin + inner space-y-6 (as in
+               cleaning-tools.html). */
+            .subcat-sidebar.subcat-drawer-open > :not([hidden]) ~ :not([hidden]) { margin-top: 0 !important; }
+
+            /* Accordion styles (verbatim from cleaning-tools.html): hide the
+               NATIVE <details> disclosure triangle (the small "play" marker on
+               the left of each section) — the expand_more arrow on the right
+               is the only chevron. Also rotate that arrow when open. */
+            .subcat-sidebar details summary::-webkit-details-marker { display: none; }
+            .subcat-sidebar details summary { list-style: none; }
+            .subcat-sidebar details[open] > summary .arrow-icon { transform: rotate(180deg); }
+
+            /* Compact premium toolbar: title (left) + icon trigger (right) */
+            .subcat-listing-header {
+                display: block !important;
+                width: 100% !important;
+                padding: 0.7rem 1rem 0.6rem !important;
+                margin: 0 !important;
+                background: transparent !important;
+                border-top: 0 !important;
+                border-bottom: 1px solid rgba(196,198,204,0.35) !important;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+                box-sizing: border-box !important;
+            }
+            html.dark .subcat-listing-header { border-bottom-color: rgba(255,255,255,0.08) !important; }
+            .subcat-lh-top {
+                display: flex !important;
+                align-items: flex-start !important;
+                justify-content: space-between !important;
+                gap: 0.75rem !important;
+            }
+            .subcat-lh-top > div:first-child { min-width: 0; flex: 1; }
+            .subcat-lh-title {
+                font-family: 'Manrope', sans-serif; font-size: 1.35rem; font-weight: 800;
+                letter-spacing: -0.02em; text-transform: none; color: #111d27;
+                line-height: 1.1; display: block;
+                white-space: normal !important; overflow: visible !important;
+                text-overflow: clip !important; word-break: break-word !important;
+            }
+            html.dark .subcat-lh-title { color: #fff; }
+            .subcat-lh-count {
+                margin-top: 0.2rem;
+                font-size: 0.7rem; font-weight: 600; letter-spacing: 0.03em;
+                color: #44474b; line-height: 1.2;
+            }
+            html.dark .subcat-lh-count { color: rgba(255,255,255,0.6); }
+            .subcat-lh-filter {
+                display: inline-flex !important; align-items: center !important; justify-content: center !important;
+                flex-shrink: 0; width: 38px; height: 38px; border-radius: 9999px;
+                background: rgba(0,3,8,0.04); gap: 0 !important; margin-top: 0.1rem;
+            }
+            html.dark .subcat-lh-filter { background: rgba(255,255,255,0.08); }
+            .subcat-lh-icon { font-size: 21px; color: #825335; }
+            .subcat-lh-ftext { display: none !important; }
+
+            /* Product grid: 2-column, tight gutters, edge margins */
+            #product-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.75rem 0.75rem !important;
+                padding: 0.85rem 1rem 1.25rem !important;
+                max-width: 100% !important;
+            }
+
+            /* Card: flex column, large square image, bottom-pinned ATC.
+               NOTE: the card's first child is the heart <button>, so we target
+               divs by nth-of-type (counts only <div>): 1st div = image wrapper,
+               2nd div = info wrapper. */
+            #product-grid > article.group {
+                background: transparent !important; min-width: 0;
+                display: flex !important; flex-direction: column !important;
+                padding: 0 !important; border: none !important; border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+            /* Image wrapper = 1st <div> child */
+            #product-grid > article.group > div:nth-of-type(1) {
+                aspect-ratio: 1 / 1 !important;
+                margin-bottom: 0.45rem !important;
+                border-radius: 0.625rem !important;
+                overflow: hidden !important;
+                background: #f2f5fa !important;
+                flex-shrink: 0 !important;
+            }
+            html.dark #product-grid > article.group > div:nth-of-type(1) { background: #1a1f2e !important; }
+            #product-grid > article.group > div:nth-of-type(1) img {
+                width: 100% !important; height: 100% !important; object-fit: cover !important;
+                mix-blend-mode: normal !important;
+            }
+            /* Info wrapper = 2nd <div> child */
+            #product-grid > article.group > div:nth-of-type(2) {
+                margin-top: 0 !important; gap: 0.15rem !important; position: relative;
+                flex: 1 1 auto !important; display: flex !important; flex-direction: column !important;
+                padding: 0 !important;
+            }
+            /* The desktop .mt-auto sub-wrapper inside info — flatten on mobile */
+            #product-grid > article.group > div:nth-of-type(2) > div {
+                margin-top: auto !important;
+                display: flex !important; flex-direction: column !important; gap: 0.3rem !important;
+            }
+            #product-grid > article.group h2 {
+                font-size: 0.74rem !important; line-height: 1.25 !important;
+                display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+                overflow: hidden; margin-bottom: 0.1rem !important;
+                min-height: calc(2 * 1.25em) !important;
+                text-align: left !important;
+            }
+            #product-grid > article.group p {
+                font-size: 0.82rem !important; font-weight: 700 !important;
+                text-align: left !important; margin: 0 !important;
+            }
+
+            /* Wishlist button — top-right of image, 36px target */
+            .sc-wish {
+                position: absolute !important; top: 0.45rem !important; right: 0.45rem !important;
+                z-index: 3; opacity: 1 !important;
+                width: 36px !important; height: 36px !important; border-radius: 9999px !important;
+                display: inline-flex !important; align-items: center !important; justify-content: center !important;
+                background: rgba(255,255,255,0.92) !important; color: #44474b !important;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+                cursor: pointer; border: none; padding: 0;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .sc-wish .material-symbols-outlined { font-size: 19px !important; }
+            .sc-wish.is-on { color: #ef4444 !important; }
+            .sc-wish.is-on .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+            html.dark .sc-wish { background: rgba(10,15,20,0.82) !important; color: rgba(255,255,255,0.85) !important; }
+
+            /* Add to Cart — full-width, always visible, bottom-pinned */
+            .sc-atc.sc-atc-mobile {
+                margin-top: auto !important; width: 100%;
+                display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 0.3rem;
+                background: #000308 !important; color: #fff !important;
+                font-family: 'Manrope', sans-serif; font-size: 0.64rem; font-weight: 800;
+                letter-spacing: 0.06em; text-transform: uppercase;
+                padding: 0.6rem 0.4rem; border-radius: 0.5rem; border: none;
+                cursor: pointer; -webkit-tap-highlight-color: transparent;
+                opacity: 1 !important; transform: none !important;
+            }
+            .sc-atc.sc-atc-mobile:active { background: #825335 !important; }
+            .sc-atc.sc-atc-mobile .material-symbols-outlined { font-size: 16px; }
+            html.dark .sc-atc.sc-atc-mobile { background: #fff !important; color: #000308 !important; }
+            html.dark .sc-atc.sc-atc-mobile:active { background: #825335 !important; color: #fff !important; }
+        }
+        @media (min-width: 768px) {
+            /* Desktop: ensure the mobile-only elements are hidden */
+            .subcat-listing-header, #subcat-drawer-backdrop, #subcat-drawer-close { display: none !important; }
+
+            /* ================================================================
+               DESKTOP PAGE BACKGROUND — pure white matching the product cards.
+               The bluish/off-white tint (#f7f9ff / bg-surface) is removed for
+               the desktop catalog area only. Mobile is untouched. */
+            body { background-color: #ffffff !important; }
+            /* Header glass nav gets a matching white glass for visual continuity */
+            .glass-nav { background: rgba(255, 255, 255, 0.72) !important; }
+            html.dark body { background-color: #0a0f14 !important; }
+            html.dark .glass-nav { background: rgba(10, 15, 20, 0.9) !important; }
+
+            /* Pull the page content closer to the fixed nav: shrink main's
+               top padding (Tailwind py-8 = 2rem). The body's pt-[88px] nav
+               clearance is untouched — only the extra editorial whitespace
+               below the nav is reduced. Mobile keeps its own main padding. */
+            main { padding-top: 0.5rem !important; }
+
+            /* ================================================================
+               DESKTOP CATEGORY INTRODUCTION — premium editorial hero.
+               Spans full content width above the sidebar + product grid.
+               Hidden on mobile (display:none in the max-width:767px block).
+               Width strategy: the description occupies ~50–60% of the
+               available content width (percentage-based so it scales with
+               the viewport), capped at 880px so line length stays at a
+               comfortable editorial reading measure. The right side stays
+               deliberately clean and spacious. */
+            .subcat-intro {
+                display: block;
+                padding: 0.5rem 0 1.5rem 0;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            }
+            html.dark .subcat-intro {
+                border-bottom-color: rgba(255, 255, 255, 0.08);
+            }
+            .subcat-intro-title {
+                font-family: 'Manrope', sans-serif;
+                font-size: 2.75rem;
+                font-weight: 800;
+                letter-spacing: -0.025em;
+                color: #111d27;
+                line-height: 1.1;
+                margin-bottom: 0.6rem;
+            }
+            html.dark .subcat-intro-title { color: #ffffff; }
+            .subcat-intro-sub {
+                font-family: 'Manrope', sans-serif;
+                font-size: 1rem;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: #825335;
+                margin-bottom: 1.15rem;
+            }
+            html.dark .subcat-intro-sub { color: #f7b994; }
+            .subcat-intro-desc {
+                font-family: 'Inter', sans-serif;
+                font-size: 1rem;
+                font-weight: 400;
+                line-height: 1.75;
+                color: #44474b;
+                max-width: min(60%, 880px);
+            }
+            html.dark .subcat-intro-desc { color: rgba(255, 255, 255, 0.7); }
+
+            /* Desktop browsing wrapper: sidebar + grid in a flex row */
+            .subcat-browse {
+                display: flex;
+                gap: 3rem;
+            }
+
+            /* ================================================================
+               DESKTOP PRODUCT TOOLBAR — REMOVED.
+               The count + "Sort By Recommended" row that used to sit above
+               the product grid is hidden entirely: the cards now start
+               directly under the category intro / filter area with no
+               leftover gap. The header markup stays in the DOM (the JS
+               #catalog-count updates are null-guarded and mobile reads its
+               count from [data-lh-count] instead), so nothing functional
+               changes — desktop simply never displays it. Mobile already
+               hid this header via the max-width:767px block. */
+            .subcat-grid-header {
+                display: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+            }
+
+            /* ================================================================
+               DESKTOP PRODUCT GRID — near-continuous rows.
+               The Tailwind gap-8 (2rem) is replaced with separate axis values:
+               column gap stays at 2rem; the row gap is a tiny 0.625rem (10px)
+               so consecutive rows read as one dense premium catalog while
+               keeping just enough separation between card shadows. */
+            #product-grid {
+                align-items: start;
+                row-gap: 0.625rem;
+                column-gap: 2rem;
+            }
+            #product-grid > article.group h2 {
+                /* NO 2-line min-height reservation: it left a full empty
+                   line between one-line names and the price. Names simply
+                   take the lines they need (line-clamp-2 still caps long
+                   ones) so the price always sits close under the name. */
+                margin-bottom: 0.375rem !important;
+            }
+            /* Price: tighten the tall text-lg line box (1.75rem) so there
+               is less air between the name above and the price digits. */
+            #product-grid > article.group > div:nth-of-type(2) p {
+                line-height: 1.3 !important;
+            }
+
+            /* ================================================================
+               DESKTOP PRODUCT CARD — rounded shell, rounded image, 3D shadow.
+               Cards sit at z-index:1 with a visible elevation shadow at rest.
+               Mobile has border-radius:0 !important and box-shadow:none !important
+               so these rules never apply there. overflow:VISIBLE — the hover
+               extension panel (::after) and the overlay Add-to-Cart button are
+               absolutely positioned and must be allowed to paint PAST the
+               card's bottom edge, over the row below. Rounded image corners
+               are still clipped by the image wrapper's own overflow:hidden. */
+
+            /* --- REST STATE: rounded + subtle controlled elevation.
+                   Goal: page → gentle elevation → card (NOT a visible
+                   shadow outline). Three soft low-opacity layers instead
+                   of a hard edge. --- */
+            #product-grid > article.group {
+                position: relative;
+                z-index: 1;
+                border-radius: 1rem !important;
+                overflow: visible;
+                box-shadow:
+                    0 1px 2px rgba(0, 0, 0, 0.03),
+                    0 4px 12px rgba(0, 0, 0, 0.035),
+                    0 10px 26px rgba(0, 0, 0, 0.03);
+                transition:
+                    z-index 0s 0.01s,
+                    box-shadow 0.35s ease,
+                    border-color 0.35s ease,
+                    transform 0.35s ease;
+            }
+
+            /* Image container: rounded corners consistent with the card shell */
+            #product-grid > article.group > div:nth-of-type(1) {
+                border-radius: 0.625rem;
+                overflow: hidden;
+            }
+
+            /* ================================================================
+               DARK MODE — PRODUCT PHOTOGRAPHY PROTECTION (desktop only).
+               The card <img> carries the Tailwind `mix-blend-multiply` class,
+               which blends the photo onto the (light) card surface. In dark
+               mode the card/wrapper surfaces turn near-black and the multiply
+               blend renders the whole photo black. Fix: neutralize ONLY the
+               blend mode (no filters, no inversion, no image changes — the
+               photo itself is untouched) and give the image area a light
+               backdrop so the product's original white background stays
+               visible. Mobile already forces mix-blend-mode:normal in its
+               own block above. */
+            html.dark #product-grid > article.group > div:nth-of-type(1) {
+                background: #f7f9ff !important; /* light image-area backdrop */
+            }
+            html.dark #product-grid > article.group > div:nth-of-type(1) img {
+                mix-blend-mode: normal !important;
+            }
+
+            /* ================================================================
+               DARK MODE — CARD 3D SEPARATION (desktop only).
+               In dark mode the cards blend into the dark page background
+               because black shadows are invisible on a black page. Fix:
+               - Card surface: clearly lighter than the page (#1e2635 vs
+                 #0a0f14) → dark page → ELEVATED CARD → bright image → info
+               - Subtle visible border: low-opacity white highlight
+               - Shadow: dark tint so the card floats faintly off the page
+               - Image area stays white (#f7f9ff) — untouched
+               - All light-mode card styling is preserved exactly as-is */
+            html.dark #product-grid > article.group {
+                background-color: #1e2635 !important;
+                border: 1px solid rgba(255, 255, 255, 0.10) !important;
+                box-shadow:
+                    0 2px 6px rgba(0, 0, 0, 0.35),
+                    0 6px 18px rgba(0, 0, 0, 0.25),
+                    0 12px 36px rgba(0, 0, 0, 0.20);
+            }
+            /* Dark hover: shadow deepens, subtle glow edge */
+            html.dark #product-grid > article.group:hover {
+                border-color: rgba(255, 255, 255, 0.12) !important;
+                box-shadow:
+                    0 4px 10px rgba(0, 0, 0, 0.45),
+                    0 16px 40px rgba(0, 0, 0, 0.35),
+                    0 32px 60px rgba(0, 0, 0, 0.25);
+            }
+            /* Dark-mode card text readability */
+            html.dark #product-grid > article.group h2 {
+                color: rgba(255, 255, 255, 0.92) !important;
+            }
+            html.dark #product-grid > article.group p {
+                color: #ffffff !important;
+            }
+            /* Dark-mode wishlist heart (desktop): near-white circular button
+               with BLACK heart icon — matches the light-mode appearance so the
+               heart outline is always clearly visible regardless of theme. */
+            html.dark #product-grid > article.group .sc-wish {
+                background: rgba(255, 255, 255, 0.88) !important;
+                color: #111d27 !important;
+                border: none !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+            }
+            html.dark #product-grid > article.group .sc-wish:hover {
+                background: rgba(255, 255, 255, 0.95) !important;
+            }
+            /* Active wishlist heart: SOLID RED — overrides any theme color */
+            html.dark #product-grid > article.group .sc-wish.sc-wish-active,
+            html.dark #product-grid > article.group .sc-wish.text-red-500,
+            html.dark #product-grid > article.group .sc-wish.is-on {
+                color: #ef4444 !important;
+                background: rgba(239, 68, 68, 0.12) !important;
+            }
+            /* Light-mode active wishlist heart: solid red */
+            #product-grid > article.group .sc-wish.sc-wish-active,
+            #product-grid > article.group .sc-wish.text-red-500,
+            #product-grid > article.group .sc-wish.is-on {
+                color: #ef4444 !important;
+            }
+            /* Dark-mode extension panel: match card surface colour */
+            html.dark #product-grid > article.group::after {
+                background-color: #1e2635 !important;
+            }
+
+            /* --- HOVER / EXPANDED STATE: elevated, overlaps neighbours ---
+               z-index lifts the card ABOVE the row below. transform:translateY
+               gives a subtle physical lift. Shadow deepens for clear layering.
+               The card's original grid-cell dimensions stay EXACTLY the same —
+               no row-height change, no neighbour displacement. */
+            #product-grid > article.group:hover {
+                z-index: 10;
+                transform: translateY(-2px);
+                box-shadow:
+                    0 4px 10px rgba(0, 0, 0, 0.05),
+                    0 14px 32px rgba(0, 0, 0, 0.06),
+                    0 28px 48px rgba(0, 0, 0, 0.045);
+            }
+
+            /* ---- Desktop ATC: HOVER OVERLAY — ZERO layout impact.
+                   The button is taken completely OUT of normal flow
+                   (position:absolute, anchored just below the price) so the
+                   card's height, its grid row and every neighbouring card
+                   stay pixel-fixed at ALL times, including mid-transition.
+                   Idle: invisible. Hover: fades/slides in ON TOP of the
+                   ::after extension panel below, revealing the Add to Cart
+                   inside the "expanded" card without pushing anything.
+                   Scoped to :not(.sc-atc-mobile) so the mobile always-visible
+                   ATC is untouched. */
+            #product-grid > article.group .sc-atc:not(.sc-atc-mobile) {
+                position: absolute;
+                z-index: 1;      /* above the ::after extension panel (pseudo paints last otherwise) */
+                left: 1.25rem;   /* matches the card's p-5 padding */
+                right: 1.25rem;
+                /* width:auto is REQUIRED: the markup's Tailwind w-full
+                   (width:100%) + a left offset is over-constrained — the
+                   width wins and `right` is ignored, pushing the button
+                   1.25rem past the card's RIGHT edge. With width:auto the
+                   left/right insets define the width, keeping the button
+                   fully inside the card's rounded boundary. */
+                width: auto;
+                /* Rounder button: overrides the markup's rounded-sm (2px)
+                   with the site's xl radius token — matches the mobile ATC. */
+                border-radius: 0.5rem;
+                bottom: -28px;   /* bottom edge 1.25rem above the panel's lower edge */
+                margin: 0;
+                display: block;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-10px);
+                pointer-events: none;
+                box-shadow: none;
+                transition: opacity .3s ease, transform .3s ease,
+                            visibility 0s linear .3s;
+            }
+            #product-grid > article.group:hover .sc-atc:not(.sc-atc-mobile) {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+                pointer-events: auto;
+                box-shadow: 0 4px 6px -1px rgba(0,3,8,0.1), 0 2px 4px -2px rgba(0,3,8,0.1);
+                transition: opacity .3s ease, transform .3s ease, visibility 0s;
+            }
+
+            /* ---- Desktop ATC in DARK MODE: white button + black text so it
+                   stays clearly visible against the dark card/page. Colour
+                   ONLY — same size, position, rounded corners and click
+                   behaviour (mirrors the mobile dark ATC treatment).
+                   Light mode keeps the existing dark button untouched. */
+            html.dark #product-grid > article.group .sc-atc:not(.sc-atc-mobile) {
+                background: #ffffff !important;
+                color: #000308 !important;
+            }
+            html.dark #product-grid > article.group .sc-atc:not(.sc-atc-mobile):hover {
+                background: #825335 !important; /* existing secondary accent */
+                color: #ffffff !important;
+            }
+
+            /* ---- Desktop card EXTENSION PANEL (::after) — visual only.
+                   Makes the hovered card APPEAR to grow ~48px taller:
+                   absolutely positioned, so it NEVER contributes to the
+                   card's layout height, the grid row height, or the
+                   document flow — it simply paints OVER the row below
+                   (the hovered card is z-index:10 vs siblings' 1).
+                   Same surface colour as the card in BOTH themes
+                   (background-color:inherit), bottom corners rounded to
+                   match the shell, same elevation shadow language. */
+            #product-grid > article.group::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: calc(100% - 1rem); /* overlap the card's bottom rounded corners for a seamless shell */
+                height: 0;
+                background-color: inherit;
+                border-radius: 0 0 1rem 1rem;
+                box-shadow: 0 14px 32px rgba(0, 0, 0, 0.06);
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transition: height .3s ease, opacity .3s ease,
+                            visibility 0s linear .3s;
+            }
+            #product-grid > article.group:hover::after {
+                height: calc(48px + 1rem); /* the visual growth — overlaps the row below */
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto; /* the grown card surface stays hoverable/clickable, like a real grown card */
+                transition: height .3s ease, opacity .3s ease, visibility 0s;
+            }
+
+            /* ================================================================
+               DESKTOP SIDEBAR — strong, premium, polished Category + Filter.
+               All rules scoped to ≥768px — mobile drawer is untouched.
+               Hierarchy: CATEGORY heading → category options → divider →
+               FILTER BY heading → accordion rows. */
+
+            /* Sidebar container: wider, more breathing room */
+            .subcat-sidebar {
+                width: 19.5rem !important; /* ~312px — intentionally present */
+                padding-right: 1.5rem !important;
+                padding-left: 0.5rem !important;
+            }
+
+            /* ─── CATEGORY SECTION ─────────────────────────────────────── */
+
+            .subcat-category-group {
+                margin-bottom: 2.75rem !important;
+                padding-bottom: 2rem !important;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.10) !important;
+            }
+            html.dark .subcat-category-group {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+            }
+
+            /* CATEGORY heading: large, bold, prominent label */
+            .subcat-category-group h3 {
+                font-family: 'Manrope', sans-serif !important;
+                font-size: 0.8rem !important;
+                font-weight: 800 !important;
+                letter-spacing: 0.26em !important;
+                text-transform: uppercase !important;
+                color: #111d27 !important;
+                margin-bottom: 1.35rem !important;
+                padding-bottom: 0.75rem !important;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+            }
+            html.dark .subcat-category-group h3 {
+                color: #ffffff !important;
+                border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            /* Category option chips: larger, darker, heavier — read as
+               primary navigation options, not secondary text */
+            .subcat-category-group .subcat-cat-chip {
+                padding: 0.85rem 0.5rem !important;
+                font-family: 'Inter', sans-serif !important;
+                font-size: 0.88rem !important;
+                font-weight: 600 !important;
+                letter-spacing: 0.01em;
+                color: #22272e;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+                transition: color 0.2s ease, font-weight 0.15s ease,
+                            padding-left 0.25s ease, background-color 0.2s ease;
+                border-radius: 0 !important;
+            }
+            html.dark .subcat-category-group .subcat-cat-chip {
+                color: rgba(255, 255, 255, 0.85) !important;
+                border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+            }
+
+            /* Hover: subtle indent + darker text */
+            .subcat-category-group .subcat-cat-chip:hover {
+                padding-left: 0.7rem !important;
+                color: #111d27 !important;
+                background-color: rgba(0, 0, 0, 0.015);
+            }
+            html.dark .subcat-category-group .subcat-cat-chip:hover {
+                color: #ffffff !important;
+                background-color: rgba(255, 255, 255, 0.04);
+            }
+
+            /* Active state: brand colour + bold + indent + accent bar */
+            .subcat-category-group .subcat-cat-chip.is-active {
+                color: #825335 !important;
+                font-weight: 700 !important;
+                padding-left: 0.7rem !important;
+                background-color: rgba(130, 83, 53, 0.04);
+            }
+            html.dark .subcat-category-group .subcat-cat-chip.is-active {
+                color: #f7b994 !important;
+                background-color: rgba(247, 185, 148, 0.08);
+            }
+
+            /* Active checkmark: larger and fully opaque */
+            .subcat-category-group .subcat-cat-chip .subcat-cat-tick {
+                font-size: 22px !important;
+                color: #825335;
+            }
+            html.dark .subcat-category-group .subcat-cat-chip .subcat-cat-tick {
+                color: #f7b994;
+            }
+
+            /* ─── FILTER BY SECTION ─────────────────────────────────────── */
+
+            /* FILTER BY heading: the dominant sidebar section title —
+               slightly larger/bolder than CATEGORY so the panel reads
+               as a proper filter control panel */
+            .subcat-sidebar .space-y-6 > div > h2,
+            .subcat-sidebar .space-y-6 > div:first-child h2 {
+                font-family: 'Manrope', sans-serif !important;
+                font-size: 0.88rem !important;
+                font-weight: 800 !important;
+                letter-spacing: 0.28em !important;
+                text-transform: uppercase !important;
+                color: #111d27 !important;
+                margin-bottom: 1.75rem !important;
+                padding-bottom: 0.85rem !important;
+                text-align: left !important;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+            }
+            html.dark .subcat-sidebar .space-y-6 > div > h2,
+            html.dark .subcat-sidebar .space-y-6 > div:first-child h2 {
+                color: #ffffff !important;
+                border-bottom-color: rgba(255, 255, 255, 0.10) !important;
+            }
+
+            /* ─── FILTER ACCORDION ROWS ─────────────────────────────────── */
+
+            /* Each <details> accordion: stronger vertical rhythm */
+            .subcat-sidebar details {
+                padding-bottom: 1.4rem !important;
+                margin-bottom: 0.15rem;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+            }
+            html.dark .subcat-sidebar details {
+                border-bottom-color: rgba(255, 255, 255, 0.07) !important;
+            }
+            /* Last details: no trailing border */
+            .subcat-sidebar details:last-of-type {
+                border-bottom: none !important;
+            }
+
+            /* Accordion summary row: more vertical padding, cleaner layout */
+            .subcat-sidebar details > summary {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                padding-top: 0.65rem !important;
+                padding-bottom: 0.65rem !important;
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+                border-radius: 0 !important;
+            }
+            .subcat-sidebar details > summary:hover {
+                background-color: rgba(0, 0, 0, 0.02);
+            }
+            html.dark .subcat-sidebar details > summary:hover {
+                background-color: rgba(255, 255, 255, 0.03);
+            }
+
+            /* Accordion label text (Sort By, Price KWD, Color, Unit Components):
+               larger, bolder, clearly scannable */
+            .subcat-sidebar details > summary h3 {
+                font-family: 'Manrope', sans-serif !important;
+                font-size: 0.74rem !important;
+                font-weight: 700 !important;
+                letter-spacing: 0.18em !important;
+                color: #333 !important;
+            }
+            html.dark .subcat-sidebar details > summary h3 {
+                color: rgba(255, 255, 255, 0.85) !important;
+            }
+
+            /* Chevron icon: larger, more visible, better colour */
+            .subcat-sidebar details > summary .arrow-icon {
+                font-size: 22px !important;
+                color: #555 !important;
+                opacity: 0.7;
+            }
+            html.dark .subcat-sidebar details > summary .arrow-icon {
+                color: rgba(255, 255, 255, 0.6) !important;
+            }
+
+            /* ─── FILTER OPTION LABELS ──────────────────────────────────── */
+
+            /* Text labels inside each accordion's options */
+            .subcat-sidebar details label span {
+                font-size: 0.82rem !important;
+                font-weight: 500 !important;
+                letter-spacing: 0.01em;
+                color: #44474b;
+            }
+            html.dark .subcat-sidebar details label span {
+                color: rgba(255, 255, 255, 0.75) !important;
+            }
+
+            /* Option count badges (e.g. "156" next to Multicolour) */
+            .subcat-sidebar details label span.text-\[10px\],
+            .subcat-sidebar details label .text-outline {
+                font-size: 0.72rem !important;
+                font-weight: 600 !important;
+            }
+        }
+
+        /* Mobile listing toast */
+        #sc-toast {
+            position: fixed; left: 50%; bottom: 5.5rem; transform: translateX(-50%) translateY(10px);
+            background: #000308; color: #fff; z-index: 200;
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em;
+            padding: 0.6rem 1rem; border-radius: 9999px;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25); opacity: 0; pointer-events: none;
+            transition: opacity .25s ease, transform .25s ease; max-width: 90vw;
+        }
+        #sc-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        #sc-toast .material-symbols-outlined { font-size: 16px; }
+        @media (min-width: 768px) { #sc-toast { bottom: 2rem; font-size: 0.75rem; } }
+    </style>
+</head>
+<body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased min-h-screen flex flex-col pt-[88px] transition-colors duration-300">
+<!-- TopAppBar Section (shared — from home.html) -->
+<nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
+<div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-12">
+<a href="home.html" class="flex items-center gap-2 group cursor-pointer shrink-0">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/>
+</a>
+<div class="hidden md:flex gap-8">
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="subcategoryui.html">Cleaning Tools</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="home-outdoor.html">Home & Outdoor</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="kitchenware.html">Kitchenware</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="cooling.html">Cooling Appliances</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trolly.html">Trolleys & Baskets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="shelves.html">Shelves & Stands</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="checkout-solutions.html">Checkout Solutions</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="accessories.html">Accessories</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trollies.html">Trolleys & Baskets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="forklift.html">Forklifts & Pallets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="rack.html">Heavy Duty Racking</a></li>
+</ul>
+</div>
+</div>
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a>
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+</div>
+</div>
+<!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
+     direct flex child of the header row so all three elements share the same
+     vertical centre via the parent items-center. The search icon lives inside a
+     <label> so search.js bindTriggers() skips it. -->
+<form class="flex-1 mx-2 md:hidden relative m-0" id="mobile-inline-search" role="search" autocomplete="off">
+<label class="absolute inset-y-0 left-2 flex items-center pointer-events-none" for="mobile-inline-search-input">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-white/60" style="font-size:20px;">search</span>
+</label>
+<input id="mobile-inline-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-full h-9 pl-8 pr-3 rounded-lg bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 outline-none focus:ring-2 focus:ring-primary/40 transition"/>
+</form>
+<div class="flex items-center gap-2 md:gap-6 shrink-0"><!-- Desktop inline search bar -->
+<form class="hidden md:flex relative m-0 items-center" id="desktop-inline-search" role="search" autocomplete="off">
+<input id="desktop-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-44 lg:w-56 h-9 px-3 py-2 rounded-full bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 dark:border-white/20 outline-none focus:ring-2 focus:ring-primary/40 focus:w-64 transition-all duration-300"/>
+</form>
+<button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center">
+<span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
+<span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
+<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
+</button>
+<div class="relative group hidden md:block" id="download-btn-container">
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
+<span class="material-symbols-outlined dark:text-slate-300" style="font-size: 30px;">download</span>
+</button>
+<!-- Premium Dropdown Menu -->
+<div class="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 z-50" id="download-popup">
+<div class="bg-[#135bec] rounded-2xl shadow-2xl overflow-hidden">
+<!-- Header -->
+<div class="px-6 py-4 border-b border-white/20" style="background-color: #135bec;">
+<h3 class="text-white font-headline font-bold text-sm uppercase tracking-wider">DOWNLOAD OUR APP</h3>
+<p class="text-white/80 text-xs mt-1 font-light">Upgrade Your Experience</p>
+</div>
+<!-- Download Options -->
+<div class="space-y-3 flex flex-col items-center bg-transparent">
+<a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
+<img loading="lazy" src="topcar/aple.png" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+</a>
+<a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
+<img loading="lazy" src="topcar/ggle.png" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+</a>
+</div>
+</div>
+</div>
+</div>
+<button class="hidden md:block hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span>
+</button>
+<button class="hidden md:block hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined dark:text-slate-300" style="font-size: 30px;">shopping_cart</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95 hidden md:flex" id="account-btn">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">person</span>
+</button>
+<button id="hamburger-slot" class="md:hidden hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center justify-center p-0" aria-label="Open menu">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">menu</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Layout -->
+<main class="flex-grow flex flex-col w-full max-w-[1920px] mx-auto px-6 md:px-12 py-8">
+
+<!-- Category buttons SOURCE (hidden at every viewport — exists only so the mobile
+     drawer's Category group can be cloned from it, exactly as cleaning-tools.html
+     does with its .subcat-tabs .category-btn elements). -->
+<section class="subcat-tabs" style="display:none;" aria-hidden="true">
+<button type="button" class="category-btn">All</button>
+<button type="button" class="category-btn">Surface Cleaning</button>
+<button type="button" class="category-btn">Toilet &amp; Drain</button>
+</section>
+
+<!-- Mobile listing header: Page Title (left) + Filter & Sorting (right), then Product Count.
+     Lives INSIDE <main> (like cleaning-tools.html) so main's padding-top clears
+     the fixed nav. Desktop/tablet: hidden via CSS. -->
+<div class="subcat-listing-header" id="subcat-filter-trigger" role="button" tabindex="0" aria-label="Open filters and sorting">
+  <div class="subcat-lh-top">
+    <div>
+      <span class="subcat-lh-title" data-lh-title>PROFESSIONAL CLEANING EQUIPMENT</span>
+      <div class="subcat-lh-count" data-lh-count></div>
+    </div>
+    <span class="subcat-lh-filter">
+      <span class="material-symbols-outlined subcat-lh-icon">tune</span>
+      <span class="subcat-lh-ftext">Filter &amp; Sorting</span>
+    </span>
+  </div>
+</div>
+<div id="subcat-drawer-backdrop"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     DESKTOP CATEGORY INTRODUCTION — premium editorial hero.
+     Spans the full content width above the sidebar + product grid.
+     Hidden on mobile via CSS (the .subcat-listing-header serves as
+     the mobile category title). Desktop-only display controlled by
+     the @media (min-width: 768px) block. -->
+<section class="subcat-intro" aria-label="Category introduction">
+  <h1 class="subcat-intro-title">Cleaning Tools</h1>
+  <p class="subcat-intro-sub">Professional Cleaning Equipment</p>
+  <p class="subcat-intro-desc">Keep every space spotless with dependable cleaning equipment designed for commercial, household and professional use. From floor care and surface cleaning to waste management, our collection combines practical performance, durability and clean, efficient design.</p>
+</section>
+
+<!-- DESKTOP BROWSING WRAPPER: sidebar + product grid in a flex row.
+     Mobile: main is display:block so this becomes a vertical stack
+     (hidden sidebar → then the product section flows below the
+     mobile listing header). -->
+<div class="subcat-browse">
+
+<!-- Left Sidebar: Filters (also serves as the mobile drawer via .subcat-sidebar).
+     Filter sections + text match cleaning-tools.html (FILTER By / Sort By /
+     Price (KWD) / Color / Unit Components). -->
+<aside class="subcat-sidebar hidden lg:block w-64 flex-shrink-0 space-y-10 sticky top-24 self-start h-[calc(100vh-160px)] overflow-y-auto pr-4 custom-scrollbar" style="scrollbar-gutter: stable;">
+<!-- Mobile drawer close button (right arrow, top-right of the open panel).
+     Hidden on desktop via the min-width:768px guard; only renders on mobile
+     when the aside is open as the drawer (aside display:none hides it closed). -->
+<button type="button" id="subcat-drawer-close" aria-label="Close filters">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<div class="space-y-6">
+<div>
+<h2 class="text-[12px] font-bold tracking-[0.25em] uppercase text-primary dark:text-white mb-8 pb-4 border-b border-outline-variant/20 dark:border-white/20 text-center">FILTER By</h2>
+<div class="space-y-4">
+<!-- Sorting Accordion -->
+<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
+<summary class="flex items-center justify-between cursor-pointer list-none">
+<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Sort By</h3>
+<span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="pt-6 space-y-3">
+<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
+<input class="rounded-sm flex-shrink-0 filter-radio" name="sorting" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Price: Low to High</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
+<input class="rounded-sm flex-shrink-0 filter-radio" name="sorting" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Price: High to Low</span>
+</label>
+</div>
+</details>
+<!-- Price Filter Accordion -->
+<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
+<summary class="flex items-center justify-between cursor-pointer list-none">
+<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Price (KWD)</h3>
+<span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="pt-6 space-y-6">
+<div class="space-y-3">
+<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
+<input class="rounded-sm flex-shrink-0 filter-checkbox" name="price-range" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">0-10 KWD</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
+<input class="rounded-sm flex-shrink-0 filter-checkbox" name="price-range" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">10-20 KWD</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
+<input class="rounded-sm flex-shrink-0 filter-checkbox" name="price-range" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">20-30 KWD</span>
+</label>
+</div>
+<div class="pt-2">
+<div class="flex gap-2 items-center mb-4">
+<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-min" placeholder="Min" type="text"/>
+<span class="text-outline-variant dark:text-white/40">-</span>
+<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-max" placeholder="Max" type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2 border border-outline-variant/30 dark:border-white/20 text-[9px] uppercase tracking-widest font-bold text-on-surface-variant dark:text-white/70 hover:border-primary dark:hover:border-white hover:text-primary dark:hover:text-white transition-all" id="clear-price">Clear</button>
+<button class="flex-1 py-2 bg-primary text-on-primary text-[9px] uppercase tracking-widest font-bold" id="apply-price">Apply</button>
+</div>
+</div>
+</div>
+</details>
+<!-- Color Filter Accordion -->
+<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
+<summary class="flex items-center justify-between cursor-pointer list-none">
+<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Color</h3>
+<span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="pt-6 space-y-6">
+<div class="relative">
+<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white pl-8 pr-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Search Color..." type="text"/>
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline dark:text-white/70 text-sm" data-icon="search">search</span>
+</div>
+<div class="space-y-3">
+<label class="flex items-center justify-between group/label cursor-pointer pl-1">
+<div class="flex items-center gap-3">
+<input class="flex-shrink-0 filter-checkbox" name="color" type="checkbox"/>
+<div class="w-3 h-3 rounded-full border border-outline-variant/30 dark:border-white/30 bg-gradient-to-tr from-rose-400 via-emerald-400 to-indigo-400"></div>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Multicolour</span>
+</div>
+<span class="text-[10px] text-outline dark:text-white/70 opacity-60">156</span>
+</label>
+<label class="flex items-center justify-between group/label cursor-pointer pl-1">
+<div class="flex items-center gap-3">
+<input class="flex-shrink-0 filter-checkbox" name="color" type="checkbox"/>
+<div class="w-3 h-3 rounded-full border border-outline-variant/30 dark:border-white/30 bg-white"></div>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">White</span>
+</div>
+<span class="text-[10px] text-outline dark:text-white/70 opacity-60">89</span>
+</label>
+<label class="flex items-center justify-between group/label cursor-pointer pl-1">
+<div class="flex items-center gap-3">
+<input class="flex-shrink-0 filter-checkbox" name="color" type="checkbox"/>
+<div class="w-3 h-3 rounded-full border border-outline-variant/30 dark:border-white/30 bg-blue-600"></div>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Blue</span>
+</div>
+<span class="text-[10px] text-outline dark:text-white/70 opacity-60">42</span>
+</label>
+<label class="flex items-center justify-between group/label cursor-pointer pl-1">
+<div class="flex items-center gap-3">
+<input class="flex-shrink-0 filter-checkbox" name="color" type="checkbox"/>
+<div class="w-3 h-3 rounded-full border border-outline-variant/30 dark:border-white/30 bg-green-600"></div>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Green</span>
+</div>
+<span class="text-[10px] text-outline dark:text-white/70 opacity-60">28</span>
+</label>
+</div>
+</div>
+</details>
+<!-- Unit Components Filter Accordion -->
+<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
+<summary class="flex items-center justify-between cursor-pointer list-none">
+<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Unit Components</h3>
+<span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="pt-6 space-y-6">
+<div class="relative">
+<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white pl-8 pr-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Search Components..." type="text"/>
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline dark:text-white/70 text-sm" data-icon="search">search</span>
+</div>
+<div class="space-y-3">
+<label class="flex items-center justify-between group/label cursor-pointer pl-1">
+<div class="flex items-center gap-3">
+<input class="rounded-sm flex-shrink-0 filter-checkbox" name="unit" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">1-Pc</span>
+</div>
+<span class="text-[10px] text-outline dark:text-white/70 opacity-60 unit-count" data-unit="1-Pc"></span>
+</label>
+<label class="flex items-center justify-between group/label cursor-pointer pl-1">
+<div class="flex items-center gap-3">
+<input class="rounded-sm flex-shrink-0 filter-checkbox" name="unit" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Set</span>
+</div>
+<span class="text-[10px] text-outline dark:text-white/70 opacity-60 unit-count" data-unit="Set"></span>
+</label>
+<label class="flex items-center justify-between group/label cursor-pointer pl-1">
+<div class="flex items-center gap-3">
+<input class="rounded-sm flex-shrink-0 filter-checkbox" name="unit" type="checkbox"/>
+<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Pack</span>
+</div>
+<span class="text-[10px] text-outline dark:text-white/70 opacity-60 unit-count" data-unit="Pack"></span>
+</label>
+</div>
+</div>
+</details>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right Main Canvas: Product Grid -->
+<section class="flex-grow flex flex-col min-w-0">
+<!-- Desktop: product count + sort — compact inline bar.
+     Mobile: this header is hidden via CSS (the .subcat-listing-header
+     already shows the title + count above the mobile grid). -->
+<header class="subcat-grid-header flex flex-col md:flex-row justify-between items-start md:items-end mb-6 pb-4 border-b border-surface-container-high/50">
+<div>
+<p class="text-sm text-on-surface-variant font-body font-medium" id="catalog-count">Loading products…</p>
+</div>
+<div class="mt-4 md:mt-0 flex items-center space-x-3">
+<span class="text-sm font-semibold text-on-surface font-headline uppercase tracking-wider text-[11px]">Sort By</span>
+<select class="bg-surface-container-lowest border border-outline-variant/30 text-sm font-medium py-2 pl-4 pr-10 rounded-sm focus:ring-0 focus:border-secondary cursor-pointer hover:border-outline-variant transition-colors text-on-surface">
+<option>Recommended</option>
+<option>Price: High to Low</option>
+<option>Price: Low to High</option>
+<option>Newest Arrivals</option>
+</select>
+</div>
+</header>
+<!-- Grid -->
+<!-- Dense 5-column grid on XL, 4 on LG, 2 on MD.
+     Product cards are rendered dynamically from /api/catalog
+     (category === "Cleaning Tools") by the data script at the end of <body>.
+     The grid wrapper and its classes are unchanged. -->
+<!-- Active Filters Display (from cleaning-tools.html — driven by its filter JS) -->
+<div id="active-filters" class="hidden mb-8 pb-6 border-b border-outline-variant/20 dark:border-white/20">
+<div class="flex items-center justify-between mb-4 mt-4 pl-5 md:mt-0 md:pl-0">
+<h3 class="text-[11px] font-bold tracking-[0.2em] uppercase text-primary dark:text-white">Filtered By</h3>
+<button id="clear-all-filters" class="text-[10px] font-bold tracking-[0.15em] uppercase text-secondary hover:text-primary dark:hover:text-white transition-colors">Clear All</button>
+</div>
+<div id="filter-tags" class="flex flex-wrap gap-3 pl-5 md:pl-0">
+<!-- Filter tags will be dynamically added here -->
+</div>
+</div>
+<div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+<!-- Product cards injected here by JS -->
+</div>
+<!-- Pagination / Load More (Atelier Style) -->
+<div class="mt-8 flex justify-center pb-4"><div class="flex items-center space-x-2 font-headline text-sm font-semibold"><button class="w-10 h-10 flex items-center justify-center rounded-sm border border-outline-variant/30 hover:border-secondary text-on-surface transition-colors"><span class="material-symbols-outlined text-sm">chevron_left</span></button><button class="w-10 h-10 flex items-center justify-center rounded-sm bg-primary text-on-primary">1</button><button class="w-10 h-10 flex items-center justify-center rounded-sm border border-outline-variant/30 hover:border-secondary text-on-surface transition-colors">2</button><button class="w-10 h-10 flex items-center justify-center rounded-sm border border-outline-variant/30 hover:border-secondary text-on-surface transition-colors">3</button><span class="px-2 text-on-surface">...</span><button class="w-10 h-10 flex items-center justify-center rounded-sm border border-outline-variant/30 hover:border-secondary text-on-surface transition-colors">10</button><button class="w-10 h-10 flex items-center justify-center rounded-sm border border-outline-variant/30 hover:border-secondary text-on-surface transition-colors"><span class="material-symbols-outlined text-sm">chevron_right</span></button></div></div>
+</section>
+<!-- Close .subcat-browse wrapper -->
+</div><!-- /subcat-browse -->
+</main>
+<!-- Footer (shared — from home.html) -->
+<footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
+<!-- Column 1 -->
+<div class="col-span-1">
+<a href="home.html" class="flex items-center gap-2 mb-6">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
+</a>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
+</div>
+<!-- Column 2 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Customized Packaging</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li>
+</ul>
+</div>
+<!-- Column 3 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">General Information</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Help</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Terms & Conditions</a></li>
+</ul>
+</div>
+<!-- Column 4 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Customer Service</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Return and refund policy</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Shipping & delivery</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Privacy and security</a></li>
+</ul>
+</div>
+<!-- Column 5 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact Us</h4>
+<ul class="space-y-4 text-sm">
+<li class="flex items-start gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">location_on</span>
+<span>Shuwaikh Industrial Area, Kuwait</span>
+</li>
+<li class="flex items-center gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">mail</span>
+<span>info@al-nassim.com</span>
+</li>
+<li class="flex items-center gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">call</span>
+<span>+965 609 000 59</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-xs text-slate-500">© 2026 AL-Nassim Golden Group. All rights reserved.</p>
+<div class="flex items-center gap-6">
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.facebook.com/Al.Nassim.Central.Market/" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/Facebook_icon.png" alt="Facebook" class="w-6 h-6 object-contain"/></a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/Instagram_icon.png" alt="Instagram" class="w-6 h-6 object-contain"/></a>
+</div>
+</div>
+</div>
+</footer>
+
+<!-- ============================================================================
+     DATA / WISHLIST / CART — functional layer only (NO UI/CSS changes).
+     - Loads the SAME catalog as cleaning-tools.html: /api/catalog
+       → window.NASSIM_PRODUCTS  → filter p.category === "Cleaning Tools".
+     - Renders each product using the EXACT existing card markup/classes
+       (the heart stays at absolute top-4 right-4, image aspect-[4/5], etc.).
+     - Wires the existing heart → nassim_wishlist + /api/wishlist
+       (auth-gated via NassimAccount.getCurrentUser(), FILL state, persists).
+     - Wires the existing "Add To Cart" → nassim_cart + /api/cart + badge.
+     - product-nav.js (loaded below) delegates clicks on article.group/[data-slug]
+       → "product view.html?id=<slug>". Heart/ATC stopPropagation so they don't nav.
+     ============================================================================ -->
+<script>
+(function () {
+  "use strict";
+
+  var CATEGORY = "Cleaning Tools";
+  var CART_KEY = "nassim_cart";
+  var WISH_KEY = "nassim_wishlist";
+  var grid = document.getElementById("product-grid");
+  var countEl = document.getElementById("catalog-count");
+
+  /* ---- localStorage helpers (identical shape to the rest of the site) ---- */
+  function readWishlist() {
+    try {
+      var raw = localStorage.getItem(WISH_KEY);
+      if (!raw) return [];
+      var p = JSON.parse(raw);
+      var s = p && p.state ? p.state : p;
+      return s && s.items ? s.items : [];
+    } catch (e) { return []; }
+  }
+  function saveWishlistItems(items) {
+    try { localStorage.setItem(WISH_KEY, JSON.stringify({ state: { items: items } })); } catch (e) {}
+  }
+
+  /* ---- toast (self-contained, mirrors product view.html) ---- */
+  var toastTimer = null;
+  function showToast(msg, icon) {
+    var t = document.getElementById("sc-toast");
+    if (!t) {
+      t = document.createElement("div");
+      t.id = "sc-toast";
+      t.style.cssText =
+        "position:fixed;left:50%;bottom:2rem;transform:translateX(-50%) translateY(10px);" +
+        "background:#000308;color:#fff;z-index:200;font-size:0.75rem;font-weight:700;" +
+        "padding:0.6rem 1rem;border-radius:9999px;display:inline-flex;align-items:center;gap:0.4rem;" +
+        "box-shadow:0 8px 24px rgba(0,0,0,0.25);opacity:0;pointer-events:none;" +
+        "transition:opacity .25s ease, transform .25s ease;max-width:90vw;";
+      document.body.appendChild(t);
+    }
+    t.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">' + (icon || "check_circle") + "</span>" + msg;
+    t.classList.add("show");
+    t.style.opacity = "1";
+    t.style.transform = "translateX(-50%) translateY(0)";
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      t.style.opacity = "0";
+      t.style.transform = "translateX(-50%) translateY(10px)";
+    }, 1800);
+  }
+
+  /* ---- cart (byte-identical logic to product view addToCartBySlug) ---- */
+  function addToCartBySlug(slug) {
+    var product = window.NassimGetProduct ? window.NassimGetProduct(slug) : null;
+    if (!product) { showToast("Product not found", "error"); return; }
+    var cart = {};
+    try {
+      var raw = localStorage.getItem(CART_KEY);
+      cart = raw ? JSON.parse(raw) : { state: { items: [], shipping: 2.5, currency: "KD" } };
+      if (!cart.state) cart = { state: cart };
+    } catch (e) {
+      cart = { state: { items: [], shipping: 2.5, currency: "KD" } };
+    }
+    if (!cart.state.items) cart.state.items = [];
+    var existing = cart.state.items.find(function (i) { return i.id === product.id; });
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.state.items.push({
+        id: product.id, name: product.name, image: product.img || product.image,
+        price: product.price, currency: product.currency || "KD",
+        line: product.line || "", sku: product.sku || "", quantity: 1
+      });
+    }
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    showToast("Added to cart", "shopping_cart");
+    var isLoggedIn = window.NassimAccount && window.NassimAccount.getCurrentUser && window.NassimAccount.getCurrentUser();
+    if (isLoggedIn) {
+      fetch("/api/cart", {
+        method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: product.id, quantity: 1 })
+      }).catch(function () {});
+    }
+    if (window.NassimCartBadge) window.NassimCartBadge.update();
+  }
+
+  /* ---- wishlist (guest-gated, identical logic to product view) ---- */
+  function toggleWishBySlug(slug, btn) {
+    var product = window.NassimGetProduct ? window.NassimGetProduct(slug) : null;
+    if (!product) { showToast("Product not found", "error"); return; }
+    var isLoggedIn = window.NassimAccount && window.NassimAccount.getCurrentUser && window.NassimAccount.getCurrentUser();
+    if (!isLoggedIn) {
+      if (window.NassimAccount && window.NassimAccount.openPanel) window.NassimAccount.openPanel();
+      else showToast("Sign in to save favourites", "login");
+      return;
+    }
+    var items = readWishlist();
+    var isOn = items.some(function (i) { return i.id === product.id; });
+    if (!isOn) {
+      if (!items.some(function (i) { return i.id === product.id; })) {
+        items.push({
+          id: product.id, name: product.name, image: product.img || product.image,
+          price: product.price, currency: product.currency || "KD",
+          line: product.line || "", sku: product.sku || ""
+        });
+      }
+      saveWishlistItems(items);
+      if (btn) setHeartOn(btn, true);
+      showToast("Added to favourites", "favorite");
+      fetch("/api/wishlist", {
+        method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: product.id })
+      }).catch(function () {});
+    } else {
+      saveWishlistItems(items.filter(function (i) { return i.id !== product.id; }));
+      if (btn) setHeartOn(btn, false);
+      showToast("Removed from favourites", "heart_minus");
+      fetch("/api/wishlist?slug=" + encodeURIComponent(product.id), {
+        method: "DELETE", credentials: "same-origin"
+      }).catch(function () {});
+    }
+  }
+
+  /* ---- heart visual state (toggles the existing FILL/styling in place) ---- */
+  function setHeartOn(btn, on) {
+    if (!btn) return;
+    var icon = btn.querySelector(".material-symbols-outlined");
+    if (on) {
+      btn.classList.remove("text-on-surface-variant");
+      btn.classList.add("text-red-500", "sc-wish-active");
+      if (icon) icon.style.fontVariationSettings = '"FILL" 1';
+    } else {
+      btn.classList.remove("text-red-500", "sc-wish-active");
+      btn.classList.add("text-on-surface-variant");
+      if (icon) icon.style.fontVariationSettings = '"FILL" 0';
+    }
+  }
+
+  /* ---- HTML escape ---- */
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  /* ---- render N products using the EXISTING card markup/classes ---- */
+  function renderProducts(list) {
+    if (!grid) return;
+    if (!list.length) {
+      grid.innerHTML =
+        '<div class="col-span-full text-center py-20">' +
+        '<p class="text-lg text-on-surface-variant">No Cleaning Tools products found.</p>' +
+        "</div>";
+      if (countEl) countEl.textContent = "0 products";
+      return;
+    }
+    grid.innerHTML = list.map(function (p) {
+      var price = Number(p.price || 0).toFixed(3);
+      var currency = p.currency || "KD";
+      var img = p.img || p.image || (p.images && p.images[0]) || "";
+      var slug = p.id || "";
+      return '' +
+        '<article class="group flex flex-col bg-surface-container-lowest p-5 rounded-sm hover:shadow-[0_40px_60px_rgba(0,3,8,0.04)] transition-all duration-300 relative border border-transparent hover:border-outline-variant/10" data-slug="' + esc(slug) + '">' +
+          '<button type="button" class="sc-wish absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant hover:text-secondary hover:bg-surface-container-highest transition-colors shadow-sm" aria-label="Save to wishlist">' +
+            '<span class="material-symbols-outlined text-[18px]">favorite</span>' +
+          "</button>" +
+          '<div class="w-full aspect-[4/5] bg-surface flex items-center justify-center mb-6 overflow-hidden relative">' +
+            '<img class="w-full h-full object-cover object-center mix-blend-multiply group-hover:scale-105 transition-transform duration-700 ease-in-out" alt="' + esc(p.name) + '" src="' + esc(img) + '">' +
+          "</div>" +
+          '<div class="flex-grow flex flex-col">' +
+            '<h2 class="font-headline text-sm font-semibold text-on-surface leading-tight mb-3 line-clamp-2">' + esc(p.name) + "</h2>" +
+            '<div class="mt-auto">' +
+              '<p class="font-headline text-lg font-bold text-primary">' + price + " " + currency + "</p>" +
+              '<button type="button" class="sc-atc w-full bg-primary text-on-primary font-headline text-xs uppercase tracking-widest font-semibold py-3 rounded-sm hover:bg-secondary transition-colors duration-300 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 shadow-md hover:shadow-lg">Add To Cart</button>' +
+            "</div>" +
+          "</div>" +
+        "</article>";
+    }).join("");
+
+    if (countEl) {
+      countEl.textContent = list.length + (list.length === 1 ? " product" : " products");
+    }
+    wireCards();
+    syncHearts();
+  }
+
+  /* ---- wire the heart + ATC buttons inside each rendered card ---- */
+  function wireCards() {
+    if (!grid) return;
+    var cards = grid.querySelectorAll("article.group:not(.sc-wired)");
+    cards.forEach(function (card) {
+      card.classList.add("sc-wired");
+      var slug = card.getAttribute("data-slug");
+      if (!slug) return;
+      var wish = card.querySelector(".sc-wish");
+      if (wish) {
+        wish.addEventListener("click", function (e) {
+          e.preventDefault(); e.stopPropagation();
+          toggleWishBySlug(slug, wish);
+        });
+      }
+      var atc = card.querySelector(".sc-atc");
+      if (atc) {
+        atc.addEventListener("click", function (e) {
+          e.preventDefault(); e.stopPropagation();
+          addToCartBySlug(slug);
+        });
+      }
+    });
+  }
+
+  /* ---- re-apply heart state to all cards (after render + after async hydration) ---- */
+  function syncHearts() {
+    if (!grid) return;
+    var isLoggedIn = window.NassimAccount && window.NassimAccount.getCurrentUser && window.NassimAccount.getCurrentUser();
+    var wished = isLoggedIn ? readWishlist() : [];
+    var btns = grid.querySelectorAll(".sc-wish");
+    btns.forEach(function (wb) {
+      var card = wb.closest("article.group");
+      var slug = card ? card.getAttribute("data-slug") : "";
+      var on = isLoggedIn && wished.some(function (i) { return i.id === slug; });
+      setHeartOn(wb, on);
+    });
+  }
+
+  /* ---- load /api/catalog, filter Cleaning Tools, render ----
+     Stores the full Cleaning Tools list in allProducts, then runs
+     applyFiltersAndSort() so the filter inputs drive what renders. */
+  var allProducts = [];
+  function loadAndRender() {
+    if (window.NASSIM_PRODUCTS) {
+      allProducts = window.NASSIM_PRODUCTS.filter(function (p) {
+        return p.category === CATEGORY;
+      });
+      applyFiltersAndSort();
+    } else {
+      setTimeout(loadAndRender, 100);
+    }
+  }
+
+  /* ========================================================================
+     FILTER + SORT LOGIC — ported verbatim from cleaning-tools.html.
+     Reads the filter inputs (.filter-radio, .filter-checkbox, #price-min,
+     #price-max) that live in the <aside> sidebar / mobile drawer, applies
+     sorting + price filtering to allProducts, and re-renders the grid.
+     ======================================================================== */
+  function applyFiltersAndSort() {
+    var filteredProducts = allProducts.slice();
+
+    /* --- Sort --- */
+    var sortCheckboxes = document.querySelectorAll('.filter-radio[name="sorting"]');
+    var sortLowToHighChecked = sortCheckboxes[0] && sortCheckboxes[0].checked;
+    var sortHighToLowChecked = sortCheckboxes[1] && sortCheckboxes[1].checked;
+    if (sortLowToHighChecked) {
+      filteredProducts.sort(function (a, b) { return a.price - b.price; });
+    } else if (sortHighToLowChecked) {
+      filteredProducts.sort(function (a, b) { return b.price - a.price; });
+    }
+
+    /* --- Price range --- */
+    var priceCheckboxes = document.querySelectorAll('.filter-checkbox[name="price-range"]:checked');
+    var priceMinEl = document.getElementById('price-min');
+    var priceMaxEl = document.getElementById('price-max');
+    var priceMin = priceMinEl ? priceMinEl.value.trim() : '';
+    var priceMax = priceMaxEl ? priceMaxEl.value.trim() : '';
+
+    if (priceMin || priceMax) {
+      var min = priceMin ? parseFloat(priceMin) : 0;
+      var max = priceMax ? parseFloat(priceMax) : Infinity;
+      filteredProducts = filteredProducts.filter(function (p) {
+        return p.price >= min && p.price <= max;
+      });
+    } else if (priceCheckboxes.length > 0) {
+      var priceRanges = [];
+      priceCheckboxes.forEach(function (checkbox) {
+        var rangeText = checkbox.closest('label').querySelector('span').textContent;
+        var match = rangeText.match(/(\d+)-(\d+)/);
+        if (match) {
+          priceRanges.push({ min: parseFloat(match[1]), max: parseFloat(match[2]) });
+        }
+      });
+      filteredProducts = filteredProducts.filter(function (p) {
+        return priceRanges.some(function (range) { return p.price >= range.min && p.price < range.max; });
+      });
+    }
+
+    renderProducts(filteredProducts);
+  }
+
+  /* ---- Active-filter tags + Clear All (ported from cleaning-tools.html) ---- */
+  function updateFilterTags() {
+    var activeFiltersContainer = document.getElementById('active-filters');
+    var filterTagsContainer = document.getElementById('filter-tags');
+    if (!activeFiltersContainer || !filterTagsContainer) return;
+
+    var checkedRadios = document.querySelectorAll('.filter-radio:checked');
+    var checkedCheckboxes = document.querySelectorAll('.filter-checkbox:checked');
+    var allCheckedFilters = Array.prototype.slice.call(checkedRadios)
+      .concat(Array.prototype.slice.call(checkedCheckboxes));
+
+    var priceMinEl = document.getElementById('price-min');
+    var priceMaxEl = document.getElementById('price-max');
+    var priceMin = priceMinEl ? priceMinEl.value.trim() : '';
+    var priceMax = priceMaxEl ? priceMaxEl.value.trim() : '';
+    var hasPriceRange = priceMin !== '' || priceMax !== '';
+
+    filterTagsContainer.innerHTML = '';
+
+    if (allCheckedFilters.length === 0 && !hasPriceRange) {
+      activeFiltersContainer.classList.add('hidden');
+      return;
+    }
+    activeFiltersContainer.classList.remove('hidden');
+
+    if (hasPriceRange) {
+      var priceRangeText = priceMin && priceMax ? priceMin + ' - ' + priceMax + ' KWD' :
+                           priceMin ? 'Min: ' + priceMin + ' KWD' :
+                           'Max: ' + priceMax + ' KWD';
+      var ptag = document.createElement('div');
+      ptag.className = 'flex items-center gap-2 px-5 py-2.5 bg-surface-container dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 rounded-full';
+      ptag.innerHTML =
+        '<span class="text-xs text-on-surface-variant dark:text-white/80 font-medium">' + priceRangeText + '</span>' +
+        '<button class="remove-price-filter text-primary dark:text-white hover:text-secondary dark:hover:text-secondary transition-colors">' +
+        '<span class="material-symbols-outlined text-sm">close</span></button>';
+      filterTagsContainer.appendChild(ptag);
+    }
+
+    allCheckedFilters.forEach(function (filter) {
+      if (filter.name === 'price-range' && hasPriceRange) return;
+      var labelText = filter.closest('label').querySelector('span').textContent;
+      var filterType = filter.classList.contains('filter-radio') ? 'radio' : 'checkbox';
+      var tag = document.createElement('div');
+      tag.className = 'flex items-center gap-2 px-5 py-2.5 bg-surface-container dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 rounded-full';
+      tag.innerHTML =
+        '<span class="text-xs text-on-surface-variant dark:text-white/80 font-medium">' + labelText + '</span>' +
+        '<button class="remove-filter text-primary dark:text-white hover:text-secondary dark:hover:text-secondary transition-colors" data-filter-type="' + filterType + '" data-filter-name="' + filter.name + '" data-filter-value="' + labelText + '">' +
+        '<span class="material-symbols-outlined text-sm">close</span></button>';
+      filterTagsContainer.appendChild(tag);
+    });
+  }
+
+  /* ---- Wire all filter inputs (ported from cleaning-tools.html DOMContentLoaded) ---- */
+  function initFilterHandlers() {
+    /* Sort radios — mutual exclusion within the same name group */
+    var filterRadios = document.querySelectorAll('.filter-radio');
+    filterRadios.forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        if (this.checked) {
+          var groupName = this.name;
+          var groupCheckboxes = document.querySelectorAll('.filter-radio[name="' + groupName + '"]');
+          groupCheckboxes.forEach(function (checkbox) {
+            if (checkbox !== radio) checkbox.checked = false;
+          });
+        }
+        updateFilterTags();
+        applyFiltersAndSort();
+      });
+    });
+
+    /* Filter checkboxes (Color, Unit, Price-range) — multiple allowed */
+    var filterCheckboxes = document.querySelectorAll('.filter-checkbox');
+    filterCheckboxes.forEach(function (checkbox) {
+      checkbox.addEventListener('change', function () {
+        updateFilterTags();
+        applyFiltersAndSort();
+      });
+    });
+
+    /* Tag removal via event delegation */
+    var filterTagsEl = document.getElementById('filter-tags');
+    if (filterTagsEl) {
+      filterTagsEl.addEventListener('click', function (e) {
+        var removeBtn = e.target.closest('.remove-filter');
+        if (removeBtn) {
+          var filterType = removeBtn.dataset.filterType;
+          var filterName = removeBtn.dataset.filterName;
+          var filterValue = removeBtn.dataset.filterValue;
+          var className = filterType === 'radio' ? '.filter-radio' : '.filter-checkbox';
+          var checkboxes = document.querySelectorAll(className + '[name="' + filterName + '"]');
+          checkboxes.forEach(function (checkbox) {
+            var labelText = checkbox.closest('label').querySelector('span').textContent;
+            if (labelText === filterValue) checkbox.checked = false;
+          });
+          updateFilterTags();
+          applyFiltersAndSort();
+        }
+        var removePriceBtn = e.target.closest('.remove-price-filter');
+        if (removePriceBtn) {
+          var pmin = document.getElementById('price-min'); if (pmin) pmin.value = '';
+          var pmax = document.getElementById('price-max'); if (pmax) pmax.value = '';
+          updateFilterTags();
+          applyFiltersAndSort();
+        }
+        var removePriceRangeBtn = e.target.closest('.remove-filter[data-filter-name="price-range"]');
+        if (removePriceRangeBtn) {
+          var fv = removePriceRangeBtn.dataset.filterValue;
+          var prCheckboxes = document.querySelectorAll('.filter-checkbox[name="price-range"]');
+          prCheckboxes.forEach(function (checkbox) {
+            var lt = checkbox.closest('label').querySelector('span').textContent;
+            if (lt === fv) checkbox.checked = false;
+          });
+          updateFilterTags();
+          applyFiltersAndSort();
+        }
+      });
+    }
+
+    /* Clear All */
+    var clearAllBtn = document.getElementById('clear-all-filters');
+    if (clearAllBtn) {
+      clearAllBtn.addEventListener('click', function () {
+        document.querySelectorAll('.filter-radio').forEach(function (r) { r.checked = false; });
+        document.querySelectorAll('.filter-checkbox').forEach(function (c) { c.checked = false; });
+        var pmin = document.getElementById('price-min'); if (pmin) pmin.value = '';
+        var pmax = document.getElementById('price-max'); if (pmax) pmax.value = '';
+        updateFilterTags();
+        applyFiltersAndSort();
+      });
+    }
+
+    /* Price Apply / Clear buttons */
+    var applyPriceBtn = document.getElementById('apply-price');
+    if (applyPriceBtn) {
+      applyPriceBtn.addEventListener('click', function () {
+        document.querySelectorAll('.filter-checkbox[name="price-range"]').forEach(function (c) { c.checked = false; });
+        updateFilterTags();
+        applyFiltersAndSort();
+      });
+    }
+    var clearPriceBtn = document.getElementById('clear-price');
+    if (clearPriceBtn) {
+      clearPriceBtn.addEventListener('click', function () {
+        var pmin = document.getElementById('price-min'); if (pmin) pmin.value = '';
+        var pmax = document.getElementById('price-max'); if (pmax) pmax.value = '';
+        updateFilterTags();
+        applyFiltersAndSort();
+      });
+    }
+
+    /* Price-range checkboxes: clear min/max + mutual exclusion (one at a time) */
+    var priceRangeCheckboxes = document.querySelectorAll('.filter-checkbox[name="price-range"]');
+    priceRangeCheckboxes.forEach(function (checkbox) {
+      checkbox.addEventListener('change', function () {
+        if (this.checked) {
+          var pmin = document.getElementById('price-min'); if (pmin) pmin.value = '';
+          var pmax = document.getElementById('price-max'); if (pmax) pmax.value = '';
+          priceRangeCheckboxes.forEach(function (other) {
+            if (other !== checkbox) other.checked = false;
+          });
+        }
+        updateFilterTags();
+        applyFiltersAndSort();
+      });
+    });
+  }
+
+  /* ---- re-sync hearts when wishlist changes (other tab / async hydration) ---- */
+  window.addEventListener("storage", function (e) {
+    if (!e.key || e.key === WISH_KEY) syncHearts();
+  });
+  window.addEventListener("pageshow", syncHearts);
+  setTimeout(syncHearts, 800);
+  setTimeout(syncHearts, 2000);
+
+  /* ---- boot: load catalog, wire filters ---- */
+  function boot() {
+    initFilterHandlers();
+    loadAndRender();
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+<!-- ==================== MOBILE SUBCATEGORY UX WIRING (ported from cleaning-tools.html) ===
+     Mobile-only. Desktop/tablet untouched. Does three things:
+       1) Opens/closes the existing filter <aside> as a right-side drawer.
+       2) Syncs the page title into [data-lh-title] and the product count into
+          [data-lh-count] whenever the grid changes.
+       3) Augments each card with the mobile always-visible Add-to-Cart styling
+          (adds .sc-atc-mobile to the existing ATC so it shows on touch devices). -->
+<script>
+(function () {
+  function ready(fn){ if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
+  var MOBILE = window.matchMedia('(max-width: 767px)');
+
+  ready(function () {
+    /* ---- 1. Filter drawer open/close ---- */
+    var trigger = document.getElementById('subcat-filter-trigger');
+    var backdrop = document.getElementById('subcat-drawer-backdrop');
+    var sidebar = document.querySelector('.subcat-sidebar');
+    function openDrawer(){
+      if(!sidebar) return;
+      sidebar.classList.add('subcat-drawer-open');
+      requestAnimationFrame(function(){ sidebar.classList.add('show'); });
+      if(backdrop) backdrop.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeDrawer(){
+      if(!sidebar) return;
+      sidebar.classList.remove('show');
+      if(backdrop) backdrop.classList.remove('show');
+      document.body.style.overflow = '';
+      setTimeout(function(){ sidebar.classList.remove('subcat-drawer-open'); }, 300);
+    }
+    if (trigger) {
+      trigger.addEventListener('click', openDrawer);
+      trigger.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openDrawer(); }
+      });
+    }
+    if (backdrop) backdrop.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeDrawer(); });
+
+    /* Drawer close button (right arrow, top-right of the open panel) */
+    var closeBtn = document.getElementById('subcat-drawer-close');
+    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+
+    /* ---- 1b. Clone the page's category buttons INTO the drawer (from
+          cleaning-tools.html). The Category group is inserted at the TOP of
+          the sidebar, above FILTER By. Each chip gets a check tick that shows
+          when active. Presentation only — matches the reference exactly. */
+    if (sidebar && !sidebar.querySelector('.subcat-category-group')) {
+      var srcBtns = document.querySelectorAll('.subcat-tabs .category-btn, .category-btn');
+      var seen = {}, btns = [];
+      srcBtns.forEach(function (b) { if (!seen[b.textContent.trim()]) { seen[b.textContent.trim()] = 1; btns.push(b); } });
+      if (btns.length) {
+        var group = document.createElement('div');
+        group.className = 'subcat-category-group';
+        var heading = document.createElement('h3'); heading.textContent = 'Category';
+        group.appendChild(heading);
+        btns.forEach(function (b, i) {
+          var chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'subcat-cat-chip category-btn' + (i === 0 ? ' is-active' : '');
+          chip.setAttribute('data-cat-name', b.textContent.trim());
+          var label = document.createElement('span'); label.textContent = b.textContent.trim();
+          var tick = document.createElement('span'); tick.className = 'material-symbols-outlined subcat-cat-tick'; tick.textContent = 'check';
+          chip.appendChild(label); chip.appendChild(tick);
+          chip.addEventListener('click', function () {
+            group.querySelectorAll('.subcat-cat-chip').forEach(function (c) { c.classList.remove('is-active'); });
+            chip.classList.add('is-active');
+          });
+          group.appendChild(chip);
+        });
+        sidebar.insertBefore(group, sidebar.firstChild);
+      }
+    }
+
+    /* ---- 2. Title + count sync ----
+       Title matches cleaning-tools.html's catalog heading
+       ("PROFESSIONAL CLEANING EQUIPMENT"), not the desktop <h1>. */
+    var titleEl = document.querySelector('[data-lh-title]');
+    if (titleEl) {
+      titleEl.textContent = 'PROFESSIONAL CLEANING EQUIPMENT';
+    }
+    var grid = document.getElementById('product-grid');
+    var countEl = document.querySelector('[data-lh-count]');
+    function syncCount(){
+      if (!countEl || !grid) return;
+      var n = grid.querySelectorAll('article.group').length;
+      countEl.textContent = n + (n === 1 ? ' product' : ' products');
+    }
+
+    /* ---- 3. Mobile card augmentation: make the ATC always-visible on touch ----
+          The card already has .sc-atc (hover-only on desktop). On mobile we add
+          .sc-atc-mobile so the mobile CSS shows it full-width at the bottom of
+          the card. On desktop we remove it so the original hover-only ATC is
+          restored. Responds to viewport changes so resizing works both ways. */
+    function augmentCards(){
+      if (!grid) return;
+      var cards = grid.querySelectorAll('article.group');
+      cards.forEach(function (card) {
+        var atc = card.querySelector('.sc-atc');
+        if (!atc) return;
+        if (MOBILE.matches) {
+          atc.classList.add('sc-atc-mobile');
+          card.classList.add('sc-mobile-aug');
+        } else {
+          atc.classList.remove('sc-atc-mobile');
+          card.classList.remove('sc-mobile-aug');
+        }
+      });
+      syncCount();
+    }
+
+    augmentCards();
+    if (grid && window.MutationObserver) {
+      new MutationObserver(function () { augmentCards(); }).observe(grid, { childList: true });
+    }
+    // Re-evaluate on viewport change (mobile <-> desktop resize)
+    if (window.matchMedia) {
+      window.matchMedia('(max-width: 767px)').addEventListener('change', augmentCards);
+    }
+    setTimeout(augmentCards, 600);
+    setTimeout(augmentCards, 1500);
+  });
+})();
+</script>
+<!-- ==================== MOBILE SEARCH WIRING (from home.html) ====================
+     Wires the mobile inline search bar to a dropdown below the input. Reuses
+     NassimSearch filtering logic; does NOT open the old overlay popup. -->
+<script>
+    (function () {
+        var mobileResults = null;
+
+        function createMobileResults() {
+            mobileResults = document.createElement('div');
+            mobileResults.id = 'mobile-search-dropdown';
+            mobileResults.style.cssText = 'position:absolute;top:100%;left:0;right:0;z-index:200;background:#fff;color:#111;border-radius:0 0 12px 12px;box-shadow:0 8px 24px rgba(0,0,0,0.18);max-height:60vh;overflow-y:auto;display:none;';
+            var form = document.getElementById('mobile-inline-search');
+            if (form) form.appendChild(mobileResults);
+            return mobileResults;
+        }
+
+        function renderMobileResults(list) {
+            if (!mobileResults) mobileResults = createMobileResults();
+            mobileResults.innerHTML = '';
+            if (!list || !list.length) {
+                var empty = document.createElement('p');
+                empty.style.cssText = 'padding:16px;text-align:center;color:#888;font-size:13px;';
+                empty.textContent = 'No products found';
+                mobileResults.appendChild(empty);
+                mobileResults.style.display = 'block';
+                return;
+            }
+            list.slice(0, 15).forEach(function (p) {
+                var a = document.createElement('a');
+                a.href = 'product view.html?id=' + encodeURIComponent(p.id);
+                a.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;text-decoration:none;color:inherit;border-bottom:1px solid rgba(0,0,0,0.06);';
+                a.onmouseenter = function () { a.style.background = 'rgba(0,0,0,0.04)'; };
+                a.onmouseleave = function () { a.style.background = ''; };
+
+                var img = document.createElement('img');
+                img.src = p.img || p.image || (p.images && p.images[0]) || '';
+                img.alt = p.name;
+                img.style.cssText = 'width:40px;height:40px;object-fit:cover;border-radius:8px;background:#f2f2f2;flex-shrink:0;';
+                img.onerror = function () { img.style.visibility = 'hidden'; };
+
+                var info = document.createElement('div');
+                info.style.cssText = 'min-width:0;flex:1;';
+                var name = document.createElement('div');
+                name.textContent = p.name;
+                name.style.cssText = 'font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                var meta = document.createElement('div');
+                meta.textContent = (p.line ? p.line + ' · ' : '') + Number(p.price).toFixed(3) + ' ' + (p.currency || 'KD');
+                meta.style.cssText = 'font-size:11px;color:#777;';
+                info.appendChild(name);
+                info.appendChild(meta);
+
+                a.appendChild(img);
+                a.appendChild(info);
+                mobileResults.appendChild(a);
+            });
+            mobileResults.style.display = 'block';
+        }
+
+        function closeMobileResults() {
+            if (mobileResults) mobileResults.style.display = 'none';
+        }
+
+        function doMobileSearch(q) {
+            var ns = window.NassimSearch;
+            if (!ns || !ns.loadProducts) return;
+            q = q.trim().toLowerCase();
+            ns.loadProducts().then(function (list) {
+                if (!q) { closeMobileResults(); return; }
+                var terms = q.split(/\s+/);
+                var filtered = list.filter(function (p) {
+                    var hay = (p.name + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
+                    return terms.every(function (t) { return hay.indexOf(t) !== -1; });
+                });
+                renderMobileResults(filtered);
+            });
+        }
+
+        function bind() {
+            var form = document.getElementById('mobile-inline-search');
+            if (!form || form.dataset.bound) return;
+            form.dataset.bound = '1';
+            var input = document.getElementById('mobile-inline-search-input');
+
+            createMobileResults();
+
+            if (input) {
+                var debounce = null;
+                input.addEventListener('input', function () {
+                    clearTimeout(debounce);
+                    debounce = setTimeout(function () {
+                        doMobileSearch(input.value);
+                    }, 150);
+                });
+                input.addEventListener('focus', function () {
+                    if (input.value.trim()) doMobileSearch(input.value);
+                });
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (input && input.value.trim()) doMobileSearch(input.value);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (mobileResults && !form.contains(e.target)) {
+                    closeMobileResults();
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+        else bind();
+    })();
+</script>
+<!-- ==================== MOBILE BOTTOM NAVIGATION (from home.html) ====================
+     Reuses existing systems — no duplication:
+       Home -> home.html, Categories -> existing mobile drawer (mobile-nav.js),
+       Account -> window.NassimAccount.openPanel(), Cart -> cart.html.
+     Implemented as <div role="navigation"> (not <nav>) so the auto-wiring in
+     cart-nav.js / account.js / search.js is NOT re-triggered here. -->
+<div id="mobile-bottom-nav" role="navigation" aria-label="Mobile" class="md:hidden fixed inset-x-0 bottom-0 z-[90] glass-nav dark:bg-[#0a0f14]/90 border-t border-outline-variant/30 shadow-[0_-20px_40px_rgba(0,3,8,0.04)]">
+    <div id="mobile-bottom-nav-inner" class="grid grid-cols-4 items-stretch max-w-screen-sm mx-auto">
+        <button type="button" data-mbnav="home" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">home</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Home</span>
+        </button>
+        <button type="button" data-mbnav="categories" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">grid_view</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Categories</span>
+        </button>
+        <button type="button" data-mbnav="account" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">person</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Account</span>
+        </button>
+        <button type="button" data-mbnav="cart" class="mbnav-item relative flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="relative inline-flex">
+                <span class="material-symbols-outlined" style="font-size:24px;">shopping_cart</span>
+                <span id="header-cart-count" class="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full bg-secondary text-white text-[9px] font-bold flex items-center justify-center leading-none" style="display:none;">00</span>
+            </span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Cart</span>
+        </button>
+    </div>
+</div>
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+        ready(function () {
+            var nav = document.getElementById('mobile-bottom-nav');
+            if (!nav || nav.dataset.bound) return;
+            nav.dataset.bound = '1';
+
+            var homeBtn = nav.querySelector('[data-mbnav="home"]');
+            if (homeBtn) homeBtn.addEventListener('click', function () {
+                window.location.href = 'home.html';
+            });
+
+            var catBtn = nav.querySelector('[data-mbnav="categories"]');
+            if (catBtn) catBtn.addEventListener('click', function () {
+                var slot = document.getElementById('hamburger-slot');
+                if (slot) slot.click();
+            });
+
+            var accBtn = nav.querySelector('[data-mbnav="account"]');
+            if (accBtn) accBtn.addEventListener('click', function () {
+                if (window.NassimAccount && window.NassimAccount.openPanel) window.NassimAccount.openPanel();
+            });
+
+            var cartBtn = nav.querySelector('[data-mbnav="cart"]');
+            if (cartBtn) cartBtn.addEventListener('click', function () {
+                window.location.href = 'cart.html';
+            });
+
+            var badge = document.getElementById('header-cart-count');
+            function syncBadge() {
+                if (!badge) return;
+                var n = parseInt((badge.textContent || '').trim(), 10);
+                badge.style.display = (isNaN(n) || n <= 0) ? 'none' : 'flex';
+            }
+            syncBadge();
+            if (badge && window.MutationObserver) {
+                new MutationObserver(syncBadge).observe(badge, { childList: true, characterData: true, subtree: true });
+            }
+            window.addEventListener('pageshow', syncBadge);
+            window.addEventListener('storage', syncBadge);
+        });
+    })();
+</script>
+<!-- WhatsApp Chat Button -->
+<a id="whatsapp-fab" aria-label="Chat on WhatsApp" class="fixed bottom-[5rem] right-4 md:bottom-6 md:right-6 z-[100] flex items-center justify-center w-14 h-14 text-white rounded-full hover:scale-110 transition-all duration-300 md:w-16 md:h-16 group" href="https://wa.me/96560900059" rel="noopener noreferrer" target="_blank">
+<img loading="lazy" src="topcar/whatsapp.png" alt="Chat on WhatsApp" class="w-full h-full object-contain"/>
+</a>
+<!-- Shared functional scripts (the same stack as home.html). These expose
+     window.NASSIM_PRODUCTS, NassimGetProduct, NassimCartBadge, NassimAccount,
+     NassimSearch, and the theme + mobile-nav systems used by the header/footer. -->
+<script src="assets/js/theme.js" defer></script>
+<script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/cart-nav.js" defer></script>
+<script src="assets/js/product-nav.js" defer></script>
+<script src="assets/js/search.js" defer></script>
+<script src="assets/js/account.js" defer></script>
+<script src="assets/js/mobile-nav.js" defer></script>
+<!-- Dropdown hover show/hide (from home.html) -->
+<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script>
+
+</body></html>

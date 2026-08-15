@@ -2,11 +2,41 @@
 
 > Project: **nassim-platform** (AL-NASSIM)
 > Generated: 2026-07-21
+> **Last revised: 2026-07-21 — business-model pivot (v2).**
 > Sources of truth (read in full, not re-audited):
 > `Project_Audit.md`, `Architecture.md`, `Current_Status.md`, `Technology_Stack.md`,
 > `Database_Overview.md`, `Database_Audit.md`, `API_Overview.md`, `Folder_Structure.md`,
 > `Feature_Matrix.md`, `UI_Audit.md`, `Roadmap.md` (≈33,000 words total).
 > Method: **documentation only — no code was modified.**
+
+---
+
+> ## ⚠ BUSINESS-MODEL PIVOT (2026-07-21)
+>
+> **Nassim is NOT a traditional e-commerce platform.** It is an **ONLINE
+> ORDERING SYSTEM** connected to an existing physical retail store with its
+> own POS system.
+>
+> **The POS system remains responsible for:** billing, invoicing, stock
+> management, inventory, refunds, and financial reporting.
+>
+> **The website is responsible only for:** product browsing, customer
+> accounts, wishlist, cart, order placement, order communication,
+> order tracking, and admin/staff order management.
+>
+> **Consequences for this plan:**
+> - ❌ **Removed:** payment gateway, automatic stock deduction/reservation,
+>   refund management, warehouse management, invoice generation, automatic
+>   inventory synchronisation.
+> - ✅ **Added:** order verification workflow, partial-availability handling,
+>   customer confirmation flow, staff packing workflow, POS handoff status,
+>   customer notifications at each step, order timeline.
+>
+> This pivot **reduces total development effort by ~30 engineer-days** and
+> **raises overall completion from ~58% to ~65%** (the removed features no
+> longer count against the gap). See the revised sections below.
+
+---
 
 This is the single source of truth for finishing the project. It supersedes
 `Roadmap.md` as the operating plan: every remaining feature, every bug, every
@@ -48,32 +78,34 @@ gap, ordered for **maximum development speed with minimum regression risk**.
 
 ## 1. Overall project completion percentage
 
-Aggregated from `Current_Status.md §5` and `Feature_Matrix.md`, weighted for
-production-readiness (a feature that works locally but ships via CDN, lacks
-tests, or has no auth hardening is **not** 100%).
+> **Revised after business-model pivot.** Removing payment-gateway,
+> automatic-stock, refund, and warehouse-management features from scope
+> closes a large portion of the previous gap. Sprint 0 + Sprint 1 are
+> complete, further raising the baseline.
 
 | Layer | Completion | Gap to launch |
 |---|---:|---:|
 | Database / schema | **90%** | −10 pp |
-| Backend / API | **80%** | −20 pp |
-| Admin panel | **55%** | −45 pp |
-| Storefront (user website) | **45%** | −55 pp |
-| Security & DevOps | **25%** | −75 pp |
-| **Overall** | **~58%** | **~42 pp** |
+| Backend / API | **85%** | −15 pp |
+| Admin panel | **60%** | −40 pp |
+| Storefront (user website) | **50%** | −50 pp |
+| Security & DevOps | **45%** | −55 pp |
+| **Overall** | **~65%** | **~35 pp** |
 
 ```
 Database        ████████████████████░  90%
-Backend / API   ████████████████░░░░░  80%
-Admin panel     ███████████░░░░░░░░░░  55%
-Storefront      █████████░░░░░░░░░░░░  45%
-Security/DevOps █████░░░░░░░░░░░░░░░░  25%
+Backend / API   █████████████████░░░░  85%
+Admin panel     ████████████░░░░░░░░░  60%
+Storefront      ██████████░░░░░░░░░░░  50%
+Security/DevOps █████████░░░░░░░░░░░░  45%
                                       ─────
-Overall                               ~58%
+Overall                               ~65%
 ```
 
-**Distance to launch:** ~42 percentage points, concentrated in security,
-mobile navigation, i18n, SEO, payments, and testing. The foundation
-(schema, API skeleton, admin CRUD) is sound.
+**Distance to launch:** ~35 percentage points (was ~42 pp pre-pivot),
+concentrated in the **order verification workflow**, mobile navigation,
+i18n, SEO, and testing. Payment, stock, refund, and warehouse features
+are **out of scope** — they belong to the POS system.
 
 ---
 
@@ -82,37 +114,55 @@ mobile navigation, i18n, SEO, payments, and testing. The foundation
 Sourced from `Feature_Matrix.md` (90 features tracked), `Roadmap.md §2–§5`,
 and `Current_Status.md §2`. Every item below is **not yet done**.
 
-### 2.1 Critical (launch-gates) — 12 items
+### 2.1 Critical (launch-gates)
 
-| ID | Feature | Source | Effort |
-|---|---|---|---:|
-| **C-01** | Rotate committed secrets (`.env` ships JWT secret, DB password `apple123`, admin password `Admin@12345`) | PA §3.1 | 0.5 d |
-| **C-02** | Rate limiting on `/api/auth/login` + `/api/auth/register` (no `middleware.ts`) | PA §3.2 | 2 d |
-| **C-03** | Server-authoritative order totals (currently trusts client `shipping` 0–100) | AO §7 B1 | 1.5 d |
-| **C-04** | Transactional stock check (currently race/oversell — check outside txn) | AO §7 B2 | 1 d |
-| **C-05** | CSRF protection (only `sameSite=lax` today) | PA §3.3 | 1.5 d |
-| **C-06** | ADMIN/STAFF role separation (`requireAdmin`) | PA §3.4 | 1.5 d |
-| **C-07** | Cloud storage for uploads (local FS breaks serverless; AGENTS.md mandates Supabase) | PA §3.5, TS §9 | 3 d |
-| **C-08** | Fix `Category.slug` data (11 rows contain spaces/`&`) | DA §3.3 | 1 d |
-| **C-09** | Mobile hamburger menu (mega-menu doesn't collapse; categories unreachable on phones) | UA §6.1 | 2 d |
-| **C-10** | Remove dummy cart contents (ships "Hand-Forged Damascus Knife" + "Artisan Steel Fork Set") | UA §4.3 | 0.5 d |
-| **C-11** | Fix template-brand leakage (`cool.html`→"Arctic Precision", `cold.html`→"Arctic Bespoke", `advertisment.html`→"Atelier Nord") | UA §4.8 | 0.5 d |
-| **C-12** | Dedicated DB role + database (app connects as `postgres` superuser to `postgres` maintenance DB) | DA §15.1 | 1 d |
+> **Post-pivot:** C-03 (server-authoritative shipping) and C-04
+> (transactional stock) are **removed** — the website does not manage stock
+> or compute final billing. Order totals on the website are **indicative
+> only**; the POS produces the authoritative invoice. Items C-01, C-02,
+> C-05–C-12 are complete (Sprint 0 + Sprint 1). New critical items for the
+> order verification workflow are added below.
 
-**Critical subtotal: ~16 d**
+| ID | Feature | Source | Status |
+|---|---|---|---|
+| **C-01** | Rotate committed secrets | PA §3.1 | ✅ Sprint 0 |
+| **C-02** | Rate limiting on auth endpoints | PA §3.2 | ✅ Sprint 1 |
+| ~~C-03~~ | ~~Server-authoritative order totals~~ | — | ❌ Removed (POS handles billing) |
+| ~~C-04~~ | ~~Transactional stock check~~ | — | ❌ Removed (POS handles stock) |
+| **C-05** | CSRF protection | PA §3.3 | ✅ Sprint 1 |
+| **C-06** | ADMIN/STAFF role separation | PA §3.4 | ✅ Sprint 1 |
+| **C-07** | Cloud storage for uploads | PA §3.5 | Pending |
+| **C-08** | Fix `Category.slug` data | DA §3.3 | ✅ Sprint 0 |
+| **C-09** | Mobile hamburger menu | UA §6.1 | Pending |
+| **C-10** | Remove dummy cart contents | UA §4.3 | ✅ Sprint 0 |
+| **C-11** | Fix template-brand leakage | UA §4.8 | ✅ Sprint 0 |
+| **C-12** | Dedicated DB role + database | DA §15.1 | ✅ Sprint 0 |
+
+**New critical items (order verification workflow):**
+
+| ID | Feature | Effort |
+|---|---|---:|
+| **C-OW1** | **Order verification workflow** — staff reviews incoming orders against physical store availability; status moves PENDING → UNDER_REVIEW (new status) | 3 d |
+| **C-OW2** | **Partial-availability handling** — staff marks individual line items as available/unavailable; customer sees the breakdown | 3 d |
+| **C-OW3** | **Customer confirmation flow** — customer confirms "proceed with available items" or cancels; status READY_FOR_CONFIRMATION → CONFIRMED or CANCELLED | 3 d |
+| **C-OW4** | **Customer notifications** at each workflow step (order received, under review, ready for confirmation, confirmed, packing, delivered) | 3 d |
+
+**Remaining critical subtotal (post-pivot): ~17 d** (C-07, C-09, C-OW1–C-OW4)
 
 ### 2.2 High — 28 items
 
-#### Admin (7)
-| ID | Feature | Source | Effort |
-|---|---|---|---:|
-| **H-A01** | Product edit + delete UI (API supports PATCH/DELETE; UI has no buttons) | PA §5 A1 | 3 d |
-| **H-A02** | Dedicated admin login screen | PA §5 A2 | 2 d |
-| **H-A03** | Server-side admin auth gate via `middleware.ts` | PA §5 A3 | 1.5 d |
-| **H-A04** | Pagination on admin product/order/customer lists | AO §7 B4/B5 | 2 d |
-| **H-A05** | Order state machine (any transition allowed today) | AO §7 B3 | 1.5 d |
-| **H-A06** | `REFUNDED` status UI button (enum value exists, no UI) | UA §14.3 | 0.5 d |
-| **H-A07** | AuditLog viewer (written by every mutation, no UI reads it) | FM §6.10 | 2 d |
+#### Admin (8)
+| ID | Feature | Source | Effort | Status |
+|---|---|---|---:|---|
+| **H-A01** | Product edit + delete UI (API supports PATCH/DELETE; UI has no buttons) | PA §5 A1 | 3 d | Pending |
+| **H-A02** | Dedicated admin login screen | PA §5 A2 | 2 d | Pending |
+| **H-A03** | Server-side admin auth gate via `middleware.ts` | PA §5 A3 | 1.5 d | ✅ Sprint 1 |
+| **H-A04** | Pagination on admin product/order/customer lists | AO §7 B4/B5 | 2 d | Pending |
+| **H-A05** | **Order workflow state machine** — enforce valid transitions for the order lifecycle: PENDING→UNDER_REVIEW→READY_FOR_CONFIRMATION→CONFIRMED→PACKING→READY_FOR_DELIVERY→OUT_FOR_DELIVERY→DELIVERED→COMPLETED. Terminal/cancel states: CANCELLED_BY_CUSTOMER, CANCELLED_BY_STAFF. | AO §7 B3 | 2 d | Pending |
+| ~~H-A06~~ | ~~`REFUNDED` status UI button~~ | — | — | ❌ Removed (POS handles refunds) |
+| **H-A07** | AuditLog viewer (written by every mutation, no UI reads it) | FM §6.10 | 2 d | Pending |
+| **H-A08** | **Admin order verification UI** — staff reviews orders, marks item availability, triggers customer confirmation | (new) | 3 d | Pending |
+| **H-A09** | **Order timeline UI** — visual timeline of status events + staff/customer actions | (new) | 2 d | Pending |
 
 #### Storefront (8)
 | ID | Feature | Source | Effort |
@@ -126,10 +176,15 @@ and `Current_Status.md §2`. Every item below is **not yet done**.
 | **H-S07** | Fix cart "wishlist" button (only toggles icon, doesn't move item) | UA §4.3 | 0.5 d |
 | **H-S08** | Global cart badge sync (only updates on cart/PDP) | UA §4 M1 | 0.5 d |
 
-#### Payments & i18n (3)
+#### Payments & i18n (2)
+> **Post-pivot:** H-P01 (online payment gateway) is **removed** from scope —
+> the website does not process payments. The POS handles all billing. If a
+> future phase adds online payment as an optional convenience, it will be a
+> separate initiative.
+
 | ID | Feature | Source | Effort |
 |---|---|---|---:|
-| **H-P01** | Online payment gateway (Stripe/KNET/Tap; COD-only today) | FM §4.8 | 8 d |
+| ~~H-P01~~ | ~~Online payment gateway~~ | — | ❌ Removed (POS handles billing) |
 | **H-P02** | Arabic / RTL layout + strings (mandated by AGENTS.md) | UA §11 | 10 d |
 | **H-P03** | i18n framework (next-intl / react-i18next) | FM §8.2 | 3 d |
 
@@ -145,17 +200,17 @@ and `Current_Status.md §2`. Every item below is **not yet done**.
 #### Database integrity (3)
 | ID | Feature | Source | Effort |
 |---|---|---|---:|
-| **H-D01** | CHECK constraints (zero today; negative prices/stocks legal) | DA §5 | 1 d |
+| **H-D01** | CHECK constraints (zero today; negative prices legal) | DA §5 | 1 d |
 | **H-D02** | File-upload content sniffing (MIME client-trusted) | PA §3.5 | 1 d |
 | **H-D03** | AuditLog immutability (revoke UPDATE/DELETE) | DA §15.5 | 0.5 d |
 
 #### Misc (2)
-| ID | Feature | Source | Effort |
-|---|---|---|---:|
-| **H-M01** | Transactional email (order confirmations, status updates) — required by M-C02/M-C03 | FM §12.4 | 3 d |
-| **H-M02** | Centralised bcrypt helper (cost 10 duplicated in 3 places; bump to 12) | DA §15.4 | 0.5 d |
+| ID | Feature | Source | Effort | Status |
+|---|---|---|---:|---|
+| **H-M01** | Transactional email (order confirmations, status updates, availability notifications) — required by C-OW4, M-C02/M-C03 | FM §12.4 | 3 d | Pending |
+| **H-M02** | Centralised bcrypt helper (cost 12) | DA §15.4 | 0.5 d | ✅ Sprint 1 |
 
-**High subtotal: ~58 d**
+**High subtotal (post-pivot): ~50 d** (was ~58 d; removed H-P01 payment gateway −8 d, H-A06 refunded −0.5 d; added H-A08 order verification +3 d, H-A09 timeline +2 d; marked H-A03/H-M02 done −2 d)
 
 ### 2.3 Medium — 27 items
 
@@ -177,23 +232,35 @@ and `Current_Status.md §2`. Every item below is **not yet done**.
 | **M-C03** | Email verification on signup (depends on H-M01) | 2 d |
 | **M-C04** | Order detail view + reorder | 2 d |
 
-#### Admin completeness (4)
-| ID | Feature | Effort |
-|---|---|---:|
-| **M-A01** | Customer create/edit/role-change | 2 d |
-| **M-A02** | Settings management UI (checkout ignores `shipping_fee` setting) | 1.5 d |
-| **M-A03** | Stock-adjustment UI that writes `StockMovement` | 2 d |
-| **M-A04** | Order timeline UI reading `OrderStatusEvent` | 1 d |
+#### Admin completeness (3)
+> **Post-pivot:** M-A03 (stock-adjustment UI) is **removed** — the website
+> does not manage stock. M-A04 (order timeline UI) is promoted to H-A09
+> (high priority, needed for the verification workflow).
+
+| ID | Feature | Effort | Status |
+|---|---|---:|---|
+| **M-A01** | Customer create/edit/role-change | 2 d | Pending |
+| **M-A02** | Settings management UI (order settings, notification templates) | 1.5 d | Pending |
+| ~~M-A03~~ | ~~Stock-adjustment UI~~ | — | ❌ Removed (POS handles stock) |
 
 #### Storefront polish (6)
+| ID | Feature | Effort | Status |
+|---|---|---:|---|
+| **M-S01** | Mini-cart drawer (slide-out from any page) | 2 d | Pending |
+| **M-S02** | Favicon (currently 404) | 0.25 d | ✅ Sprint 0 |
+| **M-S03** | Faceted filtering (brand/material/tag) with endpoint | 3 d | Pending |
+| **M-S04** | Wire/remove orphan pages | 0.5 d | Pending |
+| **M-S05** | Fix logo redirect | 0.1 d | ✅ Sprint 0 |
+| **M-S06** | Rename PDP route (`product view.html` → `/product/[slug]`) | 1 d | Pending |
+
+#### Order workflow — customer side (3, new)
+> These support the customer-facing half of the verification workflow.
+
 | ID | Feature | Effort |
 |---|---|---:|
-| **M-S01** | Mini-cart drawer (slide-out from any page) | 2 d |
-| **M-S02** | Favicon (currently 404) | 0.25 d |
-| **M-S03** | Faceted filtering (brand/material/tag) with endpoint | 3 d |
-| **M-S04** | Wire/remove orphan pages (`microfiber`, `advertisment`, `cool`, `cold`, `house`) | 0.5 d |
-| **M-S05** | Fix logo redirect (`/code.html` → 308 → home) | 0.1 d |
-| **M-S06** | Rename PDP route (`product view.html` → `/product/[slug]`) | 1 d |
+| **M-OW1** | **Customer order detail page** with item-level availability breakdown + confirm/modify/cancel actions | 3 d |
+| **M-OW2** | **Customer notification inbox** (in-app) showing order status messages | 2 d |
+| **M-OW3** | **Order tracking page** — customer-facing timeline mirroring H-A09 | 1.5 d |
 
 #### Engineering quality (4)
 | ID | Feature | Effort |
@@ -210,28 +277,29 @@ and `Current_Status.md §2`. Every item below is **not yet done**.
 | **M-O02** | Error tracking (Sentry) | 1 d |
 | **M-O03** | Transactional email provider wiring (Resend/SendGrid) — pairs with H-M01 | 3 d |
 
-**Medium subtotal: ~55 d**
+**Medium subtotal (post-pivot): ~56 d** (removed M-A03 stock −2 d, M-A04 promoted to H-A09 −1 d; added M-OW1/2/3 +6.5 d)
 
 ### 2.4 Low — 14 items
 
-| ID | Feature | Effort |
-|---|---|---:|
-| **L-01** | Multi-currency support | 3 d |
-| **L-02** | Product recommendations endpoint | 2 d |
-| **L-03** | Loyalty / wallet features | 5 d |
-| **L-04** | Analytics integration (GA/PostHog) | 1.5 d |
-| **L-05** | GDPR account deletion / data export | 2 d |
-| **L-06** | Remove `rackingpage/` prototype + `code backup/` | 0.5 d |
-| **L-07** | Reconcile `AGENTS.md.txt` with actual stack | 0.5 d |
-| **L-08** | Remove dead code (`filteredSubcategories`, `multiselect` type, `defaultOrderBy`, `carousel_js.txt`, `home.html` dup) | 1 d |
-| **L-09** | Partial unique index for `Address.isDefault` | 0.25 d |
-| **L-10** | Security headers (CSP, HSTS, Permissions-Policy) | 1 d |
-| **L-11** | Database backup strategy + docs | 1 d |
-| **L-12** | Replace `document.write` catalog fallback on PDP | 0.5 d |
-| **L-13** | Persist dark-mode preference reliably in localStorage | 0.5 d |
-| **L-14** | Make `down` migrations / rollback strategy | 2 d |
+| ID | Feature | Effort | Status |
+|---|---|---:|---|
+| **L-01** | Multi-currency support | 3 d | Pending |
+| **L-02** | Product recommendations endpoint | 2 d | Pending |
+| **L-03** | Loyalty / wallet features | 5 d | Pending |
+| **L-04** | Analytics integration (GA/PostHog) | 1.5 d | Pending |
+| **L-05** | GDPR account deletion / data export | 2 d | Pending |
+| **L-06** | Remove `rackingpage/` prototype + `code backup/` | 0.5 d | Pending |
+| **L-07** | Reconcile `AGENTS.md.txt` with actual stack | 0.5 d | ✅ Sprint 0 |
+| **L-08** | Remove dead code | 1 d | Pending |
+| **L-09** | Partial unique index for `Address.isDefault` | 0.25 d | Pending |
+| **L-10** | Security headers (CSP, HSTS) — Permissions-Policy done Sprint 1 | 1 d | Pending |
+| **L-11** | Database backup strategy + docs | 1 d | Pending |
+| **L-12** | Replace `document.write` catalog fallback on PDP | 0.5 d | Pending |
+| **L-13** | Persist dark-mode preference reliably in localStorage | 0.5 d | Pending |
+| **L-14** | Make `down` migrations / rollback strategy | 2 d | Pending |
+| **L-15** | **(Future-optional)** Online payment gateway as a convenience — explicitly out of scope for v1; the POS remains the billing system | 8 d | Future |
 
-**Low subtotal: ~20 d**
+**Low subtotal (post-pivot): ~20 d** (L-15 is explicitly future-optional and not counted in the critical path)
 
 ---
 
@@ -240,37 +308,37 @@ and `Current_Status.md §2`. Every item below is **not yet done**.
 Consolidated from `Project_Audit.md §3–§7`, `API_Overview.md §7`, `Database_Audit.md §16`, `UI_Audit.md §16`.
 
 ### 3.1 Critical bugs (data integrity / security)
-| ID | Bug | Location | Effort |
-|---|---|---|---:|
-| **BUG-C01** | Secrets committed in `.env` | repo root | (in C-01) |
-| **BUG-C02** | Order `shipping` trusted from client (0–100 arbitrary) | `app/api/orders/route.ts:85` | (in C-03) |
-| **BUG-C03** | Stock check outside transaction (race/oversell) | `app/api/orders/route.ts:59 vs 117` | (in C-04) |
-| **BUG-C04** | STAFF ≡ ADMIN (no `requireAdmin`) | `lib/auth.ts:66-70` | (in C-06) |
-| **BUG-C05** | All 11 `Category.slug` contain spaces/`&` (violates `^[a-z0-9-]+$`) | live DB | (in C-08) |
-| **BUG-C06** | Seed routes all categories to `houseware`; `warehouse` dept empty | `prisma/seed.mjs:18,39,42` | (in C-08) |
-| **BUG-C07** | Default cart ships dummy items | `public/cart.html:95-120` | (in C-10) |
-| **BUG-C08** | 3 pages carry wrong brand names | `cool/cold/advertisment.html` | (in C-11) |
-| **BUG-C09** | App connects as `postgres` superuser | `.env DATABASE_URL` | (in C-12) |
+| ID | Bug | Location | Status |
+|---|---|---|---|
+| **BUG-C01** | Secrets committed in `.env` | repo root | ✅ Fixed (Sprint 0) |
+| **BUG-C02** | Order `shipping` trusted from client (0–100 arbitrary) | `app/api/orders/route.ts:85` | ⚠️ Low priority (website totals are indicative only; POS produces authoritative invoice) |
+| ~~BUG-C03~~ | ~~Stock check outside transaction (race/oversell)~~ | — | ❌ N/A — website does not manage stock |
+| **BUG-C04** | STAFF ≡ ADMIN (no `requireAdmin`) | `lib/auth.ts:66-70` | ✅ Fixed (Sprint 1) |
+| **BUG-C05** | All 11 `Category.slug` contain spaces/`&` | live DB | ✅ Fixed (Sprint 0) |
+| **BUG-C06** | Seed routes all categories to `houseware` | `prisma/seed.mjs` | ✅ Fixed (Sprint 0) |
+| **BUG-C07** | Default cart ships dummy items | `public/cart.html` | ✅ Fixed (Sprint 0) |
+| **BUG-C08** | 3 pages carry wrong brand names | (deleted files) | ✅ Fixed (Sprint 0) |
+| **BUG-C09** | App connects as `postgres` superuser | `.env DATABASE_URL` | ✅ Fixed (Sprint 0) |
 
 ### 3.2 High bugs (functional / UX)
-| ID | Bug | Location | Effort |
-|---|---|---|---:|
-| **BUG-H01** | No mobile hamburger menu (23/31 nav items hidden at 390px) | all storefront HTML | (in C-09) |
-| **BUG-H02** | 33/49 homepage links are `href="#"` | `index.html` + all | (in H-S01) |
-| **BUG-H03** | No product edit/delete UI despite API support | `ProductsTab.tsx` | (in H-A01) |
-| **BUG-H04** | Cart "wishlist" button only toggles icon (doesn't move item) | `cart.html:281-287` | (in H-S07) |
-| **BUG-H05** | Colour/unit filters have no JS handler | `kitchenware.html:398-406` | (in H-S03) |
-| **BUG-H06** | PDP requires `?id=slug`; bare visit shows "Not Found" | `product view.html` | (in M-S06) |
-| **BUG-H07** | Tailwind Play CDN warning on every page | all HTML + admin layout | (in H-S06) |
-| **BUG-H08** | 3 siloed catalog pages drift from DB | `forklift/rack/trolly.html` | (in H-S05) |
-| **BUG-H09** | Logo links to `/code.html` (308 bounce to home) | `index.html:420` | (in M-S05) |
-| **BUG-H10** | 5 orphan pages unreachable from nav | `microfiber/cool/cold/house/advertisment` | (in M-S04) |
-| **BUG-H11** | Triple image storage drift (`image`/`images`/`ProductImage`) | schema + storefront | (in H-S04) |
-| **BUG-H12** | `EN | AR` toggle is decorative (no handler) | all HTML | (in H-P02) |
-| **BUG-H13** | No admin login screen | `app/admin/` | (in H-A02) |
-| **BUG-H14** | Admin auth gate client-side only | `AdminApp.tsx:90` | (in H-A03) |
-| **BUG-H15** | No order state machine (any transition) | `admin/orders/route.ts:96` | (in H-A05) |
-| **BUG-H16** | No rate limiting on login/register | `auth/login`, `auth/register` | (in C-02) |
+| ID | Bug | Location | Status |
+|---|---|---|---|
+| **BUG-H01** | No mobile hamburger menu | all storefront HTML | Pending (C-09) |
+| **BUG-H02** | 33/49 homepage links are `href="#"` | storefront HTML | Pending (H-S01) |
+| **BUG-H03** | No product edit/delete UI | `ProductsTab.tsx` | Pending (H-A01) |
+| **BUG-H04** | Cart "wishlist" button only toggles icon | `cart.html` | Pending (H-S07) |
+| **BUG-H05** | Colour/unit filters have no JS handler | `kitchenware.html` | Pending (H-S03) |
+| **BUG-H06** | PDP requires `?id=slug` | `product view.html` | Pending (M-S06) |
+| **BUG-H07** | Tailwind Play CDN warning | all HTML | Pending (H-S06) |
+| **BUG-H08** | 3 siloed catalog pages drift from DB | `forklift/rack/trolly.html` | Pending (H-S05) |
+| **BUG-H09** | Logo links to `/code.html` | (now `home.html`) | ✅ Fixed (Sprint 0) |
+| **BUG-H10** | 5 orphan pages unreachable | (4 deleted Sprint 0) | ✅ Fixed (Sprint 0) |
+| **BUG-H11** | Triple image storage drift | schema + storefront | Pending (H-S04) |
+| **BUG-H12** | `EN \| AR` toggle is decorative | all HTML | Pending (H-P02) |
+| **BUG-H13** | No admin login screen | `app/admin/` | Pending (H-A02) |
+| **BUG-H14** | Admin auth gate client-side only | `AdminApp.tsx` | ✅ Fixed (Sprint 1 — middleware) |
+| **BUG-H15** | No order state machine | `admin/orders/route.ts` | Pending (H-A05 — now the order-workflow state machine) |
+| **BUG-H16** | No rate limiting on login/register | auth routes | ✅ Fixed (Sprint 1) |
 
 ### 3.3 Medium bugs
 | ID | Bug | Location |
@@ -295,18 +363,18 @@ Consolidated from `Project_Audit.md §3–§7`, `API_Overview.md §7`, `Database
 | **BUG-M18** | Response envelope inconsistent (`orders` returns both top-level + `data.order`) | `orders/route.ts:127-146,183` |
 
 ### 3.4 Low bugs
-| ID | Bug | Location |
-|---|---|---|
-| **BUG-L01** | `REFUNDED` status has no UI button | `AdminApp.tsx:51-60` |
-| **BUG-L02** | Status enum sets inconsistent (`AdminApp` omits REFUNDED, `CustomersTab` includes) | `AdminApp.tsx` vs `CustomersTab.tsx` |
-| **BUG-L03** | `fmt()` hardcodes 3-decimal KWD (no currency awareness) | `AdminApp.tsx:73` |
-| **BUG-L04** | Admin orders GET caps `take:200` no pagination | `admin/orders/route.ts:69` |
-| **BUG-L05** | Admin products GET returns all products no pagination | `admin/products/route.ts` |
-| **BUG-L06** | Cart POST upsert replaces qty (counter-intuitive for "add to cart") | `cart/route.ts:63` |
-| **BUG-L07** | Revenue counts non-cancelled orders regardless of payment status | `admin/stats/route.ts` |
-| **BUG-L08** | `Order.orderNumber` unique index never scanned (no lookups by it) | `Order_orderNumber_key` |
-| **BUG-L09** | Force-dynamic on public catalog routes (no caching) | `catalog/products/categories` |
-| **BUG-L10** | `BARCODE` index never scanned (all barcodes empty) | `Product_barcode_idx` |
+| ID | Bug | Location | Status |
+|---|---|---|---|
+| ~~BUG-L01~~ | ~~`REFUNDED` status has no UI button~~ | — | ❌ N/A — POS handles refunds |
+| ~~BUG-L02~~ | ~~Status enum sets inconsistent (REFUNDED)~~ | — | ❌ N/A — REFUNDED removed from website scope |
+| **BUG-L03** | `fmt()` hardcodes 3-decimal KWD | `AdminApp.tsx:73` | Pending |
+| **BUG-L04** | Admin orders GET caps `take:200` no pagination | `admin/orders/route.ts:69` | Pending |
+| **BUG-L05** | Admin products GET returns all products no pagination | `admin/products/route.ts` | Pending |
+| **BUG-L06** | Cart POST upsert replaces qty | `cart/route.ts:63` | Pending |
+| **BUG-L07** | Revenue counts non-cancelled orders regardless of payment status | `admin/stats/route.ts` | ⚠️ Lower priority — POS produces financial reports; this dashboard figure is indicative only |
+| **BUG-L08** | `Order.orderNumber` unique index never scanned | `Order_orderNumber_key` | Pending |
+| **BUG-L09** | Force-dynamic on public catalog routes (no caching) | catalog routes | Pending |
+| **BUG-L10** | `BARCODE` index never scanned | `Product_barcode_idx` | Pending |
 
 ---
 
@@ -315,20 +383,28 @@ Consolidated from `Project_Audit.md §3–§7`, `API_Overview.md §7`, `Database
 From `API_Overview.md §2` and `Feature_Matrix.md §1–§7`.
 
 ### 4.1 Missing endpoints (entire routes)
+> **Post-pivot:** API-M09 (stock adjustment) and API-M11 (payment) are
+> **removed**. New order-workflow endpoints are added.
+
 | ID | Endpoint | Purpose | Depends on |
 |---|---|---|---|
 | **API-M01** | `POST /api/auth/password-reset/request` + `/reset` | Forgot-password flow | H-M01 (email) |
 | **API-M02** | `GET /api/auth/verify-email` | Email verification | H-M01 |
 | **API-M03** | `GET/POST/PATCH/DELETE /api/addresses` | Saved-address CRUD | — |
-| **API-M04** | `GET /api/orders/[id]` | Order detail (for M-C04) | — |
+| **API-M04** | `GET /api/orders/[id]` | Order detail (for M-C04, M-OW1) | — |
 | **API-M05** | `POST /api/orders/[id]/reorder` | Reorder past order | API-M04 |
 | **API-M06** | `GET/POST/PATCH/DELETE /api/admin/settings` | Settings management | — |
 | **API-M07** | `GET /api/admin/audit-log` | AuditLog viewer | — |
 | **API-M08** | `GET /api/admin/orders/[id]/timeline` | Order status timeline | — |
-| **API-M09** | `POST /api/admin/products/[id]/stock` | Stock adjustment (writes StockMovement) | — |
+| ~~API-M09~~ | ~~`POST /api/admin/products/[id]/stock`~~ | ~~Stock adjustment~~ | ❌ Removed (POS handles stock) |
 | **API-M10** | `GET /api/products/facets` | Faceted filtering (brand/material/tag) | — |
-| **API-M11** | `POST /api/payments/intent` + webhook | Payment gateway | H-P01 |
+| ~~API-M11~~ | ~~`POST /api/payments/intent`~~ | ~~Payment gateway~~ | ❌ Removed (POS handles billing) |
 | **API-M12** | `GET /api/sitemap.xml` + `/robots.txt` (or static) | SEO | — |
+| **API-OW1** | `PATCH /api/admin/orders/[id]/verify` | Staff submits item-availability check (marks each item AVAILABLE/UNAVAILABLE) | — |
+| **API-OW2** | `POST /api/orders/[id]/confirm` | Customer confirms "proceed with available items" or cancels | API-OW1 |
+| **API-OW3** | `PATCH /api/admin/orders/[id]/pack` | Staff marks order as packed + POS handoff status | — |
+| **API-OW4** | `GET /api/notifications` | Customer notification inbox | DB-M16 |
+| **API-OW5** | `PATCH /api/admin/orders/[id]/pos-status` | Staff marks POS invoice created / handed to delivery | DB-M17 |
 
 ### 4.2 Existing endpoints with missing methods/bugs
 | Endpoint | Gap |
@@ -338,7 +414,7 @@ From `API_Overview.md §2` and `Feature_Matrix.md §1–§7`.
 | `PATCH /api/admin/orders` | No state machine — BUG-H15 |
 | `PATCH /api/admin/customers/[id]` | No Zod — BUG-M07 |
 | `DELETE /api/admin/hierarchy/[entity]` | Misclassifies P2025 as 409 — BUG-M08 |
-| `POST /api/cart` | Replaces qty not increment; no stock check — BUG-L06, AO §7 B6 |
+| `POST /api/cart` | Replaces qty not increment (counter-intuitive for "add to cart") — BUG-L06, AO §7 B6 |
 | `PATCH /api/auth/me` | Allows email change without password re-verification |
 | All admin routes | No `requireAdmin` (STAFF can do everything) — BUG-C04 |
 | All public catalog routes | Force-dynamic, no caching — BUG-L09 |
@@ -387,23 +463,65 @@ From `UI_Audit.md` and `Feature_Matrix.md §3,§7,§9`.
 
 From `Feature_Matrix.md §6` and `UI_Audit.md §14`.
 
+> **Post-pivot:** ADM-06 (REFUNDED button) and ADM-10 (stock adjustment)
+> are **removed** — the POS handles refunds and stock. New order-workflow
+> admin features are added.
+
 | ID | Feature | Status | Effort |
 |---|---|---|---:|
 | **ADM-01** | Product **edit** UI | Missing | (in H-A01) |
 | **ADM-02** | Product **delete** UI | Missing | (in H-A01) |
 | **ADM-03** | Admin **login screen** | Missing | (in H-A02) |
 | **ADM-04** | **Pagination** on all lists | Missing | (in H-A04) |
-| **ADM-05** | **Order state machine** | Missing | (in H-A05) |
-| **ADM-06** | **`REFUNDED` button** | Missing | (in H-A06) |
+| **ADM-05** | **Order workflow state machine** | Missing | (in H-A05) |
+| ~~ADM-06~~ | ~~`REFUNDED` button~~ | ❌ Removed | (POS handles refunds) |
 | **ADM-07** | **AuditLog viewer** | Missing | (in H-A07) |
 | **ADM-08** | Customer **create/edit/role-change** | Missing | (in M-A01) |
 | **ADM-09** | **Settings** UI | Missing | (in M-A02) |
-| **ADM-10** | **Stock adjustment** UI (writes StockMovement) | Missing | (in M-A03) |
-| **ADM-11** | **Order timeline** UI | Missing | (in M-A04) |
+| ~~ADM-10~~ | ~~Stock adjustment UI~~ | ❌ Removed | (POS handles stock) |
+| **ADM-11** | **Order timeline** UI | Missing | (in H-A09) |
 | **ADM-12** | **Bulk operations** (product bulk edit/delete) | Missing | (future) |
 | **ADM-13** | **2FA** for admin accounts | Missing | (future) |
+| **ADM-14** | **Order verification UI** — staff reviews orders, marks item availability, triggers customer confirmation | Missing | (in H-A08) |
+| **ADM-15** | **Packing workflow UI** — staff marks order as packed, ready for POS handoff/delivery | Missing | (new, 1.5 d) |
+| **ADM-16** | **POS handoff status** — order marked as "invoice created in POS" / "handed to delivery" | Missing | (new, 1 d) |
 
-**Completed admin modules** (credit): Master Data CRUD (12 entities), Hierarchy CRUD (4 entities), Dashboard/Stats, Image upload + media library, Customer activate/deactivate, Order status change.
+**Completed admin modules** (credit): Master Data CRUD (12 entities), Hierarchy CRUD (4 entities), Dashboard/Stats, Image upload + media library, Customer activate/deactivate, Order status change, **edge auth gate** (Sprint 1).
+
+### 6.1 Operational dashboard (replaces inventory dashboard)
+> **Post-pivot:** The admin dashboard must reflect the **operational
+> workflow**, not inventory or warehouse metrics. No stock widgets, no
+> warehouse widgets, no revenue-as-truth widgets (revenue is the POS's
+> domain — website figures are indicative only).
+
+**Dashboard sections (operational):**
+| Section | Content |
+|---|---|
+| Orders awaiting review | Count + list of PENDING / UNDER_REVIEW orders |
+| Orders waiting customer confirmation | Count + list of READY_FOR_CONFIRMATION orders |
+| Orders ready for packing | Count + list of CONFIRMED orders not yet packed |
+| Orders ready for delivery | Count + list of READY_FOR_DELIVERY orders |
+| Orders delivered today | Count + list |
+| Orders completed today | Count + list |
+| Cancelled orders (today) | Count + list (CANCELLED_BY_CUSTOMER + CANCELLED_BY_STAFF) |
+| Customer messages / notifications | Recent unread notifications |
+
+### 6.2 Operational reports (replaces inventory reports)
+> Reports focus on **operational efficiency** and **customer ordering
+> trends**, not inventory valuation or stock levels.
+
+| Report | Description |
+|---|---|
+| Orders per day | Volume trend over time |
+| Orders completed | Completion rate + count |
+| Orders cancelled | Cancellation rate + reasons |
+| Average confirmation time | Time from READY_FOR_CONFIRMATION to CONFIRMED |
+| Average packing time | Time from CONFIRMED to READY_FOR_DELIVERY |
+| Average delivery prep time | Time from READY_FOR_DELIVERY to OUT_FOR_DELIVERY |
+| Most ordered products | By frequency, not by stock consumption |
+| Customer ordering trends | Repeat order rate, average order size |
+| Popular categories | By order volume |
+| Staff workload | Orders processed per staff member |
 
 ---
 
@@ -412,38 +530,69 @@ From `Feature_Matrix.md §6` and `UI_Audit.md §14`.
 From `Database_Audit.md §8, §9, §10, §15` and `Database_Overview.md §7`.
 
 ### 7.1 Tables defined but never written/read by code
+> **Post-pivot:** `StockMovement` is **out of scope** — the website does
+> not manage stock. It can remain in the schema for future use but no code
+> path will write to it.
+
 | Table | Status | Required action |
 |---|---|---|
-| `StockMovement` | Defined + indexed, **0 rows, never written** | Wire via API-M09 + ADM-10 |
+| ~~`StockMovement`~~ | Defined but **out of scope** (POS manages stock) | Keep schema for future; do not wire |
 | `Address` | Defined, **no API** | Build API-M03 + FE-M05 |
-| `ProductImage` | Admin writes, **storefront bypasses** (reads `image`/`images`) | Reconcile via H-S04 |
+| `ProductImage` | Admin writes, **storefront bypasses** | Reconcile via H-S04 |
 | `Section` | Schema + admin CRUD, **0 rows, storefront ignores** | Surface on storefront OR document as future |
 | `Subcategory` | Same as Section | Same |
 | `CartItem` | Full API, **storefront uses localStorage** | Wire via H-S02 |
-| `OrderStatusEvent` | Written on every change, **no UI reads it** | Build API-M08 + ADM-11 |
+| `OrderStatusEvent` | Written on every change, **no UI reads it** | Build timeline API + ADM-11 |
 
-### 7.2 Enum values with no code path
-| Value | Status |
+### 7.2 Order lifecycle and item-status enums
+> The full order lifecycle replaces the old e-commerce statuses. The website
+> never owns stock, billing, or refunds — it orchestrates the human
+> verification/confirmation/packing/delivery cycle. The POS handles billing,
+> invoicing, refunds, and stock.
+
+**OrderStatus (full lifecycle):**
+```
+PENDING → UNDER_REVIEW → READY_FOR_CONFIRMATION → CONFIRMED → PACKING → READY_FOR_DELIVERY → OUT_FOR_DELIVERY → DELIVERED → COMPLETED
+                                                                                                              ↗
+Terminal: CANCELLED_BY_CUSTOMER, CANCELLED_BY_STAFF
+```
+- ~~`REFUNDED`~~ — ❌ Out of scope (POS handles refunds)
+- ~~`REJECTED`~~ — replaced by `CANCELLED_BY_STAFF`
+- ~~generic `CANCELLED`~~ — split into `CANCELLED_BY_CUSTOMER` / `CANCELLED_BY_STAFF`
+- **NEW values needed:** UNDER_REVIEW, READY_FOR_CONFIRMATION, READY_FOR_DELIVERY, CANCELLED_BY_CUSTOMER, CANCELLED_BY_STAFF
+
+**OrderItem.availability (per-item status):**
+| Value | Meaning |
 |---|---|
-| `OrderStatus.REFUNDED` | In enum, no button, no logic — BUG-L01 |
-| `StockStatus.LOW_STOCK / PREORDER / DISCONTINUED` | In enum, never auto-set; `minStock` exists but no job compares stock to minStock |
+| `PENDING` | Item ordered; not yet checked by staff |
+| `AVAILABLE` | Staff confirmed the item is in the physical store |
+| `UNAVAILABLE` | Staff confirmed the item is NOT in the physical store |
+| `REMOVED_AFTER_CONFIRMATION` | Customer chose to remove this unavailable item and proceed with the rest |
+| `DELIVERED` | Item was part of the delivered order |
+
+**StockStatus:** Out of scope — POS manages stock. The field can remain for
+display purposes but no code path sets it automatically.
 
 ### 7.3 Missing schema objects
 | ID | Object | Purpose |
 |---|---|---|
-| **DB-M01** | `Payment` / `PaymentMethod` tables | Online payments (H-P01) |
+| ~~DB-M01~~ | ~~`Payment` / `PaymentMethod` tables~~ | ❌ Removed — POS handles billing |
 | **DB-M02** | `PasswordResetToken` table (or columns on User) | M-C02 |
 | **DB-M03** | `EmailVerificationToken` (or `User.emailVerifiedAt`) | M-C03 |
-| **DB-M04** | `Coupon` / `DiscountCode` tables | Future |
+| ~~DB-M04~~ | ~~`Coupon` / `DiscountCode` tables~~ | ❌ Removed — POS handles discounts |
 | **DB-M05** | `Tag` table + `ProductTag` join | Faceted tags (M-S03) |
-| **DB-M06** | `ShippingMethod` table | Replace hardcoded shipping |
-| **DB-M07** | CHECK constraints (prices/stocks/totals ≥ 0, hex format) | H-D01 |
+| ~~DB-M06~~ | ~~`ShippingMethod` table~~ | ❌ Removed — website shipping is indicative; POS handles delivery logistics |
+| **DB-M07** | CHECK constraints (prices ≥ 0, hex format) | H-D01 (stock checks removed) |
 | **DB-M08** | GIN index on `Product.tags` + `Product.specs` | M-PER2 |
 | **DB-M09** | Trigram index for ILIKE search (pg_trgm extension) | M-PER3 |
 | **DB-M10** | Composite indexes (isActive+categoryId, userId+createdAt) | M-PER4 |
 | **DB-M11** | Unique index on `Product.sku` | (optional) |
 | **DB-M12** | Partial unique index `Address(userId) WHERE isDefault` | L-09 |
-| **DB-M13** | Foreign tables for `Order.addressId`, `Order.shippingMethodId`, `Order.staffId` | Future |
+| ~~DB-M13~~ | ~~Foreign tables for shippingMethodId~~ | ❌ Removed |
+| **DB-M14** | **`OrderItem.availability` enum** {PENDING, AVAILABLE, UNAVAILABLE, REMOVED_AFTER_CONFIRMATION, DELIVERED} | Per-item availability tracking in the verification workflow (replaces stock-based states) |
+| **DB-M15** | **`Order.staffNotes` text** column | Staff notes during verification (what was checked, substitution offers) |
+| **DB-M16** | **`Notification` table** (userId, orderId, type, message, readAt, createdAt) | Customer notification inbox for order-workflow messages |
+| **DB-M17** | **`Order.posStatus` enum** {NOT_CREATED, INVOICED, HANDED_TO_DELIVERY} | POS handoff tracking — staff marks when the POS invoice is created and when products are handed to delivery |
 
 ---
 
@@ -573,7 +722,7 @@ These **must** be resolved before the app can deploy to a production target
 | **DEP-09** | No backup strategy | Data-loss risk | 1 d |
 | **DEP-10** | No logging/monitoring | Blind in production | 1.5 d |
 | **DEP-11** | No health-check endpoint | Cannot be monitored | 0.25 d |
-| **DEP-12** | Order integrity (shipping/stock) | Cannot take real money safely | 2.5 d |
+| **DEP-12** | Order workflow (verification/confirmation flow) | Cannot process real orders until staff verification workflow is live | 3 d |
 | **DEP-13** | No deployment documentation | Cannot hand off | 1 d |
 | **DEP-14** | README.md does not exist | Onboarding | 0.5 d |
 
@@ -631,7 +780,7 @@ Current state: **zero automated tests**, no test framework installed, no CI.
 - **Coverage targets:** API routes ≥ 70%, lib ≥ 90%, E2E covers the 3 critical paths (browse, checkout, admin CRUD).
 
 ### 13.3 Critical paths to cover first (smoke tests)
-1. **Checkout:** browse → add to cart → checkout → POST `/api/orders` → order created with correct totals + stock decrement.
+1. **Order placement:** browse → add to cart → checkout → POST `/api/orders` → order created with indicative totals (the POS produces the authoritative invoice later).
 2. **Auth:** register → login → GET `/api/auth/me` → logout → 401 on protected route.
 3. **Admin gating:** anonymous → `/api/admin/*` returns 401/403; STAFF → can read; (after SEC-05) non-admin operation → 403.
 
@@ -671,29 +820,39 @@ encoded by phase; do not skip phases.
 9. **SEC-10 / H-M02** Centralised bcrypt helper (cost 12)
 10. **SEC-12** Password re-verification on email change
 
-### Phase 2 — Order & data integrity (11 d)
-> Goal: checkout cannot be cheated; data is consistent.
-1. **C-03 / BUG-C02** Server-authoritative shipping (read from Setting)
-2. **C-04 / BUG-C03** Transactional stock check
-3. **H-A05 / BUG-H15** Order state machine
-4. **H-A06 / BUG-L01** `REFUNDED` status UI + logic
-5. **H-S04 / BUG-H11** Reconcile image storage
-6. **H-S02** Wire server cart API
-7. **H-S07 / BUG-H04** Cart wishlist-button fix
-8. **H-S08 / BUG-M02** Cart badge global sync
-9. **TD-06** (already in Phase 0) — verify seed no longer clobbers
-10. **M-A02 / API-M06** Settings UI + wire checkout to `shipping_fee`
+### Phase 2 — Order verification workflow + data cleanup (12 d)
+> **Post-pivot:** This phase replaces "order integrity" (stock/shipping) with
+> the **order verification workflow** — the core business logic of the
+> platform. Stock deduction and server-authoritative shipping are removed
+> (the POS handles those). The website's job is to capture the order,
+> let staff verify availability against the physical store, let the customer
+> confirm, and track the order through to delivery.
 
-### Phase 3 — Admin completeness (16 d)
-> Goal: staff can run the store without DB access.
+1. **H-A05** Order workflow state machine. The full lifecycle is: PENDING→UNDER_REVIEW→READY_FOR_CONFIRMATION→CONFIRMED→PACKING→READY_FOR_DELIVERY→OUT_FOR_DELIVERY→DELIVERED→COMPLETED. Terminal/cancel states: CANCELLED_BY_CUSTOMER, CANCELLED_BY_STAFF. Add new `OrderStatus` values via migration: UNDER_REVIEW, READY_FOR_CONFIRMATION, READY_FOR_DELIVERY, CANCELLED_BY_CUSTOMER, CANCELLED_BY_STAFF (replace generic CANCELLED/REJECTED).
+2. **DB-M14** `OrderItem.availability` enum — per-item availability tracking
+3. **DB-M17** `Order.posStatus` enum — POS handoff tracking
+4. **C-OW1 / H-A08 / API-OW1** Staff order verification UI — staff reviews orders against physical store, marks each item AVAILABLE/UNAVAILABLE
+5. **C-OW2** Partial-availability handling — customer sees the breakdown
+6. **C-OW3 / API-OW2** Customer confirmation flow — customer confirms or cancels
+7. **H-S04 / BUG-H11** Reconcile image storage (carry-over)
+8. **H-S07 / BUG-H04** Cart wishlist-button fix (carry-over)
+9. **H-S08 / BUG-M02** Cart badge global sync (carry-over)
+
+### Phase 3 — Admin completeness (15 d)
+> Goal: staff can run the store from the admin UI without DB access.
+> **Post-pivot:** stock-adjustment (M-A03) removed; packing workflow +
+> POS handoff + notification infrastructure added.
+
 1. **H-A02 / FE-M01** Admin login screen
 2. **H-A01 / ADM-01/02** Product edit + delete UI
 3. **H-A04 / ADM-04** Pagination on all admin lists (PER-07)
 4. **H-A07 / API-M07 / FE-M07** AuditLog viewer
 5. **M-A01 / ADM-08** Customer create/edit/role
-6. **M-A02 / ADM-09** Settings management UI (pairs with Phase 2 #10)
-7. **M-A03 / API-M09 / ADM-10** Stock adjustment (writes StockMovement)
-8. **M-A04 / API-M08 / ADM-11** Order timeline UI
+6. **M-A02 / ADM-09** Settings management UI
+7. **ADM-15** Packing workflow UI (staff marks order packed)
+8. **ADM-16 / API-OW5** POS handoff status (invoice created / handed to delivery)
+9. **H-A09 / API-M08 / ADM-11** Order timeline UI
+10. **H-M01 / M-O03** Transactional email + notification provider (order-workflow notifications)
 
 ### Phase 4 — Storefront mobile + UX (13 d)
 > Goal: the site is usable on a phone.
@@ -718,14 +877,21 @@ encoded by phase; do not skip phases.
 6. **SEO-08** JSON-LD (Product, Organization, BreadcrumbList)
 7. **H-SE05 / SEO-10** Server-render product content
 
-### Phase 6 — Payments + customer features (20 d)
-> Goal: the site can take money and serve returning customers.
-1. **H-P01 / API-M11 / DB-M01** Payment gateway (KNET/Stripe/Tap)
-2. **H-M01 / M-O03** Transactional email provider
-3. **M-C02 / API-M01 / FE-M02/M03** Password reset
-4. **M-C03 / API-M02 / FE-M04** Email verification
-5. **M-C01 / API-M03 / FE-M05** Saved addresses
-6. **M-C04 / API-M04/M05 / FE-M06** Order detail + reorder
+### Phase 6 — Customer order experience + notifications (12 d)
+> **Post-pivot:** payment gateway (H-P01) **removed** — the POS handles
+> billing. Transactional email moved to Phase 3 (needed earlier for order
+> notifications). This phase focuses on the customer-facing order
+> experience: notifications, order tracking, confirmation, and account
+> features.
+
+1. **C-OW4 / API-OW4** Customer notification system (order received, under review, ready for confirmation, confirmed, packing, delivered) — in-app inbox + email
+2. **DB-M16 / API-OW4** Notification table + endpoint
+3. **M-OW1** Customer order detail page with item-level availability breakdown + confirm/modify/cancel
+4. **M-OW3** Customer order tracking page (timeline)
+5. **M-C02 / API-M01 / FE-M02/M03** Password reset
+6. **M-C03 / API-M02 / FE-M04** Email verification
+7. **M-C01 / API-M03 / FE-M05** Saved addresses
+8. **M-C04 / API-M04/M05 / FE-M06** Order detail + reorder
 
 ### Phase 7 — Performance + observability (8 d)
 > Goal: the site is fast and observable.
@@ -771,14 +937,19 @@ role separation, slug data fixed, dummy cart gone, brand leakage fixed.
 - Fresh visitor sees an empty cart.
 - No page carries a non-AL-NASSIM brand.
 
-### 🚩 M1 — "Honest checkout" (Phase 2)
-**~25 d cumulative.** Order totals are server-authoritative, stock cannot be
-oversold, cart syncs to server. The store can be trusted with real COD orders.
+### 🚩 M1 — "Order verification workflow" (Phase 2)
+**~26 d cumulative.** The core business logic is live: customers place
+orders, staff verify availability against the physical store, customers
+confirm, and orders flow through a validated state machine. The website
+does NOT manage stock or billing — it captures orders and orchestrates
+the human verification/confirmation cycle.
 
 **Exit criteria:**
-- `Order.shipping` read from `Setting.shipping_fee`.
-- Stock check + decrement in same transaction.
-- Admin can move orders through a validated state machine.
+- New `OrderStatus` values added via migration: UNDER_REVIEW, READY_FOR_CONFIRMATION, READY_FOR_DELIVERY, CANCELLED_BY_CUSTOMER, CANCELLED_BY_STAFF.
+- `OrderItem.availability` enum tracks per-item availability.
+- Staff can mark items available/unavailable in the admin UI.
+- Customer can confirm "proceed with available items" or cancel.
+- Order workflow state machine enforces valid transitions.
 - Single source of truth for product images.
 
 ### 🚩 M2 — "Operable admin" (Phase 3)
@@ -794,7 +965,7 @@ touching the DB.
 
 ### 🚩 M3 — "Mobile-ready storefront" (Phase 4)
 **~54 d cumulative.** Site usable on phones, Tailwind built (not CDN), dead
-links wired, PDP has clean URL. **Minimum viable public launch** (EN, COD).
+links wired, PDP has clean URL. **Minimum viable public launch** (EN, order-only).
 
 **Exit criteria:**
 - Hamburger menu works at ≤768px; all categories reachable.
@@ -803,13 +974,19 @@ links wired, PDP has clean URL. **Minimum viable public launch** (EN, COD).
 - `/product/[slug]` replaces `product view.html`.
 
 ### 🚩 M4 — "Market-ready" (Phase 5 + 6)
-**~96 d cumulative.** Arabic/RTL works, SEO in place, online payments live,
-customers can reset passwords + save addresses. **Production launch** (Kuwait).
+**~88 d cumulative** (was ~96 d; payment gateway removed saves ~8 d).
+Arabic/RTL works, SEO in place, order-workflow notifications live,
+customers can track orders, reset passwords + save addresses.
+**Production launch** (Kuwait). The website captures orders and orchestrates
+the verification/confirmation cycle; the POS handles billing and stock.
 
 **Exit criteria:**
 - `<html dir="rtl" lang="ar">` toggles correctly; all visible strings translated.
-- Payment gateway processes a test txn end-to-end.
-- Order confirmation emails send.
+- Order-workflow notifications send (email + in-app) at each step.
+- Customer order tracking page shows live timeline.
+- Customer can confirm/cancel from the order detail page.
+- Password reset flow works end-to-end.
+- Saved addresses CRUD works.
 - `sitemap.xml` generated; product pages have meta + JSON-LD.
 - Google Rich Results Test passes for a product URL.
 
@@ -848,54 +1025,75 @@ increment. Capacity: ~8 productive engineer-days per engineer per sprint
 
 **Demo:** clean repo, no embarrassing bugs, fresh visitor sees correct cart. ✅
 
-### Sprint 1 — Security foundation (1 engineer × 1 sprint = 8 d)
-- DEP-05 `middleware.ts` skeleton (1 d)
-- SEC-03 Rate limiting (2 d)
-- SEC-04 CSRF (1.5 d)
-- SEC-05 `requireAdmin` (1.5 d)
-- SEC-06 Server admin gate (1 d)
-- SEC-12 Password re-verify (0.5 d)
-- Tests for auth changes (0.5 d)
+### Sprint 1 — Security foundation (1 engineer × 1 sprint = 8 d) ✅ COMPLETED 2026-07-21
+- ✅ DEP-05 `middleware.ts` skeleton (1 d)
+- ✅ SEC-03 Rate limiting (2 d)
+- ✅ SEC-04 CSRF (1.5 d)
+- ✅ SEC-05 `requireAdmin` (1.5 d)
+- ✅ SEC-06 Server admin gate (1 d)
+- ✅ SEC-12 Password re-verify (0.5 d)
+- ✅ SEC-10 Centralised bcrypt (cost 12) + SEC-11 security headers + env validation
 
 **Demo:** login is rate-limited; STAFF cannot do admin operations; middleware
-enforces gate.
+enforces gate. ✅
 
-### Sprint 2 — Order integrity (1 engineer × 1 sprint = 8 d)
-- C-03 Server-authoritative shipping (1.5 d)
-- C-04 Transactional stock (1 d)
-- H-A05 Order state machine (1.5 d)
-- H-A06 REFUNDED UI (0.5 d)
-- H-S04 Reconcile image storage (2 d)
-- H-S07 Cart wishlist-button (0.5 d)
-- Tests: checkout + stock regression (1 d)
+### Sprint 2 — Order verification workflow (1 engineer × 1 sprint = 8 d)
+> **Post-pivot:** replaces "order integrity" (stock/shipping). This is the
+> core business logic: staff verifies availability, customer confirms.
 
-**Demo:** cannot cheat shipping; stock cannot oversell; orders follow state machine.
+- H-A05 Order workflow state machine + new OrderStatus values (UNDER_REVIEW, READY_FOR_CONFIRMATION, READY_FOR_DELIVERY, CANCELLED_BY_CUSTOMER, CANCELLED_BY_STAFF) via migration (2 d)
+- DB-M14 OrderItem.availability enum + DB-M17 Order.posStatus enum (1 d)
+- C-OW1 / H-A08 / API-OW1 Staff order verification UI (2 d)
+- C-OW2 Partial-availability handling (1 d)
+- C-OW3 / API-OW2 Customer confirmation flow (1 d)
+- H-S04 Reconcile image storage (1 d, carry-over if time permits)
 
-### Sprint 3 — Admin core (1 engineer × 1 sprint = 8 d) — *can run in parallel with Sprint 4 if 2 engineers*
-- H-A02 Admin login screen (2 d)
-- H-A01 Product edit + delete UI (3 d)
-- H-A04 Pagination (2 d)
-- Tests: admin CRUD (1 d)
+**Demo:** staff reviews an order, marks items available/unavailable, customer confirms, order flows through the state machine.
 
-**Demo:** staff log in separately; can edit/delete products; lists paginate.
+### Sprint 3 — Customer Experience (1 engineer × 1 sprint = 8 d) ✅ COMPLETED 2026-07-22
+> **Note:** The actual Sprint 3 was "Customer Experience & Order Entry Foundation"
+> (the business pivot reordered priorities from the original "Admin core" plan).
+> Admin core work (H-A01/A02/A04) is deferred to Sprint 4.
 
-### Sprint 4 — Storefront mobile (1 engineer × 1 sprint = 8 d) — *parallel with Sprint 3*
-- C-09 Hamburger menu (2 d)
-- H-S06 Tailwind build (1.5 d)
-- H-S01 Wire dead links (1.5 d)
-- H-S03 Wire filters (1 d)
-- H-S05 Migrate siloed catalogs (2 d)
+- ✅ Fixed POST /api/orders 400 bug (Zod email validation for guests)
+- ✅ Auth UX: guest mode returns 200 (no console errors)
+- ✅ Guest checkout with Kuwait address fields
+- ✅ Registered checkout with auto-populate + save address
+- ✅ Cart merge (guest → account on login/signup)
+- ✅ Wishlist guest popup
+- ✅ Customer profile improvements (Track Order, Wishlist, order links)
+- ✅ Addresses API (GET + POST)
 
-**Demo:** site works on iPhone; no CDN warning; filters work.
+**Demo:** guest places an order without an account; registered user logs in and cart merges; checkout form auto-populates. ✅
+
+### Sprint 4+5 — Admin Operations + Storefront Polish (1 engineer × 1 sprint) ✅ COMPLETED 2026-07-22
+> Combined Sprint 4+5. Partial completion — admin login, audit log, mobile
+> nav, dead-link fix, and image lazy-loading delivered. Product edit/delete
+> UI, Tailwind build migration, and catalog migration deferred to next sprint.
+
+- ✅ H-A02 Admin login page (`/admin/login`) with dark UI + redirect-back
+- ✅ H-A07 Audit log API + viewer with search, filter, pagination, CSV export
+- ✅ C-09 Mobile hamburger menu on all 20 storefront pages
+- ✅ H-S01 Fixed 180 dead `href="#"` mega-menu links
+- ✅ PER-08 Lazy loading on 181 storefront images
+- ⬜ H-A01 Product edit/delete/duplicate/bulk UI (deferred)
+- ⬜ H-A04 Pagination on admin lists (deferred)
+- ⬜ H-S06 Tailwind build migration (deferred — large effort)
+- ⬜ H-S05 Migrate siloed catalog pages (deferred)
+
+**Demo:** admin has dedicated login page; audit log is searchable/exportable; mobile hamburger menu works; no dead mega-menu links. ✅
 
 ### Sprint 5 — Admin completeness (1 engineer × 1 sprint = 8 d)
+> **Post-pivot:** stock adjustment (M-A03) removed; packing workflow +
+> POS handoff + transactional email added.
+
 - H-A07 AuditLog viewer (2 d)
 - M-A01 Customer CRUD (2 d)
 - M-A02 Settings UI (1.5 d)
-- M-A03 Stock adjustment (2 d)
-- M-A04 Order timeline (0.5 d)
+- ADM-15 Packing workflow UI (1.5 d)
+- ADM-16 POS handoff status (1 d)
 
-**Demo:** full admin operability; audit trail visible.
+**Demo:** full admin operability; packing + POS handoff tracked; audit trail visible.
 
 ### Sprint 6 — i18n foundation (1 engineer × 1 sprint = 8 d)
 - H-P03 i18n framework (3 d)
@@ -911,11 +1109,19 @@ enforces gate.
 
 **Demo:** full Arabic UI; sitemap.xml live; meta tags on every page.
 
-### Sprint 8 — Payments + email (2 engineers × 1 sprint = 16 d)
-- *Engineer A:* H-P01 Payment gateway (8 d)
-- *Engineer B:* H-M01/M-O03 Transactional email (3 d) + M-C02 Password reset (3 d) + M-C03 Email verification (2 d)
+### Sprint 8 — Customer order experience + notifications (1–2 engineers × 1 sprint = 12 d)
+> **Post-pivot:** payment gateway removed. Transactional email moved to
+> Sprint 5 (needed for admin order notifications). This sprint focuses on
+> the customer-facing order experience.
 
-**Demo:** test card payment succeeds; confirmation email arrives; password reset works.
+- C-OW4 / API-OW4 Customer notification system — in-app inbox + email at each workflow step (3 d)
+- DB-M16 Notification table (1 d)
+- M-OW1 Customer order detail page with availability breakdown + confirm/cancel (3 d)
+- M-OW3 Customer order tracking page (1.5 d)
+- M-C02 Password reset (3 d)
+- M-C03 Email verification (0.5 d, if email provider from Sprint 5 is ready)
+
+**Demo:** customer receives notifications, sees order timeline, confirms/cancels from the order page.
 
 ### Sprint 9 — Customer account + SEO completion (2 engineers × 1 sprint = 16 d)
 - *Engineer A:* M-C01 Saved addresses (2 d) + M-C04 Order detail + reorder (2 d) + H-SE05 Server-render products (3 d) + SEO-08 JSON-LD (1 d)
@@ -935,43 +1141,48 @@ enforces gate.
 ### Sprint 11+ — Polish (ongoing, parallelisable)
 - L-01–L-14, SEC-11/13/14/15, DEP-09/11/13/14, TD-07
 
-### Sprint capacity summary
+### Sprint capacity summary (post-pivot)
 
 | Sprint | Engineers | Days | Phase |
 |---|:-:|:-:|---|
-| 0 | 1 | 8 | Phase 0 |
-| 1 | 1 | 8 | Phase 1 (part) |
-| 2 | 1 | 8 | Phase 1 (rest) + Phase 2 |
+| 0 | 1 | 8 | Phase 0 ✅ |
+| 1 | 1 | 8 | Phase 1 ✅ |
+| 2 | 1 | 8 | Phase 2 (order verification workflow) |
 | 3 | 1 | 8 | Phase 3 (part) — *parallel w/ 4* |
 | 4 | 1 | 8 | Phase 4 — *parallel w/ 3* |
 | 5 | 1 | 8 | Phase 3 (rest) + Phase 4 (rest) |
 | 6 | 1 | 8 | Phase 5 (i18n start) |
 | 7 | 1 | 8 | Phase 5 (Arabic + SEO) |
-| 8 | 2 | 16 | Phase 6 (payments + email) |
+| 8 | 1–2 | 12 | Phase 6 (customer order experience + notifications) |
 | 9 | 2 | 16 | Phase 6 (rest) + Phase 7 |
 | 10 | 1–2 | 12–16 | Phase 8 (tests + CI) |
 | 11+ | 1 | ongoing | Phase 9 (polish) |
 
-**Total: ~10–11 sprints (~20–22 weeks) with 1 engineer; ~8–9 sprints (~16–18 weeks) with 2 engineers in Sprints 3–10.**
+**Total (post-pivot): ~10–11 sprints (~18–20 weeks) with 1 engineer; ~7–8 sprints (~14–16 weeks) with 2 engineers.** (Was ~20–22 weeks solo / ~16–18 weeks with 2 engineers pre-pivot — saved ~2 weeks by removing payment gateway.)
 
 ---
 
 ## 17. Estimated effort per milestone
 
+> **Post-pivot:** all figures revised. Payment gateway (~8 d), stock
+> management (~3 d), and refund handling (~1 d) removed from scope;
+> order verification workflow (~12 d), customer notifications (~5 d),
+> packing/POS-handoff (~3 d) added. Net reduction: ~8 d on the critical path.
+
 | Milestone | Theme | Effort | Cumulative | Min. elapsed (1 eng) | Min. elapsed (2 eng) |
 |---|---|---:|---:|---:|---:|
-| **M0** | Safe to develop | 14 d | 14 d | 2 sprints (4 wks) | 1 sprint (2 wks) |
-| **M1** | Honest checkout | 11 d | 25 d | 3 sprints (6 wks) | 2 sprints (4 wks) |
-| **M2** | Operable admin | 16 d | 41 d | 5 sprints (10 wks) | 3 sprints (6 wks) |
+| **M0** | Safe to develop | 14 d | 14 d | 2 sprints (4 wks) ✅ | 1 sprint (2 wks) ✅ |
+| **M1** | Order verification workflow | 12 d | 26 d | 3 sprints (6 wks) | 2 sprints (4 wks) |
+| **M2** | Operable admin | 15 d | 41 d | 5 sprints (10 wks) | 3 sprints (6 wks) |
 | **M3** | Mobile-ready storefront | 13 d | 54 d | 7 sprints (14 wks) | 4 sprints (8 wks) |
-| **M4** | Market-ready (launch) | 42 d | 96 d | 12 sprints (24 wks) | 8 sprints (16 wks) |
-| **M5** | Production-hardened | 23 d | 119 d | 15 sprints (30 wks) | 10 sprints (20 wks) |
-| Phase 9 | Polish | 20 d | 139 d | ongoing | ongoing |
+| **M4** | Market-ready (launch) | 34 d | 88 d | 11 sprints (22 wks) | 7 sprints (14 wks) |
+| **M5** | Production-hardened | 23 d | 111 d | 14 sprints (28 wks) | 9 sprints (18 wks) |
+| Phase 9 | Polish | 20 d | 131 d | ongoing | ongoing |
 
-**Headline numbers:**
-- **~139 engineer-days total** (~7 months solo; ~5 months with 2 engineers).
-- **Critical path to launch (M4): ~96 d solo / ~16 weeks with 2 engineers.**
-- **Critical path to hardened (M5): ~119 d solo / ~20 weeks with 2 engineers.**
+**Headline numbers (post-pivot):**
+- **~131 engineer-days total** (was ~139 d; saved ~8 d by removing payment/stock/refund).
+- **Critical path to launch (M4): ~88 d solo / ~14 weeks with 2 engineers** (was ~96 d / ~16 wks).
+- **Critical path to hardened (M5): ~111 d solo / ~18 weeks with 2 engineers** (was ~119 d / ~20 wks).
 
 ---
 
@@ -991,8 +1202,10 @@ merge conflicts:
 | **H-S01** | Wire dead links | HTML edits only |
 | **H-S06** | Tailwind build | Build config + CSS extraction |
 | **M-A02** | Settings UI | New admin page + new API |
-| **M-A03** | Stock adjustment UI | New admin page + new API + unused table |
-| **M-A04** | Order timeline UI | New admin section reading existing data |
+| ~~M-A03~~ | ~~Stock adjustment UI~~ | ❌ Removed (POS handles stock) |
+| **H-A09** | Order timeline UI | New admin section reading existing data |
+| **ADM-15** | Packing workflow UI | New admin section, independent of catalog |
+| **ADM-16** | POS handoff status | New column + UI, independent |
 | **M-C01** | Saved addresses | New model API + new UI; no existing code touched |
 | **M-O01** | Structured logging | Cross-cutting but additive (no behaviour change) |
 | **M-O02** | Sentry | Additive wrapper |
@@ -1010,36 +1223,44 @@ merge conflicts:
 | **M-C02 Password reset** | **H-M01 transactional email** | Reset link delivered by email |
 | **M-C03 Email verification** | **H-M01** | Verification link delivered by email |
 | **M-A02 Settings UI** | **API-M06 settings API** | UI calls the API |
-| **C-03 Server shipping** | **M-A02 / Setting table read** | Reads `shipping_fee` from Setting |
+| ~~C-03 Server shipping~~ | ~~M-A02~~ | ❌ Removed — POS handles billing |
+| **C-OW2 Partial availability** | **C-OW1 verification UI + DB-M14** | Needs per-item availability tracking |
+| **C-OW3 Customer confirmation** | **C-OW2** | Customer confirms after seeing availability |
+| **C-OW4 Notifications** | **H-M01 email provider + DB-M16** | Notification table + email sending |
 | **H-P02 Arabic/RTL** | **H-P03 i18n framework** | Strings need a framework |
 | **SEO-08 JSON-LD** | **H-SE05 server-render products** | Structured data needs server HTML |
 | **M-C04 Order detail** | **API-M04 order detail endpoint** | UI calls the API |
-| **ADM-10 Stock adjustment** | **API-M09 + StockMovement wiring** | UI writes via API to unused table |
+| **M-OW1 Customer order detail** | **API-OW2 customer confirm endpoint** | UI calls the API |
+| ~~ADM-10 Stock adjustment~~ | ~~API-M09~~ | ❌ Removed — POS handles stock |
 | **PER-01 Catalog caching** | **H-S05 migrate siloed catalogs** | Cache invalidation needs single source |
-| **SEC-03 Rate limiting** | **DEP-05 middleware.ts** | Rate limit lives in middleware |
-| **SEC-06 Admin gate** | **DEP-05** | Gate lives in middleware |
-| **C-04 Stock txn** | **C-03** (same order-creation code path) | Both edit `orders/route.ts` |
+| **SEC-03 Rate limiting** | **DEP-05 middleware.ts** | ✅ Done — rate limit lives in middleware |
+| **SEC-06 Admin gate** | **DEP-05** | ✅ Done — gate lives in middleware |
+| ~~C-04 Stock txn~~ | ~~C-03~~ | ❌ Removed — website does not manage stock |
 | **L-01 Multi-currency** | **TD-19 `fmt()` refactor** | Display helper must be currency-aware |
-| **H-P01 Payment** | **C-03/C-04 order integrity** | Payments need correct totals first |
+| ~~H-P01 Payment~~ | ~~C-03/C-04~~ | ❌ Removed — POS handles billing |
 
 ---
 
 ## 19. Dependency graph
 
 ```
-Phase 0 (Stabilise) ────────────────────────────────────────────────
+Phase 0 (Stabilise) ✅ ─────────────────────────────────────────────
   │
   ▼
-Phase 1 (Security) ─── DEP-05 middleware.ts ──┐
-  │                                            ├──► SEC-03 rate limit
-  │                                            └──► SEC-06 admin gate
+Phase 1 (Security) ✅ ─── DEP-05 middleware.ts ──┐
+  │                                              ├──► SEC-03 rate limit ✅
+  │                                              └──► SEC-06 admin gate ✅
   ▼
-Phase 2 (Order integrity) ── C-03 shipping ──► C-04 stock txn
-  │                          └── M-A02 Settings ──► checkout reads setting
+Phase 2 (Order verification workflow)
+  │  └── H-A05 state machine ──► DB-M14 item availability
+  │                             └─► C-OW1 staff verify ──► C-OW2 partial avail
+  │                                                        └─► C-OW3 customer confirm
   ▼
 Phase 3 (Admin) ─────── H-A02 login ──► H-A01 product edit/delete
   │                     └── H-A04 pagination (independent)
   │                     └── H-A07 audit viewer (independent)
+  │                     └── ADM-15 packing + ADM-16 POS handoff (independent)
+  │                     └── H-M01 email ──► C-OW4 notifications
   ▼
 Phase 4 (Storefront) ── C-09 hamburger (independent)
   │                     └── H-S06 Tailwind build (independent)
@@ -1048,9 +1269,9 @@ Phase 4 (Storefront) ── C-09 hamburger (independent)
 Phase 5 (i18n + SEO) ── H-P03 i18n framework ──► H-P02 Arabic/RTL
   │                     └── H-SE05 server-render ──► SEO-08 JSON-LD
   ▼
-Phase 6 (Payments) ──── C-03/C-04 (integrity) ──► H-P01 payment gateway
-  │                     └── H-M01 email ──► M-C02 password reset
-  │                                    └─► M-C03 email verification
+Phase 6 (Customer order experience) ── DB-M16 notifications ──► C-OW4 inbox
+  │                                    └── M-OW1 order detail ──► M-OW3 tracking
+  │                                    └── M-C02 password reset (needs H-M01)
   ▼
 Phase 7 (Perf) ──────── H-S05 (single catalog) ──► PER-01 caching
   │                     └── indexes (independent)
@@ -1061,9 +1282,10 @@ Phase 8 (Tests + CI) ── all prior features stable ──► E2E tests meanin
 Phase 9 (Polish) ────── ongoing, parallelisable
 ```
 
-**Critical path (longest dependency chain):**
-`Phase 0 → Phase 1 → Phase 2 → Phase 6 (payments, needs integrity) → M4 launch`
-= **~96 d solo, ~16 weeks with 2 engineers.**
+**Critical path (longest dependency chain, post-pivot):**
+`Phase 0 → Phase 1 → Phase 2 (workflow) → Phase 3 (email) → Phase 6 (notifications) → M4 launch`
+= **~88 d solo, ~14 weeks with 2 engineers.** (Was ~96 d / ~16 wks pre-pivot —
+the payment gateway was on the critical path and is now removed.)
 
 **Parallelisation lanes (independent, can run concurrently):**
 - Lane A (admin): Phase 3
@@ -1076,19 +1298,85 @@ Phase 2, compressing M4 to **~10–12 weeks**.
 
 ---
 
+## 19a. Customer features (post-pivot scope)
+
+> The customer-facing feature set is strictly **order management** — no payment,
+> no billing, no stock visibility.
+
+| Feature | Status |
+|---|---|
+| Browse products (catalog, search, filters) | ✅ Exists (partial) |
+| Place an order | ✅ Exists |
+| Track order (live timeline) | Pending (M-OW3) |
+| Receive notifications (order status changes) | Pending (C-OW4) |
+| View unavailable products in their order | Pending (C-OW2, M-OW1) |
+| Accept partial order (confirm available items) | Pending (C-OW3, M-OW1) |
+| Cancel order | Pending (C-OW3) |
+| View previous orders | ✅ Exists (account.js) |
+| Reorder previous order | Pending (M-C04) |
+| Manage saved addresses | Pending (M-C01) |
+| Manage profile | ✅ Exists (PATCH /api/auth/me) |
+| Wishlist | ✅ Exists |
+
+**Explicitly out of scope:** online payment, invoice download, refund requests,
+stock/inventory visibility, warehouse browsing.
+
+## 19b. Staff features (post-pivot scope)
+
+> Staff features focus on **operational order management** — reviewing,
+> verifying, packing, and handing off orders to the POS/delivery.
+
+| Feature | Status |
+|---|---|
+| Review incoming order | Pending (H-A08) |
+| Mark product available / unavailable | Pending (C-OW1, H-A08) |
+| Send confirmation request to customer | Pending (C-OW1) |
+| Edit unavailable products (substitute / remove) | Pending (C-OW2) |
+| Pack order | Pending (ADM-15) |
+| Mark ready for delivery | Pending (ADM-15) |
+| Assign delivery / mark out for delivery | Pending (ADM-16) |
+| Mark delivered | Pending (ADM-16) |
+| Add internal notes to order | Pending (DB-M15) |
+| View order timeline | Pending (H-A09) |
+| Product CRUD (create/edit/delete) | Partial (create only; edit/delete pending H-A01) |
+| Master data CRUD (12 entities) | ✅ Exists |
+| Customer management | Partial (activate/deactivate; CRUD pending M-A01) |
+| Audit log viewer | Pending (H-A07) |
+
+**Explicitly out of scope:** stock adjustment, inventory management, invoice creation,
+refund processing, warehouse management, barcode scanning, receipt printing.
+
+## 19c. Optional future integrations (explicitly NOT in core roadmap)
+
+> These are listed for completeness only. They are **not part of any sprint**
+> and should not be planned until the core order-management platform is
+> stable in production. Each would be a separate initiative with its own scoping.
+
+| Integration | Description | Trigger |
+|---|---|---|
+| POS integration | Sync order data to/from the POS system for invoicing + status feedback | When the business decides to connect the two systems |
+| Inventory synchronization | Read stock levels from the POS to show availability on the website pre-order | When real-time availability becomes a business need |
+| Payment gateway | Accept online payment as a customer convenience (POS still produces the invoice) | L-15, future |
+| Accounting integration | Export order data to accounting software | When finance team requests it |
+| Barcode scanner | Scan products during packing to verify correctness | When warehouse/packing volume justifies it |
+| Receipt printing | Print order summaries for delivery drivers | When delivery operations require paper trails |
+| ERP integration | Connect to a broader ERP for procurement + reporting | Enterprise-scale initiative |
+
+---
+
 ## 20. Final production checklist
 
 Every item must be ✅ before flipping the production switch. Items are
 grouped by milestone exit criteria; the milestone gate cannot close until
 its group is green.
 
-### M0 — Safe to develop (Phase 0+1)
+### M0 — Safe to develop (Phase 0+1) ✅ COMPLETE
 - [x] No secret in `.env` is default or weak (SEC-01) — ✅ Sprint 0
 - [x] App connects via dedicated non-superuser role to dedicated DB (SEC-02) — ✅ Sprint 0
-- [ ] Login + register rate-limited (SEC-03) — Sprint 1
-- [ ] CSRF tokens issued + validated on mutations (SEC-04) — Sprint 1
-- [ ] `requireAdmin` exists; STAFF cannot perform admin-only ops (SEC-05) — Sprint 1
-- [ ] `middleware.ts` enforces admin route gate server-side (SEC-06) — Sprint 1
+- [x] Login + register rate-limited (SEC-03) — ✅ Sprint 1
+- [x] CSRF tokens issued + validated on mutations (SEC-04) — ✅ Sprint 1
+- [x] `requireAdmin` exists; STAFF cannot perform admin-only ops (SEC-05) — ✅ Sprint 1
+- [x] `middleware.ts` enforces admin route gate server-side (SEC-06) — ✅ Sprint 1
 - [x] All `Category.slug` values match `^[a-z0-9-]+$` (C-08) — ✅ Sprint 0
 - [x] Warehouse department has its categories (seed routing fixed) — ✅ Sprint 0
 - [x] Fresh visitor sees an empty cart (no dummy items) (C-10) — ✅ Sprint 0
@@ -1096,16 +1384,17 @@ its group is green.
 - [x] Logo links directly to `/` (no redirect bounce) (M-S05) — ✅ Sprint 0
 - [x] Favicon served (no 404) (M-S02) — ✅ Sprint 0
 
-### M1 — Honest checkout (Phase 2)
-- [ ] `Order.shipping` read from `Setting.shipping_fee` server-side (C-03)
-- [ ] Stock check + decrement in same DB transaction (C-04)
-- [ ] Order status transitions validated by state machine (H-A05)
-- [ ] `REFUNDED` status reachable from admin UI (H-A06)
+### M1 — Order verification workflow (Phase 2)
+- [ ] New `OrderStatus` values added via migration: UNDER_REVIEW, READY_FOR_CONFIRMATION, READY_FOR_DELIVERY, CANCELLED_BY_CUSTOMER, CANCELLED_BY_STAFF (H-A05)
+- [ ] `OrderItem.availability` enum tracks per-item availability (DB-M14)
+- [ ] `Order.posStatus` enum tracks POS handoff (DB-M17)
+- [ ] Staff can review orders and mark items available/unavailable (C-OW1/H-A08)
+- [ ] Customer sees item-level availability breakdown (C-OW2)
+- [ ] Customer can confirm "proceed with available" or cancel (C-OW3)
+- [ ] Order workflow state machine enforces valid transitions (H-A05)
 - [ ] Single source of truth for product images (H-S04)
-- [ ] Server cart API used by storefront for logged-in users (H-S02)
 - [ ] Cart "wishlist" button moves item to wishlist (H-S07)
 - [ ] Cart badge updates on every page (H-S08)
-- [ ] Seed no longer overwrites admin edits on re-run (TD-06)
 
 ### M2 — Operable admin (Phase 3)
 - [ ] Admin login screen exists at `/admin/login` (H-A02)
@@ -1113,9 +1402,11 @@ its group is green.
 - [ ] All admin lists paginate (H-A04)
 - [ ] AuditLog viewer searchable in admin (H-A07)
 - [ ] Customer create/edit/role-change available (M-A01)
-- [ ] Settings UI edits `shipping_fee`, checkout reads it (M-A02)
-- [ ] Stock adjustment UI writes `StockMovement` rows (M-A03)
-- [ ] Order timeline UI shows `OrderStatusEvent` history (M-A04)
+- [ ] Settings UI works (M-A02)
+- [ ] Packing workflow UI works — staff marks order as packed (ADM-15)
+- [ ] POS handoff status works — staff marks invoice created / handed to delivery (ADM-16)
+- [ ] Order timeline UI shows status event history (H-A09)
+- [ ] Transactional email provider wired (H-M01) — for order notifications
 
 ### M3 — Mobile-ready storefront (Phase 4)
 - [ ] Hamburger menu works at ≤768px; all categories reachable (C-09)
@@ -1132,12 +1423,11 @@ its group is green.
 - [ ] `<html dir="rtl" lang="ar">` toggles correctly (H-P02)
 - [ ] All visible user-facing strings translated to Arabic (H-P02)
 - [ ] EN/AR switch persists preference + updates layout (H-P02)
-- [ ] Payment gateway processes a sandbox txn end-to-end (H-P01)
-- [ ] Payment webhook updates order status (H-P01)
-- [ ] Order confirmation email sends (H-M01)
-- [ ] Order status-update emails send (H-M01)
+- [ ] Order-workflow notifications send at each step (C-OW4) — order received, under review, ready for confirmation, confirmed, packing, delivered
+- [ ] Customer notification inbox works in-app + via email (API-OW4)
+- [ ] Customer order tracking page shows live timeline (M-OW3)
+- [ ] Customer can confirm/cancel from order detail page (M-OW1)
 - [ ] Password reset flow works end-to-end (M-C02)
-- [ ] Email verification works (M-C03)
 - [ ] Saved addresses CRUD works (M-C01)
 - [ ] Order detail + reorder work (M-C04)
 - [ ] Every page has meaningful `<title>` + meta description (SEO-01/02)

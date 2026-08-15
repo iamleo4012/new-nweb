@@ -126,6 +126,30 @@ window.NASSIM_PRODUCTS = [
     { label: "Color", value: "Graphite", note: "UV-stable powder coating." },
     { label: "Made in", value: "Italy", note: "Corrosion-resistant outdoor build." }
   ]},
+  { id: "pro-floor-squeegee-wiper", name: "Pro Floor Squeegee Wiper", price: 14.500, currency: "KD", img: "topcar/products_houseware/wiper1.png", images: ["topcar/products_houseware/wiper1.png","topcar/products_houseware/wiper1_flip.png"], description: "Heavy-duty floor squeegee with a wide rubber blade for fast, streak-free drying of smooth floors. Lightweight aluminium handle.", line: "Clean Pro", category: "Cleaning Tools", sku: "CP-SQG-18", specs: [
+    { label: "Description", value: "Floor Squeegee Wiper", note: "Streak-free fast drying." },
+    { label: "Blade Width", value: "45 cm", note: "Double natural-rubber blade." },
+    { label: "Handle", value: "Aluminium, 140 cm", note: "Lightweight, non-rust." },
+    { label: "Best For", value: "Tiles, epoxy, glass", note: "Smooth, non-porous surfaces." }
+  ]},
+  { id: "dual-blade-glass-wiper", name: "Dual-Blade Glass Wiper", price: 9.750, currency: "KD", img: "topcar/products_houseware/wiper2.png", images: ["topcar/products_houseware/wiper2.png"], description: "Ergonomic hand-held glass wiper with a soft dual-blade head for lint-free mirrors, windows, and showcase cleaning.", line: "Clean Pro", category: "Cleaning Tools", sku: "CP-GLS-WPR", specs: [
+    { label: "Description", value: "Dual-Blade Glass Wiper", note: "Lint-free finish." },
+    { label: "Blade Width", value: "25 cm", note: "Soft silicone dual blade." },
+    { label: "Handle", value: "Anti-slip grip", note: "Comfort contour." },
+    { label: "Best For", value: "Glass & mirrors", note: "Showcases, vehicles." }
+  ]},
+  { id: "heavy-duty-scrub-brush", name: "Heavy-Duty Deck Scrub Brush", price: 11.250, currency: "KD", img: "topcar/products_houseware/wiper1_flip.png", images: ["topcar/products_houseware/wiper1_flip.png"], description: "Stiff-bristle scrub brush with a reinforced block for deep cleaning of floors, tiles, grout, and industrial surfaces.", line: "Clean Pro", category: "Cleaning Tools", sku: "CP-SRB-14", specs: [
+    { label: "Description", value: "Deck Scrub Brush", note: "Deep-agitation bristles." },
+    { label: "Head Width", value: "35 cm", note: "Reinforced plastic block." },
+    { label: "Bristles", value: "Stiff PET", note: "Resistant to bleach." },
+    { label: "Best For", value: "Tiles & grout", note: "Floors, workshops." }
+  ]},
+  { id: "pro-dustpan-broom-set", name: "Pro Dustpan & Broom Set", price: 18.000, currency: "KD", img: "topcar/products_houseware/clean_trolly.png", images: ["topcar/products_houseware/clean_trolly.png","topcar/clean_advert.png"], description: "Complete lobby dustpan and broom set with a long-handle upright dustpan, soft-bristle broom, and clip-on brush for everyday upkeep.", line: "Clean Pro", category: "Cleaning Tools", sku: "CP-DP-SET", specs: [
+    { label: "Description", value: "Dustpan & Broom Set", note: "No-bend upright use." },
+    { label: "Dustpan Capacity", value: "22 L", note: "Rim teeth for debris cleaning." },
+    { label: "Broom Width", value: "30 cm", note: "Soft/hard mixed bristles." },
+    { label: "Best For", value: "Lobbies & retail", note: "Quiet daily upkeep." }
+  ]},
   { id: "basket-trolley-sy115", name: "Basket Trolley SY115", price: 95.0, currency: "KD", img: "topcar/basket SY115.png", images: ["topcar/basket SY115.png"], description: "Basket trolley for small shopping trips", line: "Trolleys & Baskets", category: "Trolleys & Baskets", sku: "BASKET-TROLLEY-SY115", specs: [
     { label: "Description", value: "Basket Trolley SY115", note: "Basket trolley for small shopping trips" },
     { label: "Category", value: "Trolleys & Baskets", note: "" },

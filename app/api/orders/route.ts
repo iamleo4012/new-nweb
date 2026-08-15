@@ -2,12 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { calculateBillableTotals } from "@/lib/order-workflow";
 
 export const dynamic = "force-dynamic";
 
 const orderSchema = z.object({
   customerName: z.string().min(2).max(100),
-  customerEmail: z.string().email().transform((v) => v.toLowerCase()),
+  customerEmail: z.union([
+    z.string().email(),
+    z.literal(""),
+    z.undefined(),
+  ]).transform((v) => (v ? String(v).toLowerCase() : "")).default(""),
   customerPhone: z.string().min(6).max(30),
   address: z.string().min(3).max(500),
   city: z.string().min(2).max(100),
@@ -44,6 +49,9 @@ export async function POST(req: NextRequest) {
   }
   const input = parsed.data;
 
+  // Verify products exist and are active. The website does NOT check or
+  // deduct stock — staff manually verify availability against the physical
+  // store after the order is placed.
   const slugs = Array.from(new Set(input.items.map((i) => i.slug)));
   const products = await prisma.product.findMany({ where: { slug: { in: slugs }, isActive: true } });
   const bySlug = new Map(products.map((p) => [p.slug, p]));
@@ -53,12 +61,6 @@ export async function POST(req: NextRequest) {
     if (!product) {
       return NextResponse.json(
         { success: false, data: null, error: `Product "${item.name}" is no longer available.` },
-        { status: 400 }
-      );
-    }
-    if (product.stock < item.qty) {
-      return NextResponse.json(
-        { success: false, data: null, error: `Insufficient stock for "${product.name}". Only ${product.stock} left.` },
         { status: 400 }
       );
     }
@@ -80,6 +82,7 @@ export async function POST(req: NextRequest) {
           image: product.image,
           price: product.price,
           quantity: item.qty,
+          itemStatus: "PENDING" as const,
         };
       });
       const shipping = input.shipping;
@@ -89,6 +92,13 @@ export async function POST(req: NextRequest) {
         data: {
           orderNumber: `AN-${new Date().getFullYear()}-PENDING`,
           userId: user?.id ?? null,
+          // Permanent ownership snapshot — captured once at checkout and never
+          // mutated, even if the placing account is later deleted. This is the
+          // stable ownership identifier (and historical email for records).
+          // The live userId/customerEmail above may be nulled/tombstoned on
+          // account deletion; these snapshot fields always identify the order.
+          originalUserId: user?.id ?? null,
+          originalUserEmail: user?.email ?? input.customerEmail,
           customerName: input.customerName,
           customerEmail: input.customerEmail,
           customerPhone: input.customerPhone,
@@ -101,8 +111,9 @@ export async function POST(req: NextRequest) {
           total,
           status: "PENDING",
           items: { create: orderItems },
-          statusHistory: { create: { status: "PENDING", note: "Order placed (cash on delivery)" } },
+          statusHistory: { create: { status: "PENDING", note: "Order placed" } },
         },
+        include: { items: true },
       });
 
       const orderNumber = `AN-${new Date().getFullYear()}-${String(created.id).padStart(6, "0")}`;
@@ -112,14 +123,6 @@ export async function POST(req: NextRequest) {
         include: { items: true },
       });
 
-      for (const item of input.items) {
-        const product = bySlug.get(item.slug)!;
-        await tx.product.update({
-          where: { id: product.id },
-          data: { stock: { decrement: item.qty } },
-        });
-      }
-
       return updated;
     });
 
@@ -128,18 +131,22 @@ export async function POST(req: NextRequest) {
       order: { orderNumber: order.orderNumber },
       data: {
         order: {
+          id: order.id,
           orderNumber: order.orderNumber,
           status: order.status,
           createdAt: order.createdAt,
           currency: order.currency,
-          subtotal: Number(order.subtotal),
-          shipping: Number(order.shipping),
-          total: Number(order.total),
+          ...calculateBillableTotals(
+            order.items.map((i) => ({ price: i.price, quantity: i.quantity, itemStatus: i.itemStatus })),
+            order.shipping
+          ),
           items: order.items.map((i) => ({
+            id: i.id,
             slug: i.slug,
             name: i.name,
             qty: i.quantity,
             price: Number(i.price),
+            itemStatus: i.itemStatus,
           })),
         },
       },
@@ -159,25 +166,34 @@ export async function GET() {
   if (!user) {
     return NextResponse.json({ success: false, data: null, error: "Not authenticated" }, { status: 401 });
   }
+  // Ownership is anchored to the current account's userId only — never by
+  // email. A new account reusing a previously-deleted account's email gets a
+  // fresh userId and therefore cannot match that account's old orders (which
+  // had userId nulled at deletion time). This also blocks email-reuse leaks.
   const orders = await prisma.order.findMany({
-    where: { OR: [{ userId: user.id }, { customerEmail: user.email }] },
+    where: { userId: user.id },
     include: { items: true },
     orderBy: { id: "desc" },
   });
   const payload = orders.map((o) => ({
+    id: o.id,
     orderNumber: o.orderNumber,
     status: o.status,
+    staffNotes: o.staffNotes,
     createdAt: o.createdAt,
     currency: o.currency,
-    subtotal: Number(o.subtotal),
-    shipping: Number(o.shipping),
-    total: Number(o.total),
+    ...calculateBillableTotals(
+      o.items.map((i) => ({ price: i.price, quantity: i.quantity, itemStatus: i.itemStatus })),
+      o.shipping
+    ),
     items: o.items.map((i) => ({
+      id: i.id,
       slug: i.slug,
       name: i.name,
       qty: i.quantity,
       quantity: i.quantity,
       price: Number(i.price),
+      itemStatus: i.itemStatus,
     })),
   }));
   return NextResponse.json({ success: true, orders: payload, data: payload, error: null });

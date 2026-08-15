@@ -68,8 +68,65 @@
 .dark .text-on-surface { color: var(--color-on-surface) !important; }
 .dark .text-on-surface-variant { color: var(--color-on-surface-variant) !important; }
 .dark .text-primary { color: var(--color-on-surface) !important; }
+
+/* ============================================================================
+   PAGINATION active button — Dark Mode visibility fix (all subcategory pages)
+   ----------------------------------------------------------------------------
+   Root cause: the broad rules `.dark .bg-primary { !important }` (→ black bg)
+   and `.dark .text-primary { !important }` (→ near-black text) above override
+   the pagination button's intended dark-mode classes. The active button uses
+   either `bg-primary dark:bg-white text-white dark:text-primary` (filled) or
+   `border-primary dark:border-white text-primary dark:text-white` (outlined);
+   in dark mode these collapse to black background + near-black text → the
+   current page number becomes invisible.
+
+   Fix: scope-restoring rules for the #page-numbers container only. In dark
+   mode the ACTIVE button gets a white/light surface with dark text (filled)
+   or a white border with white text (outlined) — both clearly visible. Light
+   mode is untouched. `#page-numbers` is the shared pagination container on
+   every subcategory page, so all current and future pages inherit this.
+   Specificity (`#page-numbers .dark …` = 1,0,1 + !important) beats the broad
+   `.dark .bg-primary`/`.dark .text-primary` (0,2,0) overrides.
+   ========================================================================== */
+html.dark #page-numbers button.bg-primary {
+  /* Active filled button: white surface, dark text — matches the original
+     `dark:bg-white dark:text-primary` intent that was being overridden. */
+  background-color: #ffffff !important;
+  color: #000308 !important;
+}
+html.dark #page-numbers button.text-primary:not(.bg-primary) {
+  /* Active outlined button: white text on the dark page surface. */
+  color: #ffffff !important;
+}
 .dark .text-secondary { color: var(--color-secondary) !important; }
 .dark .text-on-background { color: var(--color-on-background) !important; }
+
+/* ============================================================================
+   White-background buttons/links in dark mode  (Dark Mode button readability)
+   ----------------------------------------------------------------------------
+   Root cause: `bg-white` is NOT overridden above, so a button styled
+   `bg-white text-primary` keeps its WHITE background in dark mode, while the
+   rules just above flip `text-primary` / `text-on-surface` / `text-on-background`
+   / `text-on-surface-variant` to a LIGHT color (var(--color-on-surface) = #e8f1ff)
+   → white text on a white background = unreadable (e.g. warehouse.html
+   "Explore" / "View Products" buttons).
+
+   Fix: when an element's background deliberately stays white in dark mode,
+   keep its text dark so the button reads correctly in BOTH modes.
+     • :not([class*="dark:bg"]) excludes elements that repaint their background
+       dark via a `dark:bg-*` utility (e.g. <body class="bg-white dark:bg-[#0a0f14]
+       text-on-surface dark:text-white">), where dark text would be wrong.
+     • :not(:hover) lets an element's own `hover:text-*` (e.g. hover:text-white on
+       hover:bg-secondary) still win on hover, preserving the intended hover look.
+   #111d27 mirrors the light-mode on-surface color, so these buttons render
+   identically in light and dark mode (white pill, dark label) — no redesign.
+   ============================================================================ */
+.dark .bg-white.text-primary:not(:hover):not([class*="dark:bg"]),
+.dark .bg-white.text-on-surface:not(:hover):not([class*="dark:bg"]),
+.dark .bg-white.text-on-background:not(:hover):not([class*="dark:bg"]),
+.dark .bg-white.text-on-surface-variant:not(:hover):not([class*="dark:bg"]) {
+  color: #111d27 !important;
+}
 
 .dark .border-outline-variant { border-color: var(--color-outline-variant) !important; }
 .dark .border-primary { border-color: var(--color-on-surface) !important; }
@@ -89,6 +146,175 @@
 .dark body.bg-surface { background-color: var(--color-surface) !important; }
 .dark .glass-nav { background-color: rgba(10, 15, 20, 0.9) !important; }
 .dark #auth-panel { background-color: var(--color-surface) !important; }
+
+/* ============================================================================
+   MOBILE HEADER-OFFSET — global, dynamic, ONE centralized rule (≤767px, all pages)
+   ----------------------------------------------------------------------------
+   Root cause: every storefront page has the same fixed header
+   (<nav class="fixed w-full z-50 top-0">) but compensated for it with different
+   PAGE-SPECIFIC hard-coded top paddings (pt-20 = 5rem, pt-32 = 8rem,
+   pt-36 = 9rem, pt-[72px], or none). None matched the real header height, so
+   on many pages the header overlapped the first content; on others it left a
+   gap. The header height also varies (logo + injected utility row + wrapped
+   search row), so any fixed value is wrong somewhere.
+
+   Fix: a single mobile-scoped rule that pins EVERY page's <main> top padding
+   to --mobile-header-height, a live CSS variable published by
+   dark-overrides.js (measured from the real <nav> via ResizeObserver). No
+   page-by-page edits, no hard-coded pixels, no desktop/tablet impact.
+
+   - scroll-padding-top: keeps anchor jumps / scroll-restoration clear of the
+     fixed header (Safari/Chrome back-forward restoration included).
+   - main { padding-top }: replaces every page's pt-20/pt-32/pt-36 on mobile.
+     <main> is the universal content wrapper on all 23 storefront pages.
+   - overflow-wrap guard: pages without <main> still get scroll-padding-top.
+   Desktop/tablet (≥768px) see none of this — their original paddings remain.
+   ========================================================================== */
+@media (max-width: 767px) {
+  html {
+    /* Fallback of 0px; dark-overrides.js overrides with the measured value. */
+    scroll-padding-top: var(--mobile-header-height, 0px);
+  }
+  /* Universal content wrapper — neutralizes pt-20/pt-32/pt-36/pt-[72px] AND
+     the page-level mobile `main { padding-top: ... !important }` rules of
+     every specificity tier:
+       - bare `main`                (e.g. department/subcategory page rules)
+       - `main` with Tailwind pt-   (pt-20/pt-32/pt-36 utility classes)
+       - `#cart-main`/`#wishlist-main`/`#order-detail-root` (ID-tier, 1,0,1)
+     Each tier needs a matching-specificity selector with !important; because
+     dark-overrides.css is injected LAST (deferred dark-overrides.js), equal-
+     specificity !important rules win by source order. The explicit IDs are the
+     only ID-tier <main> rules in the codebase (audited). EXCLUDED: full-viewport
+     hero <main> (`h-screen`, e.g. cold-room / customized-packaging) — designed
+     with the translucent header floating over a centered hero, so padding-top
+     would break the layout. */
+  html main:not([class*="h-screen"]),
+  #cart-main,
+  #wishlist-main,
+  #order-detail-root {
+    padding-top: var(--mobile-header-height, 0px) !important;
+  }
+  /* Department pages (houseware/supermarket/warehouse) absolute-position a
+     breadcrumb at top-[72px] to float over a hero image. 72px is a hard-coded
+     desktop-header offset that's wrong on mobile, and absolute positioning
+     escapes main's padding-top. On mobile, make these breadcrumbs flow in
+     normal document order (static) so they sit below the header like everything
+     else. Desktop keeps the absolute hero-overlay behaviour. */
+  main [class*="breadcrumb"][class*="absolute"][class*="top-"] {
+    position: static !important;
+    top: auto !important;
+  }
+}
+
+/* ============================================================================
+   MOBILE NAV — premium clean light theme (≤767px, all pages)
+   ----------------------------------------------------------------------------
+   Light mode: solid white (#FFFFFF) header + bottom nav with black icons/text.
+   Dark mode: solid dark (#0a0f14) with white icons/text — sufficient contrast.
+   The translucent .glass-nav backdrop is replaced with a SOLID surface on
+   mobile only; desktop/tablet keep the glass effect (this block is scoped to
+   ≤767px). Reuses the existing theme system: light is the default, .dark on
+   <html> flips to the dark palette. Nothing is hard-coded to white
+   permanently — the dark override below takes precedence when dark mode is on.
+   ========================================================================== */
+@media (max-width: 767px) {
+  /* ---- Top fixed header: solid white (light) / solid dark (dark) ---- */
+  nav.fixed.top-0.glass-nav {
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: 1px solid rgba(0, 3, 8, 0.06) !important;
+  }
+  html.dark nav.fixed.top-0.glass-nav {
+    background-color: #0a0f14 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+  }
+  /* Header icons + utility text → black on white (light), white on dark (dark).
+     text-primary already resolves to #000308 in light mode, but several header
+     controls use text-white / text-on-surface-variant which are wrong on a
+     white background, so we normalise them here. Scoped to the mobile header
+     row only. */
+  nav.fixed.top-0.glass-nav .material-symbols-outlined,
+  nav.fixed.top-0.glass-nav #nassim-mobile-utils,
+  nav.fixed.top-0.glass-nav #nassim-mobile-utils .nassim-mu-btn,
+  nav.fixed.top-0.glass-nav #nassim-mobile-utils .nassim-mu-lang,
+  nav.fixed.top-0.glass-nav #nassim-mobile-utils .nassim-mu-lang .nassim-mu-opt {
+    color: #000308 !important;
+  }
+  html.dark nav.fixed.top-0.glass-nav .material-symbols-outlined,
+  html.dark nav.fixed.top-0.glass-nav #nassim-mobile-utils,
+  html.dark nav.fixed.top-0.glass-nav #nassim-mobile-utils .nassim-mu-btn,
+  html.dark nav.fixed.top-0.glass-nav #nassim-mobile-utils .nassim-mu-lang,
+  html.dark nav.fixed.top-0.glass-nav #nassim-mobile-utils .nassim-mu-lang .nassim-mu-opt {
+    color: #ffffff !important;
+  }
+  /* Mobile search input: sits on white now — keep its existing white field
+     with a subtle border so it reads as an input on the white header. Dark
+     mode keeps the translucent white field. */
+  nav.fixed.top-0.glass-nav #mobile-inline-search input[type="text"] {
+    background-color: #f7f9ff !important;
+    border-color: rgba(0, 3, 8, 0.12) !important;
+    color: #000308 !important;
+  }
+  html.dark nav.fixed.top-0.glass-nav #mobile-inline-search input[type="text"] {
+    background-color: rgba(255, 255, 255, 0.10) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+  }
+
+  /* ---- Bottom navigation: solid white (light) / solid dark (dark) ---- */
+  #mobile-bottom-nav.glass-nav {
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-top: 1px solid rgba(0, 3, 8, 0.06) !important;
+    /* Gap-below-nav fix: the OUTER fixed box owns the safe-area fill directly.
+       Previously only #mobile-bottom-nav-inner had padding-bottom:
+       env(safe-area-inset-bottom), so on iPhone the inner icons were lifted
+       above the Home Indicator but the outer background relied on bottom:0
+       alone to cover the safe-area strip. During iOS Safari/Chrome toolbar
+       transitions a fixed box without its own safe-area padding can briefly
+       expose the body background at the very bottom edge → thin visible gap
+       / "floating" hairline. Putting the inset on the outer element makes the
+       solid white/dark background own that strip via its own box model, so
+       there is never a seam. No negative margins, no hard-coded offsets. */
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    /* The upward glass-era shadow (shadow-[0_-20px_40px_rgba(0,3,8,0.04)]) was
+       designed for a translucent floating bar. Against the new solid surface it
+       reads as a faint floating hairline, so it is removed on mobile. The
+       border-top above still separates the nav from page content. */
+    box-shadow: none !important;
+  }
+  html.dark #mobile-bottom-nav.glass-nav {
+    background-color: #0a0f14 !important;
+    border-top-color: rgba(255, 255, 255, 0.08) !important;
+  }
+  /* The inner container no longer needs to handle the Home Indicator inset —
+     the outer element does it now (above). Resetting this avoids double
+     padding (which would make the nav taller than its reserved body space and
+     could re-introduce a seam). Icons keep their normal vertical rhythm. */
+  #mobile-bottom-nav-inner { padding-bottom: 0 !important; }
+  /* Bottom-nav icons + labels → black on white (light). The active/hover
+     accent (secondary) is preserved by specificity below. */
+  #mobile-bottom-nav .mbnav-item {
+    color: #000308 !important;
+  }
+  html.dark #mobile-bottom-nav .mbnav-item {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+}
+/* Active + hover accents for the bottom nav — kept OUTSIDE the max-width:767px
+   block above so their higher specificity always wins over the base
+   .mbnav-item colour, in both themes. (These mirror the values already used
+   across the inline per-page <style> blocks, centralised here so the new
+   solid-white background reads correctly on every page.) */
+@media (max-width: 767px) {
+  #mobile-bottom-nav .mbnav-item:hover { color: #825335 !important; }
+  html.dark #mobile-bottom-nav .mbnav-item:hover { color: #f7b994 !important; }
+  #mobile-bottom-nav .mbnav-item.mbnav-active { color: #825335 !important; }
+  html.dark #mobile-bottom-nav .mbnav-item.mbnav-active { color: #f7b994 !important; }
+  /* Active icon fill stays as-is (set inline per page) — not overridden. */
+}
 .dark #quickview-modal-content { background-color: var(--color-surface-container-lowest) !important; }
 .dark .product-image-container.active-spotlight { background-color: var(--color-surface-container) !important; }
 
@@ -99,6 +325,230 @@
 
 /* Loading skeleton */
 .dark #product-title { color: #e8f1ff !important; }
+
+/* ============================================================================
+   MOBILE PRODUCT CARD — premium unified elevated card (≤767px, all listing pages)
+   ----------------------------------------------------------------------------
+   Problem: the subcategory listing card was `background: transparent` with the
+   image rounded, then a 0.45rem gap, then name/price, then an ATC pinned below
+   — all sitting on the page background. Image, text and button read as three
+   detached elements. This block turns the whole <article> into ONE elevated
+   card that visually contains the image, wishlist, name, price and Add to Cart.
+
+   Loaded via dark-overrides.css (auto-injected on every page AFTER the inline
+   per-page <style>), so it overrides the inline `background: transparent` by
+   source order. Scoped to max-width:767px → desktop/tablet untouched. Desktop
+   keeps its original transparent card (the inline `@media (min-width:768px)`
+   rule already hides .sc-atc/.sc-wish there).
+
+   Reuses theme tokens: #ffffff / var(--color-surface) for the card surface,
+   #000308 / #ffffff for text, #825335 accent. Premium soft shadow + 0.75rem
+   radius + comfortable internal padding. Card dimensions, aspect ratio, grid
+   layout and all JS behaviour are unchanged — pure presentation.
+   ========================================================================== */
+@media (max-width: 767px) {
+  /* The card container itself: solid elevated surface wrapping everything. */
+  #product-grid > article.group {
+    background-color: #ffffff !important;
+    border-radius: 0.75rem !important;
+    /* Soft premium elevation — multiple low-opacity shadows, no harsh edge */
+    box-shadow:
+      0 1px 2px rgba(0, 3, 8, 0.04),
+      0 4px 16px rgba(0, 3, 8, 0.06) !important;
+    /* Comfortable internal padding so image + text + button breathe as one */
+    padding: 0.5rem !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(0, 3, 8, 0.05) !important;
+  }
+  html.dark #product-grid > article.group {
+    /* Dark surface reusing the existing theme palette (matches surface-container) */
+    background-color: #141a22 !important;
+    border-color: rgba(255, 255, 255, 0.07) !important;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.30),
+      0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  }
+
+  /* Image: now integrated INTO the card. Drop the old detached rounded box
+     background/spacing — the card padding provides the margin instead. Keeps
+     the existing 1:1 aspect-ratio and object-fit:cover. */
+  #product-grid > article.group > div:first-child {
+    aspect-ratio: 1 / 1 !important;
+    margin-bottom: 0.55rem !important;            /* consistent gap to the title */
+    border-radius: 0.5rem !important;             /* slightly tighter than the card */
+    overflow: hidden !important;
+    background: #f2f5fa !important;               /* subtle fill behind transparent product shots */
+    flex-shrink: 0 !important;
+  }
+  html.dark #product-grid > article.group > div:first-child { background: #1f2630 !important; }
+  #product-grid > article.group > div:first-child img {
+    width: 100% !important; height: 100% !important; object-fit: cover !important;
+  }
+
+  /* Info column — unified spacing inside the card */
+  #product-grid > article.group > div:nth-child(2) {
+    margin-top: 0 !important; gap: 0.15rem !important; position: relative;
+    flex: 1 1 auto !important; display: flex !important; flex-direction: column !important;
+  }
+  #product-grid > article.group h3 {
+    color: #000308 !important;
+  }
+  html.dark #product-grid > article.group h3 { color: #ffffff !important; }
+  #product-grid > article.group span.text-secondary,
+  #product-grid > article.group span[class*="text-sm font-medium text-secondary"] {
+    color: #825335 !important;
+  }
+  html.dark #product-grid > article.group span.text-secondary,
+  html.dark #product-grid > article.group span[class*="text-sm font-medium text-secondary"] {
+    color: #f7b994 !important;   /* secondary-fixed-dim — existing dark accent */
+  }
+
+  /* Wishlist button — sits inside the card image (top-right), unchanged behaviour.
+     The card's overflow:hidden is fine because .sc-wish is absolute within the
+     image box, which is itself overflow:hidden — it stays visible there. */
+  .sc-wish {
+    position: absolute; top: 0.45rem; right: 0.45rem; z-index: 3;
+    width: 34px; height: 34px; border-radius: 9999px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.92); color: #44474b;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer; border: none; padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sc-wish .material-symbols-outlined { font-size: 18px; }
+  .sc-wish.is-on { color: #ef4444; }
+  .sc-wish.is-on .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+  html.dark .sc-wish { background: rgba(10, 15, 20, 0.82); color: rgba(255, 255, 255, 0.85); }
+
+  /* Add to Cart — now lives INSIDE the card, pinned to the bottom edge.
+     margin-top:auto still aligns all ATCs in a row; the card padding wraps it. */
+  .sc-atc {
+    margin-top: auto !important; width: 100%;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;
+    background: #000308 !important; color: #fff !important;
+    font-family: 'Manrope', sans-serif; font-size: 0.64rem; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 0.6rem 0.4rem; border-radius: 0.5rem; border: none;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .sc-atc:active { background: #825335 !important; }
+  .sc-atc .material-symbols-outlined { font-size: 16px; }
+  html.dark .sc-atc { background: #ffffff !important; color: #000308 !important; }
+  html.dark .sc-atc:active { background: #825335 !important; color: #fff !important; }
+}
+
+/* ============================================================================
+   MOBILE UNIFIED PREMIUM CARD — Wishlist + Cart line-items + "You May Also Like"
+   ----------------------------------------------------------------------------
+   Applies the EXACT same card spec as the subcategory listing cards above to
+   every other mobile product surface, so the whole shopping experience shares
+   one design system: solid white (light) / #141a22 (dark) surface, 0.75rem
+   radius, soft two-layer elevation, 1px hairline border, comfortable padding.
+   Scoped to max-width:767px → desktop/tablet untouched. No layout, no JS, no
+   selector the existing cart/wishlist/YML logic depends on is changed.
+   ========================================================================== */
+@media (max-width: 767px) {
+  /* ---- WISHLIST CARD ----
+     Was `background: transparent` (image/name/ATC detached). Now one elevated
+     card containing the image, un-heart button, name, price and Add to Cart. */
+  #wishlist-container .wishlist-card {
+    background-color: #ffffff !important;
+    border-radius: 0.75rem !important;
+    box-shadow:
+      0 1px 2px rgba(0, 3, 8, 0.04),
+      0 4px 16px rgba(0, 3, 8, 0.06) !important;
+    padding: 0.5rem !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(0, 3, 8, 0.05) !important;
+  }
+  html.dark #wishlist-container .wishlist-card {
+    background-color: #141a22 !important;
+    border-color: rgba(255, 255, 255, 0.07) !important;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.30),
+      0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  }
+  /* Image well reuses the listing card's subtle fill + tighter inner radius */
+  #wishlist-container .wishlist-card .wl-img-wrap {
+    background: #f2f5fa !important;
+    border-radius: 0.5rem !important;
+    margin-bottom: 0.55rem !important;
+  }
+  html.dark #wishlist-container .wishlist-card .wl-img-wrap { background: #1f2630 !important; }
+
+  /* ---- CART LINE-ITEM CARD ----
+     Already had a white bg + shadow; upgraded to the IDENTICAL spec (radius
+     0.75rem, two-layer elevation, hairline border) so it matches the listing
+     and wishlist cards exactly. Layout (row: image | info) and all quantity /
+     remove / wishlist-button logic are unchanged. */
+  #cart-items-container .cart-item {
+    background-color: #ffffff !important;
+    border-radius: 0.75rem !important;
+    box-shadow:
+      0 1px 2px rgba(0, 3, 8, 0.04),
+      0 4px 16px rgba(0, 3, 8, 0.06) !important;
+    border: 1px solid rgba(0, 3, 8, 0.05) !important;
+    padding: 0.6rem !important;
+  }
+  html.dark #cart-items-container .cart-item {
+    background-color: #141a22 !important;
+    border-color: rgba(255, 255, 255, 0.07) !important;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.30),
+      0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  }
+  /* Image well fill matches the unified system */
+  #cart-items-container .cart-item > div:first-child { background: #f2f5fa !important; }
+  html.dark #cart-items-container .cart-item > div:first-child { background: #1f2630 !important; }
+  /* Quantity selector group: integrate cleanly into the card bottom row with a
+     subtle surface so the - / qty / + reads as one control inside the card. */
+  #cart-items-container .cart-item .quantity-btn-minus,
+  #cart-items-container .cart-item .quantity-btn-plus {
+    background: rgba(0, 3, 8, 0.04) !important;
+  }
+  html.dark #cart-items-container .cart-item .quantity-btn-minus,
+  html.dark #cart-items-container .cart-item .quantity-btn-plus {
+    background: rgba(255, 255, 255, 0.07) !important;
+  }
+  /* Remove / wishlist icon buttons keep their existing pill shape; just ensure
+     they sit on a surface that matches the card (not a harsh grey). */
+  #cart-items-container .cart-item .remove-btn,
+  #cart-items-container .cart-item .wishlist-btn {
+    background: rgba(0, 3, 8, 0.04) !important;
+  }
+  html.dark #cart-items-container .cart-item .remove-btn,
+  html.dark #cart-items-container .cart-item .wishlist-btn {
+    background: rgba(255, 255, 255, 0.07) !important;
+  }
+
+  /* ---- "YOU MAY ALSO LIKE" RECOMMENDATION CARD (cart.html) ----
+     Was `background: transparent` (image/name/ATC detached). Now matches the
+     listing card exactly. The "View Product" button is NOT reintroduced
+     (remains display:none from the earlier rule). Card-tap → Product View via
+     product-nav.js is unchanged; ATC stays isolated via SKIP_SELECTOR. */
+  main > section.mt-32 .product-card {
+    background-color: #ffffff !important;
+    border-radius: 0.75rem !important;
+    box-shadow:
+      0 1px 2px rgba(0, 3, 8, 0.04),
+      0 4px 16px rgba(0, 3, 8, 0.06) !important;
+    padding: 0.5rem !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(0, 3, 8, 0.05) !important;
+  }
+  html.dark main > section.mt-32 .product-card {
+    background-color: #141a22 !important;
+    border-color: rgba(255, 255, 255, 0.07) !important;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.30),
+      0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  }
+  main > section.mt-32 .product-image-container {
+    background: #f2f5fa !important;
+    border-radius: 0.5rem !important;
+  }
+  html.dark main > section.mt-32 .product-image-container { background: #1f2630 !important; }
+}
 
 /* Fix product view buttons: override Tailwind's dark: utilities that resolve to light colors */
 .dark .bg-surface\/80,
@@ -114,3 +564,247 @@
 .dark .dark\:bg-surface-container\/90 {
   background-color: rgba(23, 29, 37, 0.9) !important;
 }
+
+/* Footer contact icons: always white on the dark footer background */
+footer .text-primary.material-symbols-outlined {
+  color: #ffffff !important;
+}
+
+/* ============================================================================
+   Account side-panel menu items (Edit Profile, My Orders, Wishlist)
+   Dark-mode-only hover: keep background transparent, make the text/icon/chevron
+   the visual focus by switching to the secondary accent color, scaling the
+   label up ~15% and bumping weight, with a smooth 200–300ms transition.
+   Light mode and all other panel rows (admin dashboard items) are
+   untouched — only elements carrying the .nassim-account-item marker react.
+   (Logout also carries the marker but keeps its red identity via the
+   .text-error-scoped block below.)
+   ============================================================================ */
+.dark .nassim-account-item {
+  background-color: transparent !important;
+  transition: background-color 250ms ease, color 250ms ease, font-size 250ms ease, font-weight 250ms ease;
+}
+/* Suppress the light grey/white hover background in dark mode */
+.dark .nassim-account-item:hover,
+.dark .nassim-account-item:focus-visible {
+  background-color: transparent !important;
+}
+/* Icon, label and chevron all shift to the accent (secondary) color on hover */
+.dark .nassim-account-item:hover .material-symbols-outlined,
+.dark .nassim-account-item:focus-visible .material-symbols-outlined,
+.dark .nassim-account-item:hover .font-headline,
+.dark .nassim-account-item:focus-visible .font-headline {
+  color: var(--color-secondary) !important;
+}
+/* Label grows ~15% (text-sm 0.875rem -> ~1.0rem) and becomes slightly bolder */
+.dark .nassim-account-item:hover .font-headline,
+.dark .nassim-account-item:focus-visible .font-headline {
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+}
+
+/* ----------------------------------------------------------------------------
+   Logout row: reuse the shared hover behaviour (transparent bg, ~15% size bump,
+   weight 800, 250ms transition) but keep its RED identity. The icon/label/chevron
+   stay red in both the rest and hover states; hover uses a slightly brighter red
+   for better visibility against the dark panel. Scoped via both marker classes so
+   other red rows (if any) are unaffected.
+   ---------------------------------------------------------------------------- */
+.dark .nassim-account-item.text-error,
+.dark .nassim-account-item.text-error .material-symbols-outlined,
+.dark .nassim-account-item.text-error .font-headline {
+  /* inherit transition already declared on .nassim-account-item */
+}
+.dark .nassim-account-item.text-error .material-symbols-outlined,
+.dark .nassim-account-item.text-error .font-headline,
+.dark .nassim-account-item.text-error .material-symbols-outlined.ml-auto {
+  color: var(--color-error) !important;
+}
+.dark .nassim-account-item.text-error:hover .material-symbols-outlined,
+.dark .nassim-account-item.text-error:hover .font-headline,
+.dark .nassim-account-item.text-error:focus-visible .material-symbols-outlined,
+.dark .nassim-account-item.text-error:focus-visible .font-headline {
+  color: #ff6b6b !important;            /* slightly brighter red on hover */
+}
+.dark .nassim-account-item.text-error:hover .font-headline,
+.dark .nassim-account-item.text-error:focus-visible .font-headline {
+  font-size: 1rem !important;           /* matches the ~15% bump of other rows */
+  font-weight: 800 !important;          /* matches the weight of other rows */
+}
+
+/* ============================================================================
+   MOBILE OVERSCROLL FIX (≤767px) — cross-browser
+   ----------------------------------------------------------------------------
+   Root cause: <html> had a TRANSPARENT background and overscroll-behavior was
+   the default "auto". On iOS Safari/Chrome (WebKit) the rubber-band overscroll
+   reveals the <html> background — which was transparent — so a blank white
+   area appeared above the header (pull-to-refresh direction) and below the
+   footer (overscroll past the end). Android Chrome showed a similar glow.
+   Desktop/tablet are NOT affected (this whole block is scoped to ≤767px).
+
+   Fix (two layers for resilience):
+   1) overscroll-behavior-y: none — disables the bounce/chain on the scroller
+      so the document stops cleanly at its top/bottom edges. Supported on
+      iOS Safari 16+, iOS Chrome, and Android Chrome. Does not affect momentum
+      scrolling, sticky positioning, or carousels (which manage their own
+      overflow context).
+   2) Solid <html> background — for any device that still rubber-bands, the
+      revealed area now matches the page surface color (light/dark) instead of
+      white, so no blank gap is ever visible.
+   This block is loaded site-wide via dark-overrides.js (no per-page edits).
+   ============================================================================ */
+@media (max-width: 767px) {
+  html {
+    /* solid backdrop so overscroll can never reveal white (light + dark) */
+    background-color: #f7f9ff;
+    overscroll-behavior-y: none;
+    /* keep smooth/inertial scrolling; only kill the bounce chain */
+    -webkit-overflow-scrolling: touch;
+  }
+  html.dark {
+    background-color: #0a0f14;
+  }
+  body {
+    overscroll-behavior-y: none;
+  }
+
+  /* ---- Mobile search input: prevent iOS auto-zoom-on-focus. ----
+     iOS Safari/Chrome (WebKit) automatically zoom the viewport when a form
+     input with a font-size BELOW 16px receives focus, and often fails to zoom
+     back out when the field blurs — leaving the page stuck at an enlarged
+     scale. The mobile search bar uses Tailwind `text-sm` (14px), which trips
+     this behaviour. Forcing >=16px on mobile removes the trigger entirely, so
+     focusing the search feels native and dismissing the keyboard leaves the
+     page at its original scale. Desktop/tablet (>=768px) keep text-sm.
+     This does NOT touch the viewport meta, does NOT disable pinch-to-zoom,
+     and does NOT set maximum-scale/user-scalable — accessibility is intact. */
+  #mobile-inline-search-input,
+  #mobile-inline-search input[type="text"] {
+    font-size: 16px !important;
+  }
+
+  /* ========================================================================
+     MOBILE HEADER — premium two-row layout (≤767px)
+     ------------------------------------------------------------------------
+     Row 1: large logo (left) + utility controls: Download, EN|AR, Theme (right)
+     Row 2: full-width search bar
+     Desktop/tablet are untouched (this whole block is scoped to ≤767px).
+
+     Implementation notes:
+     - The header <nav>'s inner flex container is switched to flex-wrap so the
+       search bar (forced to 100% width) wraps onto a second row.
+     - The hamburger (#hamburger-slot) is HIDDEN from the header layout, but the
+       element stays in the DOM so mobile-nav.js + the bottom-nav Categories
+       button (which calls #hamburger-slot.click()) keep working unchanged.
+     - The desktop utility buttons are `hidden md:block`, so on mobile they are
+       gone. A small injector (dark-overrides.js) builds a mobile-only utility
+       row (#nassim-mobile-utils) with Download / EN|AR / Theme toggle. The
+       theme toggle reuses id="theme-toggle" so theme.js wires it automatically
+       and keeps it in sync with the desktop toggle (no second implementation).
+     ======================================================================== */
+  /* The header's inner container: wrap so the search drops to row 2 */
+  nav.fixed.top-0 > .flex.justify-between {
+    flex-wrap: wrap !important;
+    column-gap: 0.5rem !important;
+    row-gap: 0.4rem !important;
+  }
+  /* Logo group: row 1, left. Enlarge the logo vs. the old mobile h-9 (2.25rem);
+     use 2.5rem so branding is the primary visual element without crowding row 1. */
+  nav.fixed.top-0 .flex.items-center.gap-12 > a[href="home.html"] img,
+  nav.fixed.top-0 a[href="home.html"] > img {
+    height: 2.5rem !important;
+  }
+  /* The desktop department-links wrapper (hidden md:flex) stays hidden on mobile */
+  /* The mobile search: full width -> forces it onto row 2 */
+  nav.fixed.top-0 #mobile-inline-search {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  /* HIDE the hamburger from the header (element kept in DOM for Categories nav) */
+  nav.fixed.top-0 #hamburger-slot {
+    display: none !important;
+  }
+  /* The mobile utility row (injected by JS) — sits at the right of row 1 */
+  #nassim-mobile-utils {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    margin-left: auto !important;
+    flex-shrink: 0 !important;
+  }
+  #nassim-mobile-utils .nassim-mu-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 0 0.4rem !important;
+    border-radius: 0.625rem !important;
+    background: transparent !important;
+    border: none !important;
+    color: #000308 !important;
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent !important;
+    transition: background-color .2s ease !important;
+  }
+  #nassim-mobile-utils .nassim-mu-btn:active { background: rgba(0,3,8,0.06) !important; }
+  html.dark #nassim-mobile-utils .nassim-mu-btn { color: #ffffff !important; }
+  html.dark #nassim-mobile-utils .nassim-mu-btn:active { background: rgba(255,255,255,0.08) !important; }
+  #nassim-mobile-utils .nassim-mu-btn .material-symbols-outlined { font-size: 22px !important; }
+  /* EN|AR selector */
+  #nassim-mobile-utils .nassim-mu-lang {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    user-select: none !important;
+  }
+  #nassim-mobile-utils .nassim-mu-lang .nassim-mu-sep { opacity: 0.35 !important; margin: 0 0.15rem !important; font-weight: 400 !important; }
+  #nassim-mobile-utils .nassim-mu-lang .nassim-mu-opt { padding: 0.1rem 0.2rem !important; border-radius: 0.3rem !important; transition: color .2s ease, opacity .2s ease !important; }
+  #nassim-mobile-utils .nassim-mu-lang .nassim-mu-opt.is-active { color: #825335 !important; }
+  html.dark #nassim-mobile-utils .nassim-mu-lang .nassim-mu-opt.is-active { color: #f7b994 !important; }
+  #nassim-mobile-utils .nassim-mu-lang .nassim-mu-opt:not(.is-active) { opacity: 0.55 !important; }
+}
+@media (min-width: 768px) {
+  /* The injected mobile utility row is mobile-only — never show on desktop/tablet */
+  #nassim-mobile-utils { display: none !important; }
+}
+
+/* ============================================================================
+   FLOATING WHATSAPP BUTTON — MOBILE OVERLAP FIX (all pages, centralized)
+   ----------------------------------------------------------------------------
+   ROOT CAUSE: The WhatsApp <a> uses Tailwind `bottom-[5rem]` (80px) with
+   `z-[100]`, while the fixed bottom nav (`#mobile-bottom-nav`) is ~60px tall
+   (3.75rem) PLUS the device safe-area inset, pinned to `bottom: 0` at z-[90].
+   On notched/iOS devices the nav is taller than 80px, so the WhatsApp button
+   (higher z-index) sits on top of and partially covers the Cart icon.
+
+   FIX: On mobile (≤767px) only, lift the WhatsApp button so its bottom edge
+   clears the entire nav height (3.75rem) + a ~20px gap (1.25rem) + the iOS
+   safe-area inset. Desktop (md:bottom-6 = 1.5rem) is untouched.
+
+   The selector targets the anchor by its wa.me href so it works on every page
+   regardless of minor class/markup differences between templates. This file is
+   auto-injected on all storefront pages by assets/js/dark-overrides.js.
+   ============================================================================ */
+@media (max-width: 767px) {
+  a[href*="wa.me"] {
+    /* Lift the button so its bottom edge clears the entire fixed bottom nav
+       (3.75rem tall) + a ~20px gap (1.25rem) + the iOS safe-area inset.
+       !important overrides the Tailwind CDN `bottom-[5rem]` utility (equal
+       specificity, but this stylesheet loads later). z-index keeps it above
+       the nav (z-[90]) without ever covering it. */
+    bottom: calc(3.75rem + 1.25rem + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 100 !important;
+  }
+}
+@media (min-width: 768px) {
+  /* Desktop/tablet: ensure the original `md:bottom-6` (1.5rem) is honored and
+     the mobile override never leaks up. */
+  a[href*="wa.me"] {
+    bottom: 1.5rem !important;
+  }
+}
+
+

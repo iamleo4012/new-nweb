@@ -18,7 +18,7 @@ export async function GET() {
     images: p.images,
     description: p.description,
     line: p.line,
-    category: p.category.slug,
+    category: p.category.name,
     sku: p.sku,
     specs: p.specs,
   }));

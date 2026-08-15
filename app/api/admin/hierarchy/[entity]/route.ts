@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { requireStaff } from "@/lib/auth";
+import { requireStaff, requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -200,8 +200,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ en
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ entity: string }> }) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  // Deleting hierarchy records (departments/sections/categories/subcategories)
+  // is a destructive action that can cascade to products.
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
   const { entity } = await params;
   if (!isEntity(entity)) {
     return NextResponse.json({ success: false, data: null, error: "Unknown entity" }, { status: 404 });
@@ -229,7 +231,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ e
   }
 
   await prisma.auditLog.create({
-    data: { actorId: staff.id, action: "HIER_DELETE", entity, entityId: String(id), detail: "" },
+    data: { actorId: admin.id, action: "HIER_DELETE", entity, entityId: String(id), detail: "" },
   });
   return NextResponse.json({ success: true, data: { deleted: id }, error: null });
 }

@@ -1,0 +1,1026 @@
+﻿<!DOCTYPE html>
+
+<html lang="en"><head>
+<script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"||(!s&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<link rel="icon" href="/LOGO.png" type="image/png"/>
+<title>Customized Packaging Solutions — AL-NASSIM</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "outline": "#74777c", "surface-variant": "#d8e4f3", "on-tertiary-fixed": "#2a170e",
+              "on-primary-fixed": "#111d27", "on-surface-variant": "#44474b", "on-background": "#111d27",
+              "surface-container-low": "#edf4ff", "primary-container": "#131e29", "on-secondary-fixed": "#321300",
+              "surface-bright": "#f7f9ff", "tertiary-fixed-dim": "#e3bfb1", "surface-dim": "#d0dbea",
+              "inverse-on-surface": "#e8f1ff", "on-tertiary": "#ffffff", "on-surface": "#111d27",
+              "on-error-container": "#93000a", "on-secondary-fixed-variant": "#673c20", "primary-fixed-dim": "#bcc8d7",
+              "on-error": "#ffffff", "on-primary-fixed-variant": "#3d4854", "on-primary-container": "#7b8694",
+              "on-tertiary-fixed-variant": "#5a4137", "inverse-surface": "#27313d", "secondary": "#825335",
+              "outline-variant": "#c4c6cc", "tertiary": "#090100", "error": "#ba1a1a",
+              "secondary-fixed-dim": "#f7b994", "surface-container-highest": "#d8e4f3",
+              "surface-container-high": "#dee9f9", "error-container": "#ffdad6", "secondary-fixed": "#ffdbc8",
+              "surface-container": "#e4efff", "surface": "#f7f9ff", "surface-tint": "#545f6c",
+              "background": "#f7f9ff", "on-tertiary-container": "#9e7e72", "primary-fixed": "#d8e4f3",
+              "on-secondary": "#ffffff", "tertiary-fixed": "#ffdbcd", "on-secondary-container": "#794b2e",
+              "primary": "#000308", "on-primary": "#ffffff", "tertiary-container": "#2c1810",
+              "inverse-primary": "#bcc8d7", "surface-container-lowest": "#ffffff",
+              "primary-fixed-dim": "#bcc8d7"
+            },
+            fontFamily: { "headline": ["Manrope"], "display": ["Manrope"], "body": ["Inter"], "label": ["Inter"] },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
+            vertical-align: middle
+        }
+        body {
+            font-family: "Inter", sans-serif
+        }
+        h1, h2, h3, .nav-item {
+            font-family: "Manrope", sans-serif
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none
+        }
+        /* Custom Checkbox Style */
+        input[type="checkbox"] {
+            appearance: none;
+            background-color: transparent;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 14px;
+            height: 14px;
+            border: 1px solid #74777c;
+            border-radius: 2px;
+            display: grid;
+            place-content: center;
+            cursor: pointer
+        }
+        input[type="checkbox"]::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #000308;
+            border-radius: 1px
+        }
+        input[type="checkbox"]:checked::before {
+            transform: scale(1)
+        }
+        /* Accordion styles */
+        details summary::-webkit-details-marker {
+            display: none
+        }
+        details[open] .arrow-icon {
+            transform: rotate(180deg)
+        }
+        /* Editorial Grain Effect */
+        .editorial-bg {
+            background-color: #f7f9ff;
+            background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuDhnFJt8MYgJ47FKf6Xv9btYysJpoh2r5wBRryFaPZngghro_jm88LEdsOCiqUtK3wGV_QWqBtTC-W8mJRkIm5RYMIcJgQkTUElEfEPkWD7_0vzJdRJwVjsGLBwAW16rtgV17yuBVnBsjf1ihkW1wGDY971ItV5nH1hALHFgPcGkFPgzmrjmOIzB9-fiomGQiBbX9pOT58Ng5HLNYUhRnQp9Nu3MU0rBIiZokFdhJjjH7K6DUWcWBwM0xGeKvXUEtMpNygEFxzaP7g)
+        }
+        .glass-nav {
+            background: rgba(247, 249, 255, 0.7);
+            backdrop-filter: blur(20px);
+        }
+        .dark-glass-dropdown {
+            background: rgba(247, 249, 255, 1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 3, 8, 0.1);
+            border-radius: 1rem;
+        }
+        .dark .dark-glass-dropdown {
+            background: rgba(255, 255, 255, 1);
+        }
+        .dark .dark-glass-dropdown a {
+            color: #111d27 !important;
+        }
+        .dark .dark-glass-dropdown a:hover {
+            color: #825335 !important;
+        }
+        /* Dropdown Trigger Logic */
+        /* Dropdown show/hide is now JS-driven (250ms close delay) */
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            }
+
+        /* Loading Screen Styles */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(247, 249, 255, 0.98);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        .dark #loading-screen {
+            background: rgba(10, 15, 20, 0.98);
+        }
+        .loading-dots {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .loading-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #000308 0%, #825335 100%);
+            animation: bounce 0.6s infinite alternate;
+        }
+        .dark .loading-dot {
+            background: linear-gradient(135deg, #ffffff 0%, #d8e4f3 100%);
+        }
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes bounce {
+            from {
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+            to {
+                transform: translateY(-20px);
+                opacity: 1;
+            }
+        }
+        /* Page-specific: Hero animations */
+        .fade-in-up {
+            animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .hero-overlay {
+            background: linear-gradient(to bottom, rgba(0,3,8,0.4) 0%, rgba(0,3,8,0.7) 100%);
+        }
+
+        /* =====================================================================
+           MOBILE HERO REDESIGN — Custom Packaging only (≤767px)
+           ------------------------------------------------------------------------
+           Mirrors the premium treatment already shipped on cold-room.html but
+           adapted to this page's structure (plain content wrapper, <button> CTA,
+           single .hero-overlay). Desktop/tablet are completely untouched.
+
+           - Fills exactly the first mobile viewport (100dvh) so the footer is
+             never visible on initial load.
+           - Re-balances content upward: ~22dvh breathing room above, content
+             stacked top-down (eyebrow → heading → paragraph → CTA).
+           - Repositions the background so the worker / box / hands (subject
+             sits centered, upper-middle) stay the focus on a portrait crop.
+           - Adds a two-layer scrim for legibility without dimming the subject.
+           - Reserves bottom space so the floating WhatsApp button (centrally
+             positioned via dark-overrides.css) can never overlap the CTA.
+           ===================================================================== */
+        @media (max-width: 767px) {
+            /* ---- Height: fill the first mobile viewport, nothing more ---- */
+            main.relative.h-screen {
+                height: 100dvh !important;
+                min-height: 480px !important;
+                max-height: 900px !important;
+                /* Switch from vertically-centred to top-aligned so content
+                   sits in the upper-middle with breathing room above. */
+                justify-content: flex-start !important;
+                align-items: center !important;
+                padding-top: calc(22dvh - 1rem) !important;   /* ~22% breathing room above */
+                padding-bottom: calc(14dvh + 4rem) !important; /* clear bottom nav + WhatsApp float */
+                padding-left: 1.5rem !important;
+                padding-right: 1.5rem !important;
+            }
+
+            /* ---- Background image crop: keep worker/box/hands in view ---- */
+            main.relative.h-screen .absolute.inset-0.z-0 img {
+                object-position: 50% 35% !important;
+            }
+
+            /* ---- Premium two-layer scrim over the existing .hero-overlay ---- */
+            main.relative.h-screen .hero-overlay {
+                background-image:
+                    linear-gradient(to top, rgba(0,3,8,0.72) 0%, rgba(0,3,8,0.30) 42%, rgba(0,3,8,0.10) 70%, rgba(0,3,8,0.28) 100%),
+                    linear-gradient(to bottom, rgba(0,3,8,0.30) 0%, rgba(0,3,8,0.10) 35%, rgba(0,3,8,0.05) 100%)
+                    !important;
+            }
+
+            /* ---- Content wrapper: full-width, left edge clean, stacked ---- */
+            main.relative.h-screen > .relative.z-10 {
+                max-width: 100% !important;
+                width: 100% !important;
+                text-align: center !important;
+                align-items: center !important;
+            }
+
+            /* ---- Eyebrow badge ---- */
+            main.relative.h-screen > .relative.z-10 > .fade-in-up:first-child {
+                margin-bottom: 1rem !important;
+            }
+            main.relative.h-screen > .relative.z-10 > .fade-in-up:first-child span {
+                font-size: 0.5625rem !important;
+                letter-spacing: 0.28em !important;
+                padding: 0.3rem 0.7rem !important;
+            }
+
+            /* ---- Heading ---- */
+            main.relative.h-screen h1 {
+                font-size: 1.95rem !important;
+                line-height: 1.06 !important;
+                letter-spacing: -0.02em !important;
+                margin-bottom: 0.85rem !important;
+            }
+
+            /* ---- Supporting paragraph ---- */
+            main.relative.h-screen p {
+                font-size: 0.875rem !important;
+                line-height: 1.55 !important;
+                max-width: 22rem !important;
+                margin-bottom: 1.75rem !important;
+                color: rgba(255,255,255,0.84) !important;
+            }
+
+            /* ---- CTA: compact, premium, never under the WhatsApp float ---- */
+            main.relative.h-screen button {
+                padding: 0.85rem 1.4rem !important;
+                border-radius: 9999px !important;
+                font-size: 0.6875rem !important;
+                letter-spacing: 0.12em !important;
+                box-shadow: 0 8px 28px rgba(0,0,0,0.30) !important;
+            }
+            main.relative.h-screen button > span.font-headline {
+                font-size: 0.6875rem !important;
+            }
+            main.relative.h-screen button .material-symbols-outlined {
+                font-size: 1.05rem !important;
+            }
+        }
+    </style>
+
+</head>
+<body class="bg-background text-on-surface dark:bg-[#0a0f14] dark:text-white">
+<!-- Loading Screen -->
+<div id="loading-screen">
+    <div class="loading-dots">
+        <div class="loading-dot"></div>
+<!-- fail-safe loader removal -->
+<script>setTimeout(function(){var l=document.getElementById("loading-screen");if(l){l.style.display="none";}},3000);</script>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+    </div>
+</div>
+
+<!-- TopAppBar Section -->
+<nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 top-0">
+<div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-12">
+<a href="home.html" class="flex items-center gap-2 group cursor-pointer shrink-0">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/>
+</a>
+<div class="hidden md:flex gap-8">
+<!-- Nav Items with Dropdowns -->
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="subcategoryui.html">Cleaning Tools</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="home-outdoor.html">Home & Outdoor</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="kitchenware.html">Kitchenware</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="cooling.html">Cooling Appliances</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trolly.html">Trolleys & Baskets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="shelves.html">Shelves & Stands</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="checkout-solutions.html">Checkout Solutions</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="accessories.html">Accessories</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1">
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trollies.html">Trolleys & Baskets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="forklift.html">Forklifts & Pallets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="rack.html">Heavy Duty Racking</a></li>
+</ul>
+</div>
+</div>
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a>
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+</div>
+</div>
+<!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
+     direct flex child of the header row so all three elements share the same
+     vertical centre via the parent items-center. The search icon lives inside a
+     <label> so search.js bindTriggers() skips it. -->
+<form class="flex-1 mx-2 md:hidden relative m-0" id="mobile-inline-search" role="search" autocomplete="off">
+<label class="absolute inset-y-0 left-2 flex items-center pointer-events-none" for="mobile-inline-search-input">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-white/60" style="font-size:20px;">search</span>
+</label>
+<input id="mobile-inline-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-full h-9 pl-8 pr-3 rounded-lg bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 outline-none focus:ring-2 focus:ring-primary/40 transition"/>
+</form>
+<div class="flex items-center gap-2 md:gap-6 shrink-0"><!-- Desktop inline search bar -->
+<form class="hidden md:flex relative m-0 items-center" id="desktop-inline-search" role="search" autocomplete="off">
+<input id="desktop-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-44 lg:w-56 h-9 px-3 py-2 rounded-full bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 dark:border-white/20 outline-none focus:ring-2 focus:ring-primary/40 focus:w-64 transition-all duration-300"/>
+</form>
+<button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center">
+<span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
+<span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
+<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
+</button>
+<div class="relative group hidden md:block" id="download-btn-container">
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
+<span class="material-symbols-outlined dark:text-slate-300" style="font-size: 30px;">download</span>
+</button>
+<!-- Premium Dropdown Menu -->
+<div class="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 z-50" id="download-popup">
+<div class="bg-[#135bec] rounded-2xl shadow-2xl overflow-hidden">
+<!-- Header -->
+<div class="px-6 py-4 border-b border-white/20" style="background-color: #135bec;">
+<h3 class="text-white font-headline font-bold text-sm uppercase tracking-wider">DOWNLOAD OUR APP</h3>
+<p class="text-white/80 text-xs mt-1 font-light">Upgrade Your Experience</p>
+</div>
+<!-- Download Options -->
+<div class="space-y-3 flex flex-col items-center bg-transparent">
+<a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
+<img loading="lazy" src="topcar/aple.png" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+</a>
+<a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
+<img loading="lazy" src="topcar/ggle.png" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+</a>
+</div>
+</div>
+</div>
+</div>
+<button class="hidden md:block hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span>
+</button>
+<button class="hidden md:block hover:opacity-80 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined dark:text-slate-300" style="font-size: 30px;">shopping_cart</span>
+</button>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95 hidden md:flex" id="account-btn">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">person</span>
+</button>
+<button id="hamburger-slot" class="md:hidden hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center justify-center p-0" aria-label="Open menu">
+<span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">menu</span>
+</button>
+</div>
+</div>
+</nav>
+
+<!-- Main Content Canvas -->
+<main class="relative h-screen w-full flex flex-col justify-center items-center overflow-hidden">
+<!-- Background Image with Overlay -->
+<div class="absolute inset-0 z-0 scale-105" style="transform: scale(1.05) translate(3.185px, -1.34px);"><img alt="Packaging Workshop" class="absolute inset-0 w-full h-full object-cover" src="packaging-bg.png">
+<div class="absolute inset-0 hero-overlay"></div></div>
+<!-- Central Landing Content -->
+<div class="relative z-10 container mx-auto px-6 text-center max-w-5xl flex flex-col items-center">
+<div class="mb-6 fade-in-up" style="animation-delay: 0.2s;">
+<span class="inline-block px-4 py-1.5 border border-white/20 text-white font-label text-[10px] uppercase tracking-[0.3em] backdrop-blur-md bg-white/5">
+                    Premium Packaging Atelier
+                </span>
+</div>
+<h1 class="text-white font-headline font-extrabold text-5xl md:text-7xl lg:text-8xl tracking-tighter leading-[1.05] mb-8 fade-in-up">
+                Packaging Designed <br class="hidden md:block"> Around Your Business.
+            </h1>
+<p class="text-white/80 font-body text-lg md:text-xl max-w-2xl leading-relaxed mb-12 fade-in-up">
+                From concept to delivery, we create customized packaging solutions tailored to your requirements, blending heritage craftsmanship with industrial precision.
+            </p>
+<div class="fade-in-up" style="animation-delay: 0.8s;">
+<button class="group relative flex items-center gap-4 px-10 py-6 rounded-full transition-all duration-500 shadow-2xl overflow-hidden active:scale-95" style="background-color: #825335; color: #ffffff;">
+<span class="relative z-10 font-headline font-bold text-sm uppercase tracking-widest">Call Our Packaging Experts: +965 66235309</span>
+<span class="material-symbols-outlined relative z-10 text-xl transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
+<div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+</button>
+</div>
+</div>
+<!-- Atmospheric Elements -->
+
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
+<!-- Column 1 -->
+<div class="col-span-1">
+<a href="home.html" class="flex items-center gap-2 mb-6">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
+</a>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
+</div>
+<!-- Column 2 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Customized Packaging</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li>
+</ul>
+</div>
+<!-- Column 3 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">General Information</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Help</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Terms & Conditions</a></li>
+</ul>
+</div>
+<!-- Column 4 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Customer Service</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Return and refund policy</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Shipping & delivery</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Privacy and security</a></li>
+</ul>
+</div>
+<!-- Column 5 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact Us</h4>
+<ul class="space-y-4 text-sm">
+<li class="flex items-start gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">location_on</span>
+<span>Shuwaikh Industrial Area, Kuwait</span>
+</li>
+<li class="flex items-center gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">mail</span>
+<span>info@al-nassim.com</span>
+</li>
+<li class="flex items-center gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">call</span>
+<span>+965 609 000 59</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-xs text-slate-500">© 2026 AL-Nassim Golden Group. All rights reserved.</p>
+<div class="flex items-center gap-6">
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.facebook.com/Al.Nassim.Central.Market/" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/Facebook_icon.png" alt="Facebook" class="w-6 h-6 object-contain"/></a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/Instagram_icon.png" alt="Instagram" class="w-6 h-6 object-contain"/></a>
+</div>
+</div>
+</div>
+</footer>
+
+<script>document.addEventListener("DOMContentLoaded",function(){var l=document.getElementById("loading-screen");if(l){l.style.opacity="0";setTimeout(function(){if(l)l.style.display="none";},300);}});</script>
+<!-- WhatsApp Chat Button -->
+<a aria-label="Chat on WhatsApp" class="fixed bottom-[5rem] right-4 md:bottom-6 md:right-6 z-[100] flex items-center justify-center w-14 h-14 text-white rounded-full hover:scale-110 transition-all duration-300 md:w-16 md:h-16 group" href="https://wa.me/96560900059" rel="noopener noreferrer" target="_blank">
+<img loading="lazy" src="topcar/whatsapp.png" alt="Chat on WhatsApp" class="w-full h-full object-contain"/>
+</a>
+
+<!-- Interactive Layer -->
+<script>
+        // Subtle Mouse parallax for background.
+        // GATED to fine pointers (real mouse + hover) ONLY. On iOS Safari/Chrome,
+        // `mousemove` is compatibility-synthesized from touch/scroll gestures, so
+        // binding this handler unconditionally caused the hero background to
+        // visibly drift ("zoom") while scrolling on mobile, then snap back when
+        // scrolling up. Restricting to (hover: hover) and (pointer: fine) means
+        // touch devices never attach the listener and the transform is never
+        // rewritten during scroll — eliminating the mobile scroll-zoom while
+        // preserving the desktop parallax effect exactly.
+        var canParallax = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        if (canParallax) {
+            document.addEventListener('mousemove', (e) => {
+                const moveX = (e.clientX - window.innerWidth / 2) * 0.005;
+                const moveY = (e.clientY - window.innerHeight / 2) * 0.005;
+                const bg = document.querySelector('main .absolute.inset-0.z-0');
+                if (bg) {
+                    bg.style.transform = `scale(1.05) translate(${moveX}px, ${moveY}px)`;
+                }
+            });
+        }
+    </script>
+
+<!-- ==================== MOBILE BOTTOM NAVIGATION ====================
+     Reuses existing systems — no duplication:
+       Home -> home.html, Categories -> existing mobile drawer (mobile-nav.js),
+       Account -> window.NassimAccount.openPanel(), Cart -> cart.html.
+     Implemented as <div role="navigation"> (not <nav>) so the auto-wiring in
+     cart-nav.js / account.js / search.js is NOT re-triggered here. -->
+<style>
+    #mobile-bottom-nav-inner { padding-bottom: env(safe-area-inset-bottom); }
+    .mbnav-item { color: #44474b; }
+    .dark .mbnav-item { color: rgba(255,255,255,0.6); }
+    .mbnav-item:hover { color: #825335; }
+    .dark .mbnav-item:hover { color: #f7b994; }
+    .mbnav-item.mbnav-active { color: #825335; }
+    .dark .mbnav-item.mbnav-active { color: #f7b994; }
+    .mbnav-item.mbnav-active .material-symbols-outlined {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    @media (max-width: 767px) {
+        body { padding-bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
+    }
+</style>
+<div id="mobile-bottom-nav" role="navigation" aria-label="Mobile" class="mbnav-vv md:hidden fixed inset-x-0 bottom-0 z-[90] glass-nav dark:bg-[#0a0f14]/90 border-t border-outline-variant/30 shadow-[0_-20px_40px_rgba(0,3,8,0.04)]">
+    <div id="mobile-bottom-nav-inner" class="grid grid-cols-4 items-stretch max-w-screen-sm mx-auto">
+        <button type="button" data-mbnav="home" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">home</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Home</span>
+        </button>
+        <button type="button" data-mbnav="categories" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">grid_view</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Categories</span>
+        </button>
+        <button type="button" data-mbnav="account" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">person</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Account</span>
+        </button>
+        <button type="button" data-mbnav="cart" class="mbnav-item relative flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="relative inline-flex">
+                <span class="material-symbols-outlined" style="font-size:24px;">shopping_cart</span>
+                <span id="header-cart-count" class="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full bg-secondary text-white text-[9px] font-bold flex items-center justify-center leading-none" style="display:none;">00</span>
+            </span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Cart</span>
+        </button>
+    </div>
+</div>
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+        ready(function () {
+            var nav = document.getElementById('mobile-bottom-nav');
+            if (!nav || nav.dataset.bound) return;
+            nav.dataset.bound = '1';
+
+            var path = (location.pathname.split('/').pop() || location.pathname || '').toLowerCase();
+            var onHome = (path === '' || path === 'home.html' || path === 'index.html');
+            var homeBtn = nav.querySelector('[data-mbnav="home"]');
+            if (homeBtn && onHome) homeBtn.classList.add('mbnav-active');
+
+            if (homeBtn) homeBtn.addEventListener('click', function () {
+                if (onHome) return;
+                window.location.href = 'home.html';
+            });
+
+            var catBtn = nav.querySelector('[data-mbnav="categories"]');
+            if (catBtn) catBtn.addEventListener('click', function () {
+                var slot = document.getElementById('hamburger-slot');
+                if (slot) slot.click();
+            });
+
+            var accBtn = nav.querySelector('[data-mbnav="account"]');
+            if (accBtn) accBtn.addEventListener('click', function () {
+                if (window.NassimAccount && window.NassimAccount.openPanel) window.NassimAccount.openPanel();
+            });
+
+            var cartBtn = nav.querySelector('[data-mbnav="cart"]');
+            if (cartBtn) cartBtn.addEventListener('click', function () {
+                window.location.href = 'cart.html';
+            });
+
+            var badge = document.getElementById('header-cart-count');
+            function syncBadge() {
+                if (!badge) return;
+                var n = parseInt((badge.textContent || '').trim(), 10);
+                badge.style.display = (isNaN(n) || n <= 0) ? 'none' : 'flex';
+            }
+            syncBadge();
+            if (badge && window.MutationObserver) {
+                new MutationObserver(syncBadge).observe(badge, { childList: true, characterData: true, subtree: true });
+            }
+            window.addEventListener('pageshow', syncBadge);
+            window.addEventListener('storage', syncBadge);
+        });
+    })();
+</script>
+<script src="assets/js/theme.js" defer></script>
+<script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/cart-nav.js" defer></script>
+<script src="assets/js/product-nav.js" defer></script>
+<script src="assets/js/search.js" defer></script>
+<script src="assets/js/account.js" defer></script>
+<script src="assets/js/mobile-nav.js" defer></script>
+<!-- ==================== MOBILE SEARCH WIRING ====================
+     Wires the mobile inline search bar to a dropdown below the input. Reuses
+     NassimSearch filtering logic; does NOT open the old overlay popup. -->
+<script>
+    (function () {
+        var mobileResults = null;
+
+        function createMobileResults() {
+            mobileResults = document.createElement('div');
+            mobileResults.id = 'mobile-search-dropdown';
+            mobileResults.style.cssText = 'position:absolute;top:100%;left:0;right:0;z-index:200;background:#fff;color:#111;border-radius:0 0 12px 12px;box-shadow:0 8px 24px rgba(0,0,0,0.18);max-height:60vh;overflow-y:auto;display:none;';
+            var form = document.getElementById('mobile-inline-search');
+            if (form) form.appendChild(mobileResults);
+            return mobileResults;
+        }
+
+        function renderMobileResults(list) {
+            if (!mobileResults) mobileResults = createMobileResults();
+            mobileResults.innerHTML = '';
+            if (!list || !list.length) {
+                var empty = document.createElement('p');
+                empty.style.cssText = 'padding:16px;text-align:center;color:#888;font-size:13px;';
+                empty.textContent = 'No products found';
+                mobileResults.appendChild(empty);
+                mobileResults.style.display = 'block';
+                return;
+            }
+            list.slice(0, 15).forEach(function (p) {
+                var a = document.createElement('a');
+                a.href = 'product view.html?id=' + encodeURIComponent(p.id);
+                a.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;text-decoration:none;color:inherit;border-bottom:1px solid rgba(0,0,0,0.06);';
+                a.onmouseenter = function () { a.style.background = 'rgba(0,0,0,0.04)'; };
+                a.onmouseleave = function () { a.style.background = ''; };
+
+                var img = document.createElement('img');
+                img.src = p.img || p.image || (p.images && p.images[0]) || '';
+                img.alt = p.name;
+                img.style.cssText = 'width:40px;height:40px;object-fit:cover;border-radius:8px;background:#f2f2f2;flex-shrink:0;';
+                img.onerror = function () { img.style.visibility = 'hidden'; };
+
+                var info = document.createElement('div');
+                info.style.cssText = 'min-width:0;flex:1;';
+                var name = document.createElement('div');
+                name.textContent = p.name;
+                name.style.cssText = 'font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                var meta = document.createElement('div');
+                meta.textContent = (p.line ? p.line + ' · ' : '') + Number(p.price).toFixed(3) + ' ' + (p.currency || 'KD');
+                meta.style.cssText = 'font-size:11px;color:#777;';
+                info.appendChild(name);
+                info.appendChild(meta);
+
+                a.appendChild(img);
+                a.appendChild(info);
+                mobileResults.appendChild(a);
+            });
+            mobileResults.style.display = 'block';
+        }
+
+        function closeMobileResults() {
+            if (mobileResults) mobileResults.style.display = 'none';
+        }
+
+        function doMobileSearch(q) {
+            var ns = window.NassimSearch;
+            if (!ns || !ns.loadProducts) return;
+            q = q.trim().toLowerCase();
+            ns.loadProducts().then(function (list) {
+                if (!q) { closeMobileResults(); return; }
+                var terms = q.split(/\s+/);
+                var filtered = list.filter(function (p) {
+                    var hay = (p.name + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
+                    return terms.every(function (t) { return hay.indexOf(t) !== -1; });
+                });
+                renderMobileResults(filtered);
+            });
+        }
+
+        function bind() {
+            var form = document.getElementById('mobile-inline-search');
+            if (!form || form.dataset.bound) return;
+            form.dataset.bound = '1';
+            var input = document.getElementById('mobile-inline-search-input');
+
+            createMobileResults();
+
+            if (input) {
+                var debounce = null;
+                input.addEventListener('input', function () {
+                    clearTimeout(debounce);
+                    debounce = setTimeout(function () {
+                        doMobileSearch(input.value);
+                    }, 150);
+                });
+                input.addEventListener('focus', function () {
+                    if (input.value.trim()) doMobileSearch(input.value);
+                });
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (input && input.value.trim()) doMobileSearch(input.value);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (mobileResults && !form.contains(e.target)) {
+                    closeMobileResults();
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+        else bind();
+    })();
+</script>
+<!-- ==================== MOBILE CATEGORIES DRAWER: NAME = LINK, ARROW = TOGGLE ======
+     Splits the department header so the NAME navigates and the ARROW only
+     expands/collapses. Reuses mobile-nav.js's existing toggle listener and the
+     desktop nav's existing hrefs — no new links, no duplicated JS. -->
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+
+        function buildDeptHrefMap() {
+            var map = {};
+            var triggers = document.querySelectorAll('.dropdown-trigger');
+            triggers.forEach(function (t) {
+                var link = t.querySelector('a');
+                if (!link) return;
+                var name = '';
+                for (var i = 0; i < link.childNodes.length; i++) {
+                    var n = link.childNodes[i];
+                    if (n.nodeType === 3 || n.nodeType === 1) {
+                        var txt = n.textContent.trim();
+                        if (txt) name += (name ? ' ' : '') + txt;
+                    }
+                }
+                if (name && link.href) map[name.toLowerCase()] = link.getAttribute('href');
+            });
+            if (triggers.length > 0) {
+                var sib = triggers[triggers.length - 1].nextElementSibling;
+                while (sib) {
+                    if (sib.tagName === 'A' && !sib.classList.contains('dropdown-trigger')) {
+                        var parts = [];
+                        for (var j = 0; j < sib.childNodes.length; j++) {
+                            var nn = sib.childNodes[j];
+                            if (nn.nodeType === 3 || nn.nodeType === 1) {
+                                var tt = nn.textContent.trim();
+                                if (tt) parts.push(tt);
+                            }
+                        }
+                        var nm = parts.join(' ');
+                        if (nm && sib.getAttribute('href')) map[nm.toLowerCase()] = sib.getAttribute('href');
+                    }
+                    sib = sib.nextElementSibling;
+                }
+            }
+            return map;
+        }
+
+        var hrefMap = {};
+
+        function hrefForName(rawName) {
+            if (!rawName) return null;
+            var norm = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            var keys = Object.keys(hrefMap);
+            for (var i = 0; i < keys.length; i++) {
+                if (keys[i].replace(/[^a-z0-9]/g, '') === norm) return hrefMap[keys[i]];
+            }
+            var firstWord = rawName.toLowerCase().trim().split(/\s+/)[0];
+            for (var j = 0; j < keys.length; j++) {
+                if (keys[j].replace(/[^a-z0-9]/g, '') === firstWord.replace(/[^a-z0-9]/g, '')) return hrefMap[keys[j]];
+            }
+            return null;
+        }
+
+        function transformItems() {
+            var dept = document.getElementById('mobile-nav-departments');
+            if (!dept) return;
+            var triggers = dept.querySelectorAll('.mobile-accordion-trigger');
+            triggers.forEach(function (trigger) {
+                if (trigger.getAttribute('data-name-linked') === '1') return;
+                var nameSpan = trigger.querySelector('span.flex.flex-col');
+                if (!nameSpan) { trigger.setAttribute('data-name-linked', '1'); return; }
+                var deptName = nameSpan.textContent.replace(/\s+/g, ' ').trim();
+                var href = hrefForName(deptName);
+                if (!href) { trigger.setAttribute('data-name-linked', '1'); return; }
+                var a = document.createElement('a');
+                a.href = href;
+                a.className = nameSpan.className;
+                a.innerHTML = nameSpan.innerHTML;
+                a.addEventListener('click', function (e) { e.stopPropagation(); }, true);
+                nameSpan.parentNode.replaceChild(a, nameSpan);
+                trigger.setAttribute('data-name-linked', '1');
+            });
+        }
+
+        function setupObserver() {
+            var dept = document.getElementById('mobile-nav-departments');
+            if (!dept) return false;
+            transformItems();
+            if (window.MutationObserver && !dept.dataset.splitObs) {
+                dept.dataset.splitObs = '1';
+                new MutationObserver(function () { transformItems(); })
+                    .observe(dept, { childList: true, subtree: true });
+            }
+            return true;
+        }
+
+        ready(function () {
+            hrefMap = buildDeptHrefMap();
+            var tries = 0;
+            (function poll() {
+                if (setupObserver()) return;
+                if (++tries > 60) return;
+                setTimeout(poll, 50);
+            })();
+        });
+    })();
+</script>
+<!-- ==================== MOBILE DRAWER CONTENT SPLIT ====================
+     Hamburger -> utilities ONLY (EN|AR, Download App, Dark/Light).
+     Categories -> departments ONLY. Reuses mobile-nav.js's drawer/open/close
+     and theme.js's __nassimThemeToggle. -->
+<style>
+    html.dark #mob-bar1,
+    html.dark #mob-bar2,
+    html.dark #mob-bar3 { background-color: #ffffff !important; }
+</style>
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+
+        function whenDrawerReady(cb, tries) {
+            tries = tries || 0;
+            if (document.getElementById('mobile-nav-drawer')) { cb(); return; }
+            if (tries > 40) return;
+            setTimeout(function () { whenDrawerReady(cb, tries + 1); }, 50);
+        }
+
+        function buildUtilitiesHTML() {
+            return '' +
+              '<div class="px-5 pt-3">' +
+              '  <button type="button" class="flex items-center justify-between w-full py-3 px-3 rounded-lg text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">' +
+              '    <span class="flex items-center gap-3"><span class="material-symbols-outlined text-lg">language</span> Language</span>' +
+              '    <span class="flex items-center">' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-900 dark:text-white">EN</span>' +
+              '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">AR</span>' +
+              '    </span>' +
+              '  </button>' +
+              '</div>' +
+              '<div class="px-5">' +
+              '  <div class="flex items-center justify-between w-full py-3 px-3 rounded-lg text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">' +
+              '    <span class="flex items-center gap-3"><span class="material-symbols-outlined text-lg">download</span> Download App</span>' +
+              '    <span class="flex items-center">' +
+              '      <a href="#" aria-label="Download on the App Store" class="flex items-center justify-center hover:opacity-80 transition-opacity">' +
+              '        <img src="topcar/app-store.png" alt="Download on the App Store" loading="lazy" class="h-5 w-auto dark:hidden"/>' +
+              '        <img src="topcar/app-store (1).png" alt="Download on the App Store" loading="lazy" class="h-5 w-auto hidden dark:block"/>' +
+              '      </a>' +
+              '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
+              '      <a href="#" aria-label="Get it on Google Play" class="flex items-center justify-center text-gray-900 dark:text-white hover:text-secondary dark:hover:text-[#f7b994] transition-colors">' +
+              '        <span class="material-symbols-outlined text-lg">android</span>' +
+              '      </a>' +
+              '    </span>' +
+              '  </div>' +
+              '</div>' +
+              '<div class="px-5 pb-4">' +
+              '  <button type="button" id="mobile-nav-theme-toggle" role="switch" aria-checked="false" class="flex items-center justify-between w-full py-3 px-3 rounded-lg text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">' +
+              '    <span class="flex items-center gap-3"><span class="material-symbols-outlined text-lg">dark_mode</span> Appearance</span>' +
+              '    <span class="mntheme-switch-track relative inline-flex items-center h-6 w-11 rounded-full bg-gray-300 dark:bg-secondary transition-colors duration-300 flex-shrink-0">' +
+              '      <span class="mntheme-switch-thumb inline-block h-5 w-5 rounded-full bg-white shadow translate-x-0.5 dark:translate-x-[22px] transition-transform duration-300"></span>' +
+              '    </span>' +
+              '  </button>' +
+              '</div>';
+        }
+
+        function setDrawerMode(mode) {
+            var drawer = document.getElementById('mobile-nav-drawer');
+            if (!drawer) return;
+            drawer.setAttribute('data-drawer-mode', mode);
+            var dept = document.getElementById('mobile-nav-departments');
+            var util = document.getElementById('mobile-nav-utilities');
+            if (mode === 'utilities') {
+                if (dept) dept.style.display = 'none';
+                if (util) util.style.display = '';
+            } else {
+                if (dept) dept.style.display = '';
+                if (util) util.style.display = 'none';
+            }
+        }
+
+        var pendingDrawerMode = 'utilities';
+
+        function syncThemeIcon() {
+            var btn = document.getElementById('mobile-nav-theme-toggle');
+            if (!btn) return;
+            var isDark = document.documentElement.classList.contains('dark');
+            var icon = btn.querySelector('.material-symbols-outlined');
+            if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+            btn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+        }
+
+        function init() {
+            whenDrawerReady(function () {
+                var drawer = document.getElementById('mobile-nav-drawer');
+                if (!drawer || drawer.getAttribute('data-split-bound') === '1') return;
+                drawer.setAttribute('data-split-bound', '1');
+
+                if (!document.getElementById('mobile-nav-utilities')) {
+                    var util = document.createElement('div');
+                    util.id = 'mobile-nav-utilities';
+                    util.innerHTML = buildUtilitiesHTML();
+                    drawer.appendChild(util);
+                }
+
+                var themeBtn = document.getElementById('mobile-nav-theme-toggle');
+                if (themeBtn && themeBtn.getAttribute('data-theme-wired') !== '1') {
+                    themeBtn.setAttribute('data-theme-wired', '1');
+                    themeBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (typeof window.__nassimThemeToggle === 'function') window.__nassimThemeToggle();
+                        syncThemeIcon();
+                    });
+                }
+                syncThemeIcon();
+                window.addEventListener('storage', function (e) {
+                    if (e.key === 'color-theme') syncThemeIcon();
+                });
+
+                var slot = document.getElementById('hamburger-slot');
+                if (slot) {
+                    slot.addEventListener('click', function () {
+                        setDrawerMode(pendingDrawerMode);
+                        pendingDrawerMode = 'utilities';
+                    }, true);
+                }
+
+                var catBtn = document.querySelector('[data-mbnav="categories"]');
+                if (catBtn && catBtn.getAttribute('data-split-wired') !== '1') {
+                    catBtn.setAttribute('data-split-wired', '1');
+                    catBtn.addEventListener('click', function () {
+                        pendingDrawerMode = 'categories';
+                    }, true);
+                }
+            });
+        }
+
+        ready(init);
+    })();
+</script>
+
+<style>
+/* MOBILE BOTTOM-NAV: FIXED PIN — NO JS REPOSITIONING.
+   The nav is position:fixed (Tailwind) with bottom-0, so it is already pinned
+   to the VISIBLE bottom edge on iOS Safari/Chrome and Android. We do NOT drive
+   `bottom` from visualViewport anymore: the old tracker listened to
+   visualViewport 'scroll'/'resize' (and window 'resize'), which fire
+   continuously during scrolling, pull-to-refresh and toolbar hide/show, and
+   rewrote the inline bottom frame-by-frame — that is what caused the bounce.
+   The bottom is now owned by CSS only and never written from JS, so there is no
+   per-frame repositioning, no jumping, no flicker. Safe-area inset is still
+   handled by #mobile-bottom-nav-inner { padding-bottom: env(safe-area-inset-bottom) }. */
+#mobile-bottom-nav { bottom: 0 !important; }
+</style>
+<script>
+/* One-time cleanup only. Remove any inline `bottom` left behind by the old
+   tracker so the CSS bottom:0 (above) owns the position permanently. We never
+   write `bottom` again and we bind NO scroll/resize/visualViewport listeners,
+   so the bar cannot bounce, jump or flicker while scrolling or pull-to-refresh. */
+(function () {
+  function ready(fn){ if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
+  ready(function () {
+    var nav = document.getElementById('mobile-bottom-nav');
+    if (!nav) return;
+    nav.style.removeProperty('bottom');
+  });
+})();
+</script>
+<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script></body></html>

@@ -6,6 +6,7 @@
   var inputEl = null;
   var resultsEl = null;
 
+  /* ---- Product data (fetched once, cached) ---- */
   function loadProducts() {
     if (products) return Promise.resolve(products);
     return fetch('/api/products', { credentials: 'same-origin' })
@@ -24,13 +25,16 @@
     return p.img || p.image || (p.images && p.images[0]) || '';
   }
 
-  function render(list) {
-    resultsEl.innerHTML = '';
-    if (!list.length) {
+  /* ---- Result rendering (shared by overlay & inline dropdown) ---- */
+  function render(list, target) {
+    var el = target || resultsEl;
+    if (!el) return;
+    el.innerHTML = '';
+    if (!list || !list.length) {
       var empty = document.createElement('p');
       empty.style.cssText = 'padding:24px;text-align:center;color:#888;font-size:14px;';
       empty.textContent = 'No products found';
-      resultsEl.appendChild(empty);
+      el.appendChild(empty);
       return;
     }
     list.slice(0, 20).forEach(function (p) {
@@ -59,22 +63,30 @@
 
       a.appendChild(img);
       a.appendChild(info);
-      resultsEl.appendChild(a);
+      el.appendChild(a);
     });
   }
 
-  function search(q) {
+  /* ---- Search logic ---- */
+  function search(q, targetEl) {
     q = q.trim().toLowerCase();
     loadProducts().then(function (list) {
-      if (!q) { render(list.slice(0, 12)); return; }
+      /* Empty query → show nothing (no random products) */
+      if (!q) {
+        if (targetEl) targetEl.innerHTML = '';
+        else if (resultsEl) resultsEl.innerHTML = '';
+        return;
+      }
       var terms = q.split(/\s+/);
-      render(list.filter(function (p) {
+      var filtered = list.filter(function (p) {
         var hay = (p.name + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
         return terms.every(function (t) { return hay.indexOf(t) !== -1; });
-      }));
+      });
+      render(filtered, targetEl);
     });
   }
 
+  /* ---- Legacy overlay (kept for backward compatibility) ---- */
   function buildOverlay() {
     overlay = document.createElement('div');
     overlay.id = 'nassim-search-overlay';
@@ -86,7 +98,7 @@
     var bar = document.createElement('div');
     bar.style.cssText = 'display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid rgba(0,0,0,0.08);';
     inputEl = document.createElement('input');
-    inputEl.type = 'search';
+    inputEl.type = 'text';
     inputEl.placeholder = 'Search products…';
     inputEl.setAttribute('aria-label', 'Search products');
     inputEl.style.cssText = 'flex:1;border:none;outline:none;font-size:16px;background:transparent;color:#111;';
@@ -132,12 +144,73 @@
     if (overlay) overlay.style.display = 'none';
   }
 
+  /* ---- Desktop inline search bar wiring ----
+     Targets #desktop-inline-search (a <form> with an <input> inside).
+     Creates a dropdown below the input that shows filtered results.
+     Empty query → dropdown hidden, no random products. */
+  function initInlineBar() {
+    var form = document.getElementById('desktop-inline-search');
+    if (!form || form.dataset.nassimInlineBound) return;
+    form.dataset.nassimInlineBound = '1';
+
+    var input = form.querySelector('input');
+    if (!input) return;
+
+    /* Create dropdown container */
+    var dropdown = document.createElement('div');
+    dropdown.id = 'desktop-search-dropdown';
+    dropdown.style.cssText = 'position:absolute;top:100%;left:0;right:0;z-index:200;background:#fff;color:#111;border-radius:0 0 12px 12px;box-shadow:0 8px 24px rgba(0,0,0,0.18);max-height:60vh;overflow-y:auto;display:none;';
+    form.appendChild(dropdown);
+
+    var debounce = null;
+
+    input.addEventListener('input', function () {
+      clearTimeout(debounce);
+      var q = input.value.trim();
+      if (!q) {
+        dropdown.style.display = 'none';
+        dropdown.innerHTML = '';
+        return;
+      }
+      debounce = setTimeout(function () {
+        search(q, dropdown);
+        dropdown.style.display = 'block';
+      }, 150);
+    });
+
+    input.addEventListener('focus', function () {
+      if (input.value.trim()) {
+        search(input.value.trim(), dropdown);
+        dropdown.style.display = 'block';
+      }
+    });
+
+    /* Close dropdown when clicking outside */
+    document.addEventListener('click', function (e) {
+      if (!form.contains(e.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    /* Close dropdown on Escape */
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        dropdown.style.display = 'none';
+        input.blur();
+      }
+    });
+  }
+
+  /* ---- Bind legacy overlay triggers (for pages still using the icon button) ---- */
   function bindTriggers() {
     var spans = document.querySelectorAll('.material-symbols-outlined');
     spans.forEach(function (span) {
       if (span.textContent.trim() !== 'search') return;
       if (span.closest('#nassim-search-overlay')) return;
-      if (span.closest('label') || span.closest('.relative') && span.getAttribute('data-icon') === 'search') return;
+      if (span.closest('label')) return;
+      /* Skip the inline desktop search icon (inside #desktop-inline-search) */
+      if (span.closest('#desktop-inline-search')) return;
+      if (span.closest('.relative') && span.getAttribute('data-icon') === 'search') return;
       var trigger = span.closest('button') || span;
       if (trigger.dataset.nassimSearchBound) return;
       trigger.dataset.nassimSearchBound = '1';
@@ -149,11 +222,24 @@
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bindTriggers);
-  } else {
+  /* ---- Init ---- */
+  function init() {
     bindTriggers();
+    initInlineBar();
   }
 
-  window.NassimSearch = { open: openOverlay, close: closeOverlay };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  window.NassimSearch = {
+    open: openOverlay,
+    close: closeOverlay,
+    search: search,
+    loadProducts: loadProducts,
+    render: render,
+    getResultsEl: function () { return resultsEl; }
+  };
 })();

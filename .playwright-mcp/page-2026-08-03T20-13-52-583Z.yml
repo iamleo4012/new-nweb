@@ -1,0 +1,330 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e7]:
+    - generic [ref=e8]:
+      - link [ref=e10] [cursor=pointer]:
+        - /url: home.html
+        - img "AL-Nassim Logo" [ref=e11]
+      - search [ref=e12]:
+        - generic: search
+        - textbox "Search products" [ref=e13]:
+          - /placeholder: Search products...
+      - button "Open menu" [ref=e15] [cursor=pointer]
+  - main [ref=e19]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - img "Cookware" [ref=e23]
+        - generic [ref=e25]:
+          - heading "GOURMET COOKWARE." [level=2] [ref=e26]
+          - paragraph [ref=e27]: Designed for seamless cooking and perfect results.
+          - button "View Kitchenware" [ref=e28] [cursor=pointer]
+      - generic [ref=e29]:
+        - img "Mopping Trolley" [ref=e30]
+        - generic [ref=e33]:
+          - heading "MOPPING TROLLEY." [level=2] [ref=e34]: MOPPINGTROLLEY.
+          - paragraph [ref=e35]: Efficiency in every swipe. The ultimate solution for a spotless environment.
+          - button "View Cleaning Products" [ref=e36] [cursor=pointer]
+      - generic [ref=e37]:
+        - img "Basket" [ref=e38]
+        - generic [ref=e41]:
+          - heading "COLLAPSIBLE BASKET." [level=2] [ref=e42]
+          - paragraph [ref=e43]: Push it down to fold flat or pull it up to fill it.
+          - button "View Product" [ref=e44] [cursor=pointer]
+      - generic [ref=e45]:
+        - img "Upright Display Chiller" [ref=e46]
+        - generic [ref=e49]:
+          - heading "GLASS FREEZER." [level=2] [ref=e50]: GLASSFREEZER.
+          - paragraph [ref=e51]: Keep it frozen with powerful cooling. Maximum visibility for your best-selling products.
+          - button "View Freezer" [ref=e52] [cursor=pointer]
+      - generic [ref=e53]:
+        - img "Junior Shopping Trolley" [ref=e54]
+        - generic [ref=e57]:
+          - heading "JUNIOR SHOPPING TROLLEY." [level=2] [ref=e58]: JUNIORSHOPPING TROLLEY.
+          - paragraph [ref=e59]: Engaging the next generation. Small-scale design for big-time family fun.
+          - button "View Trollies" [ref=e60] [cursor=pointer]
+      - generic [ref=e61]:
+        - img "Industrial Pedal Bin" [ref=e62]
+        - generic [ref=e65]:
+          - heading "OUTDOOR PEDAL BIN." [level=2] [ref=e66]: OUTDOORPEDAL BIN.
+          - paragraph [ref=e67]: Hands-free hygiene. Rugged durability for a cleaner workspace.
+          - button "View Product" [ref=e68] [cursor=pointer]
+    - generic [ref=e71]:
+      - heading "OUR CATEGORIES" [level=2] [ref=e73]
+      - generic [ref=e74]:
+        - link "Houseware" [ref=e75] [cursor=pointer]:
+          - /url: houseware.html
+          - img "Houseware" [ref=e77]
+          - heading "Houseware" [level=4] [ref=e79]
+        - link "SupermarketEquipment" [ref=e80] [cursor=pointer]:
+          - /url: supermarket.html
+          - img "Supermarket" [ref=e81]
+          - heading "Supermarket Equipment" [level=4] [ref=e83]:
+            - text: Supermarket
+            - generic [ref=e84]: Equipment
+        - link "WarehouseEquipment" [ref=e85] [cursor=pointer]:
+          - /url: warehouse.html
+          - img "Warehouse" [ref=e86]
+          - heading "Warehouse Equipment" [level=4] [ref=e88]:
+            - text: Warehouse
+            - generic [ref=e89]: Equipment
+        - link "Customized Packaging" [ref=e90] [cursor=pointer]:
+          - /url: customized-packaging.html
+          - img "Packaging" [ref=e91]
+          - heading "Customized Packaging" [level=4] [ref=e93]
+        - link "Cold Rooms" [ref=e94] [cursor=pointer]:
+          - /url: cold-room.html
+          - img "Cooling Rooms" [ref=e95]
+          - heading "Cold Rooms" [level=4] [ref=e97]
+    - generic [ref=e100]:
+      - generic [ref=e101]: OUTDOOR LIVING
+      - heading "ELEVATE YOUR OUTDOORS" [level=2] [ref=e102]
+      - paragraph [ref=e103]: For the stories told around the fire and the moments that linger.
+    - generic [ref=e104]:
+      - img "Luxury interior" [ref=e106]
+      - generic [ref=e109]:
+        - generic [ref=e110]: WEEKEND
+        - heading "FIRE." [level=1] [ref=e111]
+        - paragraph [ref=e112]: Built for outdoor moments that matter. From grilling to gathering — everything you need to cook, serve, and enjoy.
+        - generic [ref=e113]:
+          - button "Explore Collection" [ref=e114] [cursor=pointer]
+          - button "Outdoor Essentials" [ref=e115] [cursor=pointer]
+    - generic [ref=e118]:
+      - generic [ref=e119]:
+        - img "Glassware collection" [ref=e120]
+        - generic [ref=e122]:
+          - generic [ref=e123]: KITCHEN
+          - heading "ESSENTIALS." [level=3] [ref=e124]
+          - link "Explore Collection" [ref=e125] [cursor=pointer]:
+            - /url: "#"
+      - generic [ref=e126]:
+        - img "Textile collection" [ref=e127]
+        - generic [ref=e129]:
+          - generic [ref=e130]: DISPLAY
+          - heading "PROMOTION RACK" [level=3] [ref=e131]
+          - link "View Product" [ref=e132] [cursor=pointer]:
+            - /url: "#"
+    - generic [ref=e147]:
+      - heading "Smart Shopping Products at 1 KD & Under" [level=2] [ref=e148]:
+        - generic [ref=e149]: Smart Shopping
+        - generic [ref=e150]: Products at
+        - generic [ref=e151]: 1 KD & Under
+      - link "Explore All arrow_right_alt" [ref=e152] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e153]: Explore All
+        - generic [ref=e154]: arrow_right_alt
+    - generic [ref=e163]:
+      - generic [ref=e164]:
+        - text: THE PIZZA COLLECTION
+        - heading "Tools made for every perfect slice." [level=2] [ref=e165]
+      - generic [ref=e166]:
+        - generic [ref=e167]:
+          - generic [ref=e168]:
+            - img "Product" [ref=e169]
+            - img "Product Hover" [ref=e170]
+          - generic [ref=e171]:
+            - generic [ref=e172]:
+              - heading "Measuring Cups" [level=4] [ref=e173]
+              - paragraph [ref=e174]: Kitchen Essentials
+            - generic [ref=e175]: 0.500 KD
+        - generic [ref=e176]:
+          - generic [ref=e177]:
+            - img "Product" [ref=e178]
+            - img "Product Hover" [ref=e179]
+          - generic [ref=e180]:
+            - generic [ref=e181]:
+              - heading "Dough Roller" [level=4] [ref=e182]
+              - paragraph [ref=e183]: Baking Tools
+            - generic [ref=e184]: 0.750 KD
+        - generic [ref=e185]:
+          - generic [ref=e186]:
+            - img "Product" [ref=e187]
+            - img "Product Hover" [ref=e188]
+          - generic [ref=e189]:
+            - generic [ref=e190]:
+              - heading "Pizza Slicer" [level=4] [ref=e191]
+              - paragraph [ref=e192]: Cutting Tools
+            - generic [ref=e193]: 0.250 KD
+        - generic [ref=e194]:
+          - generic [ref=e195]:
+            - img "Product" [ref=e196]
+            - img "Product Hover" [ref=e197]
+          - generic [ref=e198]:
+            - generic [ref=e199]:
+              - heading "PIZZA SERVER" [level=4] [ref=e200]
+              - paragraph [ref=e201]: Serving Tools
+            - generic [ref=e202]: 0.400 KD
+  - contentinfo [ref=e203]:
+    - generic [ref=e204]:
+      - generic [ref=e205]:
+        - generic [ref=e206]:
+          - link [ref=e207] [cursor=pointer]:
+            - /url: home.html
+            - img "AL-Nassim Logo" [ref=e208]
+          - paragraph [ref=e209]: The premier destination for professional industrial and retail equipment in the heart of Kuwait.
+        - generic [ref=e210]:
+          - heading "Quick Links" [level=4] [ref=e211]
+          - list [ref=e212]:
+            - listitem [ref=e213]:
+              - link "Houseware Equipment" [ref=e214] [cursor=pointer]:
+                - /url: houseware.html
+            - listitem [ref=e215]:
+              - link "Supermarket Equipment" [ref=e216] [cursor=pointer]:
+                - /url: supermarket.html
+            - listitem [ref=e217]:
+              - link "Warehouse Equipment" [ref=e218] [cursor=pointer]:
+                - /url: warehouse.html
+            - listitem [ref=e219]:
+              - link "Customized Packaging" [ref=e220] [cursor=pointer]:
+                - /url: customized-packaging.html
+            - listitem [ref=e221]:
+              - link "Cold Rooms" [ref=e222] [cursor=pointer]:
+                - /url: cold-room.html
+        - generic [ref=e223]:
+          - heading "General Information" [level=4] [ref=e224]
+          - list [ref=e225]:
+            - listitem [ref=e226]:
+              - link "Help" [ref=e227] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e228]:
+              - link "About" [ref=e229] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e230]:
+              - link "Frequently Asked Questions" [ref=e231] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e232]:
+              - link "Terms & Conditions" [ref=e233] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e234]:
+          - heading "Customer Service" [level=4] [ref=e235]
+          - list [ref=e236]:
+            - listitem [ref=e237]:
+              - link "Return and refund policy" [ref=e238] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e239]:
+              - link "Shipping & delivery" [ref=e240] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e241]:
+              - link "Privacy and security" [ref=e242] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e243]:
+          - heading "Contact Us" [level=4] [ref=e244]
+          - list [ref=e245]:
+            - listitem [ref=e246]:
+              - generic [ref=e247]: location_on
+              - generic [ref=e248]: Shuwaikh Industrial Area, Kuwait
+            - listitem [ref=e249]:
+              - generic [ref=e250]: mail
+              - generic [ref=e251]: info@al-nassim.com
+            - listitem [ref=e252]:
+              - generic [ref=e253]: call
+              - generic [ref=e254]: +965 609 000 59
+      - generic [ref=e255]:
+        - paragraph [ref=e256]: © 2026 AL-Nassim Golden Group. All rights reserved.
+        - generic [ref=e257]:
+          - link [ref=e258] [cursor=pointer]:
+            - /url: https://www.facebook.com/Al.Nassim.Central.Market/
+            - img "Facebook" [ref=e259]
+          - link [ref=e260] [cursor=pointer]:
+            - /url: https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==
+            - img "Instagram" [ref=e261]
+  - navigation "Mobile" [ref=e262]:
+    - generic [ref=e263]:
+      - button "home Home" [ref=e264] [cursor=pointer]:
+        - generic [ref=e265]: home
+        - generic [ref=e266]: Home
+      - button "grid_view Categories" [ref=e267] [cursor=pointer]:
+        - generic [ref=e268]: grid_view
+        - generic [ref=e269]: Categories
+      - button "person Account" [ref=e270] [cursor=pointer]:
+        - generic [ref=e271]: person
+        - generic [ref=e272]: Account
+      - button "shopping_cart Cart" [ref=e273] [cursor=pointer]:
+        - generic [ref=e274]: shopping_cart
+        - generic [ref=e276]: Cart
+  - link "Chat on WhatsApp" [ref=e277] [cursor=pointer]:
+    - /url: https://wa.me/96560900059
+    - img "Chat on WhatsApp" [ref=e278]
+  - button "close" [ref=e280] [cursor=pointer]
+  - generic [ref=e283]:
+    - generic [ref=e284]:
+      - img "AL-NASSIM" [ref=e285]
+      - button "Close menu" [ref=e286] [cursor=pointer]:
+        - generic [ref=e287]: close
+    - generic [ref=e289]:
+      - generic [ref=e290]:
+        - button "Houseware Equipment expand_more" [ref=e291] [cursor=pointer]:
+          - generic [ref=e292]:
+            - generic [ref=e293]: Houseware
+            - generic [ref=e294]: Equipment
+          - generic [ref=e295]: expand_more
+        - generic [ref=e296]:
+          - link "Cleaning Tools" [ref=e297] [cursor=pointer]:
+            - /url: http://localhost:8765/cleaning-tools.html
+          - link "Home & Outdoor" [ref=e298] [cursor=pointer]:
+            - /url: http://localhost:8765/home-outdoor.html
+          - link "Kitchenware" [ref=e299] [cursor=pointer]:
+            - /url: http://localhost:8765/kitchenware.html
+      - generic [ref=e300]:
+        - button "Supermarket Equipment expand_more" [ref=e301] [cursor=pointer]:
+          - generic [ref=e302]:
+            - generic [ref=e303]: Supermarket
+            - generic [ref=e304]: Equipment
+          - generic [ref=e305]: expand_more
+        - generic [ref=e306]:
+          - link "Cooling Appliances" [ref=e307] [cursor=pointer]:
+            - /url: http://localhost:8765/cooling.html
+          - link "Trolleys & Baskets" [ref=e308] [cursor=pointer]:
+            - /url: http://localhost:8765/trolly.html
+          - link "Shelves & Stands" [ref=e309] [cursor=pointer]:
+            - /url: http://localhost:8765/shelves.html
+          - link "Checkout Solutions" [ref=e310] [cursor=pointer]:
+            - /url: http://localhost:8765/checkout-solutions.html
+          - link "Accessories" [ref=e311] [cursor=pointer]:
+            - /url: http://localhost:8765/accessories.html
+      - generic [ref=e312]:
+        - button "Warehouse Equipment expand_more" [ref=e313] [cursor=pointer]:
+          - generic [ref=e314]:
+            - generic [ref=e315]: Warehouse
+            - generic [ref=e316]: Equipment
+          - generic [ref=e317]: expand_more
+        - generic [ref=e318]:
+          - link "Trolleys & Baskets" [ref=e319] [cursor=pointer]:
+            - /url: http://localhost:8765/trollies.html
+          - link "Forklifts & Pallets" [ref=e320] [cursor=pointer]:
+            - /url: http://localhost:8765/forklift.html
+          - link "Heavy Duty Racking" [ref=e321] [cursor=pointer]:
+            - /url: http://localhost:8765/rack.html
+      - button "Customized Packaging expand_more" [ref=e323] [cursor=pointer]:
+        - generic [ref=e324]:
+          - generic [ref=e325]: Customized
+          - generic [ref=e326]: Packaging
+        - generic [ref=e327]: expand_more
+      - button "Cold Rooms expand_more" [ref=e330] [cursor=pointer]:
+        - generic [ref=e331]:
+          - generic [ref=e332]: Cold
+          - generic [ref=e333]: Rooms
+        - generic [ref=e334]: expand_more
+    - generic [ref=e336]:
+      - button "language Language EN | AR" [ref=e338] [cursor=pointer]:
+        - generic [ref=e339]:
+          - generic [ref=e340]: language
+          - text: Language
+        - generic [ref=e341]:
+          - generic [ref=e342]: EN
+          - generic [ref=e343]: "|"
+          - generic [ref=e344]: AR
+      - generic [ref=e346]:
+        - generic [ref=e347]:
+          - generic [ref=e348]: download
+          - text: Download App
+        - generic [ref=e349]:
+          - link "Download on the App Store" [ref=e350] [cursor=pointer]:
+            - /url: "#"
+            - img "Download on the App Store" [ref=e351]
+          - generic [ref=e352]: "|"
+          - link "Get it on Google Play" [ref=e353] [cursor=pointer]:
+            - /url: "#"
+            - generic [ref=e354]: android
+      - switch "dark_mode Appearance" [ref=e356] [cursor=pointer]:
+        - generic [ref=e357]:
+          - generic [ref=e358]: dark_mode
+          - text: Appearance

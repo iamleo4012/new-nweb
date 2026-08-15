@@ -62,6 +62,7 @@ export function ProductsTab() {
   const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const [f, setF] = useState<Record<string, FormField>>({});
   const [selectedColors, setSelectedColors] = useState<number[]>([]);
@@ -91,7 +92,34 @@ export function ProductsTab() {
     setSelectedSizes([]);
     setGallery([]);
     setPrimaryImage("");
+    setEditingId(null);
   };
+
+  function openEdit(p: ProductItem) {
+    setEditingId(p.id);
+    setShowForm(true);
+    setF({
+      slug: p.slug, name: p.name, description: "", longDescription: "",
+      price: String(p.price), costPrice: "0", discount: "0",
+      stock: String(p.stock), minStock: "10",
+      image: p.image, line: "", sku: p.sku, barcode: "", ndNumber: "", internalCode: "",
+      specs: "[]",
+      applications: "", additionalInfo: "",
+      seoTitle: "", seoDescription: "",
+      tags: "",
+      weight: "", length: "", width: "", height: "", warranty: "",
+      categoryId: "", subcategoryId: "",
+      brandId: "", materialId: "", supplierId: "", unitId: "", countryId: "", taxId: "",
+      departmentId: "",
+      isActive: p.isActive ? "true" : "false", isFeatured: "false", isBestSeller: "false", isNewArrival: "false",
+    } as Record<string, string>);
+    setSelectedColors([]);
+    setSelectedSizes([]);
+    setGallery(p.image ? [p.image] : []);
+    setPrimaryImage(p.image || "");
+    setMessage("");
+    setError("");
+  }
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -241,20 +269,38 @@ export function ProductsTab() {
       sizeIds: selectedSizes,
     };
 
-    const res = await fetch("/api/admin/products", {
-      method: "POST",
+    const isEdit = editingId !== null;
+    const url = isEdit ? "/api/admin/products" : "/api/admin/products";
+    const method = isEdit ? "PATCH" : "POST";
+    const body: Record<string, unknown> = isEdit ? { id: editingId, ...payload } : payload;
+
+    const res = await fetch(url, {
+      method,
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
-      body: JSON.stringify(payload),
+      body: JSON.stringify(body),
     });
     const data = await res.json();
     setSaving(false);
     if (data.success) {
-      setMessage("Product created");
+      setMessage(isEdit ? "Product updated" : "Product created");
       setShowForm(false);
+      setEditingId(null);
       loadAll();
     } else {
-      setError(data.error || "Create failed");
+      setError(data.error || (isEdit ? "Update failed" : "Create failed"));
+    }
+  }
+
+  async function deleteProduct(p: ProductItem) {
+    if (!confirm(`Delete "${p.name}"? This will hide it from the storefront.`)) return;
+    const res = await fetch(`/api/admin/products?id=${p.id}`, { method: "DELETE", credentials: "same-origin" });
+    const data = await res.json();
+    if (data.success) {
+      setMessage(`Product "${p.name}" deleted`);
+      loadAll();
+    } else {
+      setError(data.error || "Delete failed");
     }
   }
 
@@ -312,6 +358,9 @@ export function ProductsTab() {
         <button onClick={() => { setShowForm((v) => !v); if (!showForm) resetForm(); }} className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold">
           {showForm ? "Close" : "+ New Product"}
         </button>
+        {editingId !== null && showForm && (
+          <span className="text-xs text-blue-600 font-semibold ml-2">Editing product #{editingId}</span>
+        )}
       </div>
       {error && <p className="text-red-600 text-sm">{error}</p>}
       {message && <p className="text-green-700 text-sm">{message}</p>}
@@ -435,7 +484,7 @@ export function ProductsTab() {
               disabled={saving}
               className="bg-green-700 text-white px-5 py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
             >
-              {saving ? "Saving…" : "Create Product"}
+              {saving ? "Saving…" : editingId !== null ? "Update Product" : "Create Product"}
             </button>
           </div>
         </div>
@@ -448,8 +497,8 @@ export function ProductsTab() {
               <th className="px-4 py-3">Product</th>
               <th className="px-4 py-3">SKU</th>
               <th className="px-4 py-3">Price (KD)</th>
-              <th className="px-4 py-3">Stock</th>
               <th className="px-4 py-3">Active</th>
+              <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -462,17 +511,18 @@ export function ProductsTab() {
                 <td className="px-4 py-2 text-gray-600 font-mono text-xs">{p.sku || "—"}</td>
                 <td className="px-4 py-2">{Number(p.price).toFixed(3)}</td>
                 <td className="px-4 py-2">
-                  <span className={`font-semibold ${p.stock <= 10 ? "text-amber-600" : "text-gray-900"}`}>{p.stock}</span>
-                </td>
-                <td className="px-4 py-2">
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold ${p.isActive ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"}`}>
                     {p.isActive ? "Active" : "Hidden"}
                   </span>
                 </td>
+                <td className="px-4 py-2 text-right whitespace-nowrap">
+                  <button onClick={() => openEdit(p)} className="text-blue-600 hover:text-blue-800 text-xs font-semibold mr-3">Edit</button>
+                  <button onClick={() => deleteProduct(p)} className="text-red-600 hover:text-red-800 text-xs font-semibold">Delete</button>
+                </td>
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-6 text-center text-gray-500">No products match</td></tr>
+              <tr><td colSpan={5} className="px-4 py-6 text-center text-gray-500">No products found</td></tr>
             )}
           </tbody>
         </table>

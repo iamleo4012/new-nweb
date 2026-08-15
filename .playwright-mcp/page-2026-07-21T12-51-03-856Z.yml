@@ -1,0 +1,317 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e7]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - link [ref=e10] [cursor=pointer]:
+          - /url: code.html
+          - img "AL-Nassim Logo" [ref=e11]
+        - generic [ref=e12]:
+          - link "Houseware Equipment" [ref=e14] [cursor=pointer]:
+            - /url: "#"
+            - text: Houseware
+            - generic [ref=e15]: Equipment
+          - link "Supermarket Equipment" [ref=e17] [cursor=pointer]:
+            - /url: "#"
+            - text: Supermarket
+            - generic [ref=e18]: Equipment
+          - link "Warehouse Equipment" [ref=e20] [cursor=pointer]:
+            - /url: "#"
+            - text: Warehouse
+            - generic [ref=e21]: Equipment
+          - link "Customized Packaging" [ref=e23] [cursor=pointer]:
+            - /url: "#"
+            - text: Customized
+            - generic [ref=e24]: Packaging
+          - link "Cold Rooms" [ref=e26] [cursor=pointer]:
+            - /url: "#"
+            - text: Cold
+            - generic [ref=e27]: Rooms
+      - generic [ref=e28]:
+        - button "search" [ref=e29] [cursor=pointer]
+        - button "EN | AR" [ref=e31] [cursor=pointer]:
+          - generic [ref=e32]: EN
+          - generic [ref=e33]: "|"
+          - generic [ref=e34]: AR
+        - button "download" [ref=e36] [cursor=pointer]
+        - button "dark_mode" [ref=e38] [cursor=pointer]
+        - button "shopping_cart" [ref=e40] [cursor=pointer]
+        - button "person" [ref=e42] [cursor=pointer]
+  - main [ref=e44]:
+    - generic [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - img "Cookware" [ref=e48]
+          - generic [ref=e50]:
+            - heading "GOURMET COOKWARE." [level=2] [ref=e51]
+            - paragraph [ref=e52]: Designed for seamless cooking and perfect results.
+            - button "View Kitchenware" [ref=e53] [cursor=pointer]
+        - generic [ref=e54]:
+          - img "Mopping Trolley" [ref=e55]
+          - generic [ref=e58]:
+            - heading "MOPPING TROLLEY." [level=2] [ref=e59]: MOPPINGTROLLEY.
+            - paragraph [ref=e60]: Efficiency in every swipe. The ultimate solution for a spotless environment.
+            - button "View Cleaning Products" [ref=e61] [cursor=pointer]
+        - generic [ref=e62]:
+          - img "Basket" [ref=e63]
+          - generic [ref=e66]:
+            - heading "COLLAPSIBLE BASKET." [level=2] [ref=e67]
+            - paragraph [ref=e68]: Push it down to fold flat or pull it up to fill it.
+            - button "View Product" [ref=e69] [cursor=pointer]
+        - generic [ref=e70]:
+          - img "Upright Display Chiller" [ref=e71]
+          - generic [ref=e74]:
+            - heading "UPRIGHT FREEZER." [level=2] [ref=e75]: UPRIGHTFREEZER.
+            - paragraph [ref=e76]: Keep it frozen with powerful cooling. Maximum visibility for your best-selling products.
+            - button "View Freezer" [ref=e77] [cursor=pointer]
+        - generic [ref=e78]:
+          - img "Junior Shopping Trolley" [ref=e79]
+          - generic [ref=e82]:
+            - heading "JUNIOR SHOPPING TROLLEY." [level=2] [ref=e83]: JUNIORSHOPPING TROLLEY.
+            - paragraph [ref=e84]: Engaging the next generation. Small-scale design for big-time family fun.
+            - button "View Trollies" [ref=e85] [cursor=pointer]
+        - generic [ref=e86]:
+          - img "Industrial Pedal Bin" [ref=e87]
+          - generic [ref=e90]:
+            - heading "OUTDOOR PEDAL BIN." [level=2] [ref=e91]: OUTDOORPEDAL BIN.
+            - paragraph [ref=e92]: Hands-free hygiene. Rugged durability for a cleaner workspace.
+            - button "View Product" [ref=e93] [cursor=pointer]
+      - generic [ref=e95]:
+        - button "arrow_back" [ref=e96] [cursor=pointer]
+        - button "arrow_forward" [ref=e98] [cursor=pointer]
+    - generic [ref=e108]:
+      - heading "OUR CATEGORIES" [level=2] [ref=e110]
+      - generic [ref=e111]:
+        - generic [ref=e112]:
+          - img "Houseware" [ref=e114]
+          - generic [ref=e116]:
+            - heading "Houseware" [level=3] [ref=e117]
+            - paragraph [ref=e118]: Simple tools to make everyday home tasks easier
+            - link "Explore Selection arrow_forward" [ref=e119] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=e120]: Explore Selection
+              - generic [ref=e121]: arrow_forward
+          - heading "Houseware" [level=4] [ref=e123]
+        - generic [ref=e124]:
+          - img "Supermarket" [ref=e125]
+          - generic [ref=e126]:
+            - heading "Supermarket Equipment" [level=3] [ref=e127]:
+              - text: Supermarket
+              - generic [ref=e128]: Equipment
+            - paragraph [ref=e129]: Everything needed to run a smart store
+            - link "Explore Selection arrow_forward" [ref=e130] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=e131]: Explore Selection
+              - generic [ref=e132]: arrow_forward
+          - heading "Supermarket Equipment" [level=4] [ref=e134]:
+            - text: Supermarket
+            - generic [ref=e135]: Equipment
+        - generic [ref=e136]:
+          - img "Warehouse" [ref=e137]
+          - generic [ref=e138]:
+            - heading "Warehouse Equipment" [level=3] [ref=e139]:
+              - text: Warehouse
+              - generic [ref=e140]: Equipment
+            - paragraph [ref=e141]: Structural Logistics & Heavy Storage
+            - link "Explore Selection arrow_forward" [ref=e142] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=e143]: Explore Selection
+              - generic [ref=e144]: arrow_forward
+          - heading "Warehouse Equipment" [level=4] [ref=e146]:
+            - text: Warehouse
+            - generic [ref=e147]: Equipment
+        - generic [ref=e148]:
+          - img "Packaging" [ref=e149]
+          - generic [ref=e151]:
+            - heading "Packaging" [level=3] [ref=e152]
+            - paragraph [ref=e153]: Protection & Design
+            - link "Solutions arrow_forward" [ref=e154] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=e155]: Solutions
+              - generic [ref=e156]: arrow_forward
+          - heading "Packaging" [level=4] [ref=e158]
+        - generic [ref=e159]:
+          - img "Cooling Rooms" [ref=e160]
+          - generic [ref=e162]:
+            - heading "Cold Rooms" [level=3] [ref=e163]
+            - paragraph [ref=e164]: Thermal stability systems for high-integrity precision storage.
+            - link "Solutions arrow_forward" [ref=e165] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=e166]: Solutions
+              - generic [ref=e167]: arrow_forward
+          - heading "Cold Rooms" [level=4] [ref=e169]
+    - generic [ref=e172]:
+      - generic [ref=e173]: OUTDOOR LIVING
+      - heading "ELEVATE YOUR OUTDOORS" [level=2] [ref=e174]
+      - paragraph [ref=e175]: For the stories told around the fire and the moments that linger.
+    - generic [ref=e176]:
+      - img "Luxury interior" [ref=e178]
+      - generic [ref=e181]:
+        - generic [ref=e182]: WEEKEND
+        - heading "FIRE." [level=1] [ref=e183]
+        - paragraph [ref=e184]: Built for outdoor moments that matter. From grilling to gathering — everything you need to cook, serve, and enjoy.
+        - generic [ref=e185]:
+          - button "Explore Collection" [ref=e186] [cursor=pointer]
+          - button "Outdoor Essentials" [ref=e187] [cursor=pointer]
+    - generic [ref=e190]:
+      - generic [ref=e191]:
+        - img "Glassware collection" [ref=e192]
+        - generic [ref=e194]:
+          - generic [ref=e195]: KITCHEN
+          - heading "ESSENTIALS." [level=3] [ref=e196]
+          - link "Explore Collection" [ref=e197] [cursor=pointer]:
+            - /url: "#"
+      - generic [ref=e198]:
+        - img "Textile collection" [ref=e199]
+        - generic [ref=e201]:
+          - generic [ref=e202]: DISPLAY
+          - heading "PROMOTION RACK" [level=3] [ref=e203]
+          - link "View Product" [ref=e204] [cursor=pointer]:
+            - /url: "#"
+    - generic [ref=e206]:
+      - generic [ref=e207]:
+        - heading "Smart Shopping Products at 1 KD & Under" [level=2] [ref=e208]:
+          - generic [ref=e209]: Smart Shopping
+          - generic [ref=e210]: Products at
+          - generic [ref=e211]: 1 KD & Under
+        - paragraph
+        - link "Explore All arrow_right_alt" [ref=e212] [cursor=pointer]:
+          - /url: "#"
+          - generic [ref=e213]: Explore All
+          - generic [ref=e214]: arrow_right_alt
+      - generic:
+        - generic [ref=e216] [cursor=pointer]:
+          - img "BBQ" [ref=e217]
+          - img "Hover" [ref=e218]
+        - generic:
+          - img "Broom pan"
+        - generic [ref=e220] [cursor=pointer]:
+          - img "Bowl" [ref=e221]
+          - img "Hover" [ref=e222]
+        - generic:
+          - img "Fruit"
+        - generic:
+          - img "Potato"
+        - generic [ref=e224] [cursor=pointer]:
+          - img "Steel" [ref=e225]
+          - img "Hover" [ref=e226]
+        - generic:
+          - img "Wooden"
+    - generic [ref=e228]:
+      - generic [ref=e229]:
+        - text: THE PIZZA COLLECTION
+        - heading "Tools made for every perfect slice." [level=2] [ref=e230]
+      - generic [ref=e231]:
+        - generic [ref=e232]:
+          - generic [ref=e233]:
+            - img "Product" [ref=e234]
+            - img "Product Hover" [ref=e235]
+          - generic [ref=e236]:
+            - generic [ref=e237]:
+              - heading "Measuring Cups" [level=4] [ref=e238]
+              - paragraph [ref=e239]: Kitchen Essentials
+            - generic [ref=e240]: 0.500 KD
+        - generic [ref=e241]:
+          - generic [ref=e242]:
+            - img "Product" [ref=e243]
+            - img "Product Hover" [ref=e244]
+          - generic [ref=e245]:
+            - generic [ref=e246]:
+              - heading "Dough Roller" [level=4] [ref=e247]
+              - paragraph [ref=e248]: Baking Tools
+            - generic [ref=e249]: 0.750 KD
+        - generic [ref=e250]:
+          - generic [ref=e251]:
+            - img "Product" [ref=e252]
+            - img "Product Hover" [ref=e253]
+          - generic [ref=e254]:
+            - generic [ref=e255]:
+              - heading "Pizza Slicer" [level=4] [ref=e256]
+              - paragraph [ref=e257]: Cutting Tools
+            - generic [ref=e258]: 0.250 KD
+        - generic [ref=e259]:
+          - generic [ref=e260]:
+            - img "Product" [ref=e261]
+            - img "Product Hover" [ref=e262]
+          - generic [ref=e263]:
+            - generic [ref=e264]:
+              - heading "PIZZA SERVER" [level=4] [ref=e265]
+              - paragraph [ref=e266]: Serving Tools
+            - generic [ref=e267]: 0.400 KD
+  - contentinfo [ref=e268]:
+    - generic [ref=e269]:
+      - generic [ref=e270]:
+        - generic [ref=e271]:
+          - link [ref=e272] [cursor=pointer]:
+            - /url: index.html
+            - img "AL-Nassim Logo" [ref=e273]
+          - paragraph [ref=e274]: The premier destination for professional industrial and retail equipment in the heart of Kuwait.
+        - generic [ref=e275]:
+          - heading "Quick Links" [level=4] [ref=e276]
+          - list [ref=e277]:
+            - listitem [ref=e278]:
+              - link "Houseware Equipment" [ref=e279] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e280]:
+              - link "Supermarket Equipment" [ref=e281] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e282]:
+              - link "Warehouse Equipment" [ref=e283] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e284]:
+              - link "Customized Packaging" [ref=e285] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e286]:
+              - link "Cold Rooms" [ref=e287] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e288]:
+          - heading "General Information" [level=4] [ref=e289]
+          - list [ref=e290]:
+            - listitem [ref=e291]:
+              - link "Help" [ref=e292] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e293]:
+              - link "About" [ref=e294] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e295]:
+              - link "Frequently Asked Questions" [ref=e296] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e297]:
+              - link "Terms & Conditions" [ref=e298] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e299]:
+          - heading "Customer Service" [level=4] [ref=e300]
+          - list [ref=e301]:
+            - listitem [ref=e302]:
+              - link "Return and refund policy" [ref=e303] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e304]:
+              - link "Shipping & delivery" [ref=e305] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e306]:
+              - link "Privacy and security" [ref=e307] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e308]:
+          - heading "Contact Us" [level=4] [ref=e309]
+          - list [ref=e310]:
+            - listitem [ref=e311]:
+              - generic [ref=e312]: location_on
+              - generic [ref=e313]: Shuwaikh Industrial Area, Kuwait
+            - listitem [ref=e314]:
+              - generic [ref=e315]: mail
+              - generic [ref=e316]: info@al-nassim.com
+            - listitem [ref=e317]:
+              - generic [ref=e318]: call
+              - generic [ref=e319]: +965 609 000 59
+      - generic [ref=e320]:
+        - paragraph [ref=e321]: © 2026 AL-Nassim Golden Group. All rights reserved.
+        - generic [ref=e322]:
+          - link [ref=e323] [cursor=pointer]:
+            - /url: https://www.facebook.com/Al.Nassim.Central.Market/
+            - img "Facebook" [ref=e324]
+          - link [ref=e325] [cursor=pointer]:
+            - /url: https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==
+            - img "Instagram" [ref=e326]
+  - link "Chat on WhatsApp" [ref=e327] [cursor=pointer]:
+    - /url: https://wa.me/96560900059
+    - img "Chat on WhatsApp" [ref=e328]
+  - button "close" [ref=e330] [cursor=pointer]

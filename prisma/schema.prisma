@@ -20,14 +20,30 @@ enum UserRole {
 
 enum OrderStatus {
   PENDING
+  UNDER_REVIEW
+  READY_FOR_CONFIRMATION
   CONFIRMED
   PACKING
+  READY_FOR_DELIVERY
   OUT_FOR_DELIVERY
   DELIVERED
   COMPLETED
-  CANCELLED
-  REJECTED
-  REFUNDED
+  CANCELLED_BY_CUSTOMER
+  CANCELLED_BY_STAFF
+}
+
+enum OrderItemStatus {
+  PENDING
+  AVAILABLE
+  UNAVAILABLE
+  REMOVED_AFTER_CONFIRMATION
+  DELIVERED
+}
+
+enum PosStatus {
+  NOT_CREATED
+  INVOICED
+  HANDED_TO_DELIVERY
 }
 
 enum StockStatus {
@@ -271,19 +287,20 @@ model Product {
 }
 
 model User {
-  id           Int        @id @default(autoincrement())
-  email        String     @unique
-  name         String
-  phone        String     @default("")
-  passwordHash String
-  role         UserRole   @default(CUSTOMER)
-  isActive     Boolean    @default(true)
-  sessions     Session[]
-  orders       Order[]
-  addresses    Address[]
-  wishlist     WishlistItem[]
-  cartItems    CartItem[]
-  createdAt    DateTime   @default(now())
+  id              Int                   @id @default(autoincrement())
+  email           String                @unique
+  name            String
+  phone           String                @default("")
+  passwordHash    String
+  role            UserRole              @default(CUSTOMER)
+  isActive        Boolean               @default(true)
+  sessions        Session[]
+  orders          Order[]
+  addresses       Address[]
+  wishlist        WishlistItem[]
+  cartItems       CartItem[]
+  passwordTokens  PasswordResetToken[]
+  createdAt       DateTime              @default(now())
   updatedAt    DateTime   @updatedAt
 }
 
@@ -333,31 +350,45 @@ model Order {
   city          String
   notes         String      @default("")
   status        OrderStatus @default(PENDING)
+  staffNotes    String      @default("")
+  posStatus     PosStatus   @default(NOT_CREATED)
   subtotal      Decimal     @db.Decimal(10, 3)
   shipping      Decimal     @db.Decimal(10, 3) @default(2.5)
   total         Decimal     @db.Decimal(10, 3)
   currency      String      @default("KD")
+  // Permanent ownership snapshot — captured at checkout, never mutated by
+  // account deletion. `originalUserId` is the stable ownership identifier
+  // (the account that placed the order); `originalUserEmail` is the historical
+  // customer email for admin/legal records. The live `userId`/`customerEmail`
+  // may be nulled/tombstoned when the account is deleted, but these persist so
+  // the order stays identifiable and the snapshot is never lost.
+  originalUserId    Int?     @map("original_user_id")
+  originalUserEmail String   @default("") @map("original_user_email")
   items         OrderItem[]
   statusHistory OrderStatusEvent[]
+  notifications Notification[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
   @@index([userId])
   @@index([status])
   @@index([customerEmail])
+  @@index([originalUserId])
+  @@index([originalUserEmail])
 }
 
 model OrderItem {
-  id        Int      @id @default(autoincrement())
-  orderId   Int
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId Int?
-  product   Product? @relation(fields: [productId], references: [id])
-  slug      String
-  name      String
-  image     String   @default("")
-  price     Decimal  @db.Decimal(10, 3)
-  quantity  Int
+  id         Int             @id @default(autoincrement())
+  orderId    Int
+  order      Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId  Int?
+  product    Product?        @relation(fields: [productId], references: [id])
+  slug       String
+  name       String
+  image      String          @default("")
+  price      Decimal         @db.Decimal(10, 3)
+  quantity   Int
+  itemStatus OrderItemStatus @default(PENDING)
 
   @@index([orderId])
 }
@@ -388,4 +419,31 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   @@index([entity])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  orderId   Int?
+  order     Order?   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  type      String
+  message   String
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([orderId])
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }

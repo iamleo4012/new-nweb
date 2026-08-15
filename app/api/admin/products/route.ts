@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { requireStaff } from "@/lib/auth";
+import { requireStaff, requireAdmin } from "@/lib/auth";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -306,8 +306,9 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  // Soft-deleting (deactivating) a product is a destructive action.
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
   const id = Number(req.nextUrl.searchParams.get("id"));
   if (!Number.isInteger(id) || id <= 0) {
     return NextResponse.json({ success: false, data: null, error: "Invalid id" }, { status: 400 });
@@ -316,7 +317,7 @@ export async function DELETE(req: NextRequest) {
   if (!existing) return NextResponse.json({ success: false, data: null, error: "Product not found" }, { status: 404 });
   const updated = await prisma.product.update({ where: { id }, data: { isActive: false }, include: productInclude });
   await prisma.auditLog.create({
-    data: { actorId: staff.id, action: "PRODUCT_DEACTIVATE", entity: "Product", entityId: String(id), detail: existing.slug },
+    data: { actorId: admin.id, action: "PRODUCT_DEACTIVATE", entity: "Product", entityId: String(id), detail: existing.slug },
   });
   return NextResponse.json({ success: true, data: { product: listSerialize(updated) }, error: null });
 }

@@ -6,20 +6,27 @@ import type { User } from "@prisma/client";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error("JWT_SECRET missing in environment");
-const SECRET: string = JWT_SECRET;
+export const SECRET: string = JWT_SECRET;
 
 export const COOKIE_NAME = process.env.SESSION_COOKIE_NAME || "nassim_sid";
 const SESSION_DAYS = 30;
 
-export async function createSession(userId: number): Promise<string> {
+export async function createSession(userId: number, role: string): Promise<string> {
   const sid = randomUUID();
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
   await prisma.session.create({ data: { id: sid, userId, expiresAt } });
-  const token = jwt.sign({ uid: userId, sid }, SECRET, { expiresIn: `${SESSION_DAYS}d` });
+  // The role is embedded in the JWT so the edge middleware can authorise
+  // /admin requests without a database lookup. The DB Session row remains
+  // the source of truth for validity; the role claim is only a hint that
+  // is re-checked on every route handler via getSessionUser().
+  const token = jwt.sign({ uid: userId, sid, role }, SECRET, { expiresIn: `${SESSION_DAYS}d` });
   const store = await cookies();
   store.set(COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: "lax",
+    // "strict" prevents the cookie from being sent on cross-site requests,
+    // which is the primary CSRF mitigation. Combined with the explicit CSRF
+    // token check in lib/security.ts this provides defence-in-depth.
+    sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: SESSION_DAYS * 24 * 60 * 60,
@@ -27,13 +34,23 @@ export async function createSession(userId: number): Promise<string> {
   return sid;
 }
 
+/**
+ * Read the raw session JWT from the cookie without verifying it. Used by
+ * CSRF verification (which needs the raw token to recompute the HMAC).
+ * Returns null if no cookie is present.
+ */
+export async function getSessionToken(): Promise<string | null> {
+  const store = await cookies();
+  return store.get(COOKIE_NAME)?.value ?? null;
+}
+
 export async function getSessionUser(): Promise<User | null> {
   const store = await cookies();
   const token = store.get(COOKIE_NAME)?.value;
   if (!token) return null;
-  let payload: { uid: number; sid: string };
+  let payload: { uid: number; sid: string; role?: string };
   try {
-    payload = jwt.verify(token, SECRET) as { uid: number; sid: string };
+    payload = jwt.verify(token, SECRET) as { uid: number; sid: string; role?: string };
   } catch {
     return null;
   }
@@ -63,8 +80,23 @@ export function publicUser(u: User) {
   return { id: u.id, name: u.name, email: u.email, phone: u.phone, role: u.role };
 }
 
+/**
+ * Gate for any staff route (ADMIN or STAFF). Use this for read access and
+ * routine operations that both roles may perform.
+ */
 export async function requireStaff(): Promise<User | null> {
   const user = await getSessionUser();
   if (!user || (user.role !== "ADMIN" && user.role !== "STAFF")) return null;
+  return user;
+}
+
+/**
+ * Strict gate for ADMIN-only operations. STAFF users are denied even though
+ * they pass requireStaff. Use this for destructive or privilege-escalating
+ * actions: deactivating admins, role changes, deleting master data, etc.
+ */
+export async function requireAdmin(): Promise<User | null> {
+  const user = await getSessionUser();
+  if (!user || user.role !== "ADMIN") return null;
   return user;
 }
