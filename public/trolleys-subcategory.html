@@ -2,7 +2,7 @@
 <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"||(!s&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
-<title>AL-Nassim | Cleaning Tools</title>
+<title>AL-Nassim | Trolleys &amp; Baskets</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
@@ -1272,8 +1272,8 @@
      does with its .subcat-tabs .category-btn elements). -->
 <section class="subcat-tabs" style="display:none;" aria-hidden="true">
 <button type="button" class="category-btn">All</button>
-<button type="button" class="category-btn">Surface Cleaning</button>
-<button type="button" class="category-btn">Toilet &amp; Drain</button>
+<button type="button" class="category-btn">Trolleys</button>
+<button type="button" class="category-btn">Baskets</button>
 </section>
 
 <!-- Mobile listing header: Page Title (left) + Filter & Sorting (right), then Product Count.
@@ -1282,7 +1282,7 @@
 <div class="subcat-listing-header" id="subcat-filter-trigger" role="button" tabindex="0" aria-label="Open filters and sorting">
   <div class="subcat-lh-top">
     <div>
-      <span class="subcat-lh-title" data-lh-title>PROFESSIONAL CLEANING EQUIPMENT</span>
+      <span class="subcat-lh-title" data-lh-title>WAREHOUSE TROLLEYS &amp; BASKETS</span>
       <div class="subcat-lh-count" data-lh-count></div>
     </div>
     <span class="subcat-lh-filter">
@@ -1300,9 +1300,9 @@
      the mobile category title). Desktop-only display controlled by
      the @media (min-width: 768px) block. -->
 <section class="subcat-intro" aria-label="Category introduction">
-  <h1 class="subcat-intro-title">Cleaning Tools</h1>
-  <p class="subcat-intro-sub">Professional Cleaning Equipment</p>
-  <p class="subcat-intro-desc">Keep every space spotless with dependable cleaning equipment designed for commercial, household and professional use. From floor care and surface cleaning to waste management, our collection combines practical performance, durability and clean, efficient design.</p>
+  <h1 class="subcat-intro-title">Trolleys &amp; Baskets</h1>
+  <p class="subcat-intro-sub">Warehouse Trolleys &amp; Baskets</p>
+  <p class="subcat-intro-desc">Move stock swiftly and safely with dependable warehouse trolleys and baskets built for demanding retail and industrial environments. From platform trolleys to hard-wearing baskets, our range combines practical performance, durability and clean, efficient design.</p>
 </section>
 
 <!-- DESKTOP BROWSING WRAPPER: sidebar + product grid in a flex row.
@@ -1491,7 +1491,7 @@
 <!-- Grid -->
 <!-- Dense 5-column grid on XL, 4 on LG, 2 on MD.
      Product cards are rendered dynamically from /api/catalog
-     (category === "Cleaning Tools") by the data script at the end of <body>.
+     (category === "Trolleys & Baskets") by the data script at the end of <body>.
      The grid wrapper and its classes are unchanged. -->
 <!-- Active Filters Display (from cleaning-tools.html — driven by its filter JS) -->
 <div id="active-filters" class="hidden mb-8 pb-6 border-b border-outline-variant/20 dark:border-white/20">
@@ -1590,7 +1590,7 @@
 <!-- ============================================================================
      DATA / WISHLIST / CART — functional layer only (NO UI/CSS changes).
      - Loads the SAME catalog as cleaning-tools.html: /api/catalog
-       → window.NASSIM_PRODUCTS  → filter p.category === "Cleaning Tools".
+       → window.NASSIM_PRODUCTS  → filter p.category === "Trolleys & Baskets".
      - Renders each product using the EXACT existing card markup/classes
        (the heart stays at absolute top-4 right-4, image aspect-[4/5], etc.).
      - Wires the existing heart → nassim_wishlist + /api/wishlist
@@ -1603,7 +1603,7 @@
 (function () {
   "use strict";
 
-  var CATEGORY = "Cleaning Tools";
+  var CATEGORY = "Trolleys & Baskets";
   var CART_KEY = "nassim_cart";
   var WISH_KEY = "nassim_wishlist";
   var grid = document.getElementById("product-grid");
@@ -1751,7 +1751,7 @@
     if (!list.length) {
       grid.innerHTML =
         '<div class="col-span-full text-center py-20">' +
-        '<p class="text-lg text-on-surface-variant">No Cleaning Tools products found.</p>' +
+        '<p class="text-lg text-on-surface-variant">No Trolleys &amp; Baskets products found.</p>' +
         "</div>";
       if (countEl) countEl.textContent = "0 products";
       return;
@@ -1825,8 +1825,8 @@
     });
   }
 
-  /* ---- load /api/catalog, filter Cleaning Tools, render ----
-     Stores the full Cleaning Tools list in allProducts, then runs
+  /* ---- load /api/catalog, filter Trolleys & Baskets, render ----
+     Stores the full Trolleys & Baskets list in allProducts, then runs
      applyFiltersAndSort() so the filter inputs drive what renders. */
   var allProducts = [];
   function loadAndRender() {
@@ -2158,10 +2158,10 @@
 
     /* ---- 2. Title + count sync ----
        Title matches cleaning-tools.html's catalog heading
-       ("PROFESSIONAL CLEANING EQUIPMENT"), not the desktop <h1>. */
+       ("WAREHOUSE TROLLEYS & BASKETS"), not the desktop <h1>. */
     var titleEl = document.querySelector('[data-lh-title]');
     if (titleEl) {
-      titleEl.textContent = 'PROFESSIONAL CLEANING EQUIPMENT';
+      titleEl.textContent = 'WAREHOUSE TROLLEYS & BASKETS';
     }
     var grid = document.getElementById('product-grid');
     var countEl = document.querySelector('[data-lh-count]');

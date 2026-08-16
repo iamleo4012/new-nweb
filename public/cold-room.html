@@ -302,6 +302,23 @@
     }
 </style>
 </head>
+    <style>
+    /* Navbar gap on mobile: the shared spacing system (dark-overrides.js/css)
+       publishes the measured mobile header height as --mobile-header-height.
+       The hero main is offset by exactly that amount (matching how every
+       other page seats its content under the mobile nav), and the system's
+       forced main padding-top is neutralized for this full-bleed hero so it
+       is not pushed down twice. Height subtracts the same offset so the
+       hero still ends exactly at the viewport bottom. */
+    @media (max-width: 767px) {
+        body > main {
+            margin-top: var(--mobile-header-height, 3.25rem) !important;
+            height: calc(100vh - var(--mobile-header-height, 3.25rem)) !important;
+            padding-top: 0 !important;
+        }
+    }
+    </style>
+
 <body class="bg-background text-on-surface font-body selection:bg-secondary-container selection:text-on-secondary-container">
 <!-- TopAppBar Section -->
 <nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 top-0">
@@ -317,8 +334,8 @@
 <div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
 <ul class="space-y-4">
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="subcategoryui.html">Cleaning Tools</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="home-outdoor.html">Home & Outdoor</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="kitchenware.html">Kitchenware</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="home-outdoor-subcategory.html">Home & Outdoor</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="kitchenware-subcategory.html">Kitchenware</a></li>
 </ul>
 </div>
 </div>
@@ -326,11 +343,11 @@
 <a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a>
 <div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
 <ul class="space-y-4">
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="cooling.html">Cooling Appliances</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trolly.html">Trolleys & Baskets</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="shelves.html">Shelves & Stands</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="checkout-solutions.html">Checkout Solutions</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="accessories.html">Accessories</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="cooling-subcategory.html">Cooling Appliances</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trolly-subcategory.html">Trolleys & Baskets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="shelves-subcategory.html">Shelves & Stands</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="checkout-solutions-subcategory.html">Checkout Solutions</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="accessories-subcategory.html">Accessories</a></li>
 </ul>
 </div>
 </div>
@@ -338,9 +355,9 @@
 <a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a>
 <div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
 <ul class="space-y-4">
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trollies.html">Trolleys & Baskets</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="forklift.html">Forklifts & Pallets</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="rack.html">Heavy Duty Racking</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trolleys-subcategory.html">Trolleys & Baskets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="forklifts-subcategory.html">Forklifts & Pallets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="heavy-duty-racking-subcategory.html">Heavy Duty Racking</a></li>
 </ul>
 </div>
 </div>
@@ -407,7 +424,7 @@
 </div>
 </nav>
 <!-- Main Content Canvas -->
-<main class="relative w-full h-screen flex items-center justify-center overflow-hidden">
+<main class="relative w-full mt-20 h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden">
 <!-- Cinematic Background Wrapper -->
 <div class="absolute inset-0 z-0">
     <img

@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <link rel="icon" href="/LOGO.png" type="image/png"/>
-<title>Product | AL-NASSIM</title>
+<title>Shopping Trolley SY143 | AL-NASSIM</title>
 <script></script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
@@ -58,7 +58,7 @@
         .thumb-active { border-color: #825335 !important; }
         .zoom-lens { position: absolute; border: 1px solid rgba(0,0,0,0.1); border-radius: 0; cursor: none; width: 200px; height: 200px; pointer-events: none; visibility: hidden; opacity: 0; transition: opacity 0.2s ease-in-out; box-shadow: 0 10px 40px rgba(0,0,0,0.2), 0 0 0 2px rgba(255,255,255,0.8); z-index: 35; background-repeat: no-repeat; background-color: #fff; }
         .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, opacity 0.3s ease; opacity: 0; }
-        .accordion-content.expanded { max-height: 1000px; opacity: 1; }
+        .accordion-content.expanded { max-height: 2000px; opacity: 1; }
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .toast-animate { animation: slideUp 0.3s ease-out forwards; }
 
@@ -73,12 +73,10 @@
         @media (max-width: 767px) {
             /* ---- Page rhythm: seat hero flush under mobile nav, tighter padding ---- */
             main { padding-top: 3.25rem !important; padding-left: 1rem !important; padding-right: 1rem !important; padding-bottom: 5rem !important; }
-            #breadcrumb { margin-bottom: 1.25rem !important; gap: 0.375rem !important; }
-
             /* ---- Hero: single column, tighter gaps ---- */
-            #breadcrumb + div { margin-bottom: 2.5rem !important; gap: 1rem !important; }
+            #product-hero { margin-bottom: 2.5rem !important; gap: 1rem !important; }
             /* Gallery wrapper: stack main image ABOVE thumbnails on mobile */
-            #breadcrumb + div > div:first-child { flex-direction: column-reverse !important; gap: 0.75rem !important; }
+            #product-hero > div:first-child { flex-direction: column-reverse !important; gap: 0.75rem !important; }
 
             /* ---- Gallery: large square main image, full width ---- */
             #product-img-container { aspect-ratio: 1 / 1 !important; border-radius: 0.75rem !important; }
@@ -99,10 +97,10 @@
             /* ---- CTA: stacked full-width, thumb-friendly ---- */
             #product-price + div, #product-desc + div { margin-top: 1.25rem !important; }
             /* Quantity + Add to Cart row */
-            #breadcrumb + div > div:last-child > div > div { gap: 0.625rem !important; }
-            #breadcrumb + div > div:last-child .w-32 { width: 7rem !important; }
-            #breadcrumb + div > div:last-child button[onclick*="addToCart"] { height: 3rem !important; font-size: 0.6875rem !important; }
-            #breadcrumb + div > div:last-child button[onclick*="buyNow"] { height: 3rem !important; font-size: 0.6875rem !important; margin-top: 0.625rem !important; }
+            #product-hero > div:last-child > div > div { gap: 0.625rem !important; }
+            #product-hero > div:last-child .w-32 { width: 7rem !important; }
+            #product-hero > div:last-child button[onclick*="addToCart"] { height: 3rem !important; font-size: 0.6875rem !important; }
+            #product-hero > div:last-child button[onclick*="buyNow"] { height: 3rem !important; font-size: 0.6875rem !important; margin-top: 0.625rem !important; }
 
             /* ---- Details accordion rows: tighter, two-section mobile layout ---- */
             section.mt-20 { margin-top: 2rem !important; }
@@ -172,14 +170,114 @@
             section.mt-20:last-of-type .flex.justify-between h2 { font-size: 1.25rem !important; }
         }
 
-        /* Mobile-only specs accordion row: hidden on desktop (≥768px) */
+        /* Specifications accordion — visible and functional at EVERY width.
+           (Was mobile-only.) On desktop it becomes the single home of the
+           specification rows, so it must render ≥768 as well; the duplicate
+           spec column inside the description section is hidden instead. */
         @media (min-width: 768px) {
-            .mobile-specs-row { display: none !important; }
+            .mobile-specs-row { display: block !important; }
         }
-        /* MOBILE BREADCRUMB HIDE (≤767px) */
+
+        /* =====================================================
+           DEMO REFINEMENTS (desktop ≥768px)
+           Tighter page rhythm: hero → description → related flow
+           without the old oversized gaps. The section.mt-20 classes
+           stay in the markup because the mobile block targets them;
+           spacing is overridden here instead. */
+        @media (min-width: 768px) {
+            /* COMPACT accordions: headers sized to their own content, NO
+               reserved space for hidden panels, and small content-driven
+               padding when expanded. Overrides the markup's py-10 headers,
+               pb-12 / pb-10 panel paddings and mt-20 section margins —
+               no fixed heights; everything sizes naturally at any width. */
+            main > section.mt-20 { margin-top: 1.25rem !important; }
+            main > section.mt-20 > div > button { padding-top: 0.875rem !important; padding-bottom: 0.875rem !important; }
+            /* Specifications live in their OWN accordion on desktop: hide the
+               duplicate spec column inside the description section and let the
+               description text span the width (capped for readability). */
+            #description-accordion .grid { grid-template-columns: 1fr !important; row-gap: 1rem !important; padding-bottom: 1rem !important; }
+            #description-accordion .lg\:col-span-8 { display: none !important; }
+            #description-accordion .lg\:col-span-4 { max-width: 46rem; }
+            /* Spec rows: two balanced columns on wide screens, tight padding */
+            .mobile-specs-row .accordion-content .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 3rem; row-gap: 1rem !important; padding-bottom: 1rem !important; }
+        }
+
+        /* =====================================================
+           RELATED PRODUCTS — active horizontal snap carousel.
+           Cards keep their uniform design; the track scrolls
+           horizontally with snap points. Card width = "4 cards +
+           a partial glimpse of the next one" on desktop (a clear
+           cue that more products exist), 2 cards + glimpse on
+           tablet. The existing chevron buttons (scrollRelated)
+           slide one card per click; mobile keeps its native swipe
+           strip from the mobile block below. */
+        @media (min-width: 768px) {
+            #related-grid {
+                display: flex !important;
+                grid-template-columns: none !important;
+                gap: 2rem !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                padding-bottom: 0.85rem;
+                /* Continuous auto-movement: snap disabled so the slow glide
+                   stays perfectly smooth. */
+                scroll-snap-type: none !important;
+                /* Scrollbar HIDDEN: navigation happens through the circular
+                   arrow buttons beside the heading (plus native wheel/touch). */
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            #related-grid::-webkit-scrollbar { display: none; }
+            #related-grid > a {
+                flex: 0 0 calc((100% - 3rem) / 2.35) !important; /* tablet: 2 cards + glimpse */
+            }
+        }
+        @media (min-width: 1024px) {
+            #related-grid > a {
+                flex: 0 0 calc((100% - 6rem) / 4.35) !important; /* desktop: 4 cards + glimpse */
+            }
+        }
+
+        /* Uniform related-product cards: every card gets the same image
+           area (aspect-[4/5] from the renderer) and a FIXED two-line
+           title block — 1-line names reserve the second line, 3+ line
+           names clamp with an ellipsis — so prices align across cards. */
+        #related-grid h3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.3;
+            min-height: calc(2 * 1.3em);
+        }
+        /* Circular heading arrows: softened (disabled) look when the track
+           has no more content in that direction. */
+        .related-arrow { transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease; }
+        .related-arrow[data-disabled="true"] { opacity: 0.3; pointer-events: none; }
+        /* ===== Related carousel on mobile (≤767px) =====
+           - Scrollbar hidden (native swipe + the continuous glide navigate
+             the strip); snap disabled so the glide stays smooth on touch.
+           - Card width = exactly TWO full cards + ~half of the third inside
+             the viewport (fluid calc, floored at 8.5rem so images/names/
+             prices never get unreadably narrow on small phones).
+           - The circular arrow buttons stay visible next to the heading. */
         @media (max-width: 767px) {
-            #breadcrumb { display: none !important; margin: 0 !important; padding: 0 !important; height: 0 !important; }
+            #related-grid {
+                scroll-snap-type: none !important;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            #related-grid::-webkit-scrollbar { display: none !important; }
+            #related-grid > a {
+                flex: 0 0 max(8.5rem, calc((100% - 2rem) / 2.5)) !important;
+                min-width: max(8.5rem, calc((100% - 2rem) / 2.5)) !important;
+                max-width: max(8.5rem, calc((100% - 2rem) / 2.5)) !important;
+            }
+            /* Keep the two circular arrow buttons beside the heading on mobile
+               (the pre-demo mobile block hid them). */
+            section.mt-20:last-of-type .flex.justify-between .flex.gap-4 { display: flex !important; }
         }
+
     </style>
 </head>
 <body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased selection:bg-secondary-container selection:text-on-secondary-container">
@@ -224,13 +322,11 @@
 </nav>
 
 <!-- ===== Main Content (dynamically populated) ===== -->
-<main class="pt-36 pb-20 px-6 md:px-12 max-w-7xl mx-auto">
-<!-- Breadcrumb -->
-<nav class="flex gap-2 text-[10px] uppercase tracking-widest font-bold text-on-surface-variant/60 dark:text-white/60 mb-8" id="breadcrumb">
-<a class="hover:text-secondary" href="home.html">Home</a><span>/</span><a class="hover:text-secondary" href="#" id="bc-category">Category</a><span>/</span><span class="text-on-surface dark:text-white" id="bc-line">Product</span>
-</nav>
+<main class="pt-28 pb-20 px-6 md:px-12 max-w-7xl mx-auto">
+<!-- Breadcrumbs removed by design: the product section begins directly
+     below the header with appropriate whitespace (main pt-28). -->
 <!-- Product Hero Section -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-24">
+<div id="product-hero" class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-10">
 <div class="lg:col-span-7 flex flex-col-reverse md:flex-row gap-6">
 <!-- Vertical Thumbnails (populated by JS) -->
 <div class="flex md:flex-col gap-4 overflow-x-auto md:overflow-y-auto hide-scrollbar" id="thumbnail-gallery"></div>
@@ -246,10 +342,10 @@
 <!-- Product Info & Actions -->
 <div class="lg:col-span-5 flex flex-col">
 <h1 class="font-display text-4xl md:text-5xl font-extrabold text-primary dark:text-white mb-2 leading-tight uppercase" id="product-title">Loading…</h1>
-<div class="flex items-center gap-4 mb-6 text-on-surface-variant/70 dark:text-white/70 text-xs"><span class="font-medium" id="product-sku">SKU: —</span></div>
-<div class="text-3xl font-display font-light text-primary dark:text-white mb-8" id="product-price">—</div>
-<p class="text-on-surface-variant dark:text-white/70 leading-relaxed text-sm mb-10 max-w-md" id="product-desc"></p>
-<div class="space-y-4">
+<div class="flex items-center gap-4 mb-3 text-on-surface-variant/70 dark:text-white/70 text-xs"><span class="font-medium" id="product-sku">SKU: —</span></div>
+<div class="text-3xl font-display font-light text-primary dark:text-white mb-5" id="product-price">—</div>
+<p class="text-on-surface-variant dark:text-white/70 leading-relaxed text-sm mb-6 max-w-md" id="product-desc"></p>
+<div class="space-y-4 pt-5 border-t border-outline-variant/20 dark:border-white/10">
 <div class="flex gap-4">
 <div class="flex items-center bg-surface-container-high dark:bg-surface-container rounded-sm px-1 w-32 border border-outline-variant/20 dark:border-outline-variant/40 flex-shrink-0">
 <button class="w-8 h-12 flex items-center justify-center hover:text-secondary transition-colors active:scale-90" onclick="decrementQty()"><span class="material-symbols-outlined text-lg">remove</span></button>
@@ -269,8 +365,8 @@
 <h2 class="font-display text-3xl font-extrabold uppercase tracking-tight leading-none">Product Description</h2>
 <span class="material-symbols-outlined text-3xl transition-transform duration-300" id="accordion-icon" style="transform: rotate(0deg);">expand_more</span>
 </button>
-<div class="accordion-content border-b border-outline-variant/20" id="description-accordion">
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-16 pb-16">
+<div class="accordion-content" id="description-accordion"><!-- no divider line below Product Description (demo) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-12">
 <div class="lg:col-span-4"><div class="w-16 h-1 bg-secondary mb-8"></div><p class="text-on-surface-variant dark:text-white/70 text-sm leading-relaxed mb-6" id="accordion-intro"></p></div>
 <div class="lg:col-span-8"><div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10" id="spec-grid"></div></div>
 </div>
@@ -281,7 +377,7 @@
      .accordion-content/.expanded CSS and toggleAccordion() pattern as the
      description accordion above. Populated from the same product.specs data
      source as the desktop #spec-grid (#mobile-spec-grid), so no data duplication. -->
-<section class="mobile-specs-row mt-20 border-t border-outline-variant/20" style="display:none;">
+<section class="mobile-specs-row mt-20"><!-- no divider above Specifications (demo) -->
 <div class="w-full">
 <button class="w-full py-10 flex items-center group transition-colors hover:text-secondary justify-start gap-4" onclick="toggleAccordion('specs-accordion')">
 <h2 class="font-display text-3xl font-extrabold uppercase tracking-tight leading-none">Specifications</h2>
@@ -294,7 +390,7 @@
 </section>
 <!-- Related Products (populated by JS) -->
 <section class="mt-20">
-<div class="flex justify-between items-end mb-10"><div><h2 class="font-display text-3xl font-extrabold uppercase tracking-widest text-primary dark:text-white">Related Products</h2></div><div class="flex gap-4"><button class="w-10 h-10 rounded-full border border-outline-variant/30 dark:border-outline-variant/50 flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" onclick="scrollRelated(-1)"><span class="material-symbols-outlined text-sm">chevron_left</span></button><button class="w-10 h-10 rounded-full border border-outline-variant/30 dark:border-outline-variant/50 flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" onclick="scrollRelated(1)"><span class="material-symbols-outlined text-sm">chevron_right</span></button></div></div>
+<div class="flex justify-between items-end mb-10"><div><h2 class="font-display text-3xl font-extrabold uppercase tracking-widest text-primary dark:text-white">Related Products</h2></div><div class="flex gap-4"><button type="button" class="related-arrow w-10 h-10 rounded-full border border-outline-variant/30 dark:border-outline-variant/50 flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" data-dir="-1" aria-label="Scroll related products left" onclick="scrollRelated(-1)"><span class="material-symbols-outlined text-sm">chevron_left</span></button><button type="button" class="related-arrow w-10 h-10 rounded-full border border-outline-variant/30 dark:border-outline-variant/50 flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" data-dir="1" aria-label="Scroll related products right" onclick="scrollRelated(1)"><span class="material-symbols-outlined text-sm">chevron_right</span></button></div></div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" id="related-grid"></div>
 </section>
 </main>
@@ -572,7 +668,7 @@
     function escapeHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
     function loadProduct() {
-      var id = getQueryParam('id');
+      var id = getQueryParam('id') || 'shopping-trolley-sy143'; /* demo default — overridable via ?id= */
       var product = window.NassimGetProduct ? window.NassimGetProduct(id) : null;
       if (!product) {
         // No product found — show a not-found state
@@ -583,9 +679,6 @@
       }
       document.title = product.name + ' | AL-NASSIM';
       initFavoriteState();
-      // Breadcrumb
-      document.getElementById('bc-category').textContent = product.category;
-      document.getElementById('bc-line').textContent = product.line;
       // Info
       document.getElementById('product-title').textContent = product.name;
       document.getElementById('product-sku').textContent = 'SKU: ' + product.sku;
@@ -628,24 +721,24 @@
         });
       }
       // 2. Same section products
-      if (related.length < 4 && product.sectionSlug) {
+      if (related.length < 8 && product.sectionSlug) {
         window.NASSIM_PRODUCTS.forEach(function(p) {
-          if (related.length < 4 && p.id !== product.id && p.sectionSlug === product.sectionSlug && !related.find(r => r.id === p.id)) related.push(p);
+          if (related.length < 8 && p.id !== product.id && p.sectionSlug === product.sectionSlug && !related.find(r => r.id === p.id)) related.push(p);
         });
       }
       // 3. Same department products
-      if (related.length < 4 && product.departmentSlug) {
+      if (related.length < 8 && product.departmentSlug) {
         window.NASSIM_PRODUCTS.forEach(function(p) {
-          if (related.length < 4 && p.id !== product.id && p.departmentSlug === product.departmentSlug && !related.find(r => r.id === p.id)) related.push(p);
+          if (related.length < 8 && p.id !== product.id && p.departmentSlug === product.departmentSlug && !related.find(r => r.id === p.id)) related.push(p);
         });
       }
       // 4. Fallback: any products
-      if (related.length < 4) {
+      if (related.length < 8) {
         window.NASSIM_PRODUCTS.forEach(function(p) {
-          if (related.length < 4 && p.id !== product.id && !related.find(r => r.id === p.id)) related.push(p);
+          if (related.length < 8 && p.id !== product.id && !related.find(r => r.id === p.id)) related.push(p);
         });
       }
-      related = related.slice(0, 4);
+      related = related.slice(0, 8);
       var relatedGrid = document.getElementById('related-grid');
       relatedGrid.innerHTML = related.map(function(p) {
         return '<a href="product%20view.html?id=' + encodeURIComponent(p.id) + '" data-product-card class="group cursor-pointer"><div class="aspect-[4/5] bg-surface-container-lowest dark:bg-surface-container rounded-xl overflow-hidden mb-6 relative"><img loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="' + p.img + '" alt="' + escapeHtml(p.name) + '"/>' +
@@ -660,6 +753,12 @@
     /* ===== Magnifying Glass (init after product loads) ===== */
     document.addEventListener('DOMContentLoaded', () => {
         loadProduct();
+        /* DEMO: BOTH accordions start OPEN on every viewport. Each remains
+           individually collapsible/expandable via its heading click. */
+        ['description-accordion', 'specs-accordion'].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el && !el.classList.contains('expanded')) toggleAccordion(id);
+        });
 
         /* Wishlist heart re-sync: mirrors the syncWishHearts pattern on
            subcategory listing pages. Re-evaluates isFavorite whenever the
@@ -1156,5 +1255,103 @@
   });
 })();
 </script>
-<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script></body>
+<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script>
+<script>
+/* =====================================================================
+   DEMO — Related Products: living horizontal showcase.
+   - Slow continuous auto-glide left → right (≈45px/s, ping-pong at the
+     ends so it NEVER jumps; honours prefers-reduced-motion).
+   - User interaction ALWAYS wins: pointer/touch/wheel/drag/scrollbar or
+     hovering a card pauses the glide; it resumes ~3.5s after the last
+     interaction once the pointer has left the track.
+   - Vertical wheel/trackpad input over the track is translated to
+     horizontal browsing (where the browser doesn't do it natively).
+   ===================================================================== */
+(function () {
+  function ready(fn){ if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
+  ready(function () {
+    var grid = document.getElementById('related-grid');
+    if (!grid) return;
+    var SPEED = 0.045;              /* px per ms ≈ 45px/s — subtle, readable */
+    var RESUME_MS = 3500;           /* inactivity before the glide resumes */
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var dir = 1, paused = false, hovering = false, resumeTimer = null, last = null;
+    /* Float position accumulator: scrollLeft is integer-rounded, so writing
+       sub-pixel per-frame deltas and reading them back would stall at ~0.
+       We keep our own float position, write rounded values to the element,
+       and re-sync from the element while paused (so manual scrolling and
+       the glide never fight over the position). */
+    var pos = 0;
+
+    function maxScroll() { return grid.scrollWidth - grid.clientWidth; }
+
+    function step(ts) {
+      requestAnimationFrame(step);
+      if (!last) { last = ts; pos = grid.scrollLeft; return; }
+      var dt = ts - last; last = ts;
+      if (paused || reduceMotion) { pos = grid.scrollLeft; return; }
+      var max = maxScroll();
+      if (max <= 4) return;
+      pos += dir * SPEED * dt;
+      if (pos >= max) { pos = max; dir = -1; }          /* smooth ping-pong: */
+      else if (pos <= 0) { pos = 0; dir = 1; }          /* no jump, ever     */
+      grid.scrollLeft = Math.round(pos);
+    }
+
+    function pause() {
+      paused = true;
+      if (resumeTimer) clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(function () { if (!hovering) paused = false; }, RESUME_MS);
+    }
+
+    /* Circular heading arrows: clicking one is a user interaction — pause
+       the glide so the smooth scrollBy() and the auto-movement never fight
+       (the glide re-syncs its position from the track while paused, so it
+       resumes exactly where the arrow scroll ended — no jumping). */
+    document.querySelectorAll('.related-arrow').forEach(function (btn) {
+      btn.addEventListener('pointerdown', pause);
+      btn.addEventListener('click', pause);
+    });
+
+    /* Soften arrows with no content in their direction; updates live as the
+       glide moves, as the user scrolls, and on resize. */
+    var arrows = [].slice.call(document.querySelectorAll('.related-arrow'));
+    function updateArrows() {
+      var max = maxScroll();
+      if (max <= 4) { arrows.forEach(function (a) { a.setAttribute('data-disabled', 'true'); }); return; }
+      arrows.forEach(function (a) {
+        var dir = parseInt(a.getAttribute('data-dir'), 10);
+        var spent = dir < 0 ? grid.scrollLeft <= 1 : grid.scrollLeft >= max - 1;
+        a.setAttribute('data-disabled', spent ? 'true' : 'false');
+      });
+    }
+    grid.addEventListener('scroll', updateArrows, { passive: true });
+    window.addEventListener('resize', updateArrows, { passive: true });
+    setTimeout(updateArrows, 600);
+    setTimeout(updateArrows, 1800);
+
+    grid.addEventListener('mouseenter', function () { hovering = true; paused = true; });
+    grid.addEventListener('mouseleave', function () { hovering = false; paused = false; });
+    grid.addEventListener('pointerdown', pause);
+    grid.addEventListener('touchstart', pause, { passive: true });
+    grid.addEventListener('focusin', pause);
+    grid.addEventListener('wheel', function (e) {
+      pause();
+      /* translate vertical wheel → horizontal browsing, unless already at
+         an edge (then let the page scroll vertically as usual) */
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        var max = maxScroll();
+        var atStart = grid.scrollLeft <= 0, atEnd = grid.scrollLeft >= max - 1;
+        if (!((atStart && e.deltaY < 0) || (atEnd && e.deltaY > 0))) {
+          e.preventDefault();
+          grid.scrollLeft += e.deltaY;
+        }
+      }
+    }, { passive: false });
+
+    /* START the glide loop */
+    requestAnimationFrame(step);
+  });
+})();
+</script></body>
 </html>
