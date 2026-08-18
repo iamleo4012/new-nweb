@@ -65,27 +65,40 @@ const SECURITY_HEADERS: Record<string, string> = {
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
-function isAdminToken(token: string | undefined): boolean {
+/**
+ * Page-gate role check. SECURITY: the signed token is VERIFIED whenever
+ * JWT_SECRET is available — a forged unsigned JWT with an admin/owner role
+ * claim must never pass the gate. The unsigned jwt.decode fallback exists
+ * only for the documented dev edge case where the secret is not propagated
+ * to the edge runtime; the real enforcement (signature + DB session check)
+ * always happens in every API route via requireStaff()/requireAdmin()/
+ * requireOwner(), so this gate remains defence-in-depth, not the authority.
+ */
+function hasRoleToken(token: string | undefined, allowed: (string | undefined)[]): boolean {
   if (!token) return false;
   try {
-    // In the edge runtime, JWT_SECRET may not be available (especially in dev
-    // where .env propagation to middleware is inconsistent). Use jwt.decode
-    // (no signature verification) to read the role claim for the page-gate
-    // decision. The actual security enforcement happens server-side in every
-    // admin API route via requireStaff()/requireAdmin() and in AdminApp via
-    // /api/auth/me — both of which DO verify the JWT signature with the
-    // secret. The middleware gate is defence-in-depth, not the sole authority.
-    const decoded = jwt.decode(token) as { role?: string } | null;
-    if (decoded && (decoded.role === "ADMIN" || decoded.role === "STAFF" || decoded.role === "SUPERADMIN")) return true;
-    // Fallback: try full verification if JWT_SECRET is available
     if (JWT_SECRET) {
-      const verified = jwt.verify(token, JWT_SECRET) as { role?: string };
-      return verified.role === "ADMIN" || verified.role === "STAFF" || verified.role === "SUPERADMIN";
+      try {
+        const verified = jwt.verify(token, JWT_SECRET) as { role?: string };
+        return allowed.includes(verified.role);
+      } catch {
+        // Signature invalid/expired — reject outright. Never fall back to an
+        // unsigned decode when the secret is available: that would let a
+        // forged token through.
+        return false;
+      }
     }
-    return false;
+    // No secret in this runtime (dev edge case): fall back to the unsigned
+    // claim. API routes still fully verify before doing anything sensitive.
+    const decoded = jwt.decode(token) as { role?: string } | null;
+    return !!decoded && allowed.includes(decoded.role);
   } catch {
     return false;
   }
+}
+
+function isAdminToken(token: string | undefined): boolean {
+  return hasRoleToken(token, ["ADMIN", "STAFF", "SUPERADMIN"]);
 }
 
 /**
@@ -94,18 +107,7 @@ function isAdminToken(token: string | undefined): boolean {
  * enforces requireOwner() server-side with full signature verification.
  */
 function isOwnerToken(token: string | undefined): boolean {
-  if (!token) return false;
-  try {
-    const decoded = jwt.decode(token) as { role?: string } | null;
-    if (decoded && decoded.role === "SUPERADMIN") return true;
-    if (JWT_SECRET) {
-      const verified = jwt.verify(token, JWT_SECRET) as { role?: string };
-      return verified.role === "SUPERADMIN";
-    }
-    return false;
-  } catch {
-    return false;
-  }
+  return hasRoleToken(token, ["SUPERADMIN"]);
 }
 
 function jsonError(status: number, error: string, retryAfterSec?: number): NextResponse {
@@ -159,6 +161,33 @@ export function middleware(req: NextRequest) {
     const result = rateLimit(`${ip}:${pathname}`, 10, 60_000); // 10 req / minute / IP / endpoint
     if (!result.allowed) {
       return jsonError(429, "Too many requests. Please try again later.", result.retryAfterMs / 1000);
+    }
+  }
+
+  // 2b. CSRF defence-in-depth: state-changing API calls must originate from
+  //     this site. The session cookie is SameSite=Strict (the primary CSRF
+  //     mitigation — see docs/SECURITY-NOTES.md); this Origin check adds a
+  //     second, independent layer for browsers that send Origin (all modern
+  //     ones do on cross-site POSTs). Requests WITHOUT an Origin header (curl,
+  //     server-to-server) are allowed through — they cannot carry the
+  //     HttpOnly session cookie cross-site in a CSRF attack scenario that
+  //     SameSite doesn't already cover.
+  if (
+    pathname.startsWith("/api/") &&
+    ["POST", "PATCH", "PUT", "DELETE"].includes(req.method)
+  ) {
+    const origin = req.headers.get("origin");
+    if (origin) {
+      const host = req.headers.get("host");
+      let originHost: string | null = null;
+      try {
+        originHost = new URL(origin).host;
+      } catch {
+        originHost = null;
+      }
+      if (!originHost || !host || originHost !== host) {
+        return jsonError(403, "Cross-origin request rejected.");
+      }
     }
   }
 

@@ -24,8 +24,9 @@ export async function createSession(userId: number, role: string): Promise<strin
   store.set(COOKIE_NAME, token, {
     httpOnly: true,
     // "strict" prevents the cookie from being sent on cross-site requests,
-    // which is the primary CSRF mitigation. Combined with the explicit CSRF
-    // token check in lib/security.ts this provides defence-in-depth.
+    // which is the primary CSRF mitigation. An Origin check in middleware for
+    // state-changing /api/* requests adds a second, independent layer (see
+    // docs/SECURITY-NOTES.md for the full CSRF assessment).
     sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
     path: "/",
