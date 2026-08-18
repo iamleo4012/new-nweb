@@ -47,13 +47,22 @@ export async function GET() {
       take: 8,
       select: { id: true, orderNumber: true, customerName: true, status: true, total: true, currency: true, createdAt: true },
     }),
+    // "Most Ordered Products" uses the same billable definition as the owner
+    // analytics (lib/analytics.ts): items from cancelled orders and items
+    // removed after confirmation are excluded, so staff sees real demand.
     prisma.orderItem.groupBy({
       by: ["slug", "name"],
       _sum: { quantity: true },
+      where: {
+        itemStatus: { notIn: ["REMOVED_AFTER_CONFIRMATION"] },
+        order: { status: { notIn: ["CANCELLED_BY_CUSTOMER", "CANCELLED_BY_STAFF"] } },
+      },
       orderBy: { _sum: { quantity: "desc" } },
       take: 10,
     }),
-    prisma.notification.count({ where: { readAt: null } }),
+    // Unread notifications for THIS admin only (was previously counting all
+    // users' notifications).
+    prisma.notification.count({ where: { readAt: null, userId: staff.id } }),
   ]);
 
   return NextResponse.json({
