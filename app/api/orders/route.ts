@@ -4,9 +4,17 @@ import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { calculateBillableTotals } from "@/lib/order-workflow";
 import { reserveOnlineStock, InsufficientStockError } from "@/lib/online-stock";
+import { generateOrderAccessToken, hashOrderAccessToken } from "@/lib/order-access";
+import { getShippingFee } from "@/lib/shipping";
+import { rateLimit, getClientIp } from "@/lib/security";
+import type { Order } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
+// NOTE: `shipping` is deliberately NOT accepted from the client — the fee is
+// derived server-side (lib/shipping.ts). Unknown body keys are stripped by
+// zod, so existing storefront payloads that still include it keep working.
 const orderSchema = z.object({
   customerName: z.string().min(2).max(100),
   customerEmail: z.union([
@@ -30,11 +38,59 @@ const orderSchema = z.object({
     )
     .min(1)
     .max(100),
-  shipping: z.number().min(0).max(100),
   currency: z.string().max(10).optional().default("KD"),
 });
 
+const IDEMPOTENCY_HEADER = "x-idempotency-key";
+const idempotencyKeySchema = z.string().regex(/^[A-Za-z0-9_-]{8,80}$/);
+
+/** Shape shared by the fresh-create response and idempotent replays. */
+function orderResponse(order: Order & { items: Prisma.OrderItemGetPayload<object>[] }, accessToken: string | null, idempotentReplay: boolean) {
+  return NextResponse.json({
+    success: true,
+    order: { orderNumber: order.orderNumber },
+    data: {
+      order: {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        status: order.status,
+        createdAt: order.createdAt,
+        currency: order.currency,
+        // Raw capability token for guest order tracking — returned once here
+        // (and on idempotent replays of the SAME submission). Never logged.
+        accessToken,
+        idempotentReplay,
+        ...calculateBillableTotals(
+          (order.items as { price: unknown; quantity: number; itemStatus: string }[]).map((i) => ({ price: i.price, quantity: i.quantity, itemStatus: i.itemStatus })),
+          order.shipping
+        ),
+        items: order.items.map((i) => ({
+          id: i.id,
+          slug: i.slug,
+          name: i.name,
+          qty: i.quantity,
+          price: Number(i.price),
+          itemStatus: i.itemStatus,
+        })),
+      },
+    },
+    error: null,
+  });
+}
+
 export async function POST(req: NextRequest) {
+  // Abuse guard: order creation is guest-accessible and reserves real stock on
+  // every call. 8 orders / 10 minutes / IP is far above any legitimate
+  // customer rate while capping spam and duplicate floods.
+  const ip = getClientIp(req);
+  const rl = rateLimit(`orders:${ip}`, { max: 8, windowMs: 10 * 60 * 1000 });
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { success: false, data: null, error: "Too many orders from this connection. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) } }
+    );
+  }
+
   let body: unknown;
   try {
     body = await req.json();
@@ -49,6 +105,30 @@ export async function POST(req: NextRequest) {
     );
   }
   const input = parsed.data;
+
+  // Idempotency: the checkout client generates ONE key per submission attempt
+  // and sends it as a header. A replay (double-click, retry after a lost
+  // response, refresh) returns the original order instead of creating a
+  // duplicate and reserving stock twice. The pre-check here catches the
+  // common case cheaply; the unique index inside the transaction catches the
+  // concurrent race.
+  const rawIdemKey = req.headers.get(IDEMPOTENCY_HEADER);
+  let idempotencyKey: string | null = null;
+  if (rawIdemKey !== null) {
+    const k = idempotencyKeySchema.safeParse(rawIdemKey);
+    if (!k.success) {
+      return NextResponse.json({ success: false, data: null, error: "Invalid idempotency key" }, { status: 400 });
+    }
+    idempotencyKey = k.data;
+    const existingSec = await prisma.orderSecurity.findUnique({ where: { idempotencyKey } });
+    if (existingSec) {
+      const existing = await prisma.order.findUnique({
+        where: { orderNumber: existingSec.orderNumber },
+        include: { items: true },
+      });
+      if (existing) return orderResponse(existing, null, true);
+    }
+  }
 
   // Verify products exist and are active. ONLINE STOCK is validated and
   // atomically deducted inside the transaction below (never at cart time) —
@@ -70,6 +150,15 @@ export async function POST(req: NextRequest) {
 
   const user = await getSessionUser();
 
+  // SERVER-AUTHORITATIVE shipping: derived from the Setting table (flat fee
+  // default 2.500 KWD). The client-sent value — if any — is never read, so a
+  // manipulated payload cannot change the order total.
+  const shipping = await getShippingFee();
+
+  // Guest-tracking capability token: raw value returned once in the response;
+  // only its SHA-256 hash is stored (see lib/order-access.ts).
+  const accessToken = generateOrderAccessToken();
+
   try {
     const order = await prisma.$transaction(async (tx) => {
       let subtotal = 0;
@@ -87,7 +176,6 @@ export async function POST(req: NextRequest) {
           itemStatus: "PENDING" as const,
         };
       });
-      const shipping = input.shipping;
       const total = subtotal + shipping;
 
       const created = await tx.order.create({
@@ -130,6 +218,18 @@ export async function POST(req: NextRequest) {
         orderNumber
       );
 
+      // Security metadata (capability-token hash + idempotency key) commits
+      // atomically with the order. A concurrent duplicate submission with the
+      // same key loses the unique-index race (P2002) and is converted into a
+      // replay of the winner in the catch below — stock is never reserved twice.
+      await tx.orderSecurity.create({
+        data: {
+          orderNumber,
+          tokenHash: hashOrderAccessToken(accessToken),
+          idempotencyKey,
+        },
+      });
+
       const updated = await tx.order.update({
         where: { id: created.id },
         data: { orderNumber },
@@ -139,32 +239,7 @@ export async function POST(req: NextRequest) {
       return updated;
     });
 
-    return NextResponse.json({
-      success: true,
-      order: { orderNumber: order.orderNumber },
-      data: {
-        order: {
-          id: order.id,
-          orderNumber: order.orderNumber,
-          status: order.status,
-          createdAt: order.createdAt,
-          currency: order.currency,
-          ...calculateBillableTotals(
-            order.items.map((i) => ({ price: i.price, quantity: i.quantity, itemStatus: i.itemStatus })),
-            order.shipping
-          ),
-          items: order.items.map((i) => ({
-            id: i.id,
-            slug: i.slug,
-            name: i.name,
-            qty: i.quantity,
-            price: Number(i.price),
-            itemStatus: i.itemStatus,
-          })),
-        },
-      },
-      error: null,
-    });
+    return orderResponse(order, accessToken, false);
   } catch (err) {
     if (err instanceof InsufficientStockError) {
       // Oversell prevented — nothing was created and stock is unchanged.
@@ -172,6 +247,22 @@ export async function POST(req: NextRequest) {
         { success: false, data: null, error: err.message },
         { status: 409 }
       );
+    }
+    // Lost idempotency race: an identical concurrent submission (same key)
+    // committed microseconds earlier — return its order instead of a duplicate.
+    if (
+      idempotencyKey &&
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2002"
+    ) {
+      const sec = await prisma.orderSecurity.findUnique({ where: { idempotencyKey } });
+      if (sec) {
+        const existing = await prisma.order.findUnique({
+          where: { orderNumber: sec.orderNumber },
+          include: { items: true },
+        });
+        if (existing) return orderResponse(existing, null, true);
+      }
     }
     console.error("Order creation failed:", err);
     return NextResponse.json(

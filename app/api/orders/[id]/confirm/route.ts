@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { validateTransition, createNotification, notificationMessage, STATUS_LABELS } from "@/lib/order-workflow";
 import { restoreOnlineStockForOrder, restoreStockForRemovedItems } from "@/lib/online-stock";
+import { findOrderByAccessToken } from "@/lib/order-access";
 import type { OrderStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -13,18 +14,20 @@ const schema = z.object({
 });
 
 /**
- * POST /api/orders/[id]/confirm — customer confirms or cancels their order.
+ * POST /api/orders/[id]/confirm — the customer confirms or cancels their order.
  *
  * The order must be in READY_FOR_CONFIRMATION status. The customer can either:
  *   - confirm: order moves to CONFIRMED (unavailable items become REMOVED_AFTER_CONFIRMATION)
  *   - cancel: order moves to CANCELLED_BY_CUSTOMER
+ *
+ * Authorization: the authenticated account that placed the order (userId
+ * match), OR a guest presenting the order's capability token (?token=… from
+ * the checkout tracking link). Nobody else can act on the order.
  */
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: idParam } = await params;
   const user = await getSessionUser();
-  if (!user) {
-    return NextResponse.json({ success: false, data: null, error: "Not authenticated" }, { status: 401 });
-  }
+  const token = req.nextUrl.searchParams.get("token");
 
   let body: unknown;
   try {
@@ -42,20 +45,37 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ success: false, data: null, error: "Invalid order id" }, { status: 400 });
   }
 
-  const order = await prisma.order.findUnique({
-    where: { id: orderId },
-    include: { items: true },
-  });
-  if (!order) {
-    return NextResponse.json({ success: false, data: null, error: "Order not found" }, { status: 404 });
-  }
-
-  // Authorization: must own the order via the current account (userId match),
-  // never by email alone — prevents a reused email from acting on a deleted
-  // account's order.
-  const isOwner = order.userId === user.id;
-  if (!isOwner) {
-    return NextResponse.json({ success: false, data: null, error: "Forbidden" }, { status: 403 });
+  let order;
+  if (user) {
+    order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+    if (!order) {
+      return NextResponse.json({ success: false, data: null, error: "Order not found" }, { status: 404 });
+    }
+    // Authorization: must own the order via the current account (userId match),
+    // never by email alone — prevents a reused email from acting on a deleted
+    // account's order.
+    if (order.userId !== user.id) {
+      return NextResponse.json({ success: false, data: null, error: "Forbidden" }, { status: 403 });
+    }
+  } else {
+    // Guest: the capability token both identifies and authorizes the order.
+    if (!token) {
+      return NextResponse.json(
+        { success: false, data: null, error: "Please sign in or use the tracking link from your order confirmation." },
+        { status: 401 }
+      );
+    }
+    const tokenOrder = await findOrderByAccessToken(token, { items: true });
+    if (!tokenOrder) {
+      return NextResponse.json({ success: false, data: null, error: "Order not found" }, { status: 404 });
+    }
+    if (tokenOrder.id !== orderId) {
+      return NextResponse.json({ success: false, data: null, error: "Order not found" }, { status: 404 });
+    }
+    order = tokenOrder;
   }
 
   const targetStatus: OrderStatus = parsed.data.action === "confirm" ? "CONFIRMED" : "CANCELLED_BY_CUSTOMER";

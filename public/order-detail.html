@@ -233,6 +233,10 @@
 (function() {
   var ORDER_ID = new URLSearchParams(window.location.search).get('id');
   var ORDER_NUM = new URLSearchParams(window.location.search).get('number');
+  // Guest capability token from the checkout tracking link. Guests can only
+  // view/confirm an order with this unguessable token — the order id/number
+  // alone no longer grants access.
+  var ORDER_TOKEN = new URLSearchParams(window.location.search).get('token');
   var root = document.getElementById('order-detail-root');
 
   var STATUS_STYLES = {
@@ -259,6 +263,9 @@
 
   function label(s) { return s.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, function(c) { return c.toUpperCase(); }); }
   function fmt(n) { return Number(n).toFixed(3); }
+  /* All order fields (staff notes, timeline notes, item names, customer data)
+     are inserted via innerHTML — escape every value so nothing ever executes. */
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
   function badge(status) {
     var s = STATUS_STYLES[status] || { bg: 'bg-gray-100 text-gray-600' };
@@ -280,12 +287,13 @@
       root.innerHTML = '<div class="text-center py-20"><p class="text-red-600 text-lg font-semibold">No order specified.</p><p class="text-on-surface-variant dark:text-white/70 mt-2">Please use the link from your order confirmation.</p><a href="home.html" class="inline-block mt-6 bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Continue Shopping</a></div>';
       return;
     }
+    if (ORDER_TOKEN) url += (url.indexOf('?') === -1 ? '?' : '&') + 'token=' + encodeURIComponent(ORDER_TOKEN);
 
     fetch(url, { credentials: 'same-origin' })
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (!data.success) {
-          root.innerHTML = '<div class="text-center py-20"><p class="text-red-600 text-lg font-semibold">' + (data.error || 'Order not found') + '</p><a href="home.html" class="inline-block mt-6 text-secondary hover:underline text-sm">Continue Shopping</a></div>';
+          root.innerHTML = '<div class="text-center py-20"><p class="text-red-600 text-lg font-semibold">' + esc(data.error || 'Order not found') + '</p><a href="home.html" class="inline-block mt-6 text-secondary hover:underline text-sm">Continue Shopping</a></div>';
           return;
         }
         renderOrder(data.data.order);
@@ -302,13 +310,13 @@
 
     var html = '';
     // Breadcrumb
-    html += '<nav class="flex gap-2 text-[10px] uppercase tracking-widest font-bold text-on-surface-variant/60 dark:text-white/60 mb-8"><a class="hover:text-secondary" href="home.html">Home</a><span>/</span><span class="text-on-surface dark:text-white">Order ' + o.orderNumber + '</span></nav>';
+    html += '<nav class="flex gap-2 text-[10px] uppercase tracking-widest font-bold text-on-surface-variant/60 dark:text-white/60 mb-8"><a class="hover:text-secondary" href="home.html">Home</a><span>/</span><span class="text-on-surface dark:text-white">Order ' + esc(o.orderNumber) + '</span></nav>';
 
     // Header
     html += '<div class="mb-6">';
     html += '  <h1 class="font-headline text-2xl font-extrabold text-primary dark:text-white mb-2">Order Details</h1>';
     html += '  <div class="flex items-center gap-3 flex-wrap">';
-    html += '    <span class="font-mono text-sm text-on-surface-variant dark:text-white/70">' + o.orderNumber + '</span>';
+    html += '    <span class="font-mono text-sm text-on-surface-variant dark:text-white/70">' + esc(o.orderNumber) + '</span>';
     html += '    ' + badge(o.status);
     html += '    <span class="text-xs text-on-surface-variant dark:text-white/50">' + new Date(o.createdAt).toLocaleString() + '</span>';
     html += '  </div>';
@@ -323,7 +331,7 @@
         html += '  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">';
         html += '    <p class="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">\u26a0 ' + unavailableItems.length + ' item(s) unavailable:</p>';
         html += '    <ul class="space-y-1">';
-        unavailableItems.forEach(function(i) { html += '<li class="text-sm text-gray-600 dark:text-gray-400 line-through">' + i.name + ' (\u00d7' + i.quantity + ')</li>'; });
+        unavailableItems.forEach(function(i) { html += '<li class="text-sm text-gray-600 dark:text-gray-400 line-through">' + esc(i.name) + ' (\u00d7' + i.quantity + ')</li>'; });
         html += '    </ul>';
         html += '    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Confirming will proceed with available items only. Invoice created at our POS for delivered items.</p>';
         html += '  </div>';
@@ -336,7 +344,7 @@
     }
 
     if (o.staffNotes) {
-      html += '<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6"><p class="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase mb-1">Staff Note</p><p class="text-sm text-amber-800 dark:text-amber-200">' + o.staffNotes + '</p></div>';
+      html += '<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6"><p class="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase mb-1">Staff Note</p><p class="text-sm text-amber-800 dark:text-amber-200">' + esc(o.staffNotes) + '</p></div>';
     }
 
     // Two columns
@@ -349,7 +357,7 @@
     html += '      <tbody>';
     o.items.forEach(function(i) {
       html += '  <tr class="border-b border-outline-variant/10 dark:border-gray-700">';
-      html += '    <td class="py-2 text-on-surface dark:text-white">' + i.name + ' (\u00d7' + i.quantity + ')</td>';
+      html += '    <td class="py-2 text-on-surface dark:text-white">' + esc(i.name) + ' (\u00d7' + i.quantity + ')</td>';
       html += '    <td class="py-2 text-right">' + itemBadge(i.itemStatus) + '</td>';
       html += '    <td class="py-2 text-right text-on-surface-variant dark:text-white/70">' + fmt(i.price) + ' KD</td>';
       html += '  </tr>';
@@ -374,8 +382,8 @@
         html += '<div class="timeline-item">';
         html += '  <div class="timeline-dot" style="background:' + dotColor + ';"></div>';
         html += '  <div>';
-        html += '    <p class="text-sm font-semibold text-on-surface dark:text-white">' + (t.statusLabel || label(t.status)) + '</p>';
-        if (t.note) html += '<p class="text-xs text-on-surface-variant dark:text-white/60">' + t.note + '</p>';
+        html += '    <p class="text-sm font-semibold text-on-surface dark:text-white">' + esc(t.statusLabel || label(t.status)) + '</p>';
+        if (t.note) html += '<p class="text-xs text-on-surface-variant dark:text-white/60">' + esc(t.note) + '</p>';
         html += '    <p class="text-xs text-on-surface-variant/40 dark:text-white/40">' + new Date(t.createdAt).toLocaleString() + '</p>';
         html += '  </div>';
         html += '</div>';
@@ -391,9 +399,9 @@
     html += '<div class="bg-surface-container-lowest dark:bg-surface-container rounded-xl shadow-sm border border-outline-variant/20 dark:border-gray-700 p-5 mt-6">';
     html += '  <h2 class="font-headline font-bold text-primary dark:text-white mb-3 text-sm uppercase tracking-wide">Delivery Information</h2>';
     html += '  <div class="grid md:grid-cols-2 gap-4 text-sm">';
-    html += '    <div><span class="text-on-surface-variant dark:text-white/60">Name:</span> <span class="text-on-surface dark:text-white">' + o.customerName + '</span></div>';
-    html += '    <div><span class="text-on-surface-variant dark:text-white/60">Phone:</span> <span class="text-on-surface dark:text-white">' + o.customerPhone + '</span></div>';
-    html += '    <div class="md:col-span-2"><span class="text-on-surface-variant dark:text-white/60">Address:</span> <span class="text-on-surface dark:text-white">' + o.address + ', ' + o.city + '</span></div>';
+    html += '    <div><span class="text-on-surface-variant dark:text-white/60">Name:</span> <span class="text-on-surface dark:text-white">' + esc(o.customerName) + '</span></div>';
+    html += '    <div><span class="text-on-surface-variant dark:text-white/60">Phone:</span> <span class="text-on-surface dark:text-white">' + esc(o.customerPhone) + '</span></div>';
+    html += '    <div class="md:col-span-2"><span class="text-on-surface-variant dark:text-white/60">Address:</span> <span class="text-on-surface dark:text-white">' + esc(o.address) + ', ' + esc(o.city) + '</span></div>';
     html += '  </div>';
     html += '</div>';
 
@@ -407,7 +415,8 @@
 
   window.confirmOrder = function(orderId, action) {
     if (action === 'cancel' && !confirm('Are you sure you want to cancel this order?')) return;
-    fetch('/api/orders/' + orderId + '/confirm', {
+    var confirmUrl = '/api/orders/' + orderId + '/confirm' + (ORDER_TOKEN ? '?token=' + encodeURIComponent(ORDER_TOKEN) : '');
+    fetch(confirmUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin',

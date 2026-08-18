@@ -470,6 +470,22 @@ model OrderItem {
   @@index([productId])
 }
 
+/// Security metadata for an order (1:1 via the globally-unique orderNumber —
+/// no FK, because the legacy Order table is owned by the postgres migration
+/// role and the app's least-privilege role cannot create constraints on it).
+///   tokenHash      SHA-256 of the raw guest-tracking capability token — the
+///                  raw value is returned once at checkout and never stored.
+///                  Guests must present it to view/confirm the order; the
+///                  sequential order id/number alone grants nothing.
+///   idempotencyKey Client-generated per submission attempt; a replay with the
+///                  same key returns the original order instead of creating
+///                  (and stock-reserving) a duplicate.
+model OrderSecurity {
+  orderNumber    String  @id
+  tokenHash      String  @unique
+  idempotencyKey String? @unique
+}
+
 model OrderStatusEvent {
   id        Int         @id @default(autoincrement())
   orderId   Int

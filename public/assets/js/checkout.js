@@ -12,11 +12,31 @@
 (function () {
   "use strict";
   var CART_KEY = "nassim_cart";
+  var IDEM_KEY = "nassim_checkout_idem";
   var submitting = false;
 
   function readStore(key) { try { var raw = localStorage.getItem(key); if (!raw) return null; var p = JSON.parse(raw); return p && p.state ? p.state : p; } catch (e) { return null; } }
   function getCart() { var s = readStore(CART_KEY); return s && s.items ? s.items : []; }
   function formatKd(v, c) { return (c || "KD") + " " + Number(v).toFixed(3); }
+  /* Escape DB/product-controlled values before insertion into innerHTML. */
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+  /* One idempotency key per checkout submission. Survives a page refresh or a
+     retry after a lost network response, so the server can recognise a replay
+     (double-click, retry, refresh) and return the original order instead of
+     creating a duplicate. Cleared after a successful order — the next checkout
+     gets a fresh key. */
+  function getIdempotencyKey() {
+    try {
+      var k = sessionStorage.getItem(IDEM_KEY);
+      if (k && /^[A-Za-z0-9_-]{8,80}$/.test(k)) return k;
+      k = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID()
+        : "ck-" + Date.now() + "-" + Math.random().toString(36).slice(2, 10);
+      sessionStorage.setItem(IDEM_KEY, k);
+      return k;
+    } catch (e) { return null; }
+  }
+  function clearIdempotencyKey() { try { sessionStorage.removeItem(IDEM_KEY); } catch (e) {} }
 
   function buildAddress() {
     var parts = [];
@@ -56,7 +76,7 @@
     var summaryEl = document.getElementById("checkout-summary");
     if (summaryEl) {
       var html = items.map(function (i) {
-        return '<div class="flex justify-between items-center py-3 border-b border-outline-variant/20"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">' + (i.image ? '<img src="' + i.image + '" alt="" class="w-full h-full object-cover"/>' : '') + '</div><div><p class="text-sm font-bold text-on-surface dark:text-white">' + (i.name || '') + '</p><p class="text-xs text-on-surface-variant dark:text-white/70">Qty: ' + (i.quantity || 1) + '</p></div></div><span class="text-sm font-bold text-primary dark:text-white">' + formatKd(i.price * (i.quantity || 1), i.currency) + '</span></div>';
+        return '<div class="flex justify-between items-center py-3 border-b border-outline-variant/20"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">' + (i.image ? '<img src="' + esc(i.image) + '" alt="" class="w-full h-full object-cover"/>' : '') + '</div><div><p class="text-sm font-bold text-on-surface dark:text-white">' + esc(i.name || '') + '</p><p class="text-xs text-on-surface-variant dark:text-white/70">Qty: ' + (i.quantity || 1) + '</p></div></div><span class="text-sm font-bold text-primary dark:text-white">' + formatKd(i.price * (i.quantity || 1), i.currency) + '</span></div>';
       }).join('');
       html += '<div class="flex justify-between py-3 text-sm text-on-surface-variant dark:text-white/70"><span>Subtotal</span><span class="font-medium text-primary dark:text-white">' + formatKd(subtotal) + '</span></div>';
       html += '<div class="flex justify-between py-3 text-sm text-on-surface-variant dark:text-white/70"><span>Shipping (estimated)</span><span class="font-medium text-primary dark:text-white">' + formatKd(shipping) + '</span></div>';
@@ -129,11 +149,16 @@
           city: area || "Kuwait",
           notes: (document.getElementById("cust-notes") || {}).value || "",
           items: items.map(function (i) { return { slug: i.id || i.slug, name: i.name, image: (i.image || ""), price: i.price, qty: i.quantity || 1 }; }),
-          shipping: shipping,
           currency: "KD",
         };
+        // NOTE: no `shipping` in the payload — the server computes the fee and
+        // never trusts a client-sent financial value.
 
-        fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify(body) })
+        var idemKey = getIdempotencyKey();
+        var headers = { "Content-Type": "application/json" };
+        if (idemKey) headers["x-idempotency-key"] = idemKey;
+
+        fetch("/api/orders", { method: "POST", headers: headers, credentials: "same-origin", body: JSON.stringify(body) })
           .then(function (r) { return r.json(); })
           .then(function (data) {
             if (!data.success || data.error) {
@@ -163,8 +188,10 @@
             try { localStorage.setItem(CART_KEY, JSON.stringify({ state: { items: [], shipping: 2.5, currency: "KD" } })); } catch (e) {}
             // Update cart badge globally
             if (window.NassimCartBadge) window.NassimCartBadge.update();
-            // Show success page
-            showSuccess(data.data.order.orderNumber, data.data.order.id);
+            // The order is committed — a future checkout must get a fresh idempotency key.
+            clearIdempotencyKey();
+            // Show success page (with the guest tracking token when provided)
+            showSuccess(data.data.order.orderNumber, data.data.order.id, data.data.order.accessToken, !!data.data.order.idempotentReplay);
           })
           .catch(function () {
             showError("Network error. Please check your connection and try again.");
@@ -173,10 +200,17 @@
 
         function resetBtn() { submitting = false; if (btn) { btn.textContent = btnText; btn.disabled = false; btn.classList.remove("opacity-60", "cursor-not-allowed"); } }
         function showError(msg) { var errEl = document.getElementById("checkout-error"); if (errEl) { errEl.textContent = msg; errEl.classList.remove("hidden"); } else { alert(msg); } }
-        function showSuccess(orderNumber, orderId) {
+        function showSuccess(orderNumber, orderId, accessToken, replay) {
+          var trackHref = accessToken
+            ? "order-detail.html?number=" + encodeURIComponent(orderNumber) + "&token=" + encodeURIComponent(accessToken)
+            : "order-detail.html?id=" + encodeURIComponent(orderId);
+          var heading = replay ? "Order Already Placed" : "Order Placed!";
+          var sub = replay
+            ? "We received your order earlier — no duplicate was created. Your order number is:"
+            : "Your order number is:";
           var m = document.querySelector("main");
           if (m) {
-            m.innerHTML = '<div class="pt-20 pb-20 text-center max-w-md mx-auto"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"><span class="material-symbols-outlined text-5xl text-green-600">check_circle</span></div><h1 class="font-headline text-3xl font-extrabold text-primary dark:text-white mb-4">Order Placed!</h1><p class="text-on-surface-variant dark:text-white/70 mb-2">Your order number is:</p><p class="font-headline text-2xl font-extrabold text-secondary mb-8">' + orderNumber + '</p><p class="text-sm text-on-surface-variant dark:text-white/70 mb-2">We will review availability and contact you shortly.</p><div class="flex flex-col gap-3 items-center mt-8"><a href="order-detail.html?id=' + orderId + '" class="inline-block bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Track Your Order</a><a href="home.html" class="text-secondary text-sm hover:underline">Continue Shopping</a></div></div>';
+            m.innerHTML = '<div class="pt-20 pb-20 text-center max-w-md mx-auto"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"><span class="material-symbols-outlined text-5xl text-green-600">check_circle</span></div><h1 class="font-headline text-3xl font-extrabold text-primary dark:text-white mb-4">' + heading + '</h1><p class="text-on-surface-variant dark:text-white/70 mb-2">' + sub + '</p><p class="font-headline text-2xl font-extrabold text-secondary mb-8">' + esc(orderNumber) + '</p><p class="text-sm text-on-surface-variant dark:text-white/70 mb-2">We will review availability and contact you shortly.</p><div class="flex flex-col gap-3 items-center mt-8"><a href="' + trackHref + '" class="inline-block bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Track Your Order</a><a href="home.html" class="text-secondary text-sm hover:underline">Continue Shopping</a></div></div>';
           }
           window.scrollTo(0, 0);
         }
