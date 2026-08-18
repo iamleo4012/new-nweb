@@ -635,10 +635,16 @@
         else { mainImgEl.onload = function() { mainImgEl.style.opacity = '1'; }; }
       }
       var gallery = document.getElementById('thumbnail-gallery');
+      // data-full + delegated click replaces the previous inline onclick: a
+      // crafted image URL could break out of the JS-string attribute context.
       gallery.innerHTML = images.map(function(src, i) {
         var active = i === 0 ? 'thumb-active' : 'border-transparent hover:border-secondary/40';
-        return '<div class="thumbnail-item flex-shrink-0 w-20 h-24 bg-surface-container-lowest dark:bg-surface-container p-2 rounded-lg cursor-pointer border-2 ' + active + ' ring-offset-2 transition-all" onclick="updateMainImage(this, \'' + src + '\')"><img loading="lazy" class="w-full h-full object-cover rounded-md opacity-90 hover:opacity-100 transition-opacity" src="' + src + '" alt="' + escapeHtml(product.name) + ' thumb ' + (i+1) + '"/></div>';
+        return '<div class="thumbnail-item flex-shrink-0 w-20 h-24 bg-surface-container-lowest dark:bg-surface-container p-2 rounded-lg cursor-pointer border-2 ' + active + ' ring-offset-2 transition-all" data-full="' + escapeHtml(src) + '"><img loading="lazy" class="w-full h-full object-cover rounded-md opacity-90 hover:opacity-100 transition-opacity" src="' + escapeHtml(src) + '" alt="' + escapeHtml(product.name) + ' thumb ' + (i+1) + '"/></div>';
       }).join('');
+      gallery.addEventListener('click', function(e) {
+        var thumb = e.target.closest('.thumbnail-item');
+        if (thumb) updateMainImage(thumb, thumb.getAttribute('data-full'));
+      });
       // Specs (desktop #spec-grid + mobile #mobile-spec-grid, same data source)
       var specHTML = '';
       if (product.specs && product.specs.length) {
@@ -717,7 +723,7 @@
       related = related.slice(0, 4);
       var relatedGrid = document.getElementById('related-grid');
       relatedGrid.innerHTML = related.map(function(p) {
-        return '<a href="product%20view.html?id=' + encodeURIComponent(p.id) + '" data-product-card class="group cursor-pointer"><div class="aspect-[4/5] bg-surface-container-lowest dark:bg-surface-container rounded-xl overflow-hidden mb-6 relative"><img loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="' + p.img + '" alt="' + escapeHtml(p.name) + '"/>' +
+        return '<a href="product%20view.html?id=' + encodeURIComponent(p.id) + '" data-product-card class="group cursor-pointer"><div class="aspect-[4/5] bg-surface-container-lowest dark:bg-surface-container rounded-xl overflow-hidden mb-6 relative"><img loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="' + escapeHtml(p.img) + '" alt="' + escapeHtml(p.name) + '"/>' +
           /* Desktop overlay — slides up on hover, hidden on mobile */
           '<div class="absolute bottom-4 left-4 right-4 translate-y-12 md:translate-y-12 group-hover:translate-y-0 transition-transform duration-300 hidden md:block"><span class="block w-full bg-surface-container-lowest/90 dark:bg-surface-container-high/90 backdrop-blur-sm text-primary dark:text-white font-bold text-[10px] uppercase py-3 rounded-sm shadow-xl text-center">View Product</span></div>' +
           /* Mobile overlay — always visible, Add to Cart button; hidden on desktop */

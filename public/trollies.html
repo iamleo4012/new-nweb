@@ -619,6 +619,8 @@ Trolleys &<span class="text-primary dark:text-secondary"></span>
     }
     loadProducts();
 
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
     function renderProducts(productsToRender) {
         const productGrid = document.getElementById('product-grid');
         if (!productGrid) return;
@@ -627,13 +629,13 @@ Trolleys &<span class="text-primary dark:text-secondary"></span>
             return;
         }
         productGrid.innerHTML = productsToRender.map(function(p, i) {
-            return '<article class="group relative flex flex-col cursor-pointer" data-slug="' + (p.id || '') + '" onclick="window.location.href=\'product%20view.html?id=' + encodeURIComponent(p.id || '') + '\">' +
+            return '<article class="group relative flex flex-col cursor-pointer" data-slug="' + esc(p.id || '') + '" onclick="window.location.href=\'product%20view.html?id=' + encodeURIComponent(p.id || '') + '\">' +
                 '<div class="aspect-[4/5] bg-surface-container-low dark:bg-[#1a1f2e] overflow-hidden transition-all duration-500 ease-out group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)]">' +
-                '<img loading="lazy" src="' + (p.img || p.image || '') + '" alt="' + (p.name || '') + '" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">' +
+                '<img loading="lazy" src="' + esc(p.img || p.image || '') + '" alt="' + esc(p.name || '') + '" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">' +
                 '</div>' +
                 '<div class="mt-6 flex flex-col gap-2">' +
-                '<h3 class="text-sm font-semibold tracking-tight text-primary dark:text-white uppercase font-headline leading-tight break-words">' + (p.name || '') + '</h3>' +
-                '<span class="text-[10px] text-on-surface-variant dark:text-white/70 font-medium tracking-wide">' + (p.line || '') + '</span>' +
+                '<h3 class="text-sm font-semibold tracking-tight text-primary dark:text-white uppercase font-headline leading-tight break-words">' + esc(p.name || '') + '</h3>' +
+                '<span class="text-[10px] text-on-surface-variant dark:text-white/70 font-medium tracking-wide">' + esc(p.line || '') + '</span>' +
                 '<span class="text-sm font-medium text-secondary dark:text-white mt-1">' + (Number(p.price || 0)).toFixed(3) + ' ' + (p.currency || 'KD') + '</span>' +
                 '</div>' +
                 '</article>';

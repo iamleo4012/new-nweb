@@ -628,6 +628,8 @@
     }
     loadProducts();
 
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
     // Function to render products
     function renderProducts(productsToRender) {
         const productGrid = document.getElementById('product-grid');
@@ -642,14 +644,14 @@
         }
         
         productGrid.innerHTML = productsToRender.map((p, i) => `
-            <article class="group relative flex flex-col" data-slug="${p.id || ''}">
+            <article class="group relative flex flex-col" data-slug="${esc(p.id || '')}">
                 <div class="aspect-[4/5] bg-surface-container-low dark:bg-[#1a1f2e] overflow-hidden transition-all duration-500 ease-out group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)]">
-                    <img loading="lazy" src="${p.img || p.image || ''}"
-                         alt="${p.name}" 
+                    <img loading="lazy" src="${esc(p.img || p.image || '')}"
+                         alt="${esc(p.name)}"
                          class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">
                 </div>
                 <div class="mt-6 flex flex-col gap-2">
-                    <h3 class="text-sm font-semibold tracking-tight text-primary dark:text-white uppercase font-headline leading-tight break-words">${p.name}</h3>
+                    <h3 class="text-sm font-semibold tracking-tight text-primary dark:text-white uppercase font-headline leading-tight break-words">${esc(p.name)}</h3>
                     <span class="text-[10px] text-on-surface-variant dark:text-white/70 font-medium tracking-wide">Essential Atelier Collection</span>
                     <span class="text-sm font-medium text-secondary dark:text-white mt-1">${(p.price || 0).toFixed(3)} ${p.currency || 'KD'}</span>
                 </div>

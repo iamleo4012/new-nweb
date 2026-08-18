@@ -1094,6 +1094,8 @@
         return (currency || 'KD') + ' ' + Number(value).toFixed(3);
     }
 
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
     function renderWishlist() {
         var items = getWishlist();
         var container = document.getElementById('wishlist-container');
@@ -1127,33 +1129,33 @@
         container.innerHTML = items.map(function(item) {
             if (!isMobile) {
                 // ---- DESKTOP CARD (unchanged from the original wishlist design) ----
-                return '<div class="wishlist-card group relative flex flex-col transition-all duration-500 fade-in rounded-xl overflow-hidden" data-item-id="' + item.id + '">' +
+                return '<div class="wishlist-card group relative flex flex-col transition-all duration-500 fade-in rounded-xl overflow-hidden" data-item-id="' + esc(item.id) + '">' +
                     '<div class="relative aspect-[4/5] overflow-hidden bg-surface-container-low dark:bg-surface-container mb-4">' +
-                    '<img loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="' + item.image + '" alt="' + item.name + '"/>' +
-                    '<button class="wl-wish absolute top-4 right-4 z-10" data-wl-remove="' + item.id + '" aria-label="Remove from wishlist">' +
+                    '<img loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="' + esc(item.image) + '" alt="' + esc(item.name) + '"/>' +
+                    '<button class="wl-wish absolute top-4 right-4 z-10" data-wl-remove="' + esc(item.id) + '" aria-label="Remove from wishlist">' +
                     '<span class="material-symbols-outlined text-[20px]">favorite</span></button>' +
                     '<div class="absolute inset-x-0 bottom-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-gradient-to-t from-primary/80 to-transparent">' +
-                    '<button class="w-full py-3 bg-primary text-on-primary font-label text-[10px] uppercase tracking-widest hover:bg-secondary transition-colors duration-300" onclick="event.stopPropagation();moveToCart(\'' + item.id + '\')">Add to Cart</button>' +
+                    '<button class="w-full py-3 bg-primary text-on-primary font-label text-[10px] uppercase tracking-widest hover:bg-secondary transition-colors duration-300" onclick="event.stopPropagation();moveToCart(\'' + esc(item.id) + '\')">Add to Cart</button>' +
                     '</div></div>' +
                     '<div class="flex justify-between items-start">' +
-                    '<div><p class="font-label text-[10px] text-on-surface-variant/60 dark:text-white/60 uppercase tracking-widest mb-1">' + item.line + '</p>' +
-                    '<h3 class="font-headline font-bold tracking-tight text-on-surface dark:text-white text-sm">' + item.name + '</h3></div>' +
+                    '<div><p class="font-label text-[10px] text-on-surface-variant/60 dark:text-white/60 uppercase tracking-widest mb-1">' + esc(item.line) + '</p>' +
+                    '<h3 class="font-headline font-bold tracking-tight text-on-surface dark:text-white text-sm">' + esc(item.name) + '</h3></div>' +
                     '<span class="font-headline font-bold text-secondary text-[12px] whitespace-nowrap">' + formatKd(item.price, item.currency) + '</span>' +
                     '</div></div>';
             }
             // ---- MOBILE CARD (matches the approved subcategory card layout) ----
             // data-item-id lets product-nav.js open the Product View on card tap.
             // The wl-wish (filled heart) and wl-atc stopPropagation so they don't navigate.
-            return '<div class="wishlist-card fade-in" data-item-id="' + item.id + '">' +
+            return '<div class="wishlist-card fade-in" data-item-id="' + esc(item.id) + '">' +
                 '<div class="wl-img-wrap">' +
-                '<img loading="lazy" src="' + item.image + '" alt="' + item.name + '"/>' +
-                '<button type="button" class="wl-wish" data-wl-remove="' + item.id + '" aria-label="Remove from wishlist">' +
+                '<img loading="lazy" src="' + esc(item.image) + '" alt="' + esc(item.name) + '"/>' +
+                '<button type="button" class="wl-wish" data-wl-remove="' + esc(item.id) + '" aria-label="Remove from wishlist">' +
                 '<span class="material-symbols-outlined">favorite</span></button>' +
                 '</div>' +
                 '<div class="wl-info">' +
-                '<h3>' + item.name + '</h3>' +
+                '<h3>' + esc(item.name) + '</h3>' +
                 '<span class="wl-price">' + formatKd(item.price, item.currency) + '</span>' +
-                '<button type="button" class="wl-atc" data-wl-atc="' + item.id + '">' +
+                '<button type="button" class="wl-atc" data-wl-atc="' + esc(item.id) + '">' +
                 '<span class="material-symbols-outlined">shopping_bag</span> Add</button>' +
                 '</div></div>';
         }).join('');

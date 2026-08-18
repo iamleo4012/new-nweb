@@ -632,11 +632,12 @@ function resetStandImage() {
 // Hide loading screen after page loads
 document.addEventListener('DOMContentLoaded', function() { var ls = document.getElementById('loading-screen'); if (ls) { ls.style.opacity = '0'; setTimeout(function() { if (ls) ls.style.display = 'none'; }, 300); } });
 
-// Theme toggle functionality
+// Theme initial preference (the #theme-toggle button itself is wired by the
+// shared assets/js/theme.js, which this page loads with defer). This block
+// previously contained a mangled duplicate of the toggle logic — a stray
+// orphaned `else` made the whole script block a syntax error, which killed
+// renderProducts() below (the product grid never rendered).
 document.addEventListener('DOMContentLoaded', function() {
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    
-    // Check for saved user preference, if any, on load
     if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
         document.documentElement.classList.remove('light');
@@ -644,27 +645,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.documentElement.classList.remove('dark');
         document.documentElement.classList.add('light');
     }
-
-    else {
-                    document.documentElement.classList.remove('dark');
-                    document.documentElement.classList.add('light');
-                    localStorage.setItem('color-theme', 'light');
-                }
-            // if NOT set via local storage previously
-            } else {
-                if (document.documentElement.classList.contains('dark')) {
-                    document.documentElement.classList.remove('dark');
-                    document.documentElement.classList.add('light');
-                    localStorage.setItem('color-theme', 'light');
-                } else {
-                    document.documentElement.classList.add('dark');
-                    document.documentElement.classList.remove('light');
-                    localStorage.setItem('color-theme', 'dark');
-                }
-            }
-        });
-    }
 });
+
 
     // Product data for forklifts and pallets
     const allProducts = [
@@ -681,6 +663,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Current category filter
     let currentCategory = 'All';
 
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
     // Function to render products
     function renderProducts(productsToRender) {
         const productGrid = document.getElementById('product-grid');
@@ -695,15 +679,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         productGrid.innerHTML = productsToRender.map((p, i) => `
-            <article class="group relative flex flex-col" data-slug="${p.slug || ''}">
+            <article class="group relative flex flex-col" data-slug="${esc(p.slug || '')}">
                 <div class="aspect-[16/10] bg-surface-container-low dark:bg-[#1a1f2e] overflow-hidden transition-all duration-500 ease-out group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)]">
-                    <img loading="lazy" src="${p.img}" 
-                         alt="${p.name}" 
+                    <img loading="lazy" src="${esc(p.img)}"
+                         alt="${esc(p.name)}"
                          class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">
                 </div>
                 <div class="mt-6 flex flex-col gap-2">
-                    <h3 class="text-sm font-semibold tracking-tight text-primary dark:text-white uppercase font-headline leading-tight break-words">${p.name}</h3>
-                    <span class="text-[10px] text-on-surface-variant dark:text-white/70 font-medium tracking-wide">${p.description}</span>
+                    <h3 class="text-sm font-semibold tracking-tight text-primary dark:text-white uppercase font-headline leading-tight break-words">${esc(p.name)}</h3>
+                    <span class="text-[10px] text-on-surface-variant dark:text-white/70 font-medium tracking-wide">${esc(p.description)}</span>
                     <span class="text-sm font-medium text-secondary dark:text-white mt-1">${p.price.toFixed(3)} KD</span>
                 </div>
             </article>
