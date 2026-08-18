@@ -35,7 +35,11 @@
       email: u.email || "",
       phone: u.phone || "",
       role: u.role || "CUSTOMER",
-      isAdmin: u.role === "ADMIN" || u.role === "STAFF"
+      // SUPERADMIN (owner) is also admitted by the backend's requireStaff()/
+      // requireAdmin() gates, so the storefront panel treats the owner as
+      // staff-level for menu purposes; isOwner adds the Owner Portal entry.
+      isAdmin: u.role === "ADMIN" || u.role === "STAFF" || u.role === "SUPERADMIN",
+      isOwner: u.role === "SUPERADMIN"
     };
   }
 
@@ -211,10 +215,16 @@
   function renderProfile(user) {
     var initial = (user.fullName || "?").charAt(0).toUpperCase();
     var isAdmin = user.isAdmin === true;
+    var isOwner = user.isOwner === true;
     var menuItems = "";
     if (isAdmin) {
+      // Owner Portal — SUPERADMIN only, styled identically to the admin menu
+      // links and placed first. Never rendered for USER or ADMIN accounts.
+      var ownerItem = isOwner
+        ? '<a href="/superadmin" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">workspace_premium</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Owner Portal</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></a>'
+        : "";
       menuItems = '\
-      <a href="/admin" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">dashboard</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Go to Dashboard</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></a>\
+      ' + ownerItem + '<a href="/admin" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">dashboard</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Go to Dashboard</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></a>\
       <a href="/admin/products" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">inventory_2</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Product Management</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></a>\
       <a href="/admin/orders" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">receipt_long</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Orders Management</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></a>\
       <button onclick="NassimAccount.showView(\'edit-profile\')" class="nassim-account-item w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-transparent transition-colors text-left group/account"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70 transition-colors duration-200 group-hover/account:text-secondary">person</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white transition-all duration-200 group-hover/account:text-secondary group-hover/account:font-extrabold">Edit Profile</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto transition-colors duration-200 group-hover/account:text-secondary">chevron_right</span></button>';
@@ -230,7 +240,7 @@
     <div class="w-20 h-20 rounded-full bg-secondary text-white flex items-center justify-center font-display text-3xl font-extrabold uppercase mb-4">' + initial + '</div>\
     <h2 class="font-display text-2xl font-extrabold text-primary dark:text-white uppercase tracking-tight">' + escapeHtml(user.fullName) + '</h2>\
     <p class="font-body text-sm text-on-surface-variant dark:text-white/70 mt-1">' + escapeHtml(user.email) + '</p>\
-    ' + (isAdmin ? '<span class="mt-2 text-[10px] font-bold uppercase tracking-widest text-secondary bg-secondary/10 px-3 py-1 rounded-full">' + (user.role === "ADMIN" ? "Admin" : "Staff") + '</span>' : '') + '\
+    ' + (isAdmin ? '<span class="mt-2 text-[10px] font-bold uppercase tracking-widest text-secondary bg-secondary/10 px-3 py-1 rounded-full">' + (user.role === "SUPERADMIN" ? "Owner" : user.role === "ADMIN" ? "Admin" : "Staff") + '</span>' : '') + '\
   </div>\
   <div class="flex-1 px-8 pb-8">\
     <div class="bg-surface-container-lowest dark:bg-surface-container rounded-xl divide-y divide-outline-variant/20 overflow-hidden">\
@@ -353,7 +363,11 @@
           updateAccountButton();
           // Merge guest cart into server cart
           mergeGuestCart();
-          if (currentUser.isAdmin) {
+          if (currentUser.isOwner) {
+            closePanel();
+            showAuthToast("Welcome back! Redirecting to Owner Portal...");
+            setTimeout(function () { window.location.href = "/superadmin"; }, 800);
+          } else if (currentUser.isAdmin) {
             closePanel();
             showAuthToast("Welcome back! Redirecting to dashboard...");
             setTimeout(function () { window.location.href = "/admin"; }, 800);

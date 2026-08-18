@@ -1,0 +1,101 @@
+{
+  "marker": "TEST_OWNER_ANALYTICS",
+  "customers": [
+    {
+      "id": 32,
+      "email": "test.owner.analytics.001@test.local"
+    },
+    {
+      "id": 33,
+      "email": "test.owner.analytics.002@test.local"
+    },
+    {
+      "id": 34,
+      "email": "test.owner.analytics.003@test.local"
+    }
+  ],
+  "orders": [
+    {
+      "id": 33,
+      "orderNumber": "TEST-OA-001"
+    },
+    {
+      "id": 34,
+      "orderNumber": "TEST-OA-002"
+    },
+    {
+      "id": 35,
+      "orderNumber": "TEST-OA-003"
+    },
+    {
+      "id": 36,
+      "orderNumber": "TEST-OA-004"
+    },
+    {
+      "id": 37,
+      "orderNumber": "TEST-OA-005"
+    },
+    {
+      "id": 38,
+      "orderNumber": "TEST-OA-006"
+    },
+    {
+      "id": 39,
+      "orderNumber": "TEST-OA-007"
+    },
+    {
+      "id": 40,
+      "orderNumber": "TEST-OA-008"
+    },
+    {
+      "id": 41,
+      "orderNumber": "TEST-OA-009"
+    },
+    {
+      "id": 42,
+      "orderNumber": "TEST-OA-010"
+    },
+    {
+      "id": 43,
+      "orderNumber": "TEST-OA-011"
+    },
+    {
+      "id": 44,
+      "orderNumber": "TEST-OA-012"
+    },
+    {
+      "id": 45,
+      "orderNumber": "TEST-OA-013"
+    },
+    {
+      "id": 46,
+      "orderNumber": "TEST-OA-014"
+    }
+  ],
+  "stockSnapshot": [
+    {
+      "productId": 7,
+      "slug": "shopping-trolley-sy143",
+      "stock": 96,
+      "minStock": 10
+    },
+    {
+      "productId": 17,
+      "slug": "mopping-trolley",
+      "stock": 100,
+      "minStock": 10
+    },
+    {
+      "productId": 13,
+      "slug": "heavy-duty-forklift",
+      "stock": 100,
+      "minStock": 10
+    },
+    {
+      "productId": 64,
+      "slug": "minimalist-table-spoon",
+      "stock": 100,
+      "minStock": 10
+    }
+  ]
+}
