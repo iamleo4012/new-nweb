@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { validateTransition, createNotification, notificationMessage, STATUS_LABELS } from "@/lib/order-workflow";
+import { restoreOnlineStockForOrder, restoreStockForRemovedItems } from "@/lib/online-stock";
 import type { OrderStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -67,22 +68,34 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     );
   }
 
-  // On confirm, mark unavailable items as REMOVED_AFTER_CONFIRMATION.
-  if (targetStatus === "CONFIRMED") {
-    for (const item of order.items) {
-      if (item.itemStatus === "UNAVAILABLE") {
-        await prisma.orderItem.update({ where: { id: item.id }, data: { itemStatus: "REMOVED_AFTER_CONFIRMATION" } });
+  // Status change + online-stock side effects in ONE transaction.
+  const updated = await prisma.$transaction(async (tx) => {
+    // Cancelling returns the online stock this order reserved (exactly once;
+    // items already returned via REMOVED_AFTER_CONFIRMATION are skipped).
+    if (targetStatus === "CANCELLED_BY_CUSTOMER") {
+      await restoreOnlineStockForOrder(tx, order, "ORDER_CANCELLED_RESTORE");
+    }
+
+    // On confirm, mark unavailable items as REMOVED_AFTER_CONFIRMATION —
+    // their reserved units return to online stock immediately.
+    if (targetStatus === "CONFIRMED") {
+      const removed = order.items.filter((item) => item.itemStatus === "UNAVAILABLE");
+      for (const item of removed) {
+        await tx.orderItem.update({ where: { id: item.id }, data: { itemStatus: "REMOVED_AFTER_CONFIRMATION" } });
+      }
+      if (removed.length) {
+        await restoreStockForRemovedItems(tx, order.orderNumber, removed);
       }
     }
-  }
 
-  const updated = await prisma.order.update({
-    where: { id: orderId },
-    data: {
-      status: targetStatus,
-      statusHistory: { create: { status: targetStatus, note: parsed.data.action === "confirm" ? "Customer confirmed order" : "Customer cancelled order" } },
-    },
-    include: { items: true },
+    return tx.order.update({
+      where: { id: orderId },
+      data: {
+        status: targetStatus,
+        statusHistory: { create: { status: targetStatus, note: parsed.data.action === "confirm" ? "Customer confirmed order" : "Customer cancelled order" } },
+      },
+      include: { items: true },
+    });
   });
 
   await createNotification(

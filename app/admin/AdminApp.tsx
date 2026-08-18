@@ -149,7 +149,7 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
       .then((r) => r.json())
       .then((data) => {
         const role = data?.data?.user?.role;
-        if (role === "ADMIN" || role === "STAFF") {
+        if (role === "ADMIN" || role === "STAFF" || role === "SUPERADMIN") {
           setUserName(data.data.user.name);
           setAuthState("ok");
         } else {

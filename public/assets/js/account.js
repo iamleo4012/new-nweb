@@ -17,6 +17,16 @@
 
   var currentUser = null;
 
+  // ===== Local-data ownership marker =====
+  // localStorage cart/wishlist keys (nassim_cart / nassim_wishlist) are shared
+  // by every account that uses this browser. This marker records WHICH user
+  // the local snapshot belongs to, so that switching accounts (without logout)
+  // never merges one account's items into another account's cart/wishlist.
+  var OWNER_KEY = "nassim_data_owner";
+  function getStoredOwner() { try { return localStorage.getItem(OWNER_KEY) || ""; } catch (e) { return ""; } }
+  function setStoredOwner(id) { try { localStorage.setItem(OWNER_KEY, String(id)); } catch (e) {} }
+  function clearStoredOwner() { try { localStorage.removeItem(OWNER_KEY); } catch (e) {} }
+
   function normalizeUser(u) {
     if (!u) return null;
     return {
@@ -32,15 +42,32 @@
   function getCurrentUser() { return currentUser; }
 
   /**
-   * After login, merge any guest cart items (localStorage) into the server cart,
-   * then restore the full server cart + wishlist into localStorage so the
-   * storefront displays them. Never lose products.
+   * After login, merge any GUEST cart items (localStorage) into the server
+   * cart, then restore the full server cart + wishlist into localStorage so
+   * the storefront displays them. Never lose products.
+   *
+   * Account-isolation guard: if the localStorage snapshot is marked as
+   * belonging to a DIFFERENT account (account switch without logout), those
+   * items are NOT guest items — they are the other account's leftovers and
+   * must never be merged into this account. They are discarded locally (the
+   * other account still has its own server-side copy) and replaced with this
+   * account's server data.
    */
   function mergeGuestCart() {
     try {
-      var raw = localStorage.getItem("nassim_cart");
-      var parsed = raw ? JSON.parse(raw) : null;
-      var guestItems = parsed && parsed.state ? parsed.state.items : (parsed && parsed.items ? parsed.items : []);
+      var ownerId = currentUser ? String(currentUser.id) : "";
+      var localFromOtherAccount = ownerId !== "" && getStoredOwner() !== "" && getStoredOwner() !== ownerId;
+      var guestItems = [];
+      if (localFromOtherAccount) {
+        // Drop the previous account's local snapshot — its real cart/wishlist
+        // live on the server under that account and are untouched.
+        localStorage.setItem("nassim_cart", JSON.stringify({ state: { items: [], shipping: 2.5, currency: "KD" } }));
+        localStorage.setItem("nassim_wishlist", JSON.stringify({ state: { items: [] } }));
+      } else {
+        var raw = localStorage.getItem("nassim_cart");
+        var parsed = raw ? JSON.parse(raw) : null;
+        guestItems = parsed && parsed.state ? parsed.state.items : (parsed && parsed.items ? parsed.items : []);
+      }
       // Send each guest cart item to the server cart API (merge)
       var mergePromises = (guestItems || []).map(function (item) {
         return fetch("/api/cart", {
@@ -71,6 +98,7 @@
               });
               localStorage.setItem("nassim_cart", JSON.stringify({ state: { items: items, shipping: 2.5, currency: "KD" } }));
             }
+            if (ownerId) setStoredOwner(ownerId);
             if (window.NassimCartBadge) window.NassimCartBadge.update();
           })
           .catch(function () { if (window.NassimCartBadge) window.NassimCartBadge.update(); });
@@ -519,6 +547,7 @@
           localStorage.removeItem("nassim_wishlist");
           localStorage.setItem("nassim_wishlist", JSON.stringify({ state: { items: [] } }));
           localStorage.removeItem("nassim_auth");
+          clearStoredOwner();
           sessionStorage.clear();
         } catch (e) {}
         updateAccountButton();
@@ -546,6 +575,7 @@
         localStorage.removeItem("nassim_wishlist");
         localStorage.setItem("nassim_wishlist", JSON.stringify({ state: { items: [] } }));
         localStorage.removeItem("nassim_auth");
+        clearStoredOwner();
         sessionStorage.clear();
       } catch (e) {}
       updateAccountButton();

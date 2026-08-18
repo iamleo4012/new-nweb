@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { CustomFieldsSection, type CustomAttributeItem } from "@/app/admin/_components/CustomFieldsSection";
+import { RelatedProductsPicker } from "@/app/admin/_components/RelatedProductsPicker";
 
 interface MasterItem {
   id: number;
@@ -72,6 +74,12 @@ export function ProductsTab() {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
+  // Dynamic PIM state: attribute definitions for the selected subcategory,
+  // the current product's custom values, and manually selected related products.
+  const [attributes, setAttributes] = useState<CustomAttributeItem[]>([]);
+  const [attrValues, setAttrValues] = useState<Record<number, string>>({});
+  const [relatedSelected, setRelatedSelected] = useState<number[]>([]);
+
   const resetForm = () => {
     setF({
       slug: "", name: "", description: "", longDescription: "",
@@ -93,11 +101,17 @@ export function ProductsTab() {
     setGallery([]);
     setPrimaryImage("");
     setEditingId(null);
+    setAttributes([]);
+    setAttrValues({});
+    setRelatedSelected([]);
   };
 
-  function openEdit(p: ProductItem) {
+  const openEdit = async (p: ProductItem) => {
     setEditingId(p.id);
     setShowForm(true);
+    setMessage("");
+    setError("");
+    // Start from the list row so the form is usable immediately…
     setF({
       slug: p.slug, name: p.name, description: "", longDescription: "",
       price: String(p.price), costPrice: "0", discount: "0",
@@ -117,9 +131,59 @@ export function ProductsTab() {
     setSelectedSizes([]);
     setGallery(p.image ? [p.image] : []);
     setPrimaryImage(p.image || "");
-    setMessage("");
-    setError("");
-  }
+    setAttributes([]);
+    setAttrValues({});
+    setRelatedSelected([]);
+    // …then load the FULL record (descriptions, relations, custom field
+    // values, related products) so editing never silently drops data.
+    try {
+      const res = await fetch(`/api/admin/products?id=${p.id}`, { credentials: "same-origin" });
+      const d = await res.json();
+      if (!d.success) return;
+      const full = d.data.product;
+      const str = (v: unknown) => (v === null || v === undefined ? "" : String(v));
+      setF((prev) => ({
+        ...prev,
+        slug: full.slug, name: full.name,
+        description: full.description ?? "", longDescription: full.longDescription ?? "",
+        price: String(full.price), costPrice: String(full.costPrice), discount: String(full.discount),
+        stock: String(full.stock), minStock: String(full.minStock),
+        image: full.image ?? "", line: full.line ?? "", sku: full.sku ?? "",
+        barcode: full.barcode ?? "", ndNumber: full.ndNumber ?? "", internalCode: full.internalCode ?? "",
+        specs: typeof full.specs === "string" ? full.specs : JSON.stringify(full.specs ?? []),
+        applications: full.applications ?? "", additionalInfo: full.additionalInfo ?? "",
+        seoTitle: full.seoTitle ?? "", seoDescription: full.seoDescription ?? "",
+        tags: Array.isArray(full.tags) ? full.tags.join(", ") : "",
+        weight: str(full.weight), length: str(full.length), width: str(full.width), height: str(full.height),
+        warranty: full.warranty ?? "",
+        categoryId: full.categoryId ? String(full.categoryId) : "",
+        subcategoryId: full.subcategoryId ? String(full.subcategoryId) : "",
+        brandId: full.brandId ? String(full.brandId) : "",
+        materialId: full.materialId ? String(full.materialId) : "",
+        supplierId: full.supplierId ? String(full.supplierId) : "",
+        unitId: full.unitId ? String(full.unitId) : "",
+        countryId: full.countryId ? String(full.countryId) : "",
+        taxId: full.taxId ? String(full.taxId) : "",
+        departmentId: full.department?.id ? String(full.department.id) : "",
+        isActive: full.isActive ? "true" : "false",
+        isFeatured: full.isFeatured ? "true" : "false",
+        isBestSeller: full.isBestSeller ? "true" : "false",
+        isNewArrival: full.isNewArrival ? "true" : "false",
+      }));
+      setSelectedColors((full.colors ?? []).map((c: { id: number }) => c.id));
+      setSelectedSizes((full.sizes ?? []).map((s: { id: number }) => s.id));
+      const imgs = Array.isArray(full.images) && full.images.length
+        ? full.images
+        : full.image ? [full.image] : [];
+      setGallery(imgs);
+      setPrimaryImage(full.image || imgs[0] || "");
+      // Populate custom field values + related products for editing.
+      setAttrValues(Object.fromEntries((full.customAttributes ?? []).map((a: { id: number; value: string }) => [a.id, a.value ?? ""])));
+      setRelatedSelected((full.relatedProducts ?? []).map((r: { id: number }) => r.id));
+    } catch {
+      setError("Could not load full product details");
+    }
+  };
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -187,6 +251,29 @@ export function ProductsTab() {
   }, []);
 
   useEffect(loadAll, [loadAll]);
+
+  // ---- Dynamic custom fields: load definitions for the selected subcategory ----
+  const loadAttributes = useCallback(async (subId: string) => {
+    if (!subId) {
+      setAttributes([]);
+      return;
+    }
+    try {
+      const r = await fetch(`/api/admin/attributes?subcategoryId=${subId}`, { credentials: "same-origin" });
+      const d = await r.json();
+      if (d.success) setAttributes(d.data.items ?? []);
+    } catch {
+      /* attribute list is non-critical; leave as-is */
+    }
+  }, []);
+
+  useEffect(() => {
+    loadAttributes(String(f.subcategoryId ?? ""));
+  }, [f.subcategoryId, loadAttributes]);
+
+  const setAttrValue = (id: number, value: string) => {
+    setAttrValues((prev) => ({ ...prev, [id]: value }));
+  };
 
   const filtered = products.filter(
     (p) => !query || p.name.toLowerCase().includes(query.toLowerCase()) || p.slug.includes(query.toLowerCase()) || p.sku.toLowerCase().includes(query.toLowerCase())
@@ -267,6 +354,10 @@ export function ProductsTab() {
       taxId: f.taxId ? Number(f.taxId) : null,
       colorIds: selectedColors,
       sizeIds: selectedSizes,
+      // Dynamic custom field values (all optional — empty ones are simply saved as empty)
+      customValues: attributes.map((a) => ({ attributeId: a.id, value: attrValues[a.id] ?? "" })),
+      // Manually selected related products (ordered)
+      relatedProductIds: relatedSelected,
     };
 
     const isEdit = editingId !== null;
@@ -378,6 +469,17 @@ export function ProductsTab() {
             {renderInput("line", "Product Line")}
           </div>
 
+          {/* Subcategory-specific custom fields — Main Information area */}
+          <CustomFieldsSection
+            section="HEADER"
+            subcategoryId={String(f.subcategoryId ?? "")}
+            attributes={attributes}
+            values={attrValues}
+            onValueChange={setAttrValue}
+            onRefresh={() => loadAttributes(String(f.subcategoryId ?? ""))}
+            onError={setError}
+          />
+
           <h3 className="font-semibold text-gray-900 border-b pb-2">Pricing</h3>
           <div className="grid md:grid-cols-4 gap-3">
             {renderInput("price", "Selling Price (KD)", "number", { step: "0.001" })}
@@ -396,6 +498,17 @@ export function ProductsTab() {
             {renderSelect("unitId", "Unit", units)}
             {renderSelect("countryId", "Country", countries)}
             {renderSelect("taxId", "Tax", taxes)}
+          </div>
+
+          {/* Manually selected related products */}
+          <div className="border border-gray-200 rounded-xl p-3 space-y-3 bg-white">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Related Products (manual)</div>
+            <RelatedProductsPicker
+              products={products}
+              selected={relatedSelected}
+              onChange={setRelatedSelected}
+              selfId={editingId}
+            />
           </div>
 
           <h3 className="font-semibold text-gray-900 border-b pb-2">Colors &amp; Sizes</h3>
@@ -423,10 +536,36 @@ export function ProductsTab() {
           <div className="grid md:grid-cols-1 gap-3">
             {renderInput("description", "Short Description", "textarea", { span: true })}
             {renderInput("longDescription", "Long Description", "textarea", { span: true })}
-            {renderInput("specs", "Specifications (JSON)", "textarea", { span: true })}
+          </div>
+
+          {/* Subcategory-specific custom fields — Product Description area */}
+          <CustomFieldsSection
+            section="DESCRIPTION"
+            subcategoryId={String(f.subcategoryId ?? "")}
+            attributes={attributes}
+            values={attrValues}
+            onValueChange={setAttrValue}
+            onRefresh={() => loadAttributes(String(f.subcategoryId ?? ""))}
+            onError={setError}
+          />
+
+          <h3 className="font-semibold text-gray-900 border-b pb-2">Specifications</h3>
+          <div className="grid md:grid-cols-1 gap-3">
             {renderInput("applications", "Applications", "textarea", { span: true })}
             {renderInput("additionalInfo", "Additional Information", "textarea", { span: true })}
+            {renderInput("specs", "Specifications (JSON)", "textarea", { span: true })}
           </div>
+
+          {/* Subcategory-specific custom fields — Specifications area */}
+          <CustomFieldsSection
+            section="SPECIFICATIONS"
+            subcategoryId={String(f.subcategoryId ?? "")}
+            attributes={attributes}
+            values={attrValues}
+            onValueChange={setAttrValue}
+            onRefresh={() => loadAttributes(String(f.subcategoryId ?? ""))}
+            onError={setError}
+          />
 
           <h3 className="font-semibold text-gray-900 border-b pb-2">Media Library</h3>
           <div

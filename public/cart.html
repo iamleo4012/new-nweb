@@ -517,7 +517,14 @@
                 .then(function(r) { return r.json(); })
                 .then(function(cartData) {
                   var serverItems = (cartData.success && cartData.data && cartData.data.items) ? cartData.data.items : [];
-                  var localItems = readCart();
+                  // Account-isolation guard: if localStorage holds ANOTHER
+                  // account's cart snapshot (account switch without logout),
+                  // those items are not this user's — never merge or sync them.
+                  // See account.js (nassim_data_owner marker).
+                  var storedOwner = '';
+                  try { storedOwner = localStorage.getItem('nassim_data_owner') || ''; } catch(e) {}
+                  var userId = String(authData.data.user.id);
+                  var localItems = (storedOwner !== '' && storedOwner !== userId) ? [] : readCart();
                   // Merge: server items take priority for existing, local items added if not on server
                   var merged = mergeCarts(localItems, serverItems);
                   cartItems = merged;
@@ -529,6 +536,7 @@
                       fetch('/api/cart', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: local.id, quantity: local.quantity }) }).catch(function() {});
                     }
                   });
+                  try { localStorage.setItem('nassim_data_owner', userId); } catch(e) {}
                   finaliseCart(merged);
                 })
                 .catch(function() {

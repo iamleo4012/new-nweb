@@ -16,6 +16,7 @@ enum UserRole {
   CUSTOMER
   STAFF
   ADMIN
+  SUPERADMIN
 }
 
 enum OrderStatus {
@@ -54,6 +55,24 @@ enum StockStatus {
   DISCONTINUED
 }
 
+// Product-information area a dynamic custom attribute renders in.
+// HEADER = main info column (name/price/SKU area)
+// DESCRIPTION = product description accordion
+// SPECIFICATIONS = specs grid
+enum AttributeSection {
+  HEADER
+  DESCRIPTION
+  SPECIFICATIONS
+}
+
+// Supported dynamic field types (first version: TEXT, LONG_TEXT, NUMBER, SELECT).
+enum AttributeType {
+  TEXT
+  LONG_TEXT
+  NUMBER
+  SELECT
+}
+
 model Department {
   id           Int          @id @default(autoincrement())
   slug         String       @unique
@@ -89,12 +108,13 @@ model Category {
 }
 
 model Subcategory {
-  id         Int       @id @default(autoincrement())
-  slug       String    @unique
-  name       String
-  categoryId Int
-  category   Category  @relation(fields: [categoryId], references: [id])
-  products   Product[]
+  id               Int               @id @default(autoincrement())
+  slug             String            @unique
+  name             String
+  categoryId       Int
+  category         Category          @relation(fields: [categoryId], references: [id])
+  products         Product[]
+  customAttributes CustomAttribute[]
 
   @@index([categoryId])
 }
@@ -189,6 +209,57 @@ model ProductImage {
   @@index([productId])
 }
 
+// Dynamic custom attribute DEFINITION — belongs to one subcategory.
+// Created once by the admin; every product in that subcategory then gets an
+// input for it. Soft-deleted via isDeleted so historical ProductCustomValue
+// rows survive (values are keyed by attributeId, so renaming never detaches them).
+model CustomAttribute {
+  id            Int             @id @default(autoincrement())
+  name          String
+  section       AttributeSection @default(SPECIFICATIONS)
+  fieldType     AttributeType   @default(TEXT)
+  subcategoryId Int
+  subcategory   Subcategory     @relation(fields: [subcategoryId], references: [id])
+  displayOrder  Int             @default(0)
+  options       String[]        @default([])
+  isDeleted     Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  values        ProductCustomValue[]
+
+  @@index([subcategoryId])
+}
+
+// Per-PRODUCT value for a custom attribute. The definition lives on
+// CustomAttribute; only the value lives here. Empty string = field left blank.
+model ProductCustomValue {
+  id          Int             @id @default(autoincrement())
+  productId   Int
+  product     Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeId Int
+  attribute   CustomAttribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  value       String          @default("")
+
+  @@unique([productId, attributeId])
+  @@index([attributeId])
+}
+
+// Admin-selected related products (ordered, one-directional).
+// productId = the product being viewed; relatedId = the product shown in its
+// "Related Products" section. Storefront falls back to same-section products
+// when a product has no rows here.
+model RelatedProduct {
+  id           Int      @id @default(autoincrement())
+  productId    Int
+  product      Product  @relation("RelatedFrom", fields: [productId], references: [id], onDelete: Cascade)
+  relatedId    Int
+  related      Product  @relation("RelatedTo", fields: [relatedId], references: [id], onDelete: Cascade)
+  displayOrder Int      @default(0)
+
+  @@unique([productId, relatedId])
+  @@index([relatedId])
+}
+
 model StockMovement {
   id        Int      @id @default(autoincrement())
   productId Int
@@ -272,6 +343,9 @@ model Product {
   colors         ProductColor[]
   sizes          ProductSize[]
   mediaImages    ProductImage[]
+  customValues   ProductCustomValue[]
+  relatedFrom    RelatedProduct[] @relation("RelatedFrom")
+  relatedTo      RelatedProduct[] @relation("RelatedTo")
   stockMovements StockMovement[]
   orderItems  OrderItem[]
   wishlist    WishlistItem[]
@@ -293,6 +367,7 @@ model User {
   phone           String                @default("")
   passwordHash    String
   role            UserRole              @default(CUSTOMER)
+  designation     String                @default("")
   isActive        Boolean               @default(true)
   sessions        Session[]
   orders          Order[]
@@ -375,6 +450,7 @@ model Order {
   @@index([customerEmail])
   @@index([originalUserId])
   @@index([originalUserEmail])
+  @@index([createdAt])
 }
 
 model OrderItem {
@@ -391,6 +467,7 @@ model OrderItem {
   itemStatus OrderItemStatus @default(PENDING)
 
   @@index([orderId])
+  @@index([productId])
 }
 
 model OrderStatusEvent {
@@ -419,6 +496,7 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   @@index([entity])
+  @@index([createdAt])
 }
 
 model Notification {

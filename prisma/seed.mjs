@@ -124,6 +124,28 @@ async function main() {
   });
   console.log(`Admin user ready: ${adminEmail}`);
 
+  // SUPERADMIN (owner) seed — same pattern as the admin seed: created on
+  // first run, and on subsequent runs only the role is refreshed. The
+  // password is NEVER overwritten, so rotated credentials survive re-seeding.
+  // Skipped entirely when SUPERADMIN_SEED_EMAIL/PASSWORD are not configured.
+  const ownerEmail = process.env.SUPERADMIN_SEED_EMAIL;
+  const ownerPassword = process.env.SUPERADMIN_SEED_PASSWORD;
+  if (ownerEmail && ownerPassword) {
+    await prisma.user.upsert({
+      where: { email: ownerEmail },
+      update: { role: "SUPERADMIN" },
+      create: {
+        email: ownerEmail,
+        name: "Owner",
+        passwordHash: await bcrypt.hash(ownerPassword, 12),
+        role: "SUPERADMIN",
+      },
+    });
+    console.log(`Superadmin user ready: ${ownerEmail}`);
+  } else {
+    console.log("Superadmin seed skipped (SUPERADMIN_SEED_EMAIL / SUPERADMIN_SEED_PASSWORD not set)");
+  }
+
   await prisma.setting.upsert({ where: { key: "shipping_fee" }, update: {}, create: { key: "shipping_fee", value: "2.5" } });
   await prisma.setting.upsert({ where: { key: "currency" }, update: {}, create: { key: "currency", value: "KD" } });
   console.log("Settings ready");

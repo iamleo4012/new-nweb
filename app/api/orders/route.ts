@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { calculateBillableTotals } from "@/lib/order-workflow";
+import { reserveOnlineStock, InsufficientStockError } from "@/lib/online-stock";
 
 export const dynamic = "force-dynamic";
 
@@ -49,9 +50,10 @@ export async function POST(req: NextRequest) {
   }
   const input = parsed.data;
 
-  // Verify products exist and are active. The website does NOT check or
-  // deduct stock — staff manually verify availability against the physical
-  // store after the order is placed.
+  // Verify products exist and are active. ONLINE STOCK is validated and
+  // atomically deducted inside the transaction below (never at cart time) —
+  // the website's stock is its own manually-allocated online quantity and is
+  // never compared against the physical-store ERP.
   const slugs = Array.from(new Set(input.items.map((i) => i.slug)));
   const products = await prisma.product.findMany({ where: { slug: { in: slugs }, isActive: true } });
   const bySlug = new Map(products.map((p) => [p.slug, p]));
@@ -117,6 +119,17 @@ export async function POST(req: NextRequest) {
       });
 
       const orderNumber = `AN-${new Date().getFullYear()}-${String(created.id).padStart(6, "0")}`;
+
+      // ONLINE STOCK: atomically validate + deduct inside this transaction.
+      // Insufficient stock throws → the whole order creation rolls back and
+      // stock is left untouched. Concurrent orders for the last unit
+      // serialise on the product row lock — only one can win.
+      await reserveOnlineStock(
+        tx,
+        orderItems.map((i) => ({ productId: i.productId, name: i.name, quantity: i.quantity })),
+        orderNumber
+      );
+
       const updated = await tx.order.update({
         where: { id: created.id },
         data: { orderNumber },
@@ -153,6 +166,13 @@ export async function POST(req: NextRequest) {
       error: null,
     });
   } catch (err) {
+    if (err instanceof InsufficientStockError) {
+      // Oversell prevented — nothing was created and stock is unchanged.
+      return NextResponse.json(
+        { success: false, data: null, error: err.message },
+        { status: 409 }
+      );
+    }
     console.error("Order creation failed:", err);
     return NextResponse.json(
       { success: false, data: null, error: "Could not place order. Please try again." },

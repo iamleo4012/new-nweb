@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { customFieldsInclude, customFieldsPayload } from "@/lib/custom-fields";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest) {
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,
-      include: { category: { include: { department: true } } },
+      include: { category: { include: { department: true } }, ...customFieldsInclude },
       orderBy: { id: "asc" },
       skip: (page - 1) * limit,
       take: limit,
@@ -51,6 +52,8 @@ export async function GET(req: NextRequest) {
       sku: p.sku,
       specs: p.specs,
       stock: p.stock,
+      // Additive PIM fields (see lib/custom-fields.ts)
+      ...customFieldsPayload(p),
     })),
     error: null,
     meta: { total, page, limit },

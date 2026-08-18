@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/db";
+import { customFieldsInclude, customFieldsPayload } from "@/lib/custom-fields";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const products = await prisma.product.findMany({
     where: { isActive: true },
-    include: { category: true },
+    include: { category: true, ...customFieldsInclude },
     orderBy: { id: "asc" },
   });
 
@@ -21,6 +22,13 @@ export async function GET() {
     category: p.category.name,
     sku: p.sku,
     specs: p.specs,
+    // Online-store quantity (manually allocated by the store admin — this is
+    // NOT the physical-store ERP inventory). Additive field: consumers that
+    // ignore it keep working unchanged.
+    stock: p.stock,
+    // Additive PIM fields: admin-defined custom info + admin-selected related
+    // products. Consumers that ignore them keep working unchanged.
+    ...customFieldsPayload(p),
   }));
 
   const js = `window.NASSIM_PRODUCTS = ${JSON.stringify(catalog)};

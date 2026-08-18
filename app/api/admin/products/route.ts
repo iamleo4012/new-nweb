@@ -65,6 +65,14 @@ const createSchema = z.object({
   taxId: nullableInt(),
   colorIds: z.array(z.number().int().positive()).optional().default([]),
   sizeIds: z.array(z.number().int().positive()).optional().default([]),
+  // Dynamic PIM fields: per-product values keyed by subcategory attribute id.
+  // All optional — empty custom fields never block product creation.
+  customValues: z
+    .array(z.object({ attributeId: z.number().int().positive(), value: z.string().max(2000) }))
+    .max(200)
+    .optional(),
+  // Admin-selected related products (product ids, order = display order).
+  relatedProductIds: z.array(z.number().int().positive()).max(50).optional(),
 });
 
 const updateSchema = z.object({
@@ -86,11 +94,22 @@ const updateSchema = z.object({
   taxId: nullableInt(),
   colorIds: z.array(z.number().int().positive()).optional(),
   sizeIds: z.array(z.number().int().positive()).optional(),
+  customValues: z
+    .array(z.object({ attributeId: z.number().int().positive(), value: z.string().max(2000) }))
+    .max(200)
+    .optional(),
+  relatedProductIds: z.array(z.number().int().positive()).max(50).optional(),
 });
 
 const productInclude = {
   category: { include: { department: { select: { id: true, name: true } }, section: { select: { id: true, name: true } } } },
-  subcategory: { select: { id: true, name: true } },
+  subcategory: {
+    select: {
+      id: true,
+      name: true,
+      customAttributes: { where: { isDeleted: false }, orderBy: [{ section: "asc" }, { displayOrder: "asc" }, { id: "asc" }] },
+    },
+  },
   brand: { select: { id: true, name: true } },
   material: { select: { id: true, name: true } },
   supplier: { select: { id: true, name: true } },
@@ -100,11 +119,25 @@ const productInclude = {
   colors: { include: { color: { select: { id: true, name: true, slug: true, hex: true } } } },
   sizes: { include: { size: { select: { id: true, name: true, slug: true } } } },
   mediaImages: { orderBy: { sortOrder: "asc" } },
+  customValues: true,
+  relatedFrom: { orderBy: { displayOrder: "asc" }, include: { related: { select: { id: true, slug: true, name: true, image: true } } } },
 } satisfies Prisma.ProductInclude;
 
 type FullProduct = Prisma.ProductGetPayload<{ include: typeof productInclude }>;
 
 function serialize(p: FullProduct) {
+  // Dynamic custom fields: join the subcategory's live attribute definitions
+  // with this product's stored values ("" when never filled in).
+  const valueByAttr = new Map(p.customValues.map((v) => [v.attributeId, v.value]));
+  const customAttributes = (p.subcategory?.customAttributes ?? []).map((a) => ({
+    id: a.id,
+    name: a.name,
+    section: a.section,
+    fieldType: a.fieldType,
+    displayOrder: a.displayOrder,
+    options: a.options,
+    value: valueByAttr.get(a.id) ?? "",
+  }));
   return {
     id: p.id,
     slug: p.slug,
@@ -150,7 +183,7 @@ function serialize(p: FullProduct) {
     department: p.category?.department ?? null,
     section: p.category?.section ?? null,
     category: p.category ? { id: p.category.id, name: p.category.name, slug: p.category.slug } : null,
-    subcategory: p.subcategory,
+    subcategory: p.subcategory ? { id: p.subcategory.id, name: p.subcategory.name } : null,
     brand: p.brand,
     material: p.material,
     supplier: p.supplier,
@@ -160,6 +193,8 @@ function serialize(p: FullProduct) {
     colors: p.colors.map((c) => c.color),
     sizes: p.sizes.map((s) => s.size),
     mediaImages: p.mediaImages,
+    customAttributes,
+    relatedProducts: p.relatedFrom.map((r) => r.related),
   };
 }
 
@@ -172,10 +207,67 @@ function listSerialize(p: FullProduct) {
   };
 }
 
+/**
+ * Persists per-product custom attribute values. Only attribute ids that belong
+ * to the product's (new) subcategory and are not soft-deleted are stored —
+ * attributes from unrelated subcategories are silently dropped so switching
+ * subcategories never mixes field sets. Empty values are stored as "".
+ */
+async function persistCustomValues(
+  productId: number,
+  subcategoryId: number | null | undefined,
+  customValues: { attributeId: number; value: string }[]
+) {
+  await prisma.productCustomValue.deleteMany({ where: { productId } });
+  if (!subcategoryId || customValues.length === 0) return;
+  const ids = customValues.map((v) => v.attributeId);
+  const valid = await prisma.customAttribute.findMany({
+    where: { id: { in: ids }, subcategoryId, isDeleted: false },
+    select: { id: true },
+  });
+  const validIds = new Set(valid.map((a) => a.id));
+  const seen = new Set<number>();
+  const rows = customValues.filter((v) => {
+    if (!validIds.has(v.attributeId) || seen.has(v.attributeId)) return false;
+    seen.add(v.attributeId);
+    return true;
+  });
+  if (rows.length) {
+    await prisma.productCustomValue.createMany({
+      data: rows.map((v) => ({ productId, attributeId: v.attributeId, value: v.value })),
+      skipDuplicates: true,
+    });
+  }
+}
+
+/** Persists admin-selected related products (ordered, self-links dropped). */
+async function persistRelated(productId: number, relatedProductIds: number[]) {
+  await prisma.relatedProduct.deleteMany({ where: { productId } });
+  const unique = [...new Set(relatedProductIds)].filter((id) => id !== productId);
+  if (unique.length === 0) return;
+  const existing = await prisma.product.findMany({ where: { id: { in: unique } }, select: { id: true } });
+  const validIds = new Set(existing.map((p) => p.id));
+  const rows = unique.filter((id) => validIds.has(id));
+  if (rows.length) {
+    await prisma.relatedProduct.createMany({
+      data: rows.map((id, index) => ({ productId, relatedId: id, displayOrder: index })),
+      skipDuplicates: true,
+    });
+  }
+}
+
 export async function GET(req: NextRequest) {
   const staff = await requireStaff();
   if (!staff) return forbidden();
   const withFull = req.nextUrl.searchParams.get("full") === "1";
+  // Optional single-product fetch (used by the edit form to load the full
+  // record including custom field values and related products).
+  const idParam = Number(req.nextUrl.searchParams.get("id"));
+  if (Number.isInteger(idParam) && idParam > 0) {
+    const product = await prisma.product.findUnique({ where: { id: idParam }, include: productInclude });
+    if (!product) return NextResponse.json({ success: false, data: null, error: "Product not found" }, { status: 404 });
+    return NextResponse.json({ success: true, data: { product: serialize(product) }, error: null });
+  }
   const products = await prisma.product.findMany({
     include: productInclude,
     orderBy: { id: "asc" },
@@ -225,7 +317,7 @@ export async function POST(req: NextRequest) {
   if (!category) return NextResponse.json({ success: false, data: null, error: "Category not found" }, { status: 400 });
 
   const {
-    colorIds, sizeIds,
+    colorIds, sizeIds, customValues, relatedProductIds,
     categoryId, subcategoryId, brandId, materialId, supplierId, unitId, countryId, taxId,
     ...productFields
   } = data;
@@ -247,10 +339,17 @@ export async function POST(req: NextRequest) {
   if (sizeIds.length) productData.sizes = { create: sizeIds.map((sid) => ({ sizeId: sid })) };
 
   const created = await prisma.product.create({ data: productData, include: productInclude });
+  if (customValues) {
+    await persistCustomValues(created.id, subcategoryId ?? null, customValues);
+  }
+  if (relatedProductIds) {
+    await persistRelated(created.id, relatedProductIds);
+  }
+  const fresh = await prisma.product.findUnique({ where: { id: created.id }, include: productInclude });
   await prisma.auditLog.create({
     data: { actorId: staff.id, action: "PRODUCT_CREATE", entity: "Product", entityId: String(created.id), detail: created.slug },
   });
-  return NextResponse.json({ success: true, data: { product: serialize(created) }, error: null });
+  return NextResponse.json({ success: true, data: { product: serialize(fresh ?? created) }, error: null });
 }
 
 export async function PATCH(req: NextRequest) {
@@ -269,7 +368,7 @@ export async function PATCH(req: NextRequest) {
       { status: 400 }
     );
   }
-  const { id, colorIds, sizeIds, ...rest } = parsed.data;
+  const { id, colorIds, sizeIds, customValues, relatedProductIds, ...rest } = parsed.data;
   const existing = await prisma.product.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ success: false, data: null, error: "Product not found" }, { status: 404 });
 
@@ -297,12 +396,41 @@ export async function PATCH(req: NextRequest) {
   if (sizeIds) {
     fields.sizes = { deleteMany: {}, create: sizeIds.map((sizeId) => ({ sizeId })) };
   }
+  const nextSubcategoryId =
+    parsed.data.subcategoryId !== undefined ? parsed.data.subcategoryId : existing.subcategoryId;
 
   const updated = await prisma.product.update({ where: { id }, data: fields, include: productInclude });
+  // Dynamic PIM data is persisted AFTER the row update so the new
+  // subcategory (if changed) is the one the attribute values are validated
+  // against — switching subcategories replaces the visible field set.
+  if (customValues) {
+    await persistCustomValues(id, nextSubcategoryId, customValues);
+  }
+  if (relatedProductIds) {
+    await persistRelated(id, relatedProductIds);
+  }
+  const fresh = await prisma.product.findUnique({ where: { id }, include: productInclude });
   await prisma.auditLog.create({
     data: { actorId: staff.id, action: "PRODUCT_UPDATE", entity: "Product", entityId: String(id), detail: Object.keys(fields).join(",") },
   });
-  return NextResponse.json({ success: true, data: { product: serialize(updated) }, error: null });
+  // Stock changes get their own explicit old→new audit event so the owner
+  // activity feed can answer "who changed this product's stock, when, from
+  // what, to what" (additive — the generic PRODUCT_UPDATE row above remains).
+  // The update schema is spread-built (sharedFields), so read the value
+  // defensively instead of through the inferred type.
+  const stockInput = "stock" in parsed.data ? (parsed.data as Record<string, unknown>).stock : undefined;
+  if (typeof stockInput === "number" && stockInput !== existing.stock) {
+    await prisma.auditLog.create({
+      data: {
+        actorId: staff.id,
+        action: "PRODUCT_STOCK_CHANGE",
+        entity: "Product",
+        entityId: String(id),
+        detail: `slug=${existing.slug}; stock: ${existing.stock} -> ${stockInput}`,
+      },
+    });
+  }
+  return NextResponse.json({ success: true, data: { product: serialize(fresh ?? updated) }, error: null });
 }
 
 export async function DELETE(req: NextRequest) {

@@ -247,6 +247,7 @@ export function CustomersTab() {
           <option value="CUSTOMER">Customers</option>
           <option value="STAFF">Staff</option>
           <option value="ADMIN">Admins</option>
+          <option value="SUPERADMIN">Superadmin</option>
         </select>
         <span className="text-sm text-gray-500">{total} users</span>
       </div>

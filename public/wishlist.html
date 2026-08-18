@@ -1256,7 +1256,13 @@
             .then(function(r) { return r.json(); })
             .then(function(wishData) {
               var serverItems = (wishData.success && wishData.data && wishData.data.items) ? wishData.data.items : [];
-              var localItems = getWishlist();
+              // Account-isolation guard: local items marked as belonging to a
+              // DIFFERENT account (switch without logout) are never merged or
+              // synced into this account. See account.js (nassim_data_owner).
+              var storedOwner = '';
+              try { storedOwner = localStorage.getItem('nassim_data_owner') || ''; } catch(e) {}
+              var userId = String(authData.data.user.id);
+              var localItems = (storedOwner !== '' && storedOwner !== userId) ? [] : getWishlist();
               // Merge: add local items not on server
               var merged = serverItems.slice();
               localItems.forEach(function(local) {
@@ -1268,6 +1274,7 @@
                 }
               });
               saveWishlist(merged);
+              try { localStorage.setItem('nassim_data_owner', userId); } catch(e) {}
               renderWishlist();
             });
         } else {

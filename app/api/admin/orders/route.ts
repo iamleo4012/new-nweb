@@ -11,6 +11,7 @@ import {
   notificationMessage,
   calculateBillableTotals,
 } from "@/lib/order-workflow";
+import { restoreOnlineStockForOrder, restoreStockForRemovedItems } from "@/lib/online-stock";
 import type { OrderStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -144,46 +145,53 @@ export async function PATCH(req: NextRequest) {
     throw e;
   }
 
-  // If moving to CONFIRMED, mark all AVAILABLE items as remaining and
-  // all UNAVAILABLE items as REMOVED_AFTER_CONFIRMATION.
-  let itemUpdates: Promise<unknown>[] = [];
-  if (toStatus === "CONFIRMED") {
-    for (const item of existing.items) {
-      if (item.itemStatus === "UNAVAILABLE") {
-        itemUpdates.push(
-          prisma.orderItem.update({ where: { id: item.id }, data: { itemStatus: "REMOVED_AFTER_CONFIRMATION" } })
-        );
+  // Status change + item updates + online-stock side effects run in ONE
+  // transaction so the movement ledger and Product.stock always agree with
+  // the order state.
+  const updated = await prisma.$transaction(async (tx) => {
+    // ONLINE STOCK: declining/cancelling an order returns exactly the
+    // quantities it reserved (skip items already returned via
+    // REMOVED_AFTER_CONFIRMATION; legacy orders have no reservation ledger
+    // rows so nothing is invented).
+    if (toStatus === "CANCELLED_BY_STAFF") {
+      await restoreOnlineStockForOrder(tx, existing, "ORDER_DECLINED_RESTORE");
+    }
+
+    // If moving to CONFIRMED, mark all UNAVAILABLE items as removed — their
+    // reserved units go back to online stock immediately (partial restore).
+    if (toStatus === "CONFIRMED") {
+      const removed = existing.items.filter((item) => item.itemStatus === "UNAVAILABLE");
+      for (const item of removed) {
+        await tx.orderItem.update({ where: { id: item.id }, data: { itemStatus: "REMOVED_AFTER_CONFIRMATION" } });
+      }
+      if (removed.length) {
+        await restoreStockForRemovedItems(tx, existing.orderNumber, removed);
       }
     }
-  }
 
-  const updated = await prisma.order.update({
-    where: { id: parsed.data.id },
-    data: {
-      status: toStatus,
-      statusHistory: { create: { status: toStatus, note: parsed.data.note } },
-    },
-    include: { items: true },
+    const order = await tx.order.update({
+      where: { id: parsed.data.id },
+      data: {
+        status: toStatus,
+        statusHistory: { create: { status: toStatus, note: parsed.data.note } },
+      },
+      include: { items: true },
+    });
+
+    await tx.auditLog.create({
+      data: {
+        actorId: staff.id,
+        action: "ORDER_STATUS_CHANGE",
+        entity: "Order",
+        entityId: String(order.id),
+        detail: `${fromStatus} -> ${toStatus}`,
+      },
+    });
+
+    return order;
   });
 
-  await Promise.all(itemUpdates);
-
-  // Refetch items if we updated them.
-  const refreshed = itemUpdates.length > 0
-    ? await prisma.order.findUnique({ where: { id: parsed.data.id }, include: { items: true } }) ?? updated
-    : updated;
-
-  await prisma.auditLog.create({
-    data: {
-      actorId: staff.id,
-      action: "ORDER_STATUS_CHANGE",
-      entity: "Order",
-      entityId: String(updated.id),
-      detail: `${fromStatus} -> ${toStatus}`,
-    },
-  });
-
-  // Create customer notification.
+  // Create customer notification (outside the transaction — best-effort).
   await createNotification(
     updated.id,
     updated.userId,
@@ -191,5 +199,5 @@ export async function PATCH(req: NextRequest) {
     notificationMessage(toStatus, updated.orderNumber)
   );
 
-  return NextResponse.json({ success: true, data: { order: serializeOrder(refreshed) }, error: null });
+  return NextResponse.json({ success: true, data: { order: serializeOrder(updated) }, error: null });
 }

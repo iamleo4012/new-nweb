@@ -72,15 +72,35 @@ function isAdminToken(token: string | undefined): boolean {
     // where .env propagation to middleware is inconsistent). Use jwt.decode
     // (no signature verification) to read the role claim for the page-gate
     // decision. The actual security enforcement happens server-side in every
-    // admin API route via requireStaff() and in AdminApp via /api/auth/me —
-    // both of which DO verify the JWT signature with the secret. The middleware
-    // gate is defence-in-depth, not the sole authority.
+    // admin API route via requireStaff()/requireAdmin() and in AdminApp via
+    // /api/auth/me — both of which DO verify the JWT signature with the
+    // secret. The middleware gate is defence-in-depth, not the sole authority.
     const decoded = jwt.decode(token) as { role?: string } | null;
-    if (decoded && (decoded.role === "ADMIN" || decoded.role === "STAFF")) return true;
+    if (decoded && (decoded.role === "ADMIN" || decoded.role === "STAFF" || decoded.role === "SUPERADMIN")) return true;
     // Fallback: try full verification if JWT_SECRET is available
     if (JWT_SECRET) {
       const verified = jwt.verify(token, JWT_SECRET) as { role?: string };
-      return verified.role === "ADMIN" || verified.role === "STAFF";
+      return verified.role === "ADMIN" || verified.role === "STAFF" || verified.role === "SUPERADMIN";
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Owner page-gate check: only a SUPERADMIN role claim may load /superadmin/*.
+ * Like isAdminToken this is defence-in-depth — every /api/superadmin/* route
+ * enforces requireOwner() server-side with full signature verification.
+ */
+function isOwnerToken(token: string | undefined): boolean {
+  if (!token) return false;
+  try {
+    const decoded = jwt.decode(token) as { role?: string } | null;
+    if (decoded && decoded.role === "SUPERADMIN") return true;
+    if (JWT_SECRET) {
+      const verified = jwt.verify(token, JWT_SECRET) as { role?: string };
+      return verified.role === "SUPERADMIN";
     }
     return false;
   } catch {
@@ -114,6 +134,20 @@ export function middleware(req: NextRequest) {
     if (!isAdminToken(token)) {
       const loginUrl = req.nextUrl.clone();
       loginUrl.pathname = "/admin/login";
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // 1b. Superadmin (owner) page gate — only SUPERADMIN may load the owner
+  //     dashboard shell. /api/superadmin/* routes enforce requireOwner()
+  //     server-side; this gate protects the page chrome. The owner login
+  //     page itself passes through.
+  if (pathname.startsWith("/superadmin") && pathname !== "/superadmin/login") {
+    const token = req.cookies.get(COOKIE_NAME)?.value;
+    if (!isOwnerToken(token)) {
+      const loginUrl = req.nextUrl.clone();
+      loginUrl.pathname = "/superadmin/login";
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
     }

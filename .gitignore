@@ -38,3 +38,9 @@ Desktop.ini
 # Misc
 *.tsbuildinfo
 next-env.d.ts
+
+# Local-only database backups (PostgreSQL custom-format dumps)
+*.dump
+
+# ZCode agent local workspace data (plans, session scratch, etc.)
+.zcode/
