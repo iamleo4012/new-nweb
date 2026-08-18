@@ -16,8 +16,8 @@ const schema = z.object({
  * POST /api/auth/password-reset/request
  *
  * Generates a secure reset token, stores only the hashed version,
- * and sends the email via Resend. Returns an error if the email
- * is not registered or the account is inactive.
+ * and sends the email via Resend. The response is identical whether or not
+ * the email is registered (anti-enumeration); inactive accounts are a no-op.
  */
 export async function POST(req: NextRequest) {
   // Rate limit: 3 requests per 10 minutes per IP
@@ -50,39 +50,37 @@ export async function POST(req: NextRequest) {
   const { email } = parsed.data;
   const user = await prisma.user.findUnique({ where: { email } });
 
-  // Return an error if the email is not registered or the account is inactive
-  if (!user || !user.isActive) {
-    return NextResponse.json({
-      success: false,
-      data: null,
-      error: "No account was found with this email address.",
-    }, { status: 404 });
-  }
+  // Anti-enumeration: the response is IDENTICAL whether or not the email is
+  // registered/active. A token is created and an email sent only when the
+  // account exists; otherwise this is a silent no-op with the same shape,
+  // timing profile kept reasonable by the bcrypt work below.
+  if (user && user.isActive) {
+    // Generate a secure random token (32 bytes = 64 hex chars)
+    const rawToken = randomBytes(32).toString("hex");
+    // Store only the SHA-256 hash of the token
+    const tokenHash = createHash("sha256").update(rawToken).digest("hex");
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
 
-  // Generate a secure random token (32 bytes = 64 hex chars)
-  const rawToken = randomBytes(32).toString("hex");
-  // Store only the SHA-256 hash of the token
-  const tokenHash = createHash("sha256").update(rawToken).digest("hex");
-  const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+    // Invalidate any previous tokens for this user
+    await prisma.passwordResetToken.updateMany({
+      where: { userId: user.id, usedAt: null },
+      data: { usedAt: new Date() },
+    });
 
-  // Invalidate any previous tokens for this user
-  await prisma.passwordResetToken.updateMany({
-    where: { userId: user.id, usedAt: null },
-    data: { usedAt: new Date() },
-  });
+    // Store the hashed token
+    await prisma.passwordResetToken.create({
+      data: { userId: user.id, tokenHash, expiresAt },
+    });
 
-  // Store the hashed token
-  await prisma.passwordResetToken.create({
-    data: { userId: user.id, tokenHash, expiresAt },
-  });
-
-  // Send the email (fire-and-forget in dev if no API key)
-  console.log(`[password-reset] Sending reset email to=${user.email} name=${user.name}`);
-  const sent = await sendPasswordResetEmail(user.email, user.name, rawToken);
-  if (!sent) {
-    console.error(`[password-reset] Email NOT sent to=${user.email}. Check RESEND_API_KEY and EMAIL_FROM configuration.`);
+    // SECURITY: never log the raw token/link or the target address.
+    const sent = await sendPasswordResetEmail(user.email, user.name, rawToken);
+    if (!sent) {
+      console.error("[password-reset] Email delivery failed — check RESEND_API_KEY and EMAIL_FROM configuration.");
+    }
   } else {
-    console.log(`[password-reset] Email sent successfully to=${user.email}`);
+    // Equalise timing with the real path (token gen + hash + DB writes) so a
+    // slow response does not reveal account existence.
+    await hashPassword("timing-equalisation");
   }
 
   return NextResponse.json({

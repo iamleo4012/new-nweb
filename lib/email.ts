@@ -19,6 +19,13 @@ function getClient(): Resend | null {
   return new Resend(API_KEY);
 }
 
+/** Escape a value interpolated into the HTML email body (name is user-controlled). */
+function escHtml(s: string): string {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c] as string));
+}
+
 /**
  * Send a password reset email with a clickable link.
  */
@@ -33,8 +40,14 @@ export async function sendPasswordResetEmail(
     return false;
   }
 
+  // SECURITY: never log the reset link or raw token — log access must never
+  // grant account takeover. Only the recipient address (needed for delivery
+  // diagnostics) is recorded.
   const resetLink = `${APP_URL}/password-reset.html?token=${token}`;
-  console.log(`[email] Sending password reset to=${to} from=${EMAIL_FROM} link=${resetLink}`);
+  console.log(`[email] Sending password reset email from=${EMAIL_FROM}`);
+
+  const safeName = escHtml(userName);
+  const safeLink = escHtml(resetLink);
 
   const { error } = await client.emails.send({
     from: EMAIL_FROM,
@@ -47,17 +60,17 @@ export async function sendPasswordResetEmail(
         </div>
         <h2 style="font-size: 18px; color: #111d27; margin-bottom: 16px;">Reset Your Password</h2>
         <p style="font-size: 14px; color: #44474b; line-height: 1.6; margin-bottom: 24px;">
-          Hi ${userName},<br/><br/>
+          Hi ${safeName},<br/><br/>
           We received a request to reset your password. Click the button below to set a new password:
         </p>
         <div style="text-align: center; margin-bottom: 24px;">
-          <a href="${resetLink}" style="display: inline-block; background: #000308; color: #ffffff; padding: 14px 36px; border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+          <a href="${safeLink}" style="display: inline-block; background: #000308; color: #ffffff; padding: 14px 36px; border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
             Reset Password
           </a>
         </div>
         <p style="font-size: 12px; color: #74777c; line-height: 1.6;">
           Or copy this link into your browser:<br/>
-          <a href="${resetLink}" style="color: #825335; word-break: break-all;">${resetLink}</a>
+          <a href="${safeLink}" style="color: #825335; word-break: break-all;">${safeLink}</a>
         </p>
         <p style="font-size: 12px; color: #74777c; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
           This link expires in 30 minutes. If you didn't request this, you can safely ignore this email.
