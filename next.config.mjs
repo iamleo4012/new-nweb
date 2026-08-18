@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const isProd = process.env.NODE_ENV === "production";
+// Next.js DEV mode evaluates modules/HMR through eval() (170+ eval call sites
+// in the dev chunks) — without 'unsafe-eval' every App Router page fails to
+// hydrate: forms submit natively (login "doesn't work"), SPAs never render.
+// Production builds contain no eval, so the directive is dev-only.
+const scriptSrc = isProd
+  ? "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com"
+  : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com";
 
 /**
  * Content-Security-Policy — built from an inventory of the resources the
@@ -8,8 +15,7 @@ const isProd = process.env.NODE_ENV === "production";
  *           (the Tailwind Play CDN — see the security notes: migrating to the
  *           local Tailwind build removes this remote script and unlocks a
  *           strict CSP; until then it must be allowed or every page renders
- *           unstyled. 'unsafe-eval' is NOT granted — the Play CDN compiles
- *           without it.)
+ *           unstyled.)
  *   style   'self' + inline styles/blocks + Google Fonts CSS
  *   font    'self' + Google Fonts files + data:
  *   img     'self' + data:/blob: + lh3.googleusercontent.com (product images
@@ -17,11 +23,12 @@ const isProd = process.env.NODE_ENV === "production";
  *   connect 'self' — the storefront/admin only call their own API
  *
  * 'unsafe-inline' for script/style is a documented limitation of the
- * static-HTML + Play-CDN architecture, not an oversight.
+ * static-HTML + Play-CDN architecture, not an oversight. 'unsafe-eval' is
+ * granted ONLY in development (Next dev tooling requires it).
  */
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com",
+  scriptSrc,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com data:",
   "img-src 'self' data: blob: https://lh3.googleusercontent.com",

@@ -52,7 +52,7 @@ payment field anywhere (COD-only by construction).
 
 CSP is issued in `next.config.mjs` and built from an inventory of the actual
 resources in use (Google Fonts, Tailwind Play CDN, `lh3.googleusercontent.com`
-product images). Two documented limitations of the current architecture:
+product images). Documented limitations of the current architecture:
 
 - `script-src 'unsafe-inline'` — the 36 static storefront pages use inline
   scripts;
@@ -62,6 +62,17 @@ product images). Two documented limitations of the current architecture:
   local Tailwind build (already a devDependency) removes it; that migration is
   staged separately to avoid a giant CSS rewrite. HSTS is emitted only in
   production builds.
+- `script-src 'unsafe-eval'` is granted **in development only**: Next.js dev
+  tooling (HMR/React Refresh module evaluation) requires eval — without it
+  every App Router page fails to hydrate (forms submit natively, admin/
+  superadmin SPAs never render). Production builds contain no eval and keep
+  the stricter directive.
+
+**Operational note:** the middleware page gate must only use Web-Crypto APIs
+(`crypto.subtle`) — it runs on the edge runtime, where `jsonwebtoken`'s
+`jwt.verify` cannot execute and fails closed for everyone
+(`middleware.ts` verifyJwtEdge). Route handlers (Node runtime) keep using
+jsonwebtoken.
 
 ## 5. Password reset
 
