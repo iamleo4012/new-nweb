@@ -44,3 +44,16 @@ next-env.d.ts
 
 # ZCode agent local workspace data (plans, session scratch, etc.)
 .zcode/
+
+# SECURITY: local agent/tool configuration may contain credentials and command
+# history (a previous revision of .claude/settings.local.json leaked database
+# superuser passwords into git history — rotate if cloning from old remotes).
+.claude/
+
+# Test automation artifacts (screenshots, console logs, session snapshots)
+.playwright-mcp/
+gui-test-screenshots/
+.tmpwish/
+
+# Temporary scripts
+.tmp-*.cjs
