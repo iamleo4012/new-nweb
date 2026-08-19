@@ -1,15 +1,19 @@
 ﻿<html class="light" lang="en"><head></head><body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 
-<!-- Loading Screen -->
-<div id="loading-screen">
-    <div class="loading-dots">
-        <div class="loading-dot"></div>
-<!-- fail-safe loader removal -->
-<script>setTimeout(function(){var l=document.getElementById("loading-screen");if(l){l.style.display="none";}},3000);</script>
-        <div class="loading-dot"></div>
-        <div class="loading-dot"></div>
+<!-- Loading Screen — logo + dots, shown until the page fully loads, then a
+     smooth logo-zoom reveal (mobile + desktop, home.html only). -->
+<div id="loading-screen" role="status" aria-label="Loading AL-NASSIM">
+    <div class="loading-inner">
+        <img id="loading-logo" src="LOGO.png" alt="AL-Nassim" decoding="async"/>
+        <div class="loading-dots">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+        </div>
     </div>
 </div>
+<!-- fail-safe loader removal (aligned with the reveal script below) -->
+<script>setTimeout(function(){var l=document.getElementById("loading-screen");if(l){l.style.display="none";document.body.style.overflow="";}},5000);</script>
 
 <!-- Spotlight Overlay -->
 <div id="spotlight-overlay"></div>
@@ -309,7 +313,8 @@
         }
     }
 <style>
-        /* Loading Screen Styles */
+        /* Loading Screen Styles — logo + dots until FULL page load, then a
+           smooth logo-zoom reveal (mobile + desktop, home.html only). */
         #loading-screen {
             position: fixed;
             top: 0;
@@ -322,15 +327,37 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.5s ease-out;
+            transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .dark #loading-screen {
             background: rgba(10, 15, 20, 0.98);
+        }
+        .loading-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        #loading-logo {
+            width: min(52vw, 210px);
+            height: auto;
+            transform: scale(0.94);
+            opacity: 0;
+            transition:
+                transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.5s ease-out;
+        }
+        /* Logo fades/scales gently IN while loading (entrance), then ZOOMS
+           smoothly when the page has loaded (reveal below). */
+        #loading-screen.logo-in #loading-logo {
+            opacity: 1;
+            transform: scale(1);
         }
         .loading-dots {
             display: flex;
             gap: 12px;
             align-items: center;
+            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
         }
         .loading-dot {
             width: 12px;
@@ -347,6 +374,29 @@
         }
         .loading-dot:nth-child(3) {
             animation-delay: 0.4s;
+        }
+        /* REVEAL: page loaded — logo zooms up, dots dissolve, overlay fades. */
+        #loading-screen.reveal #loading-logo {
+            transform: scale(1.22);
+            opacity: 0;
+            transition:
+                transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.6s ease-in 0.05s;
+        }
+        #loading-screen.reveal .loading-dots {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+        #loading-screen.reveal {
+            opacity: 0;
+            pointer-events: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #loading-logo, .loading-dots, #loading-screen {
+                transition: opacity 0.25s ease-out !important;
+                animation: none !important;
+            }
+            #loading-screen.reveal #loading-logo { transform: none; }
         }
         @keyframes bounce {
             from {
@@ -390,7 +440,48 @@
             clip-path: circle(0px at var(--spotlight-x) var(--spotlight-y));
         }
     </style>
-<script>document.addEventListener("DOMContentLoaded",function(){var l=document.getElementById("loading-screen");if(l){l.style.opacity="0";setTimeout(function(){if(l)l.style.display="none";},300);}});</script>
+<script>
+(function () {
+    var splash = document.getElementById("loading-screen");
+    if (!splash) return;
+    var start = performance.now();
+    var revealed = false;
+
+    // Gentle logo entrance while loading.
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () { splash.classList.add("logo-in"); });
+    });
+
+    // Lock scrolling while the splash is up (released on reveal).
+    document.body.style.overflow = "hidden";
+
+    function cleanup() {
+        splash.style.display = "none";
+        document.body.style.overflow = "";
+    }
+
+    function reveal() {
+        if (revealed) return;
+        revealed = true;
+        // Small minimum display time so the entrance is never a flash.
+        var wait = Math.max(0, 700 - (performance.now() - start));
+        setTimeout(function () {
+            splash.classList.add("reveal");      // logo zooms, dots dissolve
+            setTimeout(cleanup, 750);            // overlay fully faded -> remove
+        }, wait);
+    }
+
+    if (document.readyState === "complete") {
+        reveal();
+    } else {
+        window.addEventListener("load", reveal);
+    }
+    // bfcache: returning to this page via Back must never show the splash.
+    window.addEventListener("pageshow", function (e) {
+        if (e.persisted) { revealed = true; cleanup(); }
+    });
+})();
+</script>
 <script>
         document.addEventListener('DOMContentLoaded', () => {
             const observerOptions = {
