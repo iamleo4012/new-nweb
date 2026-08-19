@@ -371,7 +371,19 @@
             display: flex;
             gap: 12px;
             align-items: center;
-            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+            /* Dots belong ONLY to the waiting stage: hidden at open (logo-only
+               splash), fade in once loading is genuinely in progress, and are
+               removed instantly the moment the page reveals. */
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+        #loading-screen.show-dots .loading-dots {
+            opacity: 1;
+        }
+        /* Reveal: dots vanish IMMEDIATELY (no transition) — never visible at
+           the instant the page loads/opens. */
+        #loading-screen.reveal .loading-dots {
+            display: none;
         }
         .loading-dot {
             width: 12px;
@@ -396,10 +408,6 @@
             transition:
                 transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
                 opacity 0.6s ease-in 0.05s;
-        }
-        #loading-screen.reveal .loading-dots {
-            opacity: 0;
-            transform: translateY(6px);
         }
         #loading-screen.reveal {
             opacity: 0;
@@ -466,6 +474,13 @@
         requestAnimationFrame(function () { splash.classList.add("logo-in"); });
     });
 
+    // Dots belong to the WAITING stage only: they fade in after a short beat
+    // if loading is still in progress — never at the open moment, and never
+    // at/after the reveal (CSS removes them instantly on reveal).
+    setTimeout(function () {
+        if (!revealed) splash.classList.add("show-dots");
+    }, 550);
+
     // Lock scrolling while the splash is up (released on reveal).
     document.body.style.overflow = "hidden";
 
@@ -480,7 +495,8 @@
         // Small minimum display time so the entrance is never a flash.
         var wait = Math.max(0, 700 - (performance.now() - start));
         setTimeout(function () {
-            splash.classList.add("reveal");      // logo zooms, dots dissolve
+            splash.classList.remove("show-dots");
+            splash.classList.add("reveal");      // logo zooms; dots already gone
             setTimeout(cleanup, 750);            // overlay fully faded -> remove
         }, wait);
     }
