@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CustomFieldsSection, type CustomAttributeItem } from "@/app/admin/_components/CustomFieldsSection";
+import { CustomFieldsSection, type CustomAttributeItem, type CustomFieldValue } from "@/app/admin/_components/CustomFieldsSection";
 import { RelatedProductsPicker } from "@/app/admin/_components/RelatedProductsPicker";
 
 interface MasterItem {
@@ -65,6 +65,11 @@ export function ProductsTab() {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  // Inline "+ Add New Color" modal (created straight from the product form —
+  // becomes immediately available in the Color selection).
+  const [showAddColor, setShowAddColor] = useState(false);
+  const [newColor, setNewColor] = useState({ name: "", nameAr: "", hex: "#825335" });
+  const [addingColor, setAddingColor] = useState(false);
 
   const [f, setF] = useState<Record<string, FormField>>({});
   const [selectedColors, setSelectedColors] = useState<number[]>([]);
@@ -75,9 +80,10 @@ export function ProductsTab() {
   const [dragOver, setDragOver] = useState(false);
 
   // Dynamic PIM state: attribute definitions for the selected subcategory,
-  // the current product's custom values, and manually selected related products.
+  // the current product's custom values (bilingual EN/AR), and manually
+  // selected related products.
   const [attributes, setAttributes] = useState<CustomAttributeItem[]>([]);
-  const [attrValues, setAttrValues] = useState<Record<number, string>>({});
+  const [attrValues, setAttrValues] = useState<Record<number, CustomFieldValue>>({});
   const [relatedSelected, setRelatedSelected] = useState<number[]>([]);
 
   const resetForm = () => {
@@ -177,8 +183,15 @@ export function ProductsTab() {
         : full.image ? [full.image] : [];
       setGallery(imgs);
       setPrimaryImage(full.image || imgs[0] || "");
-      // Populate custom field values + related products for editing.
-      setAttrValues(Object.fromEntries((full.customAttributes ?? []).map((a: { id: number; value: string }) => [a.id, a.value ?? ""])));
+      // Populate custom field values (bilingual) + related products for editing.
+      setAttrValues(
+        Object.fromEntries(
+          (full.customAttributes ?? []).map((a: { id: number; value?: string; valueAr?: string }) => [
+            a.id,
+            { value: a.value ?? "", valueAr: a.valueAr ?? "" },
+          ])
+        )
+      );
       setRelatedSelected((full.relatedProducts ?? []).map((r: { id: number }) => r.id));
     } catch {
       setError("Could not load full product details");
@@ -271,9 +284,46 @@ export function ProductsTab() {
     loadAttributes(String(f.subcategoryId ?? ""));
   }, [f.subcategoryId, loadAttributes]);
 
-  const setAttrValue = (id: number, value: string) => {
-    setAttrValues((prev) => ({ ...prev, [id]: value }));
+  const setAttrValue = (id: number, patch: Partial<CustomFieldValue>) => {
+    setAttrValues((prev) => ({
+      ...prev,
+      [id]: { value: prev[id]?.value ?? "", valueAr: prev[id]?.valueAr ?? "", ...patch },
+    }));
   };
+
+  /** Create a new color inline; it is auto-selected on success. */
+  async function createColor() {
+    if (!newColor.name.trim()) return;
+    setAddingColor(true);
+    try {
+      const res = await fetch("/api/admin/master/colors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          slug: slugify(newColor.name.trim()),
+          name: newColor.name.trim(),
+          nameAr: newColor.nameAr.trim(),
+          hex: newColor.hex,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const listRes = await fetch("/api/admin/master/colors", { credentials: "same-origin" });
+        const listData = await listRes.json();
+        if (listData.success) setColors(listData.items ?? []);
+        const created = data.data?.item as { id?: number } | undefined;
+        if (created?.id) setSelectedColors((prev) => (prev.includes(created.id!) ? prev : [...prev, created.id!]));
+        setShowAddColor(false);
+        setNewColor({ name: "", nameAr: "", hex: "#825335" });
+      } else {
+        setError(data.error || "Could not create color");
+      }
+    } catch {
+      setError("Could not create color");
+    }
+    setAddingColor(false);
+  }
 
   const filtered = products.filter(
     (p) => !query || p.name.toLowerCase().includes(query.toLowerCase()) || p.slug.includes(query.toLowerCase()) || p.sku.toLowerCase().includes(query.toLowerCase())
@@ -354,8 +404,13 @@ export function ProductsTab() {
       taxId: f.taxId ? Number(f.taxId) : null,
       colorIds: selectedColors,
       sizeIds: selectedSizes,
-      // Dynamic custom field values (all optional — empty ones are simply saved as empty)
-      customValues: attributes.map((a) => ({ attributeId: a.id, value: attrValues[a.id] ?? "" })),
+      // Dynamic custom field values (bilingual; all optional — empty ones are
+      // simply saved as empty)
+      customValues: attributes.map((a) => ({
+        attributeId: a.id,
+        value: attrValues[a.id]?.value ?? "",
+        valueAr: attrValues[a.id]?.valueAr ?? "",
+      })),
       // Manually selected related products (ordered)
       relatedProductIds: relatedSelected,
     };
@@ -423,15 +478,29 @@ export function ProductsTab() {
     </label>
   );
 
-  const renderMultiSelect = (label: string, items: MasterItem[], selected: number[], toggle: (id: number) => void) => (
+  const renderMultiSelect = (
+    label: string,
+    items: MasterItem[],
+    selected: number[],
+    toggle: (id: number) => void,
+    onAdd?: () => void
+  ) => (
     <div key={label} className="text-sm">
-      <span className="block text-gray-600 mb-1">{label}</span>
+      <span className="block text-gray-600 mb-1">
+        {label}
+        {onAdd && (
+          <button type="button" onClick={onAdd} className="ml-2 text-xs font-semibold text-blue-700 hover:underline">
+            + Add New
+          </button>
+        )}
+      </span>
       <div className="flex flex-wrap gap-1.5 border border-gray-300 rounded-lg px-3 py-2 min-h-[38px]">
         {(items ?? []).map((i) => (
           <button
             key={i.id}
             type="button"
             onClick={() => toggle(i.id)}
+            title={(i as { nameAr?: string }).nameAr || undefined}
             className={`px-2.5 py-1 rounded-md text-xs font-medium border ${selected.includes(i.id) ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"}`}
           >
             {i.name}
@@ -513,7 +582,7 @@ export function ProductsTab() {
 
           <h3 className="font-semibold text-gray-900 border-b pb-2">Colors &amp; Sizes</h3>
           <div className="grid md:grid-cols-2 gap-3">
-            {renderMultiSelect("Colors", colors, selectedColors, toggleColor)}
+            {renderMultiSelect("Colors", colors, selectedColors, toggleColor, () => setShowAddColor(true))}
             {renderMultiSelect("Sizes", sizes, selectedSizes, toggleSize)}
           </div>
 
@@ -666,6 +735,65 @@ export function ProductsTab() {
           </tbody>
         </table>
       </div>
+
+      {/* ---- + Add New Color modal (inline from the product form) ---- */}
+      {showAddColor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => !addingColor && setShowAddColor(false)}>
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h4 className="font-semibold text-gray-900">Add New Color</h4>
+            <p className="text-xs text-gray-500">
+              Saved to the shared color list — immediately available here and in Master Data.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block text-sm">
+                <span className="block text-gray-600 mb-1">Name — English *</span>
+                <input
+                  autoFocus
+                  value={newColor.name}
+                  onChange={(e) => setNewColor((c) => ({ ...c, name: e.target.value }))}
+                  placeholder="e.g. Dark Grey"
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="block text-gray-600 mb-1">الاسم — عربي</span>
+                <input
+                  dir="rtl"
+                  value={newColor.nameAr}
+                  onChange={(e) => setNewColor((c) => ({ ...c, nameAr: e.target.value }))}
+                  placeholder="مثال: رمادي غامق"
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full text-right"
+                />
+              </label>
+            </div>
+            <label className="flex items-center gap-3 text-sm">
+              <span className="text-gray-600">Swatch</span>
+              <input
+                type="color"
+                value={/^#[0-9a-fA-F]{6}$/.test(newColor.hex) ? newColor.hex : "#825335"}
+                onChange={(e) => setNewColor((c) => ({ ...c, hex: e.target.value }))}
+                className="h-9 w-14 rounded border border-gray-300"
+              />
+              <input
+                value={newColor.hex}
+                onChange={(e) => setNewColor((c) => ({ ...c, hex: e.target.value }))}
+                className="border border-gray-300 rounded-lg px-3 py-2 w-28"
+              />
+            </label>
+            <div className="flex justify-end gap-2 pt-1">
+              <button type="button" disabled={addingColor} onClick={() => setShowAddColor(false)}
+                className="px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 text-gray-600 hover:bg-gray-100">
+                Cancel
+              </button>
+              <button type="button" disabled={addingColor || !newColor.name.trim()}
+                onClick={createColor}
+                className="px-4 py-2 rounded-lg text-sm font-semibold bg-gray-900 text-white hover:bg-gray-700 disabled:opacity-50">
+                {addingColor ? "Adding…" : "Add Color"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

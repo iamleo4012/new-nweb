@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { customFieldsInclude, customFieldsPayload } from "@/lib/custom-fields";
+import { customFieldsInclude, customFieldsPayload, loadCustomI18n } from "@/lib/custom-fields";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +13,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
   if (!p || !p.isActive) {
     return NextResponse.json({ success: false, data: null, error: "Product not found" }, { status: 404 });
   }
+  const i18n = await loadCustomI18n([p.id]);
   return NextResponse.json({
     success: true,
     data: {
@@ -30,7 +31,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
       specs: p.specs,
       stock: p.stock,
       // Additive PIM fields (see lib/custom-fields.ts)
-      ...customFieldsPayload(p),
+      ...customFieldsPayload(p, i18n),
     },
     error: null,
   });

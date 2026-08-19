@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { customFieldsInclude, customFieldsPayload } from "@/lib/custom-fields";
+import { customFieldsInclude, customFieldsPayload, loadCustomI18n } from "@/lib/custom-fields";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +36,8 @@ export async function GET(req: NextRequest) {
     }),
   ]);
 
+  const i18n = await loadCustomI18n(products.map((p) => p.id));
+
   return NextResponse.json({
     success: true,
     data: products.map((p) => ({
@@ -53,7 +55,7 @@ export async function GET(req: NextRequest) {
       specs: p.specs,
       stock: p.stock,
       // Additive PIM fields (see lib/custom-fields.ts)
-      ...customFieldsPayload(p),
+      ...customFieldsPayload(p, i18n),
     })),
     error: null,
     meta: { total, page, limit },

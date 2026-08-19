@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { customFieldsInclude, customFieldsPayload } from "@/lib/custom-fields";
+import { customFieldsInclude, customFieldsPayload, loadCustomI18n } from "@/lib/custom-fields";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +9,8 @@ export async function GET() {
     include: { category: true, ...customFieldsInclude },
     orderBy: { id: "asc" },
   });
+  // Bilingual (EN/AR) spec metadata + values, bulk-loaded (no N+1).
+  const i18n = await loadCustomI18n(products.map((p) => p.id));
 
   const catalog = products.map((p) => ({
     id: p.slug,
@@ -28,7 +30,7 @@ export async function GET() {
     stock: p.stock,
     // Additive PIM fields: admin-defined custom info + admin-selected related
     // products. Consumers that ignore them keep working unchanged.
-    ...customFieldsPayload(p),
+    ...customFieldsPayload(p, i18n),
   }));
 
   const js = `window.NASSIM_PRODUCTS = ${JSON.stringify(catalog)};

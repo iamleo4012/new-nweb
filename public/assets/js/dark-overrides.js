@@ -171,6 +171,43 @@ window.addEventListener("pageshow", function () {
   var mq = window.matchMedia("(max-width: 767px)");
   if (mq.addEventListener) mq.addEventListener("change", function () { if (isMobile()) inject(); else { var e = document.getElementById("nassim-mobile-utils"); if (e) e.remove(); } });
   else if (mq.addListener) mq.addListener(function () { if (isMobile()) inject(); else { var e = document.getElementById("nassim-mobile-utils"); if (e) e.remove(); } });
+
+  /* --- DESKTOP header language toggle ----------------------------------
+     The shared desktop header renders an "EN | AR" button that was purely
+     decorative (only the mobile drawer selector worked). Wire every such
+     button to the same "nassim-lang" preference so language switching works
+     on desktop too — dynamic product specs (product view.html pickLang) and
+     any future translated content read this preference on page load.
+     Existing per-page markup is untouched: any header button containing one
+     span with the exact text "EN" and one with "AR" gets data-lang wiring. */
+  function wireDesktopLangButtons() {
+    document.querySelectorAll("nav button").forEach(function (btn) {
+      if (btn.closest("#nassim-mobile-utils") || btn.hasAttribute("data-lang-wired")) return;
+      var spans = btn.querySelectorAll("span");
+      var en = null, ar = null;
+      spans.forEach(function (s) { var t = (s.textContent || "").trim(); if (t === "EN" && !en) en = s; if (t === "AR" && !ar) ar = s; });
+      if (!en || !ar) return;
+      btn.setAttribute("data-lang-wired", "1");
+      [en, ar].forEach(function (s) { s.setAttribute("data-lang", s.textContent.trim().toLowerCase()); });
+      function syncActive() {
+        var cur = "en";
+        try { cur = localStorage.getItem("nassim-lang") || "en"; } catch (e) {}
+        en.style.opacity = cur === "en" ? "1" : ".5";
+        ar.style.opacity = cur === "ar" ? "1" : ".5";
+      }
+      btn.addEventListener("click", function (e) {
+        var opt = e.target.closest("[data-lang]");
+        if (!opt) return;
+        var newLang = opt.getAttribute("data-lang");
+        try { localStorage.setItem("nassim-lang", newLang); } catch (e2) {}
+        syncActive();
+        // Reload so language-aware content (dynamic specs etc.) re-renders.
+        window.location.reload();
+      });
+      syncActive();
+    });
+  }
+  ready(wireDesktopLangButtons);
 })();
 
 /* ============================================================================

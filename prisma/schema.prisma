@@ -230,6 +230,61 @@ model CustomAttribute {
   @@index([subcategoryId])
 }
 
+/* ------------------------------------------------------------------ */
+/* Dynamic-spec i18n side tables (2026-08-19)                          */
+/*                                                                     */
+/* The legacy PIM tables above are owned by the postgres migration     */
+/* role and cannot be ALTERed by the least-privilege app role, so      */
+/* English/Arabic metadata lives in these companion tables keyed by    */
+/* natural ids (NO foreign keys — same pattern as OrderSecurity).      */
+/* English remains in the original columns (existing data untouched);  */
+/* Arabic is additive and falls back to English when empty.            */
+/* ------------------------------------------------------------------ */
+
+/// Arabic name + extended-type config for a CustomAttribute (1:1).
+/// `multiSelect` only applies to SELECT attributes — the product form then
+/// renders multi-checkbox input and stores the chosen options comma-joined.
+model AttributeI18n {
+  attributeId Int     @id
+  nameAr      String  @default("")
+  multiSelect Boolean @default(false)
+}
+
+/// Arabic label for one dropdown option (EN option text is the match key —
+/// it is the value stored in CustomAttribute.options and ProductCustomValue).
+model AttributeOptionI18n {
+  id          Int    @id @default(autoincrement())
+  attributeId Int
+  optionEn    String
+  optionAr    String @default("")
+
+  @@unique([attributeId, optionEn])
+  @@index([attributeId])
+}
+
+/// Arabic value for a product's custom-field entry, keyed by the natural
+/// (productId, attributeId) pair so it survives EN-row rewrites.
+model ProductCustomValueI18n {
+  productId   Int
+  attributeId Int
+  valueAr     String @default("")
+
+  @@id([productId, attributeId])
+  @@index([attributeId])
+}
+
+/// Arabic name for a Color (EN name stays in Color.name).
+model ColorI18n {
+  colorId Int    @id
+  nameAr  String @default("")
+}
+
+/// Arabic name for a Material (EN name stays in Material.name).
+model MaterialI18n {
+  materialId Int    @id
+  nameAr     String @default("")
+}
+
 // Per-PRODUCT value for a custom attribute. The definition lives on
 // CustomAttribute; only the value lives here. Empty string = field left blank.
 model ProductCustomValue {

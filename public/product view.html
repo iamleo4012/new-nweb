@@ -586,6 +586,12 @@
     function getQueryParam(name) { var m = new RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search); return m ? decodeURIComponent(m[1].replace(/\\+/g, ' ')) : ''; }
     function escapeHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+    /* Bilingual dynamic specs: EN is authoritative; Arabic shows when the
+       site language is Arabic (localStorage "nassim-lang", set by the shared
+       EN|AR header toggle) AND an Arabic value exists — otherwise English. */
+    function siteLang() { try { return localStorage.getItem('nassim-lang') === 'ar' ? 'ar' : 'en'; } catch (e) { return 'en'; } }
+    function pickLang(en, ar) { return (siteLang() === 'ar' && ar && String(ar).trim() !== '') ? ar : (en || ''); }
+
     function loadProduct() {
       var id = getQueryParam('id');
       var product = window.NassimGetProduct ? window.NassimGetProduct(id) : null;
@@ -654,11 +660,12 @@
       }
       /* Admin-defined custom specification fields (subcategory-specific) —
          appended after the standard specs, same card style so the grid stays
-         visually consistent. Hidden/no-op when the product has none. */
+         visually consistent. Hidden/no-op when the product has none.
+         Bilingual: Arabic name/value render when the site language is AR. */
       var customSpecs = (product.customSections && product.customSections.specifications) || [];
       if (customSpecs.length) {
         specHTML += customSpecs.map(function(s) {
-          return '<div class="border-b border-outline-variant/10 pb-4"><span class="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-2">' + escapeHtml(s.name) + '</span><p class="font-headline font-bold text-lg uppercase tracking-wider text-on-surface dark:text-white">' + escapeHtml(s.value) + '</p><p class="text-on-surface-variant dark:text-white/70 text-sm"></p></div>';
+          return '<div class="border-b border-outline-variant/10 pb-4"><span class="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-2">' + escapeHtml(pickLang(s.name, s.nameAr)) + '</span><p class="font-headline font-bold text-lg uppercase tracking-wider text-on-surface dark:text-white">' + escapeHtml(pickLang(s.value, s.valueAr)) + '</p><p class="text-on-surface-variant dark:text-white/70 text-sm"></p></div>';
         }).join('');
       }
       var specGrid = document.getElementById('spec-grid');
@@ -671,7 +678,7 @@
         var headerFields = (product.customSections && product.customSections.header) || [];
         if (headerFields.length) {
           headerFieldsEl.innerHTML = headerFields.map(function(fd) {
-            return '<span class="font-medium"><span class="text-secondary font-bold uppercase tracking-widest mr-1.5">' + escapeHtml(fd.name) + ':</span>' + escapeHtml(fd.value) + '</span>';
+            return '<span class="font-medium"><span class="text-secondary font-bold uppercase tracking-widest mr-1.5">' + escapeHtml(pickLang(fd.name, fd.nameAr)) + ':</span>' + escapeHtml(pickLang(fd.value, fd.valueAr)) + '</span>';
           }).join('');
           headerFieldsEl.classList.remove('hidden');
           headerFieldsEl.style.display = 'flex';
@@ -686,7 +693,7 @@
         var descFields = (product.customSections && product.customSections.description) || [];
         if (descFields.length) {
           descFieldsEl.innerHTML = descFields.map(function(fd) {
-            return '<div class="mt-6"><span class="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-2">' + escapeHtml(fd.name) + '</span><p class="text-on-surface-variant dark:text-white/70 text-sm leading-relaxed">' + escapeHtml(fd.value) + '</p></div>';
+            return '<div class="mt-6"><span class="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-2">' + escapeHtml(pickLang(fd.name, fd.nameAr)) + '</span><p class="text-on-surface-variant dark:text-white/70 text-sm leading-relaxed">' + escapeHtml(pickLang(fd.value, fd.valueAr)) + '</p></div>';
           }).join('');
           descFieldsEl.classList.remove('hidden');
         } else {

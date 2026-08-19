@@ -11,20 +11,104 @@ function forbidden() {
 
 const nameField = z.string().trim().min(1, "Field name is required").max(100, "Field name too long");
 
+/** Dropdown option: legacy plain string (EN only) or {en, ar} object. */
+const optionSchema = z.union([
+  z.string().trim().min(1).max(100),
+  z.object({ en: z.string().trim().min(1).max(100), ar: z.string().max(100).optional().default("") }),
+]);
+type NormalizedOption = { en: string; ar: string };
+function normalizeOptions(raw: z.infer<typeof optionSchema>[]): NormalizedOption[] {
+  return raw.map((o) => (typeof o === "string" ? { en: o, ar: "" } : { en: o.en, ar: o.ar }));
+}
+
 const createSchema = z.object({
   subcategoryId: z.number().int().positive(),
   name: nameField,
+  nameAr: z.string().trim().max(100).optional().default(""),
   section: z.enum(["HEADER", "DESCRIPTION", "SPECIFICATIONS"]),
   fieldType: z.enum(["TEXT", "LONG_TEXT", "NUMBER", "SELECT"]).optional().default("TEXT"),
-  options: z.array(z.string().trim().min(1).max(100)).max(50).optional().default([]),
+  options: z.array(optionSchema).max(50).optional().default([]),
+  /** Only meaningful for SELECT — renders multi-checkbox input on product forms. */
+  multiSelect: z.boolean().optional().default(false),
 });
 
 const updateSchema = z.object({
   id: z.number().int().positive(),
   name: nameField.optional(),
+  nameAr: z.string().trim().max(100).optional(),
   fieldType: z.enum(["TEXT", "LONG_TEXT", "NUMBER", "SELECT"]).optional(),
-  options: z.array(z.string().trim().min(1).max(100)).max(50).optional(),
+  options: z.array(optionSchema).max(50).optional(),
+  multiSelect: z.boolean().optional(),
 });
+
+/**
+ * Persist the i18n companion rows for an attribute inside the caller's flow:
+ * Arabic name + multiSelect flag (1:1) and Arabic labels for dropdown
+ * options (matched by the EN option text, which is the stored value key).
+ */
+async function persistAttributeI18n(
+  attributeId: number,
+  nameAr: string | undefined,
+  multiSelect: boolean | undefined,
+  options: NormalizedOption[] | undefined
+) {
+  if (nameAr !== undefined || multiSelect !== undefined) {
+    const existing = await prisma.attributeI18n.findUnique({ where: { attributeId } });
+    if (existing) {
+      await prisma.attributeI18n.update({
+        where: { attributeId },
+        data: {
+          ...(nameAr !== undefined ? { nameAr } : {}),
+          ...(multiSelect !== undefined ? { multiSelect } : {}),
+        },
+      });
+    } else {
+      await prisma.attributeI18n.create({
+        data: { attributeId, nameAr: nameAr ?? "", multiSelect: multiSelect ?? false },
+      });
+    }
+  }
+  if (options) {
+    // Labels for options that no longer exist are removed with the set.
+    await prisma.attributeOptionI18n.deleteMany({ where: { attributeId } });
+    const rows = options.filter((o) => o.ar.trim() !== "");
+    if (rows.length) {
+      await prisma.attributeOptionI18n.createMany({
+        data: rows.map((o) => ({ attributeId, optionEn: o.en, optionAr: o.ar })),
+        skipDuplicates: true,
+      });
+    }
+  }
+}
+
+/** Merged attribute shape for the admin UI (EN fields unchanged + i18n). */
+async function attributesWithI18n(subcategoryId: number) {
+  const items = await prisma.customAttribute.findMany({
+    where: { subcategoryId, isDeleted: false },
+    orderBy: [{ section: "asc" }, { displayOrder: "asc" }, { id: "asc" }],
+    include: { _count: { select: { values: true } } },
+  });
+  const ids = items.map((a) => a.id);
+  const [attrI18n, optionI18n] = await Promise.all([
+    ids.length ? prisma.attributeI18n.findMany({ where: { attributeId: { in: ids } } }) : Promise.resolve([]),
+    ids.length ? prisma.attributeOptionI18n.findMany({ where: { attributeId: { in: ids } } }) : Promise.resolve([]),
+  ]);
+  const nameAr = new Map(attrI18n.map((a) => [a.attributeId, a.nameAr]));
+  const multi = new Map(attrI18n.map((a) => [a.attributeId, a.multiSelect]));
+  const optAr = new Map<string, string>(optionI18n.map((o) => [`${o.attributeId}:${o.optionEn}`, o.optionAr]));
+  return items.map((a) => ({
+    id: a.id,
+    name: a.name,
+    nameAr: nameAr.get(a.id) ?? "",
+    section: a.section,
+    fieldType: a.fieldType,
+    options: a.options,
+    optionsAr: Object.fromEntries(a.options.map((o) => [o, optAr.get(`${a.id}:${o}`) ?? ""])),
+    multiSelect: multi.get(a.id) ?? false,
+    displayOrder: a.displayOrder,
+    valueCount: a._count.values,
+  }));
+}
 
 /**
  * GET /api/admin/attributes?subcategoryId=X
@@ -39,26 +123,8 @@ export async function GET(req: NextRequest) {
   if (!Number.isInteger(subcategoryId) || subcategoryId <= 0) {
     return NextResponse.json({ success: false, data: null, error: "Invalid subcategoryId" }, { status: 400 });
   }
-  const items = await prisma.customAttribute.findMany({
-    where: { subcategoryId, isDeleted: false },
-    orderBy: [{ section: "asc" }, { displayOrder: "asc" }, { id: "asc" }],
-    include: { _count: { select: { values: true } } },
-  });
-  return NextResponse.json({
-    success: true,
-    data: {
-      items: items.map((a) => ({
-        id: a.id,
-        name: a.name,
-        section: a.section,
-        fieldType: a.fieldType,
-        options: a.options,
-        displayOrder: a.displayOrder,
-        valueCount: a._count.values,
-      })),
-    },
-    error: null,
-  });
+  const items = await attributesWithI18n(subcategoryId);
+  return NextResponse.json({ success: true, data: { items }, error: null });
 }
 
 /**
@@ -84,7 +150,8 @@ export async function POST(req: NextRequest) {
     );
   }
   const data = parsed.data;
-  if (data.fieldType === "SELECT" && data.options.length < 1) {
+  const options = normalizeOptions(data.options);
+  if (data.fieldType === "SELECT" && options.length < 1) {
     return NextResponse.json(
       { success: false, data: null, error: "Select fields need at least one option" },
       { status: 400 }
@@ -118,17 +185,23 @@ export async function POST(req: NextRequest) {
       name: data.name,
       section: data.section,
       fieldType: data.fieldType,
-      options: data.fieldType === "SELECT" ? data.options : [],
+      options: data.fieldType === "SELECT" ? options.map((o) => o.en) : [],
       displayOrder: (maxOrder?.displayOrder ?? -1) + 1,
     },
   });
+  await persistAttributeI18n(
+    created.id,
+    data.nameAr,
+    data.fieldType === "SELECT" ? data.multiSelect : false,
+    data.fieldType === "SELECT" ? options : undefined
+  );
   await prisma.auditLog.create({
     data: {
       actorId: staff.id,
       action: "ATTRIBUTE_CREATE",
       entity: "CustomAttribute",
       entityId: String(created.id),
-      detail: `${created.name} [${created.section}/${created.fieldType}] subcategory=${data.subcategoryId}`,
+      detail: `${created.name}${data.nameAr ? " / " + data.nameAr : ""} [${created.section}/${created.fieldType}] subcategory=${data.subcategoryId}`,
     },
   });
   return NextResponse.json({ success: true, data: { item: created }, error: null });
@@ -172,19 +245,30 @@ export async function PATCH(req: NextRequest) {
       );
     }
   }
+  const effectiveType = fields.fieldType ?? attribute.fieldType;
   const data: { name?: string; fieldType?: typeof fields.fieldType; options?: string[] } = {};
   if (fields.name) data.name = fields.name;
   if (fields.fieldType) data.fieldType = fields.fieldType;
-  if (fields.options) data.options = fields.fieldType === "SELECT" || attribute.fieldType === "SELECT" ? fields.options : [];
-  if (data.fieldType && data.fieldType !== "SELECT" && !fields.options) data.options = [];
+  const options = fields.options ? normalizeOptions(fields.options) : undefined;
+  if (options) {
+    data.options = effectiveType === "SELECT" ? options.map((o) => o.en) : [];
+  } else if (data.fieldType && data.fieldType !== "SELECT") {
+    data.options = [];
+  }
   const updated = await prisma.customAttribute.update({ where: { id }, data });
+  await persistAttributeI18n(
+    id,
+    fields.nameAr,
+    effectiveType === "SELECT" ? fields.multiSelect : false,
+    effectiveType === "SELECT" ? options : options // non-SELECT drops options entirely, so labels go too
+  );
   await prisma.auditLog.create({
     data: {
       actorId: staff.id,
       action: "ATTRIBUTE_UPDATE",
       entity: "CustomAttribute",
       entityId: String(id),
-      detail: Object.keys(data).join(","),
+      detail: Object.keys(data).join(",") + (fields.nameAr !== undefined ? ",nameAr" : "") + (fields.multiSelect !== undefined ? ",multiSelect" : ""),
     },
   });
   return NextResponse.json({ success: true, data: { item: updated }, error: null });

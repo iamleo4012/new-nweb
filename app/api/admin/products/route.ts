@@ -67,8 +67,15 @@ const createSchema = z.object({
   sizeIds: z.array(z.number().int().positive()).optional().default([]),
   // Dynamic PIM fields: per-product values keyed by subcategory attribute id.
   // All optional — empty custom fields never block product creation.
+  // `valueAr` is the dynamic-spec bilingual companion (English in `value`).
   customValues: z
-    .array(z.object({ attributeId: z.number().int().positive(), value: z.string().max(2000) }))
+    .array(
+      z.object({
+        attributeId: z.number().int().positive(),
+        value: z.string().max(2000),
+        valueAr: z.string().max(2000).optional().default(""),
+      })
+    )
     .max(200)
     .optional(),
   // Admin-selected related products (product ids, order = display order).
@@ -95,7 +102,13 @@ const updateSchema = z.object({
   colorIds: z.array(z.number().int().positive()).optional(),
   sizeIds: z.array(z.number().int().positive()).optional(),
   customValues: z
-    .array(z.object({ attributeId: z.number().int().positive(), value: z.string().max(2000) }))
+    .array(
+      z.object({
+        attributeId: z.number().int().positive(),
+        value: z.string().max(2000),
+        valueAr: z.string().max(2000).optional().default(""),
+      })
+    )
     .max(200)
     .optional(),
   relatedProductIds: z.array(z.number().int().positive()).max(50).optional(),
@@ -125,9 +138,41 @@ const productInclude = {
 
 type FullProduct = Prisma.ProductGetPayload<{ include: typeof productInclude }>;
 
+/** Merged attribute+value shape for the admin product form (bilingual). */
+async function serializeFull(p: FullProduct) {
+  const valueByAttr = new Map(p.customValues.map((v) => [v.attributeId, v.value]));
+  const attrIds = (p.subcategory?.customAttributes ?? []).map((a) => a.id);
+  const [attrI18n, optionI18n, valueI18n] = await Promise.all([
+    attrIds.length
+      ? prisma.attributeI18n.findMany({ where: { attributeId: { in: attrIds } } })
+      : Promise.resolve([] as { attributeId: number; nameAr: string; multiSelect: boolean }[]),
+    attrIds.length
+      ? prisma.attributeOptionI18n.findMany({ where: { attributeId: { in: attrIds } } })
+      : Promise.resolve([] as { attributeId: number; optionEn: string; optionAr: string }[]),
+    prisma.productCustomValueI18n.findMany({ where: { productId: p.id } }),
+  ]);
+  const nameAr = new Map(attrI18n.map((a) => [a.attributeId, a.nameAr]));
+  const multi = new Map(attrI18n.map((a) => [a.attributeId, a.multiSelect]));
+  const optAr = new Map(optionI18n.map((o) => [`${o.attributeId}:${o.optionEn}`, o.optionAr]));
+  const valAr = new Map(valueI18n.map((v) => [v.attributeId, v.valueAr]));
+  const customAttributes = (p.subcategory?.customAttributes ?? []).map((a) => ({
+    id: a.id,
+    name: a.name,
+    nameAr: nameAr.get(a.id) ?? "",
+    section: a.section,
+    fieldType: a.fieldType,
+    multiSelect: multi.get(a.id) ?? false,
+    displayOrder: a.displayOrder,
+    options: a.options,
+    optionsAr: Object.fromEntries(a.options.map((o) => [o, optAr.get(`${a.id}:${o}`) ?? ""])),
+    value: valueByAttr.get(a.id) ?? "",
+    valueAr: valAr.get(a.id) ?? "",
+  }));
+  return serializeBase(p, customAttributes);
+}
+
+/** Legacy flat serializer (list rows) — unchanged shape. */
 function serialize(p: FullProduct) {
-  // Dynamic custom fields: join the subcategory's live attribute definitions
-  // with this product's stored values ("" when never filled in).
   const valueByAttr = new Map(p.customValues.map((v) => [v.attributeId, v.value]));
   const customAttributes = (p.subcategory?.customAttributes ?? []).map((a) => ({
     id: a.id,
@@ -138,6 +183,10 @@ function serialize(p: FullProduct) {
     options: a.options,
     value: valueByAttr.get(a.id) ?? "",
   }));
+  return serializeBase(p, customAttributes);
+}
+
+function serializeBase(p: FullProduct, customAttributes: unknown) {
   return {
     id: p.id,
     slug: p.slug,
@@ -216,10 +265,14 @@ function listSerialize(p: FullProduct) {
 async function persistCustomValues(
   productId: number,
   subcategoryId: number | null | undefined,
-  customValues: { attributeId: number; value: string }[]
+  customValues: { attributeId: number; value: string; valueAr?: string }[]
 ) {
   await prisma.productCustomValue.deleteMany({ where: { productId } });
-  if (!subcategoryId || customValues.length === 0) return;
+  if (!subcategoryId || customValues.length === 0) {
+    // No values at all — clear any stale Arabic rows too.
+    await prisma.productCustomValueI18n.deleteMany({ where: { productId } });
+    return;
+  }
   const ids = customValues.map((v) => v.attributeId);
   const valid = await prisma.customAttribute.findMany({
     where: { id: { in: ids }, subcategoryId, isDeleted: false },
@@ -237,6 +290,23 @@ async function persistCustomValues(
       data: rows.map((v) => ({ productId, attributeId: v.attributeId, value: v.value })),
       skipDuplicates: true,
     });
+    // Arabic companions keyed by the natural (productId, attributeId) pair, so
+    // they survive the EN-row rewrite above. Stale rows (attribute dropped or
+    // product moved subcategory) are pruned.
+    await prisma.productCustomValueI18n.deleteMany({
+      where: { productId, attributeId: { notIn: rows.map((r) => r.attributeId) } },
+    });
+    for (const v of rows) {
+      if (v.valueAr !== undefined) {
+        await prisma.productCustomValueI18n.upsert({
+          where: { productId_attributeId: { productId, attributeId: v.attributeId } },
+          create: { productId, attributeId: v.attributeId, valueAr: v.valueAr },
+          update: { valueAr: v.valueAr },
+        });
+      }
+    }
+  } else {
+    await prisma.productCustomValueI18n.deleteMany({ where: { productId } });
   }
 }
 
@@ -266,7 +336,7 @@ export async function GET(req: NextRequest) {
   if (Number.isInteger(idParam) && idParam > 0) {
     const product = await prisma.product.findUnique({ where: { id: idParam }, include: productInclude });
     if (!product) return NextResponse.json({ success: false, data: null, error: "Product not found" }, { status: 404 });
-    return NextResponse.json({ success: true, data: { product: serialize(product) }, error: null });
+    return NextResponse.json({ success: true, data: { product: await serializeFull(product) }, error: null });
   }
   const products = await prisma.product.findMany({
     include: productInclude,
@@ -349,7 +419,7 @@ export async function POST(req: NextRequest) {
   await prisma.auditLog.create({
     data: { actorId: staff.id, action: "PRODUCT_CREATE", entity: "Product", entityId: String(created.id), detail: created.slug },
   });
-  return NextResponse.json({ success: true, data: { product: serialize(fresh ?? created) }, error: null });
+  return NextResponse.json({ success: true, data: { product: await serializeFull(fresh ?? created) }, error: null });
 }
 
 export async function PATCH(req: NextRequest) {
@@ -430,7 +500,7 @@ export async function PATCH(req: NextRequest) {
       },
     });
   }
-  return NextResponse.json({ success: true, data: { product: serialize(fresh ?? updated) }, error: null });
+  return NextResponse.json({ success: true, data: { product: await serializeFull(fresh ?? updated) }, error: null });
 }
 
 export async function DELETE(req: NextRequest) {

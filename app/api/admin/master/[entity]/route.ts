@@ -22,6 +22,8 @@ const ENTITY_CONFIG: Record<
     model: keyof Prisma.TransactionClient;
     schema: z.ZodObject<Record<string, z.ZodTypeAny>>;
     defaultOrderBy?: string;
+    /** Entities with an Arabic-name companion table (dynamic-spec i18n). */
+    i18n?: { model: "colorI18n" | "materialI18n"; idField: "colorId" | "materialId" };
   }
 > = {
   brands: {
@@ -33,17 +35,21 @@ const ENTITY_CONFIG: Record<
   },
   materials: {
     model: "material",
+    i18n: { model: "materialI18n", idField: "materialId" },
     schema: z.object({
       slug: z.string().min(2).max(120).regex(/^[a-z0-9-]+$/),
       name: z.string().min(1).max(200),
+      nameAr: z.string().trim().max(200).optional().default(""),
     }),
   },
   colors: {
     model: "color",
+    i18n: { model: "colorI18n", idField: "colorId" },
     schema: z.object({
       slug: z.string().min(2).max(120).regex(/^[a-z0-9-]+$/),
       name: z.string().min(1).max(100),
       hex: z.string().max(20).optional().default(""),
+      nameAr: z.string().trim().max(100).optional().default(""),
     }),
   },
   sizes: {
@@ -91,6 +97,40 @@ function forbidden() {
   return NextResponse.json({ success: false, data: null, error: "Forbidden" }, { status: 403 });
 }
 
+/* ------------------------------------------------------------------ */
+/* Arabic-name companion handling (colors/materials)                    */
+/* ------------------------------------------------------------------ */
+
+/** Upsert the Arabic-name row for a colors/materials record. */
+async function upsertMasterI18n(
+  entity: MasterEntity,
+  id: number,
+  nameAr: string
+) {
+  const cfg = ENTITY_CONFIG[entity];
+  if (!cfg.i18n || !nameAr) return;
+  const delegate = (prisma as unknown as Record<string, {
+    upsert: (args: unknown) => Promise<unknown>;
+  }>)[cfg.i18n.model];
+  await delegate.upsert({
+    where: { [cfg.i18n.idField]: id },
+    create: { [cfg.i18n.idField]: id, nameAr },
+    update: { nameAr },
+  });
+}
+
+/** Merge nameAr into the plain item lists the UI consumes. */
+async function withMasterI18n(entity: MasterEntity, items: { id: number }[]) {
+  const cfg = ENTITY_CONFIG[entity];
+  if (!cfg.i18n || items.length === 0) return items;
+  const delegate = (prisma as unknown as Record<string, {
+    findMany: (args?: unknown) => Promise<{ nameAr: string } & Record<string, unknown>[]>;
+  }>)[cfg.i18n.model];
+  const rows = await delegate.findMany();
+  const byId = new Map(rows.map((r) => [r[cfg.i18n!.idField] as number, r.nameAr]));
+  return items.map((it) => ({ ...it, nameAr: byId.get(it.id) ?? "" }));
+}
+
 function isMasterEntity(value: string): value is MasterEntity {
   return value in ENTITY_CONFIG;
 }
@@ -109,7 +149,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ enti
     cfg.model as string
   ];
   const items = await delegate.findMany({ orderBy: { name: "asc" } });
-  return NextResponse.json({ success: true, data: { items }, error: null });
+  return NextResponse.json({ success: true, data: { items: await withMasterI18n(entity, items as { id: number }[]) }, error: null });
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ entity: string }> }) {
@@ -146,7 +186,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ent
     return NextResponse.json({ success: false, data: null, error: "Slug already exists" }, { status: 409 });
   }
 
-  const created = await delegate.create({ data: parsed.data });
+  // nameAr lives in the companion i18n table, not on the entity itself.
+  const { nameAr, ...entityData } = parsed.data as { nameAr?: string } & Record<string, unknown>;
+  const created = await delegate.create({ data: entityData });
+  await upsertMasterI18n(entity, (created as { id: number }).id, nameAr ?? "");
   await prisma.auditLog.create({
     data: {
       actorId: staff.id,
@@ -181,7 +224,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ en
     return NextResponse.json({ success: false, data: null, error: "Invalid input" }, { status: 400 });
   }
 
-  const { id, ...fields } = parsed.data;
+  const { id, ...fields } = parsed.data as { id: number } & Record<string, unknown>;
   const delegate = (prisma as unknown as Record<string, {
     findUnique: (args: unknown) => Promise<unknown>;
     update: (args: unknown) => Promise<unknown>;
@@ -192,7 +235,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ en
     return NextResponse.json({ success: false, data: null, error: "Item not found" }, { status: 404 });
   }
 
-  const updated = await delegate.update({ where: { id }, data: fields });
+  const { nameAr, ...entityFields } = fields as { nameAr?: string } & Record<string, unknown>;
+  const updated = await delegate.update({ where: { id }, data: entityFields });
+  if (nameAr !== undefined) await upsertMasterI18n(entity, id, nameAr);
   await prisma.auditLog.create({
     data: {
       actorId: staff.id,
