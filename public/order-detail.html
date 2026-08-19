@@ -309,8 +309,7 @@
     var unavailableItems = o.items.filter(function(i) { return i.itemStatus === 'UNAVAILABLE'; });
 
     var html = '';
-    // Breadcrumb
-    html += '<nav class="flex gap-2 text-[10px] uppercase tracking-widest font-bold text-on-surface-variant/60 dark:text-white/60 mb-8"><a class="hover:text-secondary" href="home.html">Home</a><span>/</span><span class="text-on-surface dark:text-white">Order ' + esc(o.orderNumber) + '</span></nav>';
+    // Breadcrumbs removed site-wide by request.
 
     // Header
     html += '<div class="mb-6">';
