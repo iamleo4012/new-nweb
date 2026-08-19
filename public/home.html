@@ -25,12 +25,12 @@
      (text overlay still shows) when decode happens during the crossfade or
      under memory pressure. Warming the cache before first paint, together
      with the optimized JPEGs, makes all six slides render reliably. -->
-<link rel="preload" as="image" href="topcar/cookware.jpg"/>
-<link rel="preload" as="image" href="topcar/clean_advert.jpg"/>
-<link rel="preload" as="image" href="topcar/basket.jpg"/>
-<link rel="preload" as="image" href="topcar/fridge_advert.jpg"/>
-<link rel="preload" as="image" href="topcar/childrentrolly_advert.jpg"/>
-<link rel="preload" as="image" href="topcar/trashbin_advert.jpg"/>
+<link rel="preload" as="image" href="topcar/cookware.jpg?v=2"/>
+<link rel="preload" as="image" href="topcar/clean_advert.jpg?v=2"/>
+<link rel="preload" as="image" href="topcar/basket.jpg?v=2"/>
+<link rel="preload" as="image" href="topcar/fridge_advert.jpg?v=2"/>
+<link rel="preload" as="image" href="topcar/childrentrolly_advert.jpg?v=2"/>
+<link rel="preload" as="image" href="topcar/trashbin_advert.jpg?v=2"/>
 <title>AL-NASSIM</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script id="tailwind-config">
@@ -127,28 +127,16 @@
         .carousel-slide.active {
             opacity: 1;
         }
-        /* HERO CAROUSEL — Safari image-paint fix (controlled experiment).
-           Root cause identified: the <img> carried Tailwind `transition-all
-           duration-[3s]`, which set transition-property: all. During the slide
-           crossfade WebKit flattened the lone translateZ(0) to a 2D identity
-           matrix, dropping the compositing layer it needs to paint the image
-           eagerly through the opacity 0 -> 1 transition → the image layer
-           never repainted, so only the text overlay showed.
-
-           Fix (this experiment): the <img> no longer carries transition-all
-           (removed from the class attribute), so it is fully STATIC — only the
-           .carousel-slide container transitions opacity (lines above). Each
-           image is forced onto a PERSISTENT GPU compositing layer via
-           translate3d(0,0,0) (a true 3D transform that survives, unlike the
-           2D-collapsing translateZ(0) under transition-all), plus will-change
-           and backface-visibility to lock the layer for the carousel's lifetime.
-           Scoped to the hero carousel images only. */
-        #featured-carousel .carousel-slide img {
-            transform: translate3d(0, 0, 0);
-            -webkit-transform: translate3d(0, 0, 0);
-            will-change: opacity, transform;
-            backface-visibility: hidden;
-        }
+        /* SAFARI/iPhone slide-image fix (2026-08-19): the previous
+           "controlled experiment" forced every slide image onto a persistent
+           GPU layer (translate3d + will-change + backface-visibility).
+           WebKit discards the backing store of will-change layers that sit at
+           opacity 0 and frequently fails to restore the image paint when the
+           slide fades in — text overlays (plain layers) survived, images did
+           not, which is exactly the reported symptom (Chrome/iPhone and
+           Android do not share this culling behaviour). The layer hints are
+           REMOVED; images are now decoded up-front via img.decode() in the
+           carousel script and warmed by <link rel=preload> in <head>. */
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
@@ -425,6 +413,19 @@
             const nextBtn = document.getElementById('nextSlide');
             let currentSlide = 0;
 
+            // Safari/iPhone: force every slide image to DECODE up-front.
+            // WebKit defers decoding of images inside opacity-0 slides and can
+            // miss the paint during the crossfade (text shows, image doesn't).
+            // decode() moves each image into the decoded cache immediately;
+            // harmless no-op in Chrome/Android/Firefox.
+            document.querySelectorAll('#featured-carousel .carousel-slide img').forEach(img => {
+                if (img.complete && img.naturalWidth > 0 && img.decode) {
+                    img.decode().catch(() => {});
+                } else if (img.decode) {
+                    img.decode().catch(() => {});
+                }
+            });
+
             const updateCarousel = (index) => {
                 slides.forEach(s => s.classList.remove('active', 'z-10'));
                 slides.forEach(s => s.classList.add('z-0'));
@@ -624,7 +625,7 @@
 
 <div class="carousel-slide active absolute inset-0 z-10">
 
-<img loading="eager" alt="Cookware" class="absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center" src="topcar/cookware.jpg"/>
+<img loading="eager" alt="Cookware" class="absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center" src="topcar/cookware.jpg?v=2" decoding="async"/>
 
 <div class="relative h-full max-w-screen-2xl mx-auto px-6 md:px-8 flex items-center md:items-center pb-4 md:pb-0">
 
@@ -645,7 +646,7 @@
 </div>
 <!-- Slide 2: Mopping Trolley -->
 <div class="carousel-slide absolute inset-0 z-0">
-<img loading="eager" alt="Mopping Trolley" class="absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center" src="topcar/clean_advert.jpg"/>
+<img loading="eager" alt="Mopping Trolley" class="absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center" src="topcar/clean_advert.jpg?v=2" decoding="async"/>
 <div class="absolute inset-0 bg-white/10"></div>
 <div class="relative h-full max-w-screen-2xl mx-auto px-6 md:px-8 flex items-center md:items-center pb-4 md:pb-0">
 <div class="max-w-xs md:max-w-xl">
@@ -658,7 +659,7 @@
 </div>
 <!-- Slide 3: Basket -->
 <div class="carousel-slide absolute inset-0 z-0">
-<img loading="eager" alt="Basket" class="absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center" src="topcar/basket.jpg"/>
+<img loading="eager" alt="Basket" class="absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center" src="topcar/basket.jpg?v=2" decoding="async"/>
 <div class="absolute inset-0 bg-white/10"></div>
 <div class="relative h-full max-w-screen-2xl mx-auto px-6 md:px-8 flex items-center md:items-center pb-4 md:pb-0">
 <div class="max-w-xs md:max-w-xl">
@@ -671,7 +672,7 @@
 </div>
 <!-- Slide 4: Upright Display Chiller -->
 <div class="carousel-slide absolute inset-0 z-0">
-<img loading="eager" alt="Upright Display Chiller" class="absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center" src="topcar/fridge_advert.jpg"/>
+<img loading="eager" alt="Upright Display Chiller" class="absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center" src="topcar/fridge_advert.jpg?v=2" decoding="async"/>
 <div class="absolute inset-0 bg-white/10"></div>
 <div class="relative h-full max-w-screen-2xl mx-auto px-6 md:px-8 flex items-center md:items-center pb-4 md:pb-0">
 <div class="max-w-xs md:max-w-xl">
@@ -684,7 +685,7 @@
 </div>
 <!-- Slide 5: Junior Shopping Trolley -->
 <div class="carousel-slide absolute inset-0 z-0">
-<img loading="eager" alt="Junior Shopping Trolley" class="absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center" src="topcar/childrentrolly_advert.jpg"/>
+<img loading="eager" alt="Junior Shopping Trolley" class="absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center" src="topcar/childrentrolly_advert.jpg?v=2" decoding="async"/>
 <div class="absolute inset-0 bg-white/10"></div>
 <div class="relative h-full max-w-screen-2xl mx-auto px-6 md:px-8 flex items-center md:items-center pb-4 md:pb-0">
 <div class="max-w-xs md:max-w-xl">
@@ -697,7 +698,7 @@
 </div>
 <!-- Slide 6: Industrial Pedal Bin -->
 <div class="carousel-slide absolute inset-0 z-0">
-<img loading="eager" alt="Industrial Pedal Bin" class="absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center" src="topcar/trashbin_advert.jpg"/>
+<img loading="eager" alt="Industrial Pedal Bin" class="absolute inset-0 w-full h-full object-contain object-top md:object-cover md:object-center" src="topcar/trashbin_advert.jpg?v=2" decoding="async"/>
 <div class="absolute inset-0 bg-white/10"></div>
 <div class="relative h-full max-w-screen-2xl mx-auto px-6 md:px-8 flex items-center md:items-center pb-4 md:pb-0">
 <div class="max-w-xs md:max-w-xl">
