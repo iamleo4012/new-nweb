@@ -1,5 +1,20 @@
 ﻿<html class="light" lang="en"><head></head><body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 
+<!-- Loading Screen — logo + dots, shown until the page fully loads, then a
+     smooth logo-zoom reveal (mobile + desktop, home.html only). -->
+<div id="loading-screen" role="status" aria-label="Loading AL-NASSIM">
+    <div class="loading-inner">
+        <img id="loading-logo" src="LOGO.png" alt="AL-Nassim" decoding="async"/>
+        <div class="loading-dots">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+        </div>
+    </div>
+</div>
+<!-- fail-safe loader removal (aligned with the reveal script below) -->
+<script>setTimeout(function(){var l=document.getElementById("loading-screen");if(l){l.style.display="none";document.body.style.overflow="";}},5000);</script>
+
 <!-- Spotlight Overlay -->
 <div id="spotlight-overlay"></div>
 
@@ -312,6 +327,109 @@
         }
     }
 <style>
+        /* Loading Screen Styles — logo + dots until FULL page load, then a
+           smooth logo-zoom reveal (mobile + desktop, home.html only). */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(247, 249, 255, 0.98);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .dark #loading-screen {
+            background: rgba(10, 15, 20, 0.98);
+        }
+        .loading-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        #loading-logo {
+            width: min(52vw, 210px);
+            height: auto;
+            transform: scale(0.94);
+            opacity: 0;
+            transition:
+                transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.5s ease-out;
+        }
+        /* Logo fades/scales gently IN while loading (entrance), then ZOOMS
+           smoothly when the page has loaded (reveal below). */
+        #loading-screen.logo-in #loading-logo {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .loading-dots {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            /* Dots are part of the loading stage from the start; they vanish
+               INSTANTLY when the page is ready — never visible together with
+               the opened home page. */
+            transition: none;
+        }
+        /* STAGE 1 (page ready): dots removed outright, logo zooms away. The
+           overlay stays FULLY opaque — the page is never visible underneath
+           while the dots/logo are still on screen. */
+        #loading-screen.reveal .loading-dots {
+            display: none;
+        }
+        .loading-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #000308 0%, #825335 100%);
+            animation: bounce 0.6s infinite alternate;
+        }
+        .dark .loading-dot {
+            background: linear-gradient(135deg, #ffffff 0%, #d8e4f3 100%);
+        }
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        /* STAGE 1: logo zooms out of view while the overlay hides the page. */
+        #loading-screen.reveal #loading-logo {
+            transform: scale(1.22);
+            opacity: 0;
+            transition:
+                transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.4s ease-in;
+        }
+        /* STAGE 2 (logo gone): only now does the overlay fade away and open
+           the fully-settled page. */
+        #loading-screen.open {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease-out;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #loading-logo, .loading-dots, #loading-screen {
+                transition: opacity 0.25s ease-out !important;
+                animation: none !important;
+            }
+            #loading-screen.reveal #loading-logo { transform: none; }
+        }
+        @keyframes bounce {
+            from {
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+            to {
+                transform: translateY(-20px);
+                opacity: 1;
+            }
+        }
         
         /* Spotlight Overlay Styles */
         #spotlight-overlay {
@@ -344,7 +462,68 @@
             clip-path: circle(0px at var(--spotlight-x) var(--spotlight-y));
         }
     </style>
+<script>
+(function () {
+    var splash = document.getElementById("loading-screen");
+    if (!splash) return;
+    var start = performance.now();
+    var revealed = false;
 
+    // Gentle logo entrance while loading.
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () { splash.classList.add("logo-in"); });
+    });
+
+    // Lock scrolling while the splash is up (released on open).
+    document.body.style.overflow = "hidden";
+
+    function cleanup() {
+        splash.style.display = "none";
+        document.body.style.overflow = "";
+    }
+
+    // The page must be FULLY settled before it is shown: the carousel and
+    // hero alignment visibly reflow after 'load' while webfonts and the
+    // Tailwind runtime finish applying styles. So "ready" = window load AND
+    // webfonts ready AND a short settle delay — never just DOMContentLoaded.
+    function pageReady() {
+        var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+        Promise.all([
+            new Promise(function (r) { if (document.readyState === "complete") r(); else window.addEventListener("load", r); }),
+            fontsReady,
+        ]).then(function () {
+            setTimeout(reveal, 300); // settle beat: late layout/fonts apply here, behind the splash
+        });
+    }
+
+    function reveal() {
+        if (revealed) return;
+        revealed = true;
+        // Minimum splash display so the entrance is never a flash.
+        var wait = Math.max(0, 700 - (performance.now() - start));
+        setTimeout(function () {
+            // STAGE 1: dots vanish instantly, logo zooms away — overlay still
+            // fully opaque, so the page is NEVER visible at the same time as
+            // the dots.
+            splash.classList.add("reveal");
+            // STAGE 2: only after the logo is gone does the overlay open the
+            // (now fully settled) page.
+            setTimeout(function () {
+                splash.classList.add("open");
+                setTimeout(cleanup, 400);
+            }, 480);
+        }, wait);
+    }
+
+    pageReady();
+    // Failsafe: never trap the user behind the splash.
+    setTimeout(function () { reveal(); }, 5000);
+    // bfcache: returning to this page via Back must never show the splash.
+    window.addEventListener("pageshow", function (e) {
+        if (e.persisted) { revealed = true; cleanup(); }
+    });
+})();
+</script>
 <script>
         document.addEventListener('DOMContentLoaded', () => {
             const observerOptions = {
