@@ -236,6 +236,14 @@
     @media (min-width: 640px) {
         #featured-carousel { margin-top: 3%; }
     }
+    /* Desktop only (≥768px): the fixed glass header (~85px: 4.3rem logo +
+       py-2 padding) overlaps the carousel's top because <main> carries no
+       desktop padding-top. Clear it with a fixed offset sized to the header.
+       Mobile (<768px) is untouched — dark-overrides.css already pads <main>
+       there, and the blocks above govern the mobile carousel sizing. */
+    @media (min-width: 768px) {
+        #featured-carousel { margin-top: 5.5rem; }
+    }
     /* Mobile-only: force vertical centering of all header row children.
        Browsers may apply default margins/padding to <form> and <button>
        elements that shift the search bar off-centre. */
