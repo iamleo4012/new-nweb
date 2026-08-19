@@ -371,17 +371,14 @@
             display: flex;
             gap: 12px;
             align-items: center;
-            /* Dots belong ONLY to the waiting stage: hidden at open (logo-only
-               splash), fade in once loading is genuinely in progress, and are
-               removed instantly the moment the page reveals. */
-            opacity: 0;
-            transition: opacity 0.3s ease-out;
+            /* Dots are part of the loading stage from the start; they vanish
+               INSTANTLY when the page is ready — never visible together with
+               the opened home page. */
+            transition: none;
         }
-        #loading-screen.show-dots .loading-dots {
-            opacity: 1;
-        }
-        /* Reveal: dots vanish IMMEDIATELY (no transition) — never visible at
-           the instant the page loads/opens. */
+        /* STAGE 1 (page ready): dots removed outright, logo zooms away. The
+           overlay stays FULLY opaque — the page is never visible underneath
+           while the dots/logo are still on screen. */
         #loading-screen.reveal .loading-dots {
             display: none;
         }
@@ -401,17 +398,20 @@
         .loading-dot:nth-child(3) {
             animation-delay: 0.4s;
         }
-        /* REVEAL: page loaded — logo zooms up, dots dissolve, overlay fades. */
+        /* STAGE 1: logo zooms out of view while the overlay hides the page. */
         #loading-screen.reveal #loading-logo {
             transform: scale(1.22);
             opacity: 0;
             transition:
-                transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-                opacity 0.6s ease-in 0.05s;
+                transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.4s ease-in;
         }
-        #loading-screen.reveal {
+        /* STAGE 2 (logo gone): only now does the overlay fade away and open
+           the fully-settled page. */
+        #loading-screen.open {
             opacity: 0;
             pointer-events: none;
+            transition: opacity 0.35s ease-out;
         }
         @media (prefers-reduced-motion: reduce) {
             #loading-logo, .loading-dots, #loading-screen {
@@ -474,14 +474,7 @@
         requestAnimationFrame(function () { splash.classList.add("logo-in"); });
     });
 
-    // Dots belong to the WAITING stage only: they fade in after a short beat
-    // if loading is still in progress — never at the open moment, and never
-    // at/after the reveal (CSS removes them instantly on reveal).
-    setTimeout(function () {
-        if (!revealed) splash.classList.add("show-dots");
-    }, 550);
-
-    // Lock scrolling while the splash is up (released on reveal).
+    // Lock scrolling while the splash is up (released on open).
     document.body.style.overflow = "hidden";
 
     function cleanup() {
@@ -489,23 +482,42 @@
         document.body.style.overflow = "";
     }
 
+    // The page must be FULLY settled before it is shown: the carousel and
+    // hero alignment visibly reflow after 'load' while webfonts and the
+    // Tailwind runtime finish applying styles. So "ready" = window load AND
+    // webfonts ready AND a short settle delay — never just DOMContentLoaded.
+    function pageReady() {
+        var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+        Promise.all([
+            new Promise(function (r) { if (document.readyState === "complete") r(); else window.addEventListener("load", r); }),
+            fontsReady,
+        ]).then(function () {
+            setTimeout(reveal, 300); // settle beat: late layout/fonts apply here, behind the splash
+        });
+    }
+
     function reveal() {
         if (revealed) return;
         revealed = true;
-        // Small minimum display time so the entrance is never a flash.
+        // Minimum splash display so the entrance is never a flash.
         var wait = Math.max(0, 700 - (performance.now() - start));
         setTimeout(function () {
-            splash.classList.remove("show-dots");
-            splash.classList.add("reveal");      // logo zooms; dots already gone
-            setTimeout(cleanup, 750);            // overlay fully faded -> remove
+            // STAGE 1: dots vanish instantly, logo zooms away — overlay still
+            // fully opaque, so the page is NEVER visible at the same time as
+            // the dots.
+            splash.classList.add("reveal");
+            // STAGE 2: only after the logo is gone does the overlay open the
+            // (now fully settled) page.
+            setTimeout(function () {
+                splash.classList.add("open");
+                setTimeout(cleanup, 400);
+            }, 480);
         }, wait);
     }
 
-    if (document.readyState === "complete") {
-        reveal();
-    } else {
-        window.addEventListener("load", reveal);
-    }
+    pageReady();
+    // Failsafe: never trap the user behind the splash.
+    setTimeout(function () { reveal(); }, 5000);
     // bfcache: returning to this page via Back must never show the splash.
     window.addEventListener("pageshow", function (e) {
         if (e.persisted) { revealed = true; cleanup(); }
