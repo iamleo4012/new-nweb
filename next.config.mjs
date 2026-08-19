@@ -52,6 +52,15 @@ const nextConfig = {
   async headers() {
     const headers = [
       {
+        // home.html is the entry page iterated on from phones — force
+        // revalidation so a stale Safari cache can never serve an old copy
+        // that predates carousel/loading fixes.
+        source: "/((?:home\\.html)?)",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, must-revalidate" },
+        ],
+      },
+      {
         // Applies to every path (including /uploads and other public assets,
         // which the middleware matcher deliberately skips).
         source: "/(.*)",
