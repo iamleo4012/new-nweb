@@ -64,11 +64,20 @@ export async function PATCH(req: Request) {
       where: { userId: user.id, readAt: null },
       data: { readAt: new Date() },
     });
-  } else if (id) {
-    await prisma.notification.update({
-      where: { id },
+  } else if (id !== undefined) {
+    if (!Number.isInteger(id)) {
+      return NextResponse.json({ success: false, data: null, error: "Invalid notification id" }, { status: 400 });
+    }
+    // Ownership is enforced in the WHERE clause: a notification that does not
+    // exist OR belongs to another user updates zero rows — 404 either way, so
+    // existence of other users' notifications is never disclosed.
+    const result = await prisma.notification.updateMany({
+      where: { id, userId: user.id },
       data: { readAt: new Date() },
     });
+    if (result.count === 0) {
+      return NextResponse.json({ success: false, data: null, error: "Notification not found" }, { status: 404 });
+    }
   }
 
   return NextResponse.json({ success: true, data: null, error: null });
