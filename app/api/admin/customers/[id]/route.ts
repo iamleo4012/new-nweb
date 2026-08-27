@@ -106,6 +106,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ success: false, data: null, error: "Customer not found" }, { status: 404 });
   }
 
+  // Role hierarchy: SUPERADMIN accounts are managed exclusively through the
+  // owner-gated employee system (/api/superadmin/employees), which enforces
+  // the self-protection and last-active-owner safeguards. Customer management
+  // must never modify a SUPERADMIN — this denies ADMIN (and anyone else)
+  // reaching an owner account through this endpoint.
+  if (existing.role === "SUPERADMIN") {
+    return forbidden();
+  }
+
   const updated = await prisma.user.update({
     where: { id: userId },
     data: { isActive: isActive ?? existing.isActive },
