@@ -167,8 +167,27 @@
       ".nassim-catalog-error p{font-size:.85rem;margin:0 0 1.2rem;color:#44474b}" +
       "html.dark .nassim-catalog-error h3{color:#e8f1ff}html.dark .nassim-catalog-error p{color:#bcc8d7}" +
       ".nassim-catalog-retry{display:inline-block;background:#000308;color:#fff;border:0;border-radius:.5rem;padding:.6rem 1.6rem;font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}" +
-      "html.dark .nassim-catalog-retry{background:#f7f9ff;color:#000308}";
+      "html.dark .nassim-catalog-retry{background:#f7f9ff;color:#000308}" +
+      ".nassim-catalog-skel{min-height:220px;border-radius:.75rem;background:#e8eefb;animation:nassimSkelPulse 1.2s ease-in-out infinite}" +
+      "html.dark .nassim-catalog-skel{background:#1a2230}" +
+      ".nassim-catalog-skel:nth-child(2){animation-delay:.15s}.nassim-catalog-skel:nth-child(3){animation-delay:.3s}" +
+      ".nassim-catalog-skel:nth-child(4){animation-delay:.45s}.nassim-catalog-skel:nth-child(5){animation-delay:.6s}" +
+      ".nassim-catalog-skel:nth-child(6){animation-delay:.75s}.nassim-catalog-skel:nth-child(7){animation-delay:.9s}" +
+      "@keyframes nassimSkelPulse{0%,100%{opacity:1}50%{opacity:.45}}" +
+      "@media (prefers-reduced-motion: reduce){.nassim-catalog-skel{animation:none;opacity:.6}}";
     document.head.appendChild(st);
+  }
+
+  /** Placeholder cards while the catalogue loads. No-ops unless the page's
+   *  #product-grid exists and is still empty — a later successful render
+   *  (pages always use innerHTML) or the error state replaces them. */
+  function showCatalogSkeleton() {
+    injectCatalogStateStyles();
+    var g = document.getElementById("product-grid");
+    if (!g || g.children.length) return;
+    var cards = "";
+    for (var i = 0; i < 8; i++) cards += '<div class="nassim-catalog-skel" aria-hidden="true"></div>';
+    g.innerHTML = cards;
   }
 
   function showCatalogError() {
@@ -189,6 +208,7 @@
   function loadCatalog(bust) {
     if (window.NASSIM_PRODUCTS) { init(); return; }
     window.NASSIM_CATALOG_FAILED = false;
+    showCatalogSkeleton();
     function catalogFailed() {
       clearTimeout(catalogWatchdog);
       script.onload = script.onerror = null;
