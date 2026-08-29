@@ -6,18 +6,25 @@
   var inputEl = null;
   var resultsEl = null;
 
-  /* ---- Product data (fetched once, cached) ---- */
+  /* ---- Product data (fetched once, cached) ----
+     Fetches the FULL catalogue (API hard cap: 100 products). The previous
+     default request returned only the first 24 products, so every search —
+     here and in the ~34 pages that reuse NassimSearch.loadProducts — could
+     never find anything beyond that first page. If the catalogue grows past
+     100, switch callers to server-side ?q= queries instead. */
   function loadProducts() {
     if (products) return Promise.resolve(products);
-    return fetch('/api/products', { credentials: 'same-origin' })
+    return fetch('/api/products?limit=100', { credentials: 'same-origin' })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         products = (data && data.data) || [];
         return products;
       })
       .catch(function () {
-        products = [];
-        return products;
+        // Do NOT cache the failure: an API hiccup would otherwise freeze the
+        // search to "No products found" until a page reload. Next search retries.
+        products = null;
+        return [];
       });
   }
 
