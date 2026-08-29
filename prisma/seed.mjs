@@ -7,8 +7,20 @@ import path from "node:path";
 const prisma = new PrismaClient();
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
+import { existsSync } from "node:fs";
+
+// The hardcoded fallback catalog (products.js) was removed: the storefront
+// must never sell fake demo products. Real products are imported through the
+// admin panel / admin API. When the file is absent, seeding skips products
+// (admin + owner accounts are still created) instead of crashing — this also
+// keeps `prisma migrate dev` (which auto-seeds) working on fresh setups.
 function loadCatalog() {
-  const src = readFileSync(path.join(root, "public", "assets", "js", "products.js"), "utf8");
+  const file = path.join(root, "public", "assets", "js", "products.js");
+  if (!existsSync(file)) {
+    console.log("products.js not present — seeding accounts only (products are managed via the admin panel).");
+    return [];
+  }
+  const src = readFileSync(file, "utf8");
   const window = {};
   new Function("window", src)(window);
   if (!Array.isArray(window.NASSIM_PRODUCTS)) throw new Error("NASSIM_PRODUCTS not found in products.js");
@@ -47,7 +59,11 @@ const INQUIRY_CATEGORY_NAMES = new Set([
 
 async function main() {
   const products = loadCatalog();
-  console.log(`Loaded ${products.length} products from products.js`);
+  if (products.length === 0) {
+    // Departments/categories/accounts below still seed; the per-product loop
+    // naturally no-ops on an empty list.
+    console.log("No catalog source — seeding structure and accounts only.");
+  }
 
   const houseware = await prisma.department.upsert({
     where: { slug: "houseware" },
