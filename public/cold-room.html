@@ -151,18 +151,13 @@
        - CTA: slimmer, elegant, keeps the call action.
        ======================================================================== */
     @media (max-width: 767px) {
-        /* ---- Height: hero fills the ENTIRE first mobile viewport ----
-           The cold-room hero is a full-bleed image: the translucent fixed
-           header floats OVER its top (by design), and <main> is NOT offset
-           down by the header (it's excluded from the centralized offset rule
-           via the h-screen exclusion). So for the hero to end exactly at the
-           first viewport's bottom edge (footer starts AT the fold, no peek),
-           its height = one full dynamic viewport. We use dvh (dynamic viewport
-           height) so it tracks Safari/Chrome toolbar expand/collapse — this is
-           the unit specifically designed for "fill the visible viewport" and is
-           what prevents the footer from peeking when the mobile URL bar is
-           showing. No hard-coded pixels, no vh (which would ignore the
-           browser-chrome height and re-peek the footer).
+        /* ---- Height: hero fills the first mobile viewport below the header ----
+           The shared body > main rule below owns the geometry: the hero is
+           offset by the measured mobile header height and sized to exactly
+           the remaining viewport (dynamic viewport units, so it tracks
+           Safari/Chrome toolbar expand/collapse). This rule owns only the
+           internal rhythm, and its specificity beats the centralized
+           dark-overrides padding-top so the hero is never pushed down twice.
 
            The bottom nav is position:fixed and floats over the hero's lowest
            strip; it does not consume document flow, so it is not subtracted.
@@ -170,15 +165,12 @@
 
            min-height/max-height guard very short (landscape) and very tall
            viewports so the composition never collapses or over-stretches. */
-        main.relative.h-screen {
-            height: 100dvh !important;
+        html body > main.relative {
             min-height: 480px !important;
             max-height: 900px !important;
             align-items: center !important;            /* vertically centre the content for a balanced composition */
-            /* Balanced vertical rhythm: ~22% breathing room above (clears the
-               floating header), comfortable space below (clears the bottom nav).
-               This replaces the old flex-end + large padding-bottom that pushed
-               everything to the bottom and left a large empty area on top. */
+            /* Balanced vertical rhythm: ~20% breathing room above, comfortable
+               space below (clears the bottom nav). */
             padding-top: calc(20dvh - 1rem) !important;
             padding-bottom: calc(12dvh - 1rem) !important;
         }
@@ -190,11 +182,11 @@
            architectural details (panels, structure) are the focal point. Vertical
            stays at ~35% to favour the upper structure over the floor. No zoom —
            only the crop origin moves, so quality is unchanged. */
-        main.relative.h-screen .absolute.inset-0.z-0 img {
+        html body > main.relative .absolute.inset-0.z-0 img {
             object-position: 82% 35% !important;
         }
         /* Remove the heavy multiply wash so the image reads as architecture */
-        main.relative.h-screen .absolute.inset-0.z-0 > .bg-primary\/10 {
+        html body > main.relative .absolute.inset-0.z-0 > .bg-primary\/10 {
             background-color: transparent !important;
             mix-blend-mode: normal !important;
         }
@@ -203,7 +195,7 @@
            (2) a left-edge emphasis (text is left-aligned) + a gentle bottom
            deepen. This replaces the old bottom-only scrim, which left the
            newly-centred content low-contrast against a bright image. */
-        main.relative.h-screen .absolute.inset-0.z-0 > .bg-gradient-to-t {
+        html body > main.relative .absolute.inset-0.z-0 > .bg-gradient-to-t {
             background-image:
                 linear-gradient(
                     to right,
@@ -224,7 +216,7 @@
            No translucent grey panel, no border, no oversized shadow, and
            CRITICALLY no desktop 3D tilt (rotateY/rotateX) — on mobile that
            transform just leaves the card visibly skewed. Reset to flat. */
-        main.relative.h-screen .editorial-blur {
+        html body > main.relative .editorial-blur {
             background-color: transparent !important;
             backdrop-filter: none !important;
             border: 0 !important;
@@ -236,19 +228,19 @@
         }
         /* The fade/parallax inline script sets transform on this element;
            neutralize on mobile so it stays flat regardless of pointer. */
-        main.relative.h-screen .editorial-blur[data-stitch-orig-opacity] {
+        html body > main.relative .editorial-blur[data-stitch-orig-opacity] {
             transform: none !important;
             opacity: 1 !important;
         }
         /* Outer text wrapper follows the new left alignment */
-        main.relative.h-screen > .relative.z-20 {
+        html body > main.relative > .relative.z-20 {
             text-align: left !important;
             padding: 0 !important;
         }
 
         /* ---- Text hierarchy: eyebrow → strong heading → short paragraph → CTA ---- */
         /* Eyebrow: small, wide-tracked, muted white */
-        main.relative.h-screen .editorial-blur > span.font-label {
+        html body > main.relative .editorial-blur > span.font-label {
             font-size: 0.5625rem !important;
             letter-spacing: 0.28em !important;
             margin-bottom: 0.85rem !important;
@@ -256,14 +248,14 @@
             font-weight: 600 !important;
         }
         /* Heading: reduced from text-5xl to ~text-3xl; fewer lines; tight leading */
-        main.relative.h-screen h1 {
+        html body > main.relative h1 {
             font-size: 1.95rem !important;
             line-height: 1.04 !important;
             letter-spacing: -0.02em !important;
             margin-bottom: 0.85rem !important;
         }
         /* Paragraph: shorter width + concise rhythm */
-        main.relative.h-screen .editorial-blur p {
+        html body > main.relative .editorial-blur p {
             font-size: 0.875rem !important;
             line-height: 1.5 !important;
             max-width: 22rem !important;
@@ -274,11 +266,11 @@
         }
 
         /* ---- CTA: slim, elegant, keeps the phone action ---- */
-        main.relative.h-screen .editorial-blur .flex.flex-col,
-        main.relative.h-screen .editorial-blur .flex.flex-col a {
+        html body > main.relative .editorial-blur .flex.flex-col,
+        html body > main.relative .editorial-blur .flex.flex-col a {
             justify-content: flex-start !important;
         }
-        main.relative.h-screen .editorial-blur a[href^="tel:"] {
+        html body > main.relative .editorial-blur a[href^="tel:"] {
             padding: 0.7rem 1.1rem !important;
             font-size: 0.6875rem !important;
             letter-spacing: 0.12em !important;
@@ -287,16 +279,16 @@
             border-radius: 0.5rem !important;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18) !important;
         }
-        main.relative.h-screen .editorial-blur a[href^="tel:"] .material-symbols-outlined,
-        main.relative.h-screen .editorial-blur a[href^="tel:"] span {
+        html body > main.relative .editorial-blur a[href^="tel:"] .material-symbols-outlined,
+        html body > main.relative .editorial-blur a[href^="tel:"] span {
             color: #000308 !important;
         }
-        main.relative.h-screen .editorial-blur a[href^="tel:"]:active {
+        html body > main.relative .editorial-blur a[href^="tel:"]:active {
             background-color: #825335 !important;
             color: #ffffff !important;
         }
-        main.relative.h-screen .editorial-blur a[href^="tel:"]:active .material-symbols-outlined,
-        main.relative.h-screen .editorial-blur a[href^="tel:"]:active span {
+        html body > main.relative .editorial-blur a[href^="tel:"]:active .material-symbols-outlined,
+        html body > main.relative .editorial-blur a[href^="tel:"]:active span {
             color: #ffffff !important;
         }
     }
@@ -313,7 +305,7 @@
     @media (max-width: 767px) {
         body > main {
             margin-top: var(--mobile-header-height, 3.25rem) !important;
-            height: calc(100vh - var(--mobile-header-height, 3.25rem)) !important;
+            height: calc(100dvh - var(--mobile-header-height, 3.25rem)) !important;
             padding-top: 0 !important;
         }
     }
