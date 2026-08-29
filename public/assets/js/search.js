@@ -46,7 +46,7 @@
     }
     list.slice(0, 20).forEach(function (p) {
       var a = document.createElement('a');
-      a.href = 'product view.html?id=' + encodeURIComponent(p.id);
+      a.href = 'product-view.html?id=' + encodeURIComponent(p.id);
       a.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 16px;text-decoration:none;color:inherit;border-bottom:1px solid rgba(0,0,0,0.06);';
       a.onmouseenter = function () { a.style.background = 'rgba(0,0,0,0.04)'; };
       a.onmouseleave = function () { a.style.background = ''; };

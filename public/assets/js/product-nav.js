@@ -25,7 +25,7 @@
   function goToProduct(slug) {
     if (_navigating) return;
     _navigating = true;
-    var url = "product%20view.html";
+    var url = "product-view.html";
     if (slug) url += "?id=" + encodeURIComponent(slug);
     window.location.href = url;
   }

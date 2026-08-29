@@ -47,6 +47,22 @@ const nextConfig = {
     return [
       // index.html is retired; home.html is the single homepage.
       { source: "/index.html", destination: "/home.html", permanent: true },
+      // Compatibility redirects for the 2026-08 storefront page renames
+      // (professional hyphenated filenames). Permanent (308) so bookmarks,
+      // shared links and indexed URLs keep resolving; query strings (e.g.
+      // ?id=...) are preserved automatically.
+      { source: "/product%20view.html", destination: "/product-view.html", permanent: true },
+      { source: "/subcategoryui.html", destination: "/houseware-cleaning-tools.html", permanent: true },
+      { source: "/home-outdoor-subcategory.html", destination: "/houseware-home-outdoor.html", permanent: true },
+      { source: "/kitchenware-subcategory.html", destination: "/houseware-kitchenware.html", permanent: true },
+      { source: "/cooling-subcategory.html", destination: "/supermarket-cooling-appliances.html", permanent: true },
+      { source: "/trolly-subcategory.html", destination: "/supermarket-trolleys-baskets.html", permanent: true },
+      { source: "/shelves-subcategory.html", destination: "/supermarket-shelves-stands.html", permanent: true },
+      { source: "/checkout-solutions-subcategory.html", destination: "/supermarket-checkout-solutions.html", permanent: true },
+      { source: "/accessories-subcategory.html", destination: "/supermarket-accessories.html", permanent: true },
+      { source: "/trolleys-subcategory.html", destination: "/warehouse-trolleys-baskets.html", permanent: true },
+      { source: "/forklifts-subcategory.html", destination: "/warehouse-forklifts-pallets.html", permanent: true },
+      { source: "/heavy-duty-racking-subcategory.html", destination: "/warehouse-heavy-duty-racking.html", permanent: true },
     ];
   },
   async headers() {
