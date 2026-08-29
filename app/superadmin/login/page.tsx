@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 /**
@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
  * only (client-side convenience; the middleware page gate and requireOwner()
  * on every API remain the real boundaries).
  */
-export default function SuperadminLoginPage() {
+function SuperadminLoginForm() {
   const router = useRouter();
   const search = useSearchParams();
   const [email, setEmail] = useState("");
@@ -108,5 +108,15 @@ export default function SuperadminLoginPage() {
         </p>
       </div>
     </main>
+  );
+}
+
+// useSearchParams() requires a Suspense boundary for static prerendering
+// (same pattern as admin/login) — without it `next build` fails on this page.
+export default function SuperadminLoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-500">Loading…</div>}>
+      <SuperadminLoginForm />
+    </Suspense>
   );
 }

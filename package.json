@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "next build",
+    "build": "node --require ./scripts/readlink-shim.cjs ./node_modules/next/dist/bin/next build",
     "start": "next start -p 3000",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
