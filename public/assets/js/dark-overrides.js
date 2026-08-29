@@ -62,9 +62,6 @@ window.addEventListener("pageshow", function () {
    the DOM so mobile-nav.js and the bottom-nav Categories button keep working.
    ============================================================================ */
 (function () {
-  // --- Store URLs: update these once the apps are published. ---
-  var APP_STORE_URL = "https://apps.apple.com/app/al-nassim";       // iOS / iPadOS
-  var PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.alnassim"; // Android
 
   function ready(fn) {
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
@@ -80,41 +77,21 @@ window.addEventListener("pageshow", function () {
     row.id = "nassim-mobile-utils";
 
     // --- Download App (platform-aware) ---
+    // The store apps are not published yet: the button stays (the owner wants
+    // it visible) but tapping it explains the app is coming soon instead of
+    // opening a dead placeholder store URL.
     var dl = document.createElement("button");
     dl.type = "button";
     dl.className = "nassim-mu-btn";
-    dl.setAttribute("aria-label", "Download our app");
+    dl.setAttribute("aria-label", "Our app is coming soon");
     dl.innerHTML = '<span class="material-symbols-outlined">download</span>';
-    var ua = navigator.userAgent || "";
-    var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-    var isAndroid = /Android/i.test(ua);
-    var dlUrl = isIOS ? APP_STORE_URL : (isAndroid ? PLAY_STORE_URL : APP_STORE_URL);
-    dl.addEventListener("click", function () { window.open(dlUrl, "_blank", "noopener,noreferrer"); });
+    dl.addEventListener("click", function () { appComingSoon(); });
     row.appendChild(dl);
 
-    // --- EN | AR language selector ---
-    var lang = document.createElement("button");
-    lang.type = "button";
-    lang.className = "nassim-mu-btn";
-    lang.setAttribute("aria-label", "Language");
-    var currentLang = "en";
-    try { currentLang = localStorage.getItem("nassim-lang") || "en"; } catch (e) {}
-    lang.innerHTML =
-      '<span class="nassim-mu-lang">' +
-        '<span class="nassim-mu-opt' + (currentLang === "en" ? " is-active" : "") + '" data-lang="en">EN</span>' +
-        '<span class="nassim-mu-sep">|</span>' +
-        '<span class="nassim-mu-opt' + (currentLang === "ar" ? " is-active" : "") + '" data-lang="ar">AR</span>' +
-      "</span>";
-    lang.addEventListener("click", function (e) {
-      var opt = e.target.closest("[data-lang]");
-      if (!opt) return;
-      var newLang = opt.getAttribute("data-lang");
-      try { localStorage.setItem("nassim-lang", newLang); } catch (e2) {}
-      lang.querySelectorAll(".nassim-mu-opt").forEach(function (o) {
-        o.classList.toggle("is-active", o.getAttribute("data-lang") === newLang);
-      });
-    });
-    row.appendChild(lang);
+    /* --- EN | AR language selector: HIDDEN until Arabic actually exists ---
+       The old button only stored a preference and reloaded the page with no
+       visible effect, which reads as broken. Re-add it when the Arabic/RTL
+       roadmap work (H-P02) ships. */
 
     // --- Theme toggle (reuses theme.js via id="theme-toggle") ---
     var theme = document.createElement("button");
@@ -127,6 +104,21 @@ window.addEventListener("pageshow", function () {
     row.appendChild(theme);
 
     return row;
+  }
+
+  /** Lightweight "coming soon" notice used by the app-download buttons. */
+  function appComingSoon() {
+    var t = document.getElementById("nassim-app-toast");
+    if (!t) {
+      t = document.createElement("div");
+      t.id = "nassim-app-toast";
+      t.style.cssText = "position:fixed;left:50%;bottom:5.5rem;transform:translateX(-50%);z-index:99999;background:#000308;color:#fff;font-size:12px;font-weight:700;letter-spacing:.06em;padding:.6rem 1.1rem;border-radius:.5rem;opacity:0;transition:opacity .25s ease;pointer-events:none;";
+      t.textContent = "OUR APP IS COMING SOON";
+      document.body.appendChild(t);
+    }
+    requestAnimationFrame(function () { t.style.opacity = "1"; });
+    clearTimeout(appComingSoon._t);
+    appComingSoon._t = setTimeout(function () { t.style.opacity = "0"; }, 2200);
   }
 
   function inject() {
@@ -174,40 +166,22 @@ window.addEventListener("pageshow", function () {
 
   /* --- DESKTOP header language toggle ----------------------------------
      The shared desktop header renders an "EN | AR" button that was purely
-     decorative (only the mobile drawer selector worked). Wire every such
-     button to the same "nassim-lang" preference so language switching works
-     on desktop too — dynamic product specs (product view.html pickLang) and
-     any future translated content read this preference on page load.
-     Existing per-page markup is untouched: any header button containing one
-     span with the exact text "EN" and one with "AR" gets data-lang wiring. */
-  function wireDesktopLangButtons() {
+     decorative (clicking it stored a preference and reloaded the page with
+     no visible effect). Arabic/RTL does not exist yet (roadmap H-P02), so
+     every such button is HIDDEN — on both desktop and mobile — until the
+     real language switcher ships. Remove this routine when that happens. */
+  function hideDesktopLangButtons() {
     document.querySelectorAll("nav button").forEach(function (btn) {
-      if (btn.closest("#nassim-mobile-utils") || btn.hasAttribute("data-lang-wired")) return;
+      if (btn.closest("#nassim-mobile-utils") || btn.hasAttribute("data-lang-hidden")) return;
       var spans = btn.querySelectorAll("span");
       var en = null, ar = null;
       spans.forEach(function (s) { var t = (s.textContent || "").trim(); if (t === "EN" && !en) en = s; if (t === "AR" && !ar) ar = s; });
       if (!en || !ar) return;
-      btn.setAttribute("data-lang-wired", "1");
-      [en, ar].forEach(function (s) { s.setAttribute("data-lang", s.textContent.trim().toLowerCase()); });
-      function syncActive() {
-        var cur = "en";
-        try { cur = localStorage.getItem("nassim-lang") || "en"; } catch (e) {}
-        en.style.opacity = cur === "en" ? "1" : ".5";
-        ar.style.opacity = cur === "ar" ? "1" : ".5";
-      }
-      btn.addEventListener("click", function (e) {
-        var opt = e.target.closest("[data-lang]");
-        if (!opt) return;
-        var newLang = opt.getAttribute("data-lang");
-        try { localStorage.setItem("nassim-lang", newLang); } catch (e2) {}
-        syncActive();
-        // Reload so language-aware content (dynamic specs etc.) re-renders.
-        window.location.reload();
-      });
-      syncActive();
+      btn.setAttribute("data-lang-hidden", "1");
+      btn.style.display = "none";
     });
   }
-  ready(wireDesktopLangButtons);
+  ready(hideDesktopLangButtons);
 })();
 
 /* ============================================================================
