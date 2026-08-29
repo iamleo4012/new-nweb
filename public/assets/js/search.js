@@ -199,6 +199,22 @@
         input.blur();
       }
     });
+
+    /* Submitting the form (Enter key) must never reload the page with a
+       meaningless ?q= — run the search and show the results dropdown
+       instead. Empty query just focuses the input. */
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var q = input.value.trim();
+      if (!q) {
+        dropdown.style.display = 'none';
+        input.focus();
+        return;
+      }
+      clearTimeout(debounce);
+      search(q, dropdown);
+      dropdown.style.display = 'block';
+    });
   }
 
   /* ---- Bind legacy overlay triggers (for pages still using the icon button) ---- */
