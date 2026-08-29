@@ -104,42 +104,23 @@
             #breadcrumb + div > div:last-child button[onclick*="addToCart"] { height: 3rem !important; font-size: 0.6875rem !important; }
             #breadcrumb + div > div:last-child button[onclick*="buyNow"] { height: 3rem !important; font-size: 0.6875rem !important; margin-top: 0.625rem !important; }
 
-            /* ---- Details accordion rows: tighter, two-section mobile layout ---- */
+            /* ---- Details accordion row: single Product Description section ---- */
             section.mt-20 { margin-top: 2rem !important; }
             section.mt-20 > div > button { padding-top: 1.25rem !important; padding-bottom: 1.25rem !important; gap: 0.625rem !important; }
-            /* The mobile Specifications accordion sits directly under the
-               (collapsed or expanded) Description accordion — no <section>
-               margin between them — so its header button must NOT repeat the
-               top padding. Otherwise the two stacked buttons double the gap to
-               ~2.5rem of empty space. Removing the top padding makes the gap
-               a single 1.25rem, matching the rhythm used throughout the page. */
-            .mobile-specs-row > div > button { padding-top: 0 !important; }
             section.mt-20 > div > button h2 { font-size: 1.125rem !important; }
             section.mt-20 > div > button .material-symbols-outlined { font-size: 1.5rem !important; }
-            /* Mobile-only specs accordion row: hidden on desktop */
-            .mobile-specs-row { display: block !important; }
-            /* Mobile-only specs grid wrapper: full width, single column */
-            .mobile-specs-row .accordion-content .grid { grid-template-columns: 1fr !important; gap: 1rem 0 !important; padding-bottom: 1.5rem !important; }
-            .mobile-specs-row .accordion-content .grid > div { padding-bottom: 0.75rem !important; }
-            .mobile-specs-row .accordion-content .grid > div .font-headline { font-size: 0.9375rem !important; }
-            /* On mobile, the description accordion's desktop-only 12-col grid collapses. */
-            #description-accordion .grid { grid-template-columns: 1fr !important; row-gap: 0 !important; column-gap: 0 !important; padding-bottom: 0 !important; }
-            /* Hide the desktop spec grid when it lives inside the description accordion,
-               because specs now have their own mobile accordion row. */
-            #description-accordion .lg\:col-span-8 { display: none !important; }
-            /* The description accordion starts collapsed on mobile, just like
-               the specifications accordion — tap toggles via toggleAccordion(). */
-            #description-accordion { max-height: 0 !important; opacity: 0 !important; }
-            #description-accordion.accordion-content { max-height: 0 !important; opacity: 0 !important; }
-            #description-accordion.expanded { max-height: 100px !important; opacity: 1 !important; }
+            /* On mobile, the description accordion's desktop-only 12-col grid
+               collapses to a single column: intro + custom description fields
+               first, then the full specification grid below them — the same
+               single-section structure as desktop. */
+            #description-accordion .grid { grid-template-columns: 1fr !important; row-gap: 0 !important; column-gap: 0 !important; padding-bottom: 1.5rem !important; }
+            /* Spec cards inside the description accordion: single column with
+               the same compact rhythm the mobile layout uses. */
+            #description-accordion #spec-grid { gap: 1rem 0 !important; }
+            #description-accordion #spec-grid > div { padding-bottom: 0.75rem !important; }
+            #description-accordion #spec-grid > div .font-headline { font-size: 0.9375rem !important; }
             #description-accordion .w-16 { margin-bottom: 0.5rem !important; }
-            #accordion-intro { margin-bottom: 0 !important; }
-            /* Remove the bottom border from the description accordion and the
-               top border from the mobile specs row, plus reduce the gap between
-               them, so there are no extra divider lines or excessive space. */
-            #description-accordion { border-bottom: none !important; }
-            .mobile-specs-row { border-top: none !important; }
-            section.mt-20.mobile-specs-row { margin-top: 1rem !important; }
+            #accordion-intro { margin-bottom: 1.25rem !important; }
 
             /* ---- Related products: horizontal swipe carousel ---- */
             #related-grid {
@@ -172,10 +153,6 @@
             section.mt-20:last-of-type .flex.justify-between h2 { font-size: 1.25rem !important; }
         }
 
-        /* Mobile-only specs accordion row: hidden on desktop (≥768px) */
-        @media (min-width: 768px) {
-            .mobile-specs-row { display: none !important; }
-        }
         /* MOBILE BREADCRUMB HIDE (≤767px) */
         @media (max-width: 767px) {
             #breadcrumb { display: none !important; margin: 0 !important; padding: 0 !important; height: 0 !important; }
@@ -285,21 +262,6 @@
 <div class="lg:col-span-4"><div class="w-16 h-1 bg-secondary mb-8"></div><p class="text-on-surface-variant dark:text-white/70 text-sm leading-relaxed mb-6" id="accordion-intro"></p><!-- Admin-defined custom description fields (subcategory-specific); hidden until populated. --><div class="hidden" id="custom-desc-fields"></div></div>
 <div class="lg:col-span-8"><div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10" id="spec-grid"></div></div>
 </div>
-</div>
-</div>
-</section>
-<!-- Mobile-only Specifications accordion row (hidden ≥768px). Reuses the same
-     .accordion-content/.expanded CSS and toggleAccordion() pattern as the
-     description accordion above. Populated from the same product.specs data
-     source as the desktop #spec-grid (#mobile-spec-grid), so no data duplication. -->
-<section class="mobile-specs-row mt-20 border-t border-outline-variant/20" style="display:none;">
-<div class="w-full">
-<button class="w-full py-10 flex items-center group transition-colors hover:text-secondary justify-start gap-4" onclick="toggleAccordion('specs-accordion')">
-<h2 class="font-display text-3xl font-extrabold uppercase tracking-tight leading-none">Specifications</h2>
-<span class="material-symbols-outlined text-3xl transition-transform duration-300" data-accordion-icon style="transform: rotate(0deg);">expand_more</span>
-</button>
-<div class="accordion-content border-b border-outline-variant/20" id="specs-accordion">
-<div class="grid grid-cols-1 gap-6 pb-10" id="mobile-spec-grid"></div>
 </div>
 </div>
 </section>
@@ -438,6 +400,7 @@
 <!-- Navigation scripts -->
 <script src="assets/js/cart-nav.js" defer></script>
 <script src="assets/js/product-nav.js" defer></script>
+<script src="assets/js/listing-pagination.js" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js" defer></script>
 
@@ -661,7 +624,8 @@
         var thumb = e.target.closest('.thumbnail-item');
         if (thumb) updateMainImage(thumb, thumb.getAttribute('data-full'));
       });
-      // Specs (desktop #spec-grid + mobile #mobile-spec-grid, same data source)
+      // Specs (#spec-grid inside the Product Description accordion — the same
+      // grid serves desktop and mobile; only its column count is responsive)
       var specHTML = '';
       if (product.specs && product.specs.length) {
         specHTML = product.specs.map(function(s) {
@@ -680,8 +644,6 @@
       }
       var specGrid = document.getElementById('spec-grid');
       if (specGrid) specGrid.innerHTML = specHTML;
-      var mobileSpecGrid = document.getElementById('mobile-spec-grid');
-      if (mobileSpecGrid) mobileSpecGrid.innerHTML = specHTML;
       /* Admin-defined custom header fields (main info column, next to SKU). */
       var headerFieldsEl = document.getElementById('product-custom-header');
       if (headerFieldsEl) {

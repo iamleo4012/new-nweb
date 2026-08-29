@@ -784,8 +784,8 @@ document.addEventListener('DOMContentLoaded', function() {
         renderCurrentPage();
     }
 
-    // Pagination functionality
-        const totalPages = 5; // Total number of pages
+    // Pagination functionality — page counts are computed dynamically
+        // from the real filtered result set (calculatedTotalPages).
         let currentPage = 1;
         const pagesToShow = 3; // Show 3 page numbers at a time
         const itemsPerPage = 20; // 20 products per page (4 cols x 5 rows)
@@ -800,7 +800,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const totalProducts = filteredProducts.length;
             const calculatedTotalPages = Math.ceil(totalProducts / itemsPerPage);
             
-            // Always show pagination controls
+            // Hide the whole pagination section when every result fits on one page
+            const paginationSection = document.getElementById('pagination-section');
+            if (paginationSection) paginationSection.style.display = calculatedTotalPages <= 1 ? 'none' : 'flex';
             prevButton.style.display = 'flex';
             nextButton.style.display = 'flex';
             
@@ -871,8 +873,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Initialize pagination
+        // Initialize pagination — compute the real page count AND render page 1
         updatePagination();
+        renderCurrentPage();
 
         // Wire filter controls
         document.querySelectorAll('.filter-checkbox, .filter-radio').forEach(function(el) {

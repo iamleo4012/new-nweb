@@ -1516,7 +1516,7 @@
      The .subcat-pagination-row class indents it by the sidebar column + gap
      on desktop (lg+) so it stays centered under the PRODUCT column exactly
      as before. Design/markup unchanged. -->
-<div class="subcat-pagination-row mt-8 flex justify-center pb-4"><div class="flex items-center space-x-2 font-headline text-sm font-semibold"><button class="w-10 h-10 flex items-center justify-center rounded-sm border border-outline-variant/30 hover:border-secondary text-on-surface transition-colors"><span class="material-symbols-outlined text-sm">chevron_left</span></button><button class="w-10 h-10 flex items-center justify-center rounded-sm bg-primary text-on-primary">1</button><button class="w-10 h-10 flex items-center justify-center rounded-sm border border-outline-variant/30 hover:border-secondary text-on-surface transition-colors">2</button><button class="w-10 h-10 flex items-center justify-center rounded-sm border border-outline-variant/30 hover:border-secondary text-on-surface transition-colors">3</button><span class="px-2 text-on-surface">...</span><button class="w-10 h-10 flex items-center justify-center rounded-sm border border-outline-variant/30 hover:border-secondary text-on-surface transition-colors">10</button><button class="w-10 h-10 flex items-center justify-center rounded-sm border border-outline-variant/30 hover:border-secondary text-on-surface transition-colors"><span class="material-symbols-outlined text-sm">chevron_right</span></button></div></div>
+<div class="subcat-pagination-row mt-8 flex justify-center pb-4"><div id="nassim-listing-pagination" class="flex items-center space-x-2 font-headline text-sm font-semibold" style="display:none;"><button id="prev-page" type="button" aria-label="Previous page" class="w-10 h-10 flex items-center justify-center rounded-sm border border-outline-variant/30 dark:border-white/20 hover:border-secondary dark:hover:border-white text-on-surface dark:text-white/70 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"><span class="material-symbols-outlined text-sm">chevron_left</span></button><div id="page-numbers" class="flex items-center space-x-2"></div><button id="next-page" type="button" aria-label="Next page" class="w-10 h-10 flex items-center justify-center rounded-sm border border-outline-variant/30 dark:border-white/20 hover:border-secondary dark:hover:border-white text-on-surface dark:text-white/70 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"><span class="material-symbols-outlined text-sm">chevron_right</span></button></div></div>
 </main>
 <!-- Footer (shared — from home.html) -->
 <footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
@@ -2408,6 +2408,7 @@
 <script src="assets/js/dark-overrides.js" defer></script>
 <script src="assets/js/cart-nav.js" defer></script>
 <script src="assets/js/product-nav.js" defer></script>
+<script src="assets/js/listing-pagination.js" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js" defer></script>
 <script src="assets/js/mobile-nav.js" defer></script>

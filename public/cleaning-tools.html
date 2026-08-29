@@ -967,66 +967,8 @@
             });
         });
         
-        // Pagination functionality
-        const totalPages = 5; // Total number of pages
-        let currentPage = 1;
-        const pagesToShow = 3; // Show 3 page numbers at a time
-        
-        function updatePagination() {
-            const pageNumbersContainer = document.getElementById('page-numbers');
-            const prevButton = document.getElementById('prev-page');
-            const nextButton = document.getElementById('next-page');
-            
-            // Clear existing page numbers
-            pageNumbersContainer.innerHTML = '';
-            
-            // Calculate start and end page numbers
-            let startPage = Math.max(1, currentPage - 1);
-            let endPage = Math.min(totalPages, startPage + pagesToShow - 1);
-            
-            // Adjust if we're near the end
-            if (endPage - startPage < pagesToShow - 1) {
-                startPage = Math.max(1, endPage - pagesToShow + 1);
-            }
-            
-            // Generate page number buttons
-            for (let i = startPage; i <= endPage; i++) {
-                const pageBtn = document.createElement('button');
-                pageBtn.className = `flex items-center justify-center w-10 h-10 text-[11px] font-bold transition-all rounded-sm ${
-                    i === currentPage 
-                        ? 'bg-primary dark:bg-white text-white dark:text-primary' 
-                        : 'border border-outline-variant/30 dark:border-white/20 text-outline dark:text-white/70 hover:border-primary dark:hover:border-white hover:text-primary dark:hover:text-white'
-                }`;
-                pageBtn.textContent = i;
-                pageBtn.addEventListener('click', function() {
-                    currentPage = i;
-                    updatePagination();
-                });
-                pageNumbersContainer.appendChild(pageBtn);
-            }
-            
-            // Update prev/next button states
-            prevButton.disabled = currentPage === 1;
-            nextButton.disabled = currentPage === totalPages;
-        }
-        
-        // Event listeners for prev/next buttons
-        document.getElementById('prev-page').addEventListener('click', function() {
-            if (currentPage > 1) {
-                currentPage--;
-                updatePagination();
-            }
-        });
-        
-        document.getElementById('next-page').addEventListener('click', function() {
-            if (currentPage < totalPages) {
-                currentPage++;
-                updatePagination();
-            }
-        });
-        
-        // Initialize pagination
-        updatePagination();
+        // Pagination is handled by the shared assets/js/listing-pagination.js
+        // (dynamic page counts from the real filtered result set).
         
         // Initial render of all products
         applyFiltersAndSort();
