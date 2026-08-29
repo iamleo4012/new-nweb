@@ -332,8 +332,10 @@
 <!-- Product catalog (data source) -->
 <!-- Load product catalog from backend API (database-driven) -->
 <script src="/api/catalog"></script>
-<!-- Fallback to static catalog if API is unavailable -->
-<script>window.NASSIM_PRODUCTS || document.write('<script src="assets/js/products.js"><\/script>');</script>
+<!-- No static fake-catalog fallback: if the API is unavailable, the
+     not-found state below distinguishes a missing product from a catalogue
+     outage (NASSIM_CATALOG_FAILED is set by product-nav.js) and offers a
+     retry instead of selling demo products. -->
 <!-- Dark mode overrides -->
 <!-- ==================== MOBILE BOTTOM NAVIGATION ====================
      Reuses existing systems — no duplication:
@@ -599,10 +601,15 @@
       var id = getQueryParam('id');
       var product = window.NassimGetProduct ? window.NassimGetProduct(id) : null;
       if (!product) {
-        // No product found — show a not-found state
-        document.title = 'Product Not Found | AL-NASSIM';
+        // Distinguish a genuinely missing product from a catalogue outage:
+        // if the API never delivered a catalogue, offer a retry — never a
+        // misleading "not found" for a product that exists.
+        var catalogDown = !!window.NASSIM_CATALOG_FAILED || !window.NASSIM_PRODUCTS;
+        document.title = catalogDown ? 'Catalogue Unavailable | AL-NASSIM' : 'Product Not Found | AL-NASSIM';
         var main = document.querySelector('main');
-        if (main) main.innerHTML = '<div class="pt-40 pb-40 text-center"><span class="material-symbols-outlined text-6xl text-secondary mb-6 block">search_off</span><h1 class="font-display text-3xl font-extrabold uppercase mb-4 text-primary dark:text-white">Product Not Found</h1><p class="text-on-surface-variant dark:text-white/70 text-sm mb-8">We couldn\'t find that product.</p><a href="home.html" class="inline-block bg-primary text-on-primary font-headline font-bold uppercase tracking-widest text-xs px-8 py-4 rounded-sm hover:bg-secondary transition-all">Back to Home</a></div>';
+        if (main) main.innerHTML = catalogDown
+          ? '<div class="pt-40 pb-40 text-center"><span class="material-symbols-outlined text-6xl text-secondary mb-6 block">cloud_off</span><h1 class="font-display text-3xl font-extrabold uppercase mb-4 text-primary dark:text-white">Couldn\'t Load the Catalogue</h1><p class="text-on-surface-variant dark:text-white/70 text-sm mb-8">We couldn\'t reach the product catalogue. Please check your connection.</p><a href="javascript:location.reload()" class="inline-block bg-primary text-on-primary font-headline font-bold uppercase tracking-widest text-xs px-8 py-4 rounded-sm hover:bg-secondary transition-all">Try Again</a></div>'
+          : '<div class="pt-40 pb-40 text-center"><span class="material-symbols-outlined text-6xl text-secondary mb-6 block">search_off</span><h1 class="font-display text-3xl font-extrabold uppercase mb-4 text-primary dark:text-white">Product Not Found</h1><p class="text-on-surface-variant dark:text-white/70 text-sm mb-8">We couldn\'t find that product.</p><a href="home.html" class="inline-block bg-primary text-on-primary font-headline font-bold uppercase tracking-widest text-xs px-8 py-4 rounded-sm hover:bg-secondary transition-all">Back to Home</a></div>';
         return;
       }
       document.title = product.name + ' | AL-NASSIM';
@@ -759,8 +766,11 @@
         setTimeout(onWishMaybeChanged, 2000);
 
         /* Event delegation: Related product Add-to-Cart buttons (mobile).
-           Stops propagation so the parent <a> does not navigate. */
-        document.getElementById('related-grid').addEventListener('click', function(e) {
+           Stops propagation so the parent <a> does not navigate.
+           (#related-grid is absent when the not-found / catalogue-outage
+           state replaced <main>, so guard before binding.) */
+        var relatedGrid = document.getElementById('related-grid');
+        if (relatedGrid) relatedGrid.addEventListener('click', function(e) {
             var btn = e.target.closest('[data-related-add-to-cart]');
             if (!btn) return;
             e.preventDefault();

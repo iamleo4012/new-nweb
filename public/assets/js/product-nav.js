@@ -144,20 +144,87 @@
     });
   }
 
-  function loadCatalog() {
+  /* ---- Catalog loading ---------------------------------------------------
+     The static fake-catalog fallback (assets/js/products.js) is REMOVED: if
+     the catalog API fails, listing pages must show a real error with a Retry
+     option — never demo products at made-up prices. Loading is retried
+     automatically twice; after that the error state offers a manual retry
+     (unlimited). Every listing page renders its #product-grid with
+     innerHTML, so injecting this state into the grid is always overwritten
+     by a later successful render. Pages without a #product-grid can listen
+     for the "nassim:catalog-error" event / NASSIM_CATALOG_FAILED flag. */
+  var catalogAttempts = 0;
+  var CATALOG_MAX_ATTEMPTS = 3; // initial load + 2 automatic retries
+  var catalogWatchdog = null;
+
+  function injectCatalogStateStyles() {
+    if (document.getElementById("nassim-catalog-state-styles")) return;
+    var st = document.createElement("style");
+    st.id = "nassim-catalog-state-styles";
+    st.textContent =
+      ".nassim-catalog-error{grid-column:1/-1;text-align:center;padding:3.5rem 1rem;font-family:Inter,Arial,sans-serif}" +
+      ".nassim-catalog-error h3{font-size:1.05rem;font-weight:700;margin:0 0 .4rem;color:#111d27}" +
+      ".nassim-catalog-error p{font-size:.85rem;margin:0 0 1.2rem;color:#44474b}" +
+      "html.dark .nassim-catalog-error h3{color:#e8f1ff}html.dark .nassim-catalog-error p{color:#bcc8d7}" +
+      ".nassim-catalog-retry{display:inline-block;background:#000308;color:#fff;border:0;border-radius:.5rem;padding:.6rem 1.6rem;font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}" +
+      "html.dark .nassim-catalog-retry{background:#f7f9ff;color:#000308}";
+    document.head.appendChild(st);
+  }
+
+  function showCatalogError() {
+    injectCatalogStateStyles();
+    window.NASSIM_CATALOG_FAILED = true;
+    var g = document.getElementById("product-grid");
+    if (g) {
+      g.innerHTML =
+        '<div class="nassim-catalog-error" role="alert">' +
+        "<h3>Couldn&#8217;t load products</h3>" +
+        "<p>We couldn&#8217;t reach the catalogue. Check your connection and try again.</p>" +
+        '<button type="button" class="nassim-catalog-retry" data-catalog-retry>Retry</button>' +
+        "</div>";
+    }
+    try { document.dispatchEvent(new CustomEvent("nassim:catalog-error")); } catch (e) { /* older engines */ }
+  }
+
+  function loadCatalog(bust) {
     if (window.NASSIM_PRODUCTS) { init(); return; }
+    window.NASSIM_CATALOG_FAILED = false;
+    function catalogFailed() {
+      clearTimeout(catalogWatchdog);
+      script.onload = script.onerror = null;
+      catalogAttempts++;
+      if (catalogAttempts < CATALOG_MAX_ATTEMPTS) {
+        loadCatalog(true);
+      } else {
+        showCatalogError();
+      }
+    }
     var script = document.createElement("script");
-    script.src = "/api/catalog";
-    script.onload = init;
-    script.onerror = function () {
-      var fallback = document.createElement("script");
-      fallback.src = "assets/js/products.js";
-      fallback.onload = init;
-      fallback.onerror = init;
-      document.head.appendChild(fallback);
+    script.src = "/api/catalog" + (bust ? "?retry=" + Date.now() : "");
+    script.onload = function () {
+      clearTimeout(catalogWatchdog);
+      if (window.NASSIM_PRODUCTS) init();
+      else catalogFailed(); // executed without producing a catalog — treat as failure
     };
+    script.onerror = catalogFailed;
+    // Network-hang watchdog: a request that never settles must not hang the store.
+    clearTimeout(catalogWatchdog);
+    catalogWatchdog = setTimeout(function () {
+      if (!window.NASSIM_PRODUCTS) catalogFailed();
+    }, 12000);
     document.head.appendChild(script);
   }
+
+  // Manual retry (unlimited): fresh attempt budget, fresh script.
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest ? e.target.closest("[data-catalog-retry]") : null;
+    if (!btn) return;
+    e.preventDefault();
+    catalogAttempts = 0;
+    var g = document.getElementById("product-grid");
+    if (g) g.innerHTML = "";
+    loadCatalog(true);
+  });
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", loadCatalog);
