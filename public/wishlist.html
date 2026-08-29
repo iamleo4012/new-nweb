@@ -1193,8 +1193,7 @@
             var atc = e.target.closest('[data-wl-atc]');
             if (atc) {
                 e.preventDefault(); e.stopPropagation();
-                moveToCart(atc.getAttribute('data-wl-atc'));  // existing logic: add to cart + remove
-                wlToast('Added to cart', 'shopping_cart');
+                moveToCart(atc.getAttribute('data-wl-atc'));  // async: syncs server, shows its own outcome toast
             }
         });
     }
@@ -1216,24 +1215,48 @@
     function moveToCart(id) {
         var item = getWishlist().find(function(i) { return i.id === id; });
         if (!item) return;
-        // Add to cart
+        // Compute the intended cart state first — local writes happen only
+        // after the server round-trip decides the move is safe.
         var cart = getCart();
         var existing = cart.find(function(i) { return i.id === id; });
-        if (existing) {
-            existing.quantity = (existing.quantity || 1) + 1;
-        } else {
-            cart.push({
-                id: item.id, name: item.name, image: item.image,
-                price: item.price, currency: item.currency,
-                line: item.line, sku: item.sku || '', quantity: 1
-            });
-        }
-        writeStore(CART_KEY, { items: cart, shipping: 2.5, currency: 'KD' });
-        // Remove from wishlist
-        var items = getWishlist().filter(function(i) { return i.id !== id; });
-        saveWishlist(items);
-        renderWishlist();
-        updateCartBadge();
+        var newQty = existing ? (existing.quantity || 1) + 1 : 1;
+
+        // Sync with the server cart FIRST. 401 = guest session: no server
+        // cart exists, so the local-only move is the correct outcome. Any
+        // other failure aborts the move so the UI never claims a move that
+        // did not happen.
+        fetch('/api/cart', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug: id, quantity: newQty })
+        }).then(function(res) {
+            if (res.ok || res.status === 401) return res.ok ? res.json().catch(function() { return null; }) : null;
+            return Promise.reject(new Error('cart ' + res.status));
+        }).then(function() {
+            // Cart accepted (or guest) — commit the local cart write.
+            if (existing) {
+                existing.quantity = newQty;
+            } else {
+                cart.push({
+                    id: item.id, name: item.name, image: item.image,
+                    price: item.price, currency: item.currency,
+                    line: item.line, sku: item.sku || '', quantity: newQty
+                });
+            }
+            writeStore(CART_KEY, { items: cart, shipping: 2.5, currency: 'KD' });
+            // Remove from wishlist: local state now, server best-effort
+            // (a failed DELETE simply re-merges the item on the next load,
+            // mirroring removeItem()'s existing semantics).
+            var items = getWishlist().filter(function(i) { return i.id !== id; });
+            saveWishlist(items);
+            fetch('/api/wishlist?slug=' + encodeURIComponent(id), { method: 'DELETE', credentials: 'same-origin' }).catch(function() {});
+            renderWishlist();
+            updateCartBadge();
+            wlToast('Added to cart', 'shopping_cart');
+        }).catch(function() {
+            wlToast('Could not add to cart — please try again', 'error');
+        });
     }
 
     /* ===== Account button -> account panel ===== */
