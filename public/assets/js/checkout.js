@@ -133,9 +133,19 @@
         var block = (document.getElementById("cust-block") || {}).value || "";
         var street = (document.getElementById("cust-street") || {}).value || "";
 
-        if (name.length < 2) { showError("Please enter your full name."); resetBtn(); return; }
-        if (phone.length < 6) { showError("Please enter a valid phone number."); resetBtn(); return; }
-        if (!area || !block || !street) { showError("Please fill in Area, Block, and Street."); resetBtn(); return; }
+        var email = (((document.getElementById("cust-email") || {}).value || "").trim());
+        // Kuwait phone numbers are 8 local digits, optionally +965/965 prefixed.
+        var phoneDigits = phone.replace(/[\s\-()]/g, "");
+        var phoneOk = /^(\+?965)?\d{8}$/.test(phoneDigits);
+        var phoneNormalized = /^965\d{8}$/.test(phoneDigits) ? "+" + phoneDigits : phoneDigits;
+        var emailOk = !email || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+
+        if (name.trim().length < 2) { showError("Please enter your full name.", document.getElementById("cust-name")); resetBtn(); return; }
+        if (!phoneOk) { showError("Please enter a valid Kuwaiti phone number — 8 digits, e.g. 5512 3456, or +965 5512 3456.", document.getElementById("cust-phone")); resetBtn(); return; }
+        if (!emailOk) { showError("Please enter a valid email address, or leave it empty.", document.getElementById("cust-email")); resetBtn(); return; }
+        if (!area) { showError("Please fill in your Area (for example, Hawally).", document.getElementById("cust-area")); resetBtn(); return; }
+        if (!block) { showError("Please fill in your Block number.", document.getElementById("cust-block")); resetBtn(); return; }
+        if (!street) { showError("Please fill in your Street.", document.getElementById("cust-street")); resetBtn(); return; }
         if (items.length === 0) { showError("Your cart is empty."); resetBtn(); return; }
 
         var address = buildAddress();
@@ -144,7 +154,7 @@
         var body = {
           customerName: name,
           customerEmail: (document.getElementById("cust-email") || {}).value || "",
-          customerPhone: phone,
+          customerPhone: phoneNormalized,
           address: address,
           city: area || "Kuwait",
           notes: (document.getElementById("cust-notes") || {}).value || "",
@@ -182,7 +192,20 @@
                   area: area,
                   isDefault: true,
                 })
-              }).catch(function () {});
+              })
+              .then(function (res) { return res.json().catch(function () { return { success: false }; }); })
+              .then(function (j) {
+                if (!j || !j.success) {
+                  // The ORDER succeeded — only the convenience of saving the
+                  // address failed. Tell the customer without alarming them.
+                  var note = document.createElement("p");
+                  note.className = "text-xs text-amber-600 mt-2";
+                  note.textContent = "Note: we could not save this address to your account, but your order was placed successfully.";
+                  var trackLink = document.querySelector('main a[href^="order-detail"]');
+                  if (trackLink && trackLink.parentElement) trackLink.parentElement.insertBefore(note, trackLink);
+                }
+              })
+              .catch(function () {});
             }
             // Clear cart
             try { localStorage.setItem(CART_KEY, JSON.stringify({ state: { items: [], shipping: 2.5, currency: "KD" } })); } catch (e) {}
@@ -199,7 +222,22 @@
           });
 
         function resetBtn() { submitting = false; if (btn) { btn.textContent = btnText; btn.disabled = false; btn.classList.remove("opacity-60", "cursor-not-allowed"); } }
-        function showError(msg) { var errEl = document.getElementById("checkout-error"); if (errEl) { errEl.textContent = msg; errEl.classList.remove("hidden"); } else { alert(msg); } }
+        function showError(msg, fieldEl) {
+          var errEl = document.getElementById("checkout-error");
+          if (errEl) {
+            errEl.textContent = msg;
+            errEl.classList.remove("hidden");
+            try { errEl.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
+          } else { alert(msg); }
+          if (fieldEl) {
+            fieldEl.classList.add("ring-2", "ring-red-500", "border-red-500");
+            try { fieldEl.focus(); } catch (e2) {}
+            fieldEl.addEventListener("input", function clearMark() {
+              fieldEl.classList.remove("ring-2", "ring-red-500", "border-red-500");
+              fieldEl.removeEventListener("input", clearMark);
+            });
+          }
+        }
         function showSuccess(orderNumber, orderId, accessToken, replay) {
           var trackHref = accessToken
             ? "order-detail.html?number=" + encodeURIComponent(orderNumber) + "&token=" + encodeURIComponent(accessToken)
