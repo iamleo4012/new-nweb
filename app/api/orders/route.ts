@@ -230,6 +230,21 @@ export async function POST(req: NextRequest) {
         },
       });
 
+      // Checkout consumes the ordered items: remove them from the ordering
+      // user's SERVER cart (the client clears its localStorage cart on
+      // success). Without this, a logged-in customer's next cart visit
+      // re-merges the just-ordered items back in, inviting duplicate orders.
+      // Only the ordered products are removed — items that were not part of
+      // this order (e.g. added from another device) stay in the cart.
+      if (user) {
+        await tx.cartItem.deleteMany({
+          where: {
+            userId: user.id,
+            productId: { in: [...new Set(orderItems.map((i) => i.productId))] },
+          },
+        });
+      }
+
       const updated = await tx.order.update({
         where: { id: created.id },
         data: { orderNumber },
