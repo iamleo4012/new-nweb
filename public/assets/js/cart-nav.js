@@ -36,10 +36,14 @@
   }
 
   function setBadge(count) {
-    var badges = document.querySelectorAll("#header-cart-count");
+    // Desktop header badges (.nassim-cart-badge) and the mobile bottom-nav
+    // badge (#header-cart-count) are kept in sync together; visibility is
+    // driven here so the desktop badge needs no per-page wiring.
+    var badges = document.querySelectorAll(".nassim-cart-badge, #header-cart-count");
     var text = String(count).padStart(2, "0");
     badges.forEach(function (el) {
       el.textContent = text;
+      el.style.display = count > 0 ? "flex" : "none";
     });
   }
 
