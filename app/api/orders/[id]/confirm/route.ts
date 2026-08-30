@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { validateTransition, createNotification, notificationMessage, STATUS_LABELS } from "@/lib/order-workflow";
+import { validateTransition, lockAndValidateTransition, createNotification, notificationMessage, STATUS_LABELS, TransitionError } from "@/lib/order-workflow";
 import { restoreOnlineStockForOrder, restoreStockForRemovedItems } from "@/lib/online-stock";
 import { findOrderByAccessToken } from "@/lib/order-access";
 import type { OrderStatus } from "@prisma/client";
@@ -89,34 +89,51 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   // Status change + online-stock side effects in ONE transaction.
-  const updated = await prisma.$transaction(async (tx) => {
-    // Cancelling returns the online stock this order reserved (exactly once;
-    // items already returned via REMOVED_AFTER_CONFIRMATION are skipped).
-    if (targetStatus === "CANCELLED_BY_CUSTOMER") {
-      await restoreOnlineStockForOrder(tx, order, "ORDER_CANCELLED_RESTORE");
-    }
+  let updated;
+  try {
+    updated = await prisma.$transaction(async (tx) => {
+      // Concurrency guard: validate against the LOCKED current status. If an
+      // admin already moved the order on (e.g. cancelled it) since the read
+      // above, this throws and the customer request gets an explicit 409
+      // instead of silently overwriting the admin's transition.
+      await lockAndValidateTransition(tx, orderId, targetStatus);
 
-    // On confirm, mark unavailable items as REMOVED_AFTER_CONFIRMATION —
-    // their reserved units return to online stock immediately.
-    if (targetStatus === "CONFIRMED") {
-      const removed = order.items.filter((item) => item.itemStatus === "UNAVAILABLE");
-      for (const item of removed) {
-        await tx.orderItem.update({ where: { id: item.id }, data: { itemStatus: "REMOVED_AFTER_CONFIRMATION" } });
+      // Cancelling returns the online stock this order reserved (exactly once;
+      // items already returned via REMOVED_AFTER_CONFIRMATION are skipped).
+      if (targetStatus === "CANCELLED_BY_CUSTOMER") {
+        await restoreOnlineStockForOrder(tx, order, "ORDER_CANCELLED_RESTORE");
       }
-      if (removed.length) {
-        await restoreStockForRemovedItems(tx, order.orderNumber, removed);
-      }
-    }
 
-    return tx.order.update({
-      where: { id: orderId },
-      data: {
-        status: targetStatus,
-        statusHistory: { create: { status: targetStatus, note: parsed.data.action === "confirm" ? "Customer confirmed order" : "Customer cancelled order" } },
-      },
-      include: { items: true },
+      // On confirm, mark unavailable items as REMOVED_AFTER_CONFIRMATION —
+      // their reserved units return to online stock immediately.
+      if (targetStatus === "CONFIRMED") {
+        const removed = order.items.filter((item) => item.itemStatus === "UNAVAILABLE");
+        for (const item of removed) {
+          await tx.orderItem.update({ where: { id: item.id }, data: { itemStatus: "REMOVED_AFTER_CONFIRMATION" } });
+        }
+        if (removed.length) {
+          await restoreStockForRemovedItems(tx, order.orderNumber, removed);
+        }
+      }
+
+      return tx.order.update({
+        where: { id: orderId },
+        data: {
+          status: targetStatus,
+          statusHistory: { create: { status: targetStatus, note: parsed.data.action === "confirm" ? "Customer confirmed order" : "Customer cancelled order" } },
+        },
+        include: { items: true },
+      });
     });
-  });
+  } catch (e) {
+    if (e instanceof TransitionError) {
+      return NextResponse.json(
+        { success: false, data: null, error: `Order cannot be confirmed/cancelled in its current status (${STATUS_LABELS[order.status]}).` },
+        { status: 409 }
+      );
+    }
+    throw e;
+  }
 
   await createNotification(
     updated.id,

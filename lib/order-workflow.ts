@@ -9,7 +9,7 @@
  * Staff manually check the physical store, then the customer confirms.
  */
 
-import type { OrderStatus, OrderItemStatus } from "@prisma/client";
+import type { OrderStatus, OrderItemStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
 /* ------------------------------------------------------------------ */
@@ -203,4 +203,44 @@ export function notificationMessage(status: OrderStatus, orderNumber: string): s
     CANCELLED_BY_STAFF: `Order ${orderNumber} has been cancelled by our staff.`,
   };
   return messages[status] ?? `Order ${orderNumber} status updated to ${STATUS_LABELS[status]}.`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Concurrency-safe transition validation                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Lock the order row (SELECT … FOR UPDATE) inside a transaction and validate
+ * the requested transition against the CURRENT committed status.
+ *
+ * Why: the status-mutation routes previously validated against a plain read
+ * taken BEFORE the transaction. Two concurrent, individually-valid actions
+ * (e.g. a customer cancelling while an admin confirms) could both pass
+ * validation against the same stale status, both report success, and the
+ * last write silently won — recording a transition that was never legal from
+ * the state it actually overwrote.
+ *
+ * With the row lock, competing mutations serialize: the second request
+ * re-reads the winner's committed status and its transition is validated
+ * against reality, so exactly one valid transition wins and the loser
+ * receives a TransitionError (→ HTTP 409). Stock restoration stays
+ * exactly-once because it only runs for the request whose transition won.
+ *
+ * Returns the locked (current) status for logging/audit context.
+ */
+export async function lockAndValidateTransition(
+  tx: Prisma.TransactionClient,
+  orderId: number,
+  toStatus: OrderStatus
+): Promise<OrderStatus> {
+  const rows = await tx.$queryRawUnsafe<Array<{ status: OrderStatus }>>(
+    `SELECT "status" FROM "Order" WHERE "id" = $1 FOR UPDATE`,
+    orderId
+  );
+  if (!rows.length) {
+    throw new TransitionError("Order not found");
+  }
+  const current = rows[0].status;
+  validateTransition(current, toStatus);
+  return current;
 }

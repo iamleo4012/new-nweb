@@ -6,6 +6,7 @@ import {
   ORDER_STATUSES,
   STATUS_LABELS,
   validateTransition,
+  lockAndValidateTransition,
   TransitionError,
   createNotification,
   notificationMessage,
@@ -148,48 +149,65 @@ export async function PATCH(req: NextRequest) {
   // Status change + item updates + online-stock side effects run in ONE
   // transaction so the movement ledger and Product.stock always agree with
   // the order state.
-  const updated = await prisma.$transaction(async (tx) => {
-    // ONLINE STOCK: declining/cancelling an order returns exactly the
-    // quantities it reserved (skip items already returned via
-    // REMOVED_AFTER_CONFIRMATION; legacy orders have no reservation ledger
-    // rows so nothing is invented).
-    if (toStatus === "CANCELLED_BY_STAFF") {
-      await restoreOnlineStockForOrder(tx, existing, "ORDER_DECLINED_RESTORE");
-    }
+  let updated;
+  try {
+    updated = await prisma.$transaction(async (tx) => {
+      // Concurrency guard: re-validate the transition against the LOCKED,
+      // currently-committed status. A competing mutation (another admin
+      // action, or the customer confirming/cancelling) that committed since
+      // the pre-read above makes this throw → 409, never a silent overwrite.
+      await lockAndValidateTransition(tx, parsed.data.id, toStatus);
 
-    // If moving to CONFIRMED, mark all UNAVAILABLE items as removed — their
-    // reserved units go back to online stock immediately (partial restore).
-    if (toStatus === "CONFIRMED") {
-      const removed = existing.items.filter((item) => item.itemStatus === "UNAVAILABLE");
-      for (const item of removed) {
-        await tx.orderItem.update({ where: { id: item.id }, data: { itemStatus: "REMOVED_AFTER_CONFIRMATION" } });
+      // ONLINE STOCK: declining/cancelling an order returns exactly the
+      // quantities it reserved (skip items already returned via
+      // REMOVED_AFTER_CONFIRMATION; legacy orders have no reservation ledger
+      // rows so nothing is invented).
+      if (toStatus === "CANCELLED_BY_STAFF") {
+        await restoreOnlineStockForOrder(tx, existing, "ORDER_DECLINED_RESTORE");
       }
-      if (removed.length) {
-        await restoreStockForRemovedItems(tx, existing.orderNumber, removed);
+
+      // If moving to CONFIRMED, mark all UNAVAILABLE items as removed — their
+      // reserved units go back to online stock immediately (partial restore).
+      if (toStatus === "CONFIRMED") {
+        const removed = existing.items.filter((item) => item.itemStatus === "UNAVAILABLE");
+        for (const item of removed) {
+          await tx.orderItem.update({ where: { id: item.id }, data: { itemStatus: "REMOVED_AFTER_CONFIRMATION" } });
+        }
+        if (removed.length) {
+          await restoreStockForRemovedItems(tx, existing.orderNumber, removed);
+        }
       }
+
+      const order = await tx.order.update({
+        where: { id: parsed.data.id },
+        data: {
+          status: toStatus,
+          statusHistory: { create: { status: toStatus, note: parsed.data.note } },
+        },
+        include: { items: true },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          actorId: staff.id,
+          action: "ORDER_STATUS_CHANGE",
+          entity: "Order",
+          entityId: String(order.id),
+          detail: `${fromStatus} -> ${toStatus}`,
+        },
+      });
+
+      return order;
+    });
+  } catch (e) {
+    if (e instanceof TransitionError) {
+      // Either the request raced a concurrent mutation (the locked status
+      // moved on) or the transition was invalid all along — either way the
+      // order is untouched and the caller gets an explicit conflict.
+      return NextResponse.json({ success: false, data: null, error: e.message }, { status: 409 });
     }
-
-    const order = await tx.order.update({
-      where: { id: parsed.data.id },
-      data: {
-        status: toStatus,
-        statusHistory: { create: { status: toStatus, note: parsed.data.note } },
-      },
-      include: { items: true },
-    });
-
-    await tx.auditLog.create({
-      data: {
-        actorId: staff.id,
-        action: "ORDER_STATUS_CHANGE",
-        entity: "Order",
-        entityId: String(order.id),
-        detail: `${fromStatus} -> ${toStatus}`,
-      },
-    });
-
-    return order;
-  });
+    throw e;
+  }
 
   // Create customer notification (outside the transaction — best-effort).
   await createNotification(

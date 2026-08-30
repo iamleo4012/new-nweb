@@ -4,9 +4,11 @@ import { prisma } from "@/lib/db";
 import { requireStaff } from "@/lib/auth";
 import {
   validateTransition,
+  lockAndValidateTransition,
   createNotification,
   notificationMessage,
   STATUS_LABELS,
+  TransitionError,
 } from "@/lib/order-workflow";
 import type { OrderStatus, PosStatus } from "@prisma/client";
 
@@ -77,33 +79,56 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     updateData.posStatus = parsed.data.posStatus;
   }
 
-  // Mark items as DELIVERED when order is delivered.
-  if (targetStatus === "DELIVERED") {
-    for (const item of order.items) {
-      if (item.itemStatus === "AVAILABLE") {
-        await prisma.orderItem.update({ where: { id: item.id }, data: { itemStatus: "DELIVERED" } });
+  // Item updates + status update + audit now run in ONE transaction, and the
+  // transition is re-validated against the LOCKED current status: a competing
+  // mutation (another staff action or the customer cancelling) that committed
+  // since the read above turns this into an explicit 409 instead of a silent
+  // overwrite — and can no longer leave items marked DELIVERED on an order
+  // whose status update failed.
+  let updated;
+  try {
+    updated = await prisma.$transaction(async (tx) => {
+      await lockAndValidateTransition(tx, orderId, targetStatus);
+
+      // Mark items as DELIVERED when order is delivered.
+      if (targetStatus === "DELIVERED") {
+        for (const item of order.items) {
+          if (item.itemStatus === "AVAILABLE") {
+            await tx.orderItem.update({ where: { id: item.id }, data: { itemStatus: "DELIVERED" } });
+          }
+        }
       }
+
+      const saved = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          ...updateData,
+          statusHistory: { create: { status: targetStatus, note: `Staff action: ${parsed.data.action}` } },
+        },
+        include: { items: true },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          actorId: staff.id,
+          action: "ORDER_FULFILLMENT",
+          entity: "Order",
+          entityId: String(orderId),
+          detail: `${order.status} -> ${targetStatus}`,
+        },
+      });
+
+      return saved;
+    });
+  } catch (e) {
+    if (e instanceof TransitionError) {
+      return NextResponse.json(
+        { success: false, data: null, error: `Cannot move from ${STATUS_LABELS[order.status]} to ${STATUS_LABELS[targetStatus]}.` },
+        { status: 409 }
+      );
     }
+    throw e;
   }
-
-  const updated = await prisma.order.update({
-    where: { id: orderId },
-    data: {
-      ...updateData,
-      statusHistory: { create: { status: targetStatus, note: `Staff action: ${parsed.data.action}` } },
-    },
-    include: { items: true },
-  });
-
-  await prisma.auditLog.create({
-    data: {
-      actorId: staff.id,
-      action: "ORDER_FULFILLMENT",
-      entity: "Order",
-      entityId: String(orderId),
-      detail: `${order.status} -> ${targetStatus}`,
-    },
-  });
 
   await createNotification(
     updated.id,
