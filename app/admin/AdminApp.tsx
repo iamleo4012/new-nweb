@@ -195,10 +195,12 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-gray-900 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        {/* Wraps on narrow screens: the six tab pills, brand and user area
+            stack instead of overflowing the viewport. */}
+        <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-y-2">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <span className="font-bold text-lg tracking-wide">AL-NASSIM Admin</span>
-            <nav className="flex gap-1 ml-6">
+            <nav className="flex flex-wrap gap-1">
               {(["dashboard", "products", "orders", "master-data", "customers", "audit-log"] as Tab[]).map((t) => (
                 <button
                   key={t}
@@ -715,8 +717,9 @@ function OrderCard({ order, expanded, busy, onToggle, onVerify, onSendConfirmati
           </div>
 
           {/* Right column: items table with statuses */}
-          <div>
-            <table className="w-full text-sm">
+          <div className="min-w-0">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm whitespace-nowrap">
               <thead>
                 <tr className="text-left text-gray-500">
                   <th className="py-1">Item</th>
@@ -746,6 +749,7 @@ function OrderCard({ order, expanded, busy, onToggle, onVerify, onSendConfirmati
                 </tr>
               </tfoot>
             </table>
+            </div>
           </div>
         </div>
       )}
