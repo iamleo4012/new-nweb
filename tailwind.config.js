@@ -1,19 +1,28 @@
 /**
- * Local Tailwind build configuration — the staged replacement for the Tailwind
- * Play CDN (https://cdn.tailwindcss.com) still loaded by most public pages.
+ * Local Tailwind build configuration — the replacement for the Tailwind
+ * Play CDN (https://cdn.tailwindcss.com) formerly loaded by the storefront.
+ * The migration is COMPLETE: every public page now loads
+ * public/assets/css/tailwind.css (built from this config, which includes
+ * the forms + container-queries plugins to match the CDN URL
+ * ?plugins=forms,container-queries the pages used). The admin SPAs load
+ * public/assets/css/tailwind.admin.css instead (default theme, no plugins
+ * — see tailwind.admin.config.js).
  *
- * The palette/typography below is copied verbatim from the runtime config the
- * pages load today (public/assets/js/tailwind-config.js), so the generated
- * CSS is visually identical to what the CDN produces. The CDN also runs with
- * the `forms` and `container-queries` plugins — both are included here.
+ * The palette/typography below is copied verbatim from the runtime config
+ * the pages used to load (public/assets/js/tailwind-config.js), so the
+ * generated CSS is visually identical to what the CDN produced.
  *
  * Build (writes public/assets/css/tailwind.css):
- *   npx tailwindcss -i tailwind.src.css -o public/assets/css/tailwind.css --minify
+ *   npm run build:css        (storefront, forms + container-queries)
+ *   npm run build:css:admin  (admin, default theme, no plugins)
  *
- * Migration pattern per page (staged, one page at a time):
+ * Per-page migration pattern (applied to all pages):
  *   1. remove the <script src="https://cdn.tailwindcss.com..."> tag
  *   2. remove the inline tailwind.config block (shared palette lives here now)
- *   3. add <link rel="stylesheet" href="/assets/css/tailwind.css">
+ *   3. add <link rel="stylesheet" href="/assets/css/tailwind.css"> as the
+ *      LAST static sheet before </head> (the Play CDN appended its
+ *      generated <style> there, so utilities must stay after the Google
+ *      Fonts / Material Symbols stylesheets to keep the same cascade)
  *   4. visually verify light + dark, desktop + mobile
  */
 /** @type {import('tailwindcss').Config} */

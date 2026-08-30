@@ -5,17 +5,15 @@ const isProd = process.env.NODE_ENV === "production";
 // hydrate: forms submit natively (login "doesn't work"), SPAs never render.
 // Production builds contain no eval, so the directive is dev-only.
 const scriptSrc = isProd
-  ? "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com"
-  : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com";
+  ? "script-src 'self' 'unsafe-inline'"
+  : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
 
 /**
  * Content-Security-Policy — built from an inventory of the resources the
  * storefront and admin actually load:
- *   script  'self' + inline page scripts + https://cdn.tailwindcss.com
- *           (the Tailwind Play CDN — see the security notes: migrating to the
- *           local Tailwind build removes this remote script and unlocks a
- *           strict CSP; until then it must be allowed or every page renders
- *           unstyled.)
+ *   script  'self' + inline page scripts (the Tailwind Play CDN entry was
+ *           removed by the staged local-build migration — every page and
+ *           the admin SPAs now load /assets/css/tailwind*.css)
  *   style   'self' + inline styles/blocks + Google Fonts CSS
  *   font    'self' + Google Fonts files + data:
  *   img     'self' + data:/blob: + lh3.googleusercontent.com (product images
@@ -23,7 +21,7 @@ const scriptSrc = isProd
  *   connect 'self' — the storefront/admin only call their own API
  *
  * 'unsafe-inline' for script/style is a documented limitation of the
- * static-HTML + Play-CDN architecture, not an oversight. 'unsafe-eval' is
+ * static-HTML architecture, not an oversight. 'unsafe-eval' is
  * granted ONLY in development (Next dev tooling requires it).
  */
 const CSP = [

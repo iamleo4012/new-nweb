@@ -51,17 +51,18 @@ payment field anywhere (COD-only by construction).
 ## 4. Content-Security-Policy
 
 CSP is issued in `next.config.mjs` and built from an inventory of the actual
-resources in use (Google Fonts, Tailwind Play CDN, `lh3.googleusercontent.com`
-product images). Documented limitations of the current architecture:
+resources in use (Google Fonts, `lh3.googleusercontent.com` product images).
+Documented limitations of the current architecture:
 
 - `script-src 'unsafe-inline'` — the 36 static storefront pages use inline
   scripts;
-- `https://cdn.tailwindcss.com` — the Tailwind **Play CDN** (a remote JIT
-  compiler) still runs on every page. This is the single biggest obstacle to a
-  strict CSP and a supply-chain risk on the checkout path. Migrating to the
-  local Tailwind build (already a devDependency) removes it; that migration is
-  staged separately to avoid a giant CSS rewrite. HSTS is emitted only in
-  production builds.
+- `https://cdn.tailwindcss.com` — **REMOVED (2026-08-30).** The Tailwind
+  **Play CDN** (a remote JIT compiler) used to run on every page — the single
+  biggest obstacle to a strict CSP and a supply-chain risk on the checkout
+  path. The staged migration to the local Tailwind build is complete: every
+  storefront page loads `/assets/css/tailwind.css` and the admin/superadmin
+  SPAs load `/assets/css/tailwind.admin.css` (default theme); script-src now
+  allows no remote host. HSTS is emitted only in production builds.
 - `script-src 'unsafe-eval'` is granted **in development only**: Next.js dev
   tooling (HMR/React Refresh module evaluation) requires eval — without it
   every App Router page fails to hydrate (forms submit natively, admin/
