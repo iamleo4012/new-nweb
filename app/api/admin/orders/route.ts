@@ -91,25 +91,49 @@ export async function GET(req: NextRequest) {
   const staff = await requireStaff();
   if (!staff) return forbidden();
   const status = req.nextUrl.searchParams.get("status");
-  // Invoice-number search: matches Order.orderNumber (e.g. "AN-2026-000001")
-  // case-insensitively. Lets admin retrieve any historical order by its
-  // permanent invoice number even after the original customer account has been
-  // deleted. Combinable with the status filter.
+  // Search: matches the invoice number (e.g. "AN-2026-000001") OR the
+  // customer name, case-insensitively. Lets admin retrieve any historical
+  // order even after the original customer account has been deleted
+  // (orderNumber survives; customerName is snapshotted on the order).
+  // Combinable with the status filter.
   const q = req.nextUrl.searchParams.get("q")?.trim() ?? "";
-  const where: { status?: OrderStatus; orderNumber?: { contains: string; mode: "insensitive" } } = {};
+  // Server-side pagination: the previous implementation silently capped the
+  // list at 200 orders (take: 200), making older orders unreachable as the
+  // business grows. Page size is clamped to a sane range.
+  const page = Math.max(1, Number(req.nextUrl.searchParams.get("page")) || 1);
+  const limit = Math.min(100, Math.max(1, Number(req.nextUrl.searchParams.get("limit")) || 20));
+  const where: {
+    status?: OrderStatus;
+    OR?: Array<{ orderNumber: { contains: string; mode: "insensitive" } } | { customerName: { contains: string; mode: "insensitive" } }>;
+  } = {};
   if (status && (ORDER_STATUSES as readonly string[]).includes(status)) {
     where.status = status as OrderStatus;
   }
   if (q) {
-    where.orderNumber = { contains: q, mode: "insensitive" };
+    where.OR = [
+      { orderNumber: { contains: q, mode: "insensitive" } },
+      { customerName: { contains: q, mode: "insensitive" } },
+    ];
   }
-  const orders = await prisma.order.findMany({
-    where,
-    include: { items: true },
-    orderBy: { id: "desc" },
-    take: 200,
+  const [total, orders] = await Promise.all([
+    prisma.order.count({ where }),
+    prisma.order.findMany({
+      where,
+      include: { items: true },
+      orderBy: { id: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+  ]);
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  return NextResponse.json({
+    success: true,
+    data: {
+      orders: orders.map(serializeOrder),
+      pagination: { page, limit, total, totalPages },
+    },
+    error: null,
   });
-  return NextResponse.json({ success: true, data: { orders: orders.map(serializeOrder) }, error: null });
 }
 
 export async function PATCH(req: NextRequest) {

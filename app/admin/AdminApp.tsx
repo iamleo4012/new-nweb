@@ -344,6 +344,10 @@ function OrdersTab() {
   const [searchInput, setSearchInput] = useState("");
   const [expanded, setExpanded] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  // Server-side pagination (the API no longer returns everything at once).
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   // Id of the order whose workflow action is in flight — its action buttons
   // disable until the response lands (duplicate-click prevention).
   const [busyOrderId, setBusyOrderId] = useState<number | null>(null);
@@ -355,18 +359,32 @@ function OrdersTab() {
     const params = new URLSearchParams();
     if (filter) params.set("status", filter);
     if (search) params.set("q", search);
-    const url = params.toString() ? `/api/admin/orders?${params.toString()}` : "/api/admin/orders";
-    fetch(url, { credentials: "same-origin" })
+    params.set("page", String(page));
+    params.set("limit", "20");
+    fetch(`/api/admin/orders?${params.toString()}`, { credentials: "same-origin" })
       .then((r) => r.json())
       .then((data) => {
-        if (data.success) setOrders(data.data.orders);
-        else setError(data.error || "Failed to load orders");
+        if (data.success) {
+          setOrders(data.data.orders);
+          setTotal(data.data.pagination.total);
+          setTotalPages(data.data.pagination.totalPages);
+        } else setError(data.error || "Failed to load orders");
       })
       .catch(() => setError("Failed to load orders"))
       .finally(() => setLoading(false));
-  }, [filter, search]);
+  }, [filter, search, page]);
 
   useEffect(load, [load]);
+
+  // Changing the filter or search starts over from page 1 of the new result set.
+  function changeFilter(next: string) {
+    setFilter(next);
+    setPage(1);
+  }
+  function changeSearch(next: string) {
+    setSearch(next);
+    setPage(1);
+  }
 
   async function patchStatus(id: number, status: string) {
     setError("");
@@ -464,7 +482,7 @@ function OrdersTab() {
       <div className="flex flex-wrap items-center gap-3">
         <select
           value={filter}
-          onChange={(e) => setFilter(e.target.value)}
+          onChange={(e) => changeFilter(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
         >
           <option value="">All statuses</option>
@@ -477,7 +495,7 @@ function OrdersTab() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            setSearch(searchInput.trim());
+            changeSearch(searchInput.trim());
           }}
           className="flex items-center gap-2"
         >
@@ -485,7 +503,7 @@ function OrdersTab() {
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search invoice no. (e.g. AN-2026-000001)"
+            placeholder="Search invoice no. or customer…"
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-72"
           />
           <button
@@ -498,7 +516,7 @@ function OrdersTab() {
             <button
               type="button"
               onClick={() => {
-                setSearch("");
+                changeSearch("");
                 setSearchInput("");
               }}
               className="text-sm text-gray-500 hover:text-gray-700 underline"
@@ -507,7 +525,10 @@ function OrdersTab() {
             </button>
           )}
         </form>
-        <span className="text-sm text-gray-500">{orders.length} orders</span>
+        <span className="text-sm text-gray-500">
+          {total} order{total === 1 ? "" : "s"}
+          {totalPages > 1 ? ` — page ${page} of ${totalPages}` : ""}
+        </span>
       </div>
       {error && <p className="text-red-600 text-sm">{error}</p>}
       {message && <p className="text-green-600 text-sm">{message}</p>}
@@ -529,6 +550,27 @@ function OrdersTab() {
         {loading && <p className="text-gray-500 text-sm">Loading orders…</p>}
         {!loading && orders.length === 0 && <p className="text-gray-500 text-sm">No orders found.</p>}
       </div>
+      {totalPages > 1 && (
+        <div className="flex items-center gap-2 justify-center pt-2">
+          <button
+            onClick={() => setPage(Math.max(1, page - 1))}
+            disabled={page <= 1 || loading}
+            className="px-3 py-1.5 rounded-lg text-sm border border-gray-300 disabled:opacity-50 hover:bg-gray-100"
+          >
+            ← Prev
+          </button>
+          <span className="text-sm text-gray-500">
+            Page {page} of {totalPages} ({total} orders)
+          </span>
+          <button
+            onClick={() => setPage(Math.min(totalPages, page + 1))}
+            disabled={page >= totalPages || loading}
+            className="px-3 py-1.5 rounded-lg text-sm border border-gray-300 disabled:opacity-50 hover:bg-gray-100"
+          >
+            Next →
+          </button>
+        </div>
+      )}
       <ConfirmDialog
         open={confirming !== null}
         title={confirming?.kind === "cancel" ? "Cancel this order?" : "Complete this order?"}
