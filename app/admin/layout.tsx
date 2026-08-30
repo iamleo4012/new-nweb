@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import Script from "next/script";
 
 export const metadata = {
   title: "Admin | Al Nassim Golden Group",
@@ -8,7 +7,9 @@ export const metadata = {
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <Script src="https://cdn.tailwindcss.com" strategy="beforeInteractive" />
+      {/* Local Tailwind build (plugin-free, matches the bare Play CDN this
+          layout used to load). React hoists this stylesheet into <head>. */}
+      <link rel="stylesheet" href="/assets/css/tailwind.admin.css" precedence="admin-tailwind" />
       {children}
     </>
   );

@@ -1,0 +1,8 @@
+/* Admin SPA stylesheet — mirrors the bare Play CDN the admin/superadmin
+   layouts used (no ?plugins= query): preflight + utilities only, no forms
+   or container-queries plugin base styles. Built with tailwind.admin.config.js
+   (shared palette, plugins stripped) so admin inputs/checkboxes keep their
+   browser-default rendering exactly as before the migration. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
