@@ -283,11 +283,14 @@ function DashboardTab() {
         ))}
       </div>
       <div className="grid md:grid-cols-2 gap-6">
-        <section className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+        {/* min-w-0 lets every section shrink inside the mobile grid track;
+             without it the widest non-shrinkable row (a long product name)
+             forces the whole track past the viewport. */}
+        <section className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 min-w-0">
           <h2 className="font-semibold text-gray-900 mb-3">Orders by Status</h2>
           <ul className="space-y-2">
             {stats.ordersByStatus.map((s) => (
-              <li key={s.status} className="flex justify-between items-center text-sm">
+              <li key={s.status} className="flex justify-between items-center text-sm gap-2 min-w-0">
                 <StatusBadge status={s.status} />
                 <span className="font-semibold">{s.count}</span>
               </li>
@@ -295,19 +298,19 @@ function DashboardTab() {
             {stats.ordersByStatus.length === 0 && <li className="text-sm text-gray-500">No orders yet</li>}
           </ul>
         </section>
-        <section className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+        <section className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 min-w-0">
           <h2 className="font-semibold text-gray-900 mb-3">Most Ordered Products</h2>
           <ul className="space-y-2">
             {stats.topProducts.map((p) => (
-              <li key={p.slug} className="flex justify-between text-sm">
-                <span className="truncate mr-3">{p.name}</span>
+              <li key={p.slug} className="flex justify-between text-sm gap-2 min-w-0">
+                <span className="truncate mr-3 flex-1 min-w-0">{p.name}</span>
                 <span className="font-semibold whitespace-nowrap">{p.sold} ordered</span>
               </li>
             ))}
             {stats.topProducts.length === 0 && <li className="text-sm text-gray-500">No orders yet</li>}
           </ul>
         </section>
-        <section className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 md:col-span-2">
+        <section className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 md:col-span-2 min-w-0">
           <h2 className="font-semibold text-gray-900 mb-3">Recent Orders</h2>
           <ul className="space-y-2">
             {stats.recentOrders.map((o) => (
