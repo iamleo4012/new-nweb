@@ -311,9 +311,9 @@ function DashboardTab() {
           <h2 className="font-semibold text-gray-900 mb-3">Recent Orders</h2>
           <ul className="space-y-2">
             {stats.recentOrders.map((o) => (
-              <li key={o.orderNumber} className="flex justify-between items-center text-sm gap-2">
+              <li key={o.orderNumber} className="flex flex-wrap justify-between items-center text-sm gap-x-2 gap-y-1 min-w-0">
                 <span className="font-mono text-xs">{o.orderNumber}</span>
-                <span className="text-gray-600 truncate">{o.customerName}</span>
+                <span className="text-gray-600 truncate flex-1 min-w-0">{o.customerName}</span>
                 <StatusBadge status={o.status} />
                 <span className="font-semibold whitespace-nowrap">{fmt(o.total)} {o.currency}</span>
               </li>
