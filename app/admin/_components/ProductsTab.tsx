@@ -61,6 +61,7 @@ export function ProductsTab() {
   const [taxes, setTaxes] = useState<MasterItem[]>([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -242,14 +243,19 @@ export function ProductsTab() {
   }
 
   const loadAll = useCallback(() => {
+    setLoading(true);
     fetch("/api/admin/products", { credentials: "same-origin" })
       .then((r) => r.json())
       .then((d) => {
         if (d.success) {
           setProducts(d.data.products);
           setCategories(d.data.categories ?? []);
+        } else {
+          setError(d.error || "Failed to load products");
         }
-      });
+      })
+      .catch(() => setError("Failed to load products"))
+      .finally(() => setLoading(false));
     fetchJson("/api/admin/hierarchy/departments").then((d) => setDepartments(d.items));
     fetchJson("/api/admin/hierarchy/sections").then((d) => setSections(d.items));
     fetchJson("/api/admin/hierarchy/subcategories").then((d) => setSubcategories(d.items));
@@ -729,7 +735,10 @@ export function ProductsTab() {
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && (
+            {loading && (
+              <tr><td colSpan={5} className="px-4 py-6 text-center text-gray-500">Loading products…</td></tr>
+            )}
+            {!loading && filtered.length === 0 && (
               <tr><td colSpan={5} className="px-4 py-6 text-center text-gray-500">No products found</td></tr>
             )}
           </tbody>

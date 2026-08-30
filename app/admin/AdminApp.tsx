@@ -338,10 +338,15 @@ function OrdersTab() {
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [expanded, setExpanded] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  // Id of the order whose workflow action is in flight — its action buttons
+  // disable until the response lands (duplicate-click prevention).
+  const [busyOrderId, setBusyOrderId] = useState<number | null>(null);
   // High-impact actions are confirmed in a dialog before being sent.
   const [confirming, setConfirming] = useState<{ kind: "cancel" | "complete"; order: AdminOrder } | null>(null);
 
   const load = useCallback(() => {
+    setLoading(true);
     const params = new URLSearchParams();
     if (filter) params.set("status", filter);
     if (search) params.set("q", search);
@@ -352,7 +357,8 @@ function OrdersTab() {
         if (data.success) setOrders(data.data.orders);
         else setError(data.error || "Failed to load orders");
       })
-      .catch(() => setError("Failed to load orders"));
+      .catch(() => setError("Failed to load orders"))
+      .finally(() => setLoading(false));
   }, [filter, search]);
 
   useEffect(load, [load]);
@@ -360,36 +366,50 @@ function OrdersTab() {
   async function patchStatus(id: number, status: string) {
     setError("");
     setMessage("");
-    const res = await fetch("/api/admin/orders", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({ id, status }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      setOrders((prev) => prev.map((o) => (o.id === id ? data.data.order : o)));
-      setMessage(`Order moved to ${statusLabel(status)}.`);
-    } else {
-      setError(data.error || "Status update failed");
+    setBusyOrderId(id);
+    try {
+      const res = await fetch("/api/admin/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ id, status }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrders((prev) => prev.map((o) => (o.id === id ? data.data.order : o)));
+        setMessage(`Order moved to ${statusLabel(status)}.`);
+      } else {
+        setError(data.error || "Status update failed");
+      }
+    } catch {
+      setError("Network error while updating status");
+    } finally {
+      setBusyOrderId(null);
     }
   }
 
   async function verifyItems(orderId: number, items: { itemId: number; itemStatus: string }[], notes: string) {
     setError("");
     setMessage("");
-    const res = await fetch(`/api/admin/orders/${orderId}/verify`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({ items, staffNotes: notes }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      setMessage("Item availability updated. Order is under review.");
-      load();
-    } else {
-      setError(data.error || "Verification failed");
+    setBusyOrderId(orderId);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}/verify`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ items, staffNotes: notes }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessage("Item availability updated. Order is under review.");
+        load();
+      } else {
+        setError(data.error || "Verification failed");
+      }
+    } catch {
+      setError("Network error while verifying items");
+    } finally {
+      setBusyOrderId(null);
     }
   }
 
@@ -400,18 +420,25 @@ function OrdersTab() {
   async function packOrder(id: number, action: string, posStatus?: string) {
     setError("");
     setMessage("");
-    const res = await fetch(`/api/admin/orders/${id}/pack`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({ action, posStatus }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      setMessage(`Order updated: ${data.data.statusLabel}`);
-      load();
-    } else {
-      setError(data.error || "Action failed");
+    setBusyOrderId(id);
+    try {
+      const res = await fetch(`/api/admin/orders/${id}/pack`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ action, posStatus }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessage(`Order updated: ${data.data.statusLabel}`);
+        load();
+      } else {
+        setError(data.error || "Action failed");
+      }
+    } catch {
+      setError("Network error while updating order");
+    } finally {
+      setBusyOrderId(null);
     }
   }
 
@@ -485,6 +512,7 @@ function OrdersTab() {
             key={o.id}
             order={o}
             expanded={expanded === o.id}
+            busy={busyOrderId === o.id}
             onToggle={() => setExpanded(expanded === o.id ? null : o.id)}
             onVerify={verifyItems}
             onSendConfirmation={sendForConfirmation}
@@ -493,7 +521,8 @@ function OrdersTab() {
             onRequestComplete={(order) => setConfirming({ kind: "complete", order })}
           />
         ))}
-        {orders.length === 0 && <p className="text-gray-500 text-sm">No orders found.</p>}
+        {loading && <p className="text-gray-500 text-sm">Loading orders…</p>}
+        {!loading && orders.length === 0 && <p className="text-gray-500 text-sm">No orders found.</p>}
       </div>
       <ConfirmDialog
         open={confirming !== null}
@@ -519,6 +548,7 @@ function OrdersTab() {
 interface OrderCardProps {
   order: AdminOrder;
   expanded: boolean;
+  busy: boolean;
   onToggle: () => void;
   onVerify: (orderId: number, items: { itemId: number; itemStatus: string }[], notes: string) => void;
   onSendConfirmation: (id: number) => void;
@@ -527,7 +557,7 @@ interface OrderCardProps {
   onRequestComplete: (order: AdminOrder) => void;
 }
 
-function OrderCard({ order, expanded, onToggle, onVerify, onSendConfirmation, onPack, onRequestCancel, onRequestComplete }: OrderCardProps) {
+function OrderCard({ order, expanded, busy, onToggle, onVerify, onSendConfirmation, onPack, onRequestCancel, onRequestComplete }: OrderCardProps) {
   const [itemStatusOverrides, setItemStatusOverrides] = useState<Record<number, string>>({});
   const [staffNotes, setStaffNotes] = useState(order.staffNotes || "");
 
@@ -611,7 +641,8 @@ function OrderCard({ order, expanded, onToggle, onVerify, onSendConfirmation, on
                       if (items.length === 0) return;
                       onVerify(order.id, items, staffNotes);
                     }}
-                    className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700"
+                    disabled={busy}
+                    className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 disabled:opacity-50"
                   >
                     Save Availability
                   </button>
@@ -620,7 +651,8 @@ function OrderCard({ order, expanded, onToggle, onVerify, onSendConfirmation, on
               {canSendConfirmation && (
                 <button
                   onClick={() => onSendConfirmation(order.id)}
-                  className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700"
+                  disabled={busy}
+                  className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 disabled:opacity-50"
                 >
                   → Send for Customer Confirmation
                 </button>
@@ -628,7 +660,8 @@ function OrderCard({ order, expanded, onToggle, onVerify, onSendConfirmation, on
               {canStartPacking && (
                 <button
                   onClick={() => onPack(order.id, "pack")}
-                  className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-semibold hover:bg-purple-700"
+                  disabled={busy}
+                  className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-semibold hover:bg-purple-700 disabled:opacity-50"
                 >
                   → Start Packing
                 </button>
@@ -636,7 +669,8 @@ function OrderCard({ order, expanded, onToggle, onVerify, onSendConfirmation, on
               {canReadyDelivery && (
                 <button
                   onClick={() => onPack(order.id, "ready", "INVOICED")}
-                  className="px-3 py-1.5 bg-cyan-600 text-white rounded-lg text-xs font-semibold hover:bg-cyan-700"
+                  disabled={busy}
+                  className="px-3 py-1.5 bg-cyan-600 text-white rounded-lg text-xs font-semibold hover:bg-cyan-700 disabled:opacity-50"
                 >
                   → Ready for Delivery (Mark POS Invoiced)
                 </button>
@@ -644,7 +678,8 @@ function OrderCard({ order, expanded, onToggle, onVerify, onSendConfirmation, on
               {canDispatch && (
                 <button
                   onClick={() => onPack(order.id, "deliver", "HANDED_TO_DELIVERY")}
-                  className="px-3 py-1.5 bg-orange-600 text-white rounded-lg text-xs font-semibold hover:bg-orange-700"
+                  disabled={busy}
+                  className="px-3 py-1.5 bg-orange-600 text-white rounded-lg text-xs font-semibold hover:bg-orange-700 disabled:opacity-50"
                 >
                   → Out for Delivery
                 </button>
@@ -652,7 +687,8 @@ function OrderCard({ order, expanded, onToggle, onVerify, onSendConfirmation, on
               {canMarkDelivered && (
                 <button
                   onClick={() => onPack(order.id, "complete")}
-                  className="px-3 py-1.5 bg-teal-600 text-white rounded-lg text-xs font-semibold hover:bg-teal-700"
+                  disabled={busy}
+                  className="px-3 py-1.5 bg-teal-600 text-white rounded-lg text-xs font-semibold hover:bg-teal-700 disabled:opacity-50"
                 >
                   → Mark Delivered
                 </button>
@@ -660,7 +696,8 @@ function OrderCard({ order, expanded, onToggle, onVerify, onSendConfirmation, on
               {canComplete && (
                 <button
                   onClick={() => onRequestComplete(order)}
-                  className="px-3 py-1.5 bg-gray-700 text-white rounded-lg text-xs font-semibold hover:bg-gray-800"
+                  disabled={busy}
+                  className="px-3 py-1.5 bg-gray-700 text-white rounded-lg text-xs font-semibold hover:bg-gray-800 disabled:opacity-50"
                 >
                   → Complete Order
                 </button>
@@ -668,7 +705,8 @@ function OrderCard({ order, expanded, onToggle, onVerify, onSendConfirmation, on
               {canCancel && (
                 <button
                   onClick={() => onRequestCancel(order)}
-                  className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-semibold hover:bg-red-200 ml-2"
+                  disabled={busy}
+                  className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-semibold hover:bg-red-200 ml-2 disabled:opacity-50"
                 >
                   Cancel (Staff)
                 </button>
