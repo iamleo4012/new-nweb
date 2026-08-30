@@ -39,6 +39,19 @@ export default function SuperadminApp() {
   const [tab, setTab] = useState<Tab>("overview");
   const [range, setRange] = useState<RangeSelection>({ key: "30d", from: TODAY, to: TODAY });
   const [overview, setOverview] = useState<OverviewData | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  // The logout route is POST-only — a plain <a href="/api/auth/logout">
+  // issues a GET and 405s without ending the session.
+  function handleLogout() {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
+      .catch(() => {})
+      .finally(() => {
+        window.location.href = "/superadmin/login";
+      });
+  }
 
   useEffect(() => {
     apiGet<{ user: { id: number; name: string; email: string; role: string } | null }>(
@@ -136,12 +149,21 @@ export default function SuperadminApp() {
             </button>
           ))}
         </nav>
-        <div className="hidden lg:block px-5 py-4 border-t border-slate-800/60 mt-auto">
+        {/* Visible on every viewport — this is the only sign-out control for
+            the owner dashboard, so it must not be hidden on mobile. */}
+        <div className="px-5 py-4 border-t border-slate-800/60 lg:mt-auto">
           <p className="text-xs text-slate-400 truncate">{me?.name}</p>
           <p className="text-[11px] text-slate-600 truncate">{me?.email}</p>
           <div className="flex gap-3 mt-3">
             <a href="/admin" className="text-[11px] text-slate-400 hover:text-amber-400">Admin Panel</a>
-            <a href="/api/auth/logout" className="text-[11px] text-slate-400 hover:text-red-400">Sign out</a>
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="text-[11px] text-slate-400 hover:text-red-400 disabled:opacity-50"
+            >
+              {loggingOut ? "Signing out…" : "Sign out"}
+            </button>
           </div>
         </div>
       </aside>

@@ -143,6 +143,7 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
   const [tab, setTab] = useState<Tab>(initialTab);
   const [authState, setAuthState] = useState<"loading" | "ok" | "denied">("loading");
   const [userName, setUserName] = useState("");
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "same-origin" })
@@ -158,6 +159,18 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
       })
       .catch(() => setAuthState("denied"));
   }, []);
+
+  // The logout route is POST-only (a plain <a href> would 405). The session
+  // row is deleted server-side; the cookie is cleared in the same response.
+  function handleLogout() {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
+      .catch(() => {})
+      .finally(() => {
+        window.location.href = "/admin/login";
+      });
+  }
 
   if (authState === "loading") {
     return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading admin panel…</div>;
@@ -201,6 +214,13 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
             <a href="/home.html" className="text-gray-300 hover:text-white">
               Storefront
             </a>
+            <button
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="text-gray-300 hover:text-red-300 disabled:opacity-50"
+            >
+              {loggingOut ? "Signing out…" : "Sign out"}
+            </button>
           </div>
         </div>
       </header>
