@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { requireOwner } from "@/lib/auth";
+import { requireOwner, getSessionId } from "@/lib/auth";
 import { hashPassword } from "@/lib/security";
 
 /**
@@ -17,6 +17,11 @@ import { hashPassword } from "@/lib/security";
  *     deactivated                                           → 409
  *   - passwords are hashed server-side, never returned and
  *     never written to the audit log
+ *   - a password reset, role change or deactivation REVOKES
+ *     the target's existing sessions (the JWT role claim used
+ *     by the edge page gate would otherwise stay valid for up
+ *     to 30 days); when the owner rotates their OWN password
+ *     the current session survives, every other session dies
  */
 
 const EMPLOYEE_ROLES = ["ADMIN", "SUPERADMIN"] as const;
@@ -81,6 +86,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   try {
+    // Read BEFORE the transaction: the actor's own session id, so a
+    // self-password-rotation can preserve it while every other session dies.
+    const currentSid = await getSessionId();
     const result = await prisma.$transaction(async (tx) => {
       const target = await tx.user.findUnique({ where: { id } });
       if (!target || (target.role !== "ADMIN" && target.role !== "SUPERADMIN")) {
@@ -119,6 +127,22 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         return { updated: target, audits: [] as Array<{ action: string; detail: string }> };
       }
 
+      /* ---------------- Session revocation ----------------
+       * Password reset, role change and deactivation must kill the
+       * target's live sessions (30-day tokens). When the owner rotates
+       * their own password the CURRENT session is preserved. */
+      const securityChange =
+        data.passwordHash !== undefined || roleChanges || (input.isActive !== undefined && input.isActive !== target.isActive);
+      let revokedSessions = 0;
+      if (securityChange) {
+        const selfChange = owner.id === id;
+        const keepSid = selfChange ? currentSid : null;
+        const where = keepSid
+          ? { userId: id, NOT: { id: keepSid } }
+          : { userId: id };
+        revokedSessions = (await tx.session.deleteMany({ where })).count;
+      }
+
       const updated = await tx.user.update({
         where: { id },
         data,
@@ -142,17 +166,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       }
 
       if (roleChanges) {
-        audits.push({ action: "EMPLOYEE_ROLE_CHANGE", detail: `role: ${target.role} -> ${input.role}` });
+        audits.push({
+          action: "EMPLOYEE_ROLE_CHANGE",
+          detail: `role: ${target.role} -> ${input.role}${revokedSessions ? `; ${revokedSessions} session(s) revoked` : ""}`,
+        });
       }
       if (input.isActive !== undefined && input.isActive !== target.isActive) {
         audits.push({
           action: input.isActive ? "EMPLOYEE_REACTIVATE" : "EMPLOYEE_DEACTIVATE",
-          detail: `email=${updated.email}`,
+          detail: `email=${updated.email}${revokedSessions ? `; ${revokedSessions} session(s) revoked` : ""}`,
         });
       }
       if (input.password !== undefined) {
         // Only the fact of the reset is recorded — no secret material, ever.
-        audits.push({ action: "EMPLOYEE_PASSWORD_RESET", detail: `email=${updated.email}` });
+        audits.push({
+          action: "EMPLOYEE_PASSWORD_RESET",
+          detail: `email=${updated.email}${revokedSessions ? `; ${revokedSessions} session(s) revoked` : ""}`,
+        });
       }
 
       for (const a of audits) {

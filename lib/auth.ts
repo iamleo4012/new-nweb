@@ -63,6 +63,24 @@ export async function getSessionUser(): Promise<User | null> {
   return session.user;
 }
 
+/**
+ * Id of the CURRENT session (from the verified cookie), or null. Used by
+ * account-security mutations that revoke a user's other sessions but must
+ * keep the acting user's own session alive (e.g. an owner rotating their own
+ * password through the employee manager).
+ */
+export async function getSessionId(): Promise<string | null> {
+  const store = await cookies();
+  const token = store.get(COOKIE_NAME)?.value;
+  if (!token) return null;
+  try {
+    const payload = jwt.verify(token, SECRET) as { sid: string };
+    return payload.sid;
+  } catch {
+    return null;
+  }
+}
+
 export async function destroySession(): Promise<void> {
   const store = await cookies();
   const token = store.get(COOKIE_NAME)?.value;
