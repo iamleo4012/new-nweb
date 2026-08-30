@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireStaff, requireAdmin } from "@/lib/auth";
 
@@ -100,30 +101,96 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ success: false, data: null, error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { isActive } = body as { isActive?: boolean };
-  const existing = await prisma.user.findUnique({ where: { id: userId } });
-  if (!existing) {
-    return NextResponse.json({ success: false, data: null, error: "Customer not found" }, { status: 404 });
+  // Strict boolean validation — the previous unvalidated cast meant a body
+  // of { "isActive": "false" } (truthy string) silently ACTIVATED the account.
+  const parsed = z.object({ isActive: z.boolean().optional() }).safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ success: false, data: null, error: "isActive must be a boolean" }, { status: 400 });
   }
+  const { isActive } = parsed.data;
 
-  // Role hierarchy: SUPERADMIN accounts are managed exclusively through the
-  // owner-gated employee system (/api/superadmin/employees), which enforces
-  // the self-protection and last-active-owner safeguards. Customer management
-  // must never modify a SUPERADMIN — this denies ADMIN (and anyone else)
-  // reaching an owner account through this endpoint.
-  if (existing.role === "SUPERADMIN") {
-    return forbidden();
+  try {
+    const updated = await prisma.$transaction(async (tx) => {
+      const existing = await tx.user.findUnique({ where: { id: userId } });
+      if (!existing) {
+        throw new TxError(404, "Customer not found");
+      }
+
+      // Role hierarchy: SUPERADMIN accounts are managed exclusively through the
+      // owner-gated employee system (/api/superadmin/employees), which enforces
+      // the self-protection and last-active-owner safeguards. Customer management
+      // must never modify a SUPERADMIN — this denies ADMIN (and anyone else)
+      // reaching an owner account through this endpoint.
+      if (existing.role === "SUPERADMIN") {
+        throw new TxError(403, "Forbidden");
+      }
+
+      // Self-protection: deactivating your own account here would lock you out
+      // with no undo path (a deactivated user cannot sign in to reactivate).
+      if (admin.id === userId) {
+        throw new TxError(409, "You cannot change your own active status");
+      }
+
+      const deactivates = isActive === false && existing.isActive;
+
+      // Last-active-ADMIN guard, mirroring the SUPERADMIN protection in the
+      // employee system: rows are locked (FOR UPDATE) so concurrent
+      // deactivations serialize and the second re-observes the new count.
+      if (deactivates && existing.role === "ADMIN") {
+        const rows = (await tx.$queryRawUnsafe(
+          `SELECT id FROM "User" WHERE role = 'ADMIN' AND "isActive" = true FOR UPDATE`
+        )) as Array<{ id: number }>;
+        if (rows.length <= 1) {
+          throw new TxError(409, "Cannot deactivate the last active ADMIN");
+        }
+      }
+
+      if (isActive === undefined || isActive === existing.isActive) {
+        return { user: existing, revokedSessions: 0, changed: false };
+      }
+
+      // A deactivation must end the account's live sessions immediately —
+      // the 30-day tokens would otherwise keep working until their expiry.
+      let revokedSessions = 0;
+      if (deactivates) {
+        revokedSessions = (await tx.session.deleteMany({ where: { userId } })).count;
+      }
+
+      const user = await tx.user.update({
+        where: { id: userId },
+        data: { isActive },
+        select: { id: true, email: true, name: true, phone: true, role: true, isActive: true },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          actorId: admin.id,
+          action: "CUSTOMER_UPDATE",
+          entity: "User",
+          entityId: String(userId),
+          // Record the RESULTING state (the old detail logged the raw request
+          // value, which could be "undefined").
+          detail: `isActive=${user.isActive}${revokedSessions ? `; ${revokedSessions} session(s) revoked` : ""}`,
+        },
+      });
+
+      return { user, revokedSessions, changed: true };
+    });
+
+    return NextResponse.json({ success: true, data: { user: updated.user }, error: null });
+  } catch (err) {
+    if (err instanceof TxError) {
+      const response = NextResponse.json({ success: false, data: null, error: err.message }, { status: err.status });
+      return response;
+    }
+    console.error("customer PATCH failed", err);
+    return NextResponse.json({ success: false, data: null, error: "Update failed" }, { status: 500 });
   }
+}
 
-  const updated = await prisma.user.update({
-    where: { id: userId },
-    data: { isActive: isActive ?? existing.isActive },
-    select: { id: true, email: true, name: true, phone: true, role: true, isActive: true },
-  });
-
-  await prisma.auditLog.create({
-    data: { actorId: admin.id, action: "CUSTOMER_UPDATE", entity: "User", entityId: String(userId), detail: `isActive=${isActive}` },
-  });
-
-  return NextResponse.json({ success: true, data: { user: updated }, error: null });
+/** Internal control-flow error carrying an HTTP status through $transaction. */
+class TxError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+  }
 }
