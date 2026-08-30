@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 interface Customer {
   id: number;
@@ -66,6 +67,10 @@ export function CustomersTab() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [detail, setDetail] = useState<CustomerDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  // Deactivation is a high-impact action (locks the account out) and is
+  // confirmed in a dialog; (re-)activation is safe and fires immediately.
+  const [confirmDeactivate, setConfirmDeactivate] = useState<Customer | null>(null);
+  const [toggling, setToggling] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -101,19 +106,28 @@ export function CustomersTab() {
   }, [selectedId]);
 
   async function toggleActive(c: Customer) {
+    if (toggling) return;
+    setToggling(true);
     setMessage("");
     setError("");
-    const res = await fetch(`/api/admin/customers/${c.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({ isActive: !c.isActive }),
-    });
-    const d = await res.json();
-    if (d.success) {
-      setCustomers((prev) => prev.map((x) => x.id === c.id ? { ...x, isActive: !c.isActive } : x));
-      setMessage(c.isActive ? "Customer deactivated" : "Customer activated");
-    } else setError(d.error || "Update failed");
+    try {
+      const res = await fetch(`/api/admin/customers/${c.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ isActive: !c.isActive }),
+      });
+      const d = await res.json();
+      if (d.success) {
+        setCustomers((prev) => prev.map((x) => x.id === c.id ? { ...x, isActive: !c.isActive } : x));
+        setDetail((prev) => prev && prev.user.id === c.id ? { ...prev, user: { ...prev.user, isActive: !c.isActive } } : prev);
+        setMessage(c.isActive ? "Account deactivated" : "Account activated");
+      } else setError(d.error || "Update failed");
+    } catch {
+      setError("Network error while updating account");
+    } finally {
+      setToggling(false);
+    }
   }
 
   if (selectedId) {
@@ -135,10 +149,14 @@ export function CustomersTab() {
                   <p className="text-xs text-gray-400 mt-1">Role: {detail.user.role} · Joined: {new Date(detail.user.createdAt).toLocaleDateString()}</p>
                 </div>
                 <button
-                  onClick={() => toggleActive(detail.user)}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${detail.user.isActive ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"}`}
+                  onClick={() => {
+                    if (detail.user.isActive) setConfirmDeactivate(detail.user);
+                    else toggleActive(detail.user);
+                  }}
+                  disabled={toggling}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold disabled:opacity-50 ${detail.user.isActive ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"}`}
                 >
-                  {detail.user.isActive ? "Active" : "Inactive"}
+                  {toggling ? "Updating…" : detail.user.isActive ? "Active" : "Inactive"}
                 </button>
               </div>
             </div>
@@ -225,6 +243,24 @@ export function CustomersTab() {
             )}
           </div>
         )}
+        <ConfirmDialog
+          open={confirmDeactivate !== null}
+          title="Deactivate this account?"
+          body={
+            confirmDeactivate
+              ? `${confirmDeactivate.name} (${confirmDeactivate.email}) will be unable to sign in or place orders until reactivated.\n\nTheir order history is preserved.`
+              : ""
+          }
+          confirmLabel="Deactivate"
+          danger
+          busy={toggling}
+          onConfirm={() => {
+            const target = confirmDeactivate;
+            setConfirmDeactivate(null);
+            if (target) toggleActive(target);
+          }}
+          onCancel={() => setConfirmDeactivate(null)}
+        />
       </div>
     );
   }

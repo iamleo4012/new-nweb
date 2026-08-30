@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { MasterDataTab } from "@/app/admin/_components/MasterDataTab";
 import { ProductsTab } from "@/app/admin/_components/ProductsTab";
 import { CustomersTab } from "@/app/admin/_components/CustomersTab";
+import { ConfirmDialog } from "@/app/admin/_components/ConfirmDialog";
 
 type Tab = "dashboard" | "products" | "orders" | "master-data" | "customers" | "audit-log";
 
@@ -337,6 +338,8 @@ function OrdersTab() {
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [expanded, setExpanded] = useState<number | null>(null);
+  // High-impact actions are confirmed in a dialog before being sent.
+  const [confirming, setConfirming] = useState<{ kind: "cancel" | "complete"; order: AdminOrder } | null>(null);
 
   const load = useCallback(() => {
     const params = new URLSearchParams();
@@ -416,6 +419,14 @@ function OrdersTab() {
     await patchStatus(id, "CANCELLED_BY_STAFF");
   }
 
+  async function runConfirmedAction() {
+    if (!confirming) return;
+    const { kind, order } = confirming;
+    setConfirming(null);
+    if (kind === "cancel") await cancelOrder(order.id);
+    else await patchStatus(order.id, "COMPLETED");
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -475,15 +486,28 @@ function OrdersTab() {
             order={o}
             expanded={expanded === o.id}
             onToggle={() => setExpanded(expanded === o.id ? null : o.id)}
-            onPatchStatus={patchStatus}
             onVerify={verifyItems}
             onSendConfirmation={sendForConfirmation}
             onPack={packOrder}
-            onCancel={cancelOrder}
+            onRequestCancel={(order) => setConfirming({ kind: "cancel", order })}
+            onRequestComplete={(order) => setConfirming({ kind: "complete", order })}
           />
         ))}
         {orders.length === 0 && <p className="text-gray-500 text-sm">No orders found.</p>}
       </div>
+      <ConfirmDialog
+        open={confirming !== null}
+        title={confirming?.kind === "cancel" ? "Cancel this order?" : "Complete this order?"}
+        body={
+          confirming?.kind === "cancel"
+            ? `Order ${confirming.order.orderNumber} will be marked Cancelled By Staff.\n\nReserved stock is restored and the customer is notified. This cannot be undone.`
+            : `Order ${confirming?.order.orderNumber ?? ""} will be marked Completed.\n\nThis closes the order permanently.`
+        }
+        confirmLabel={confirming?.kind === "cancel" ? "Cancel Order" : "Complete Order"}
+        danger={confirming?.kind === "cancel"}
+        onConfirm={runConfirmedAction}
+        onCancel={() => setConfirming(null)}
+      />
     </div>
   );
 }
@@ -496,14 +520,14 @@ interface OrderCardProps {
   order: AdminOrder;
   expanded: boolean;
   onToggle: () => void;
-  onPatchStatus: (id: number, status: string) => void;
   onVerify: (orderId: number, items: { itemId: number; itemStatus: string }[], notes: string) => void;
   onSendConfirmation: (id: number) => void;
   onPack: (id: number, action: string, posStatus?: string) => void;
-  onCancel: (id: number) => void;
+  onRequestCancel: (order: AdminOrder) => void;
+  onRequestComplete: (order: AdminOrder) => void;
 }
 
-function OrderCard({ order, expanded, onToggle, onPatchStatus, onVerify, onSendConfirmation, onPack, onCancel }: OrderCardProps) {
+function OrderCard({ order, expanded, onToggle, onVerify, onSendConfirmation, onPack, onRequestCancel, onRequestComplete }: OrderCardProps) {
   const [itemStatusOverrides, setItemStatusOverrides] = useState<Record<number, string>>({});
   const [staffNotes, setStaffNotes] = useState(order.staffNotes || "");
 
@@ -635,7 +659,7 @@ function OrderCard({ order, expanded, onToggle, onPatchStatus, onVerify, onSendC
               )}
               {canComplete && (
                 <button
-                  onClick={() => onPatchStatus(order.id, "COMPLETED")}
+                  onClick={() => onRequestComplete(order)}
                   className="px-3 py-1.5 bg-gray-700 text-white rounded-lg text-xs font-semibold hover:bg-gray-800"
                 >
                   → Complete Order
@@ -643,7 +667,7 @@ function OrderCard({ order, expanded, onToggle, onPatchStatus, onVerify, onSendC
               )}
               {canCancel && (
                 <button
-                  onClick={() => onCancel(order.id)}
+                  onClick={() => onRequestCancel(order)}
                   className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-semibold hover:bg-red-200 ml-2"
                 >
                   Cancel (Staff)
