@@ -31,7 +31,7 @@ module.exports = {
         "on-background": "#111d27", "surface-container-low": "#edf4ff", "primary-container": "#131e29",
         "surface-bright": "#f7f9ff", "surface-dim": "#d0dbea", "inverse-on-surface": "#e8f1ff",
         "on-surface": "#111d27", "on-primary-fixed": "#111d27", "on-primary-container": "#7b8694",
-        "secondary": "#825335", "outline-variant": "#c4c6cc", "tertiary": "#090100",
+        "secondary": "#825335", "secondary-container": "#fdbf99", "outline-variant": "#c4c6cc", "tertiary": "#090100",
         "error": "#ba1a1a", "surface-container-highest": "#d8e4f3", "surface-container-high": "#dee9f9",
         "surface-container": "#e4efff", "surface": "#f7f9ff", "surface-tint": "#545f6c",
         "background": "#f7f9ff", "on-tertiary-container": "#9e7e72", "primary-fixed": "#d8e4f3",
@@ -51,7 +51,7 @@ module.exports = {
         "deep-blue": "#1A3D63", "surface-bg": "#F6FAFD",
       },
       fontFamily: {
-        "headline": ["Manrope"], "display": ["Manrope"], "body": ["Inter"], "label": ["Inter"],
+        "headline": ["Manrope", "sans-serif"], "display": ["Manrope", "sans-serif"], "body": ["Inter", "sans-serif"], "label": ["Inter", "sans-serif"],
         "sans": ["Inter", "sans-serif"],
       },
       borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
