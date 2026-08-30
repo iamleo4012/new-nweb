@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "seed:owner-test-data": "node scripts/seed-owner-test-data.mjs",
     "cleanup:owner-test-data": "node scripts/cleanup-owner-test-data.mjs",
-    "build:css": "tailwindcss -i tailwind.src.css -o public/assets/css/tailwind.css --minify"
+    "build:css": "tailwindcss -i tailwind.src.css -o public/assets/css/tailwind.css"
   },
   "prisma": {
     "seed": "node prisma/seed.mjs"

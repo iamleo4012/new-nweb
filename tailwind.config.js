@@ -52,7 +52,6 @@ module.exports = {
       },
       fontFamily: {
         "headline": ["Manrope", "sans-serif"], "display": ["Manrope", "sans-serif"], "body": ["Inter", "sans-serif"], "label": ["Inter", "sans-serif"],
-        "sans": ["Inter", "sans-serif"],
       },
       borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
     },
