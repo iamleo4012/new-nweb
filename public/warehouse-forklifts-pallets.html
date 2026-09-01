@@ -1523,7 +1523,7 @@
 (function () {
   "use strict";
 
-    var CATEGORY = "Warehouse Equipment";
+    var CATEGORY = "Forklifts & Pallets";
   /* Warehouse forklifts/pallets share ONE DB category with the racking
      family (the legacy forklift.html carried its product set inline;
      those exact products now live in the DB). Split by product type:
@@ -1532,7 +1532,7 @@
   function pageOwnsProduct(p) {
     var n = (p.name || "").toLowerCase();
     if (/rack|racking|shelv|mezzanine/.test(n)) return false;
-    return /forklift|pallet/.test(n);
+    return /forklift|pallet|order picker/.test(n);
   }
   var CART_KEY = "nassim_cart";
   var WISH_KEY = "nassim_wishlist";
