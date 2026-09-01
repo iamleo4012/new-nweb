@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { CustomFieldsSection, type CustomAttributeItem, type CustomFieldValue } from "@/app/admin/_components/CustomFieldsSection";
 import { RelatedProductsPicker } from "@/app/admin/_components/RelatedProductsPicker";
+import { SpecsEditor } from "@/app/admin/_components/SpecsEditor";
 import { ConfirmDialog } from "./ConfirmDialog";
 
 interface MasterItem {
@@ -72,6 +73,8 @@ export function ProductsTab() {
   // becomes immediately available in the Color selection).
   const [showAddColor, setShowAddColor] = useState(false);
   const [newColor, setNewColor] = useState({ name: "", nameAr: "", hex: "#825335" });
+  // Inline error for the Add-Color modal, shown next to the name input.
+  const [colorError, setColorError] = useState("");
   const [addingColor, setAddingColor] = useState(false);
 
   const [f, setF] = useState<Record<string, FormField>>({});
@@ -301,7 +304,23 @@ export function ProductsTab() {
 
   /** Create a new color inline; it is auto-selected on success. */
   async function createColor() {
-    if (!newColor.name.trim()) return;
+    const name = newColor.name.trim();
+    const slug = slugify(name);
+    setColorError("");
+    if (!name) {
+      setColorError("Enter an English name for the color.");
+      return;
+    }
+    if (!slug) {
+      // slugify strips non-latin characters: an Arabic-only name cannot form
+      // a URL slug. Give the admin a clear reason instead of an API 400.
+      setColorError("The English name must contain latin letters or digits — an Arabic-only name cannot form a URL slug. Keep Arabic in the Arabic name field.");
+      return;
+    }
+    if (colors.some((c) => c.slug === slug)) {
+      setColorError(`A color with the slug "${slug}" already exists — it is already in the selection list above.`);
+      return;
+    }
     setAddingColor(true);
     try {
       const res = await fetch("/api/admin/master/colors", {
@@ -309,8 +328,8 @@ export function ProductsTab() {
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
         body: JSON.stringify({
-          slug: slugify(newColor.name.trim()),
-          name: newColor.name.trim(),
+          slug,
+          name,
           nameAr: newColor.nameAr.trim(),
           hex: newColor.hex,
         }),
@@ -324,11 +343,13 @@ export function ProductsTab() {
         if (created?.id) setSelectedColors((prev) => (prev.includes(created.id!) ? prev : [...prev, created.id!]));
         setShowAddColor(false);
         setNewColor({ name: "", nameAr: "", hex: "#825335" });
+      } else if (res.status === 409) {
+        setColorError(`A color with this name already exists (slug "${slug}"). Pick it from the list above, or choose a different name.`);
       } else {
-        setError(data.error || "Could not create color");
+        setColorError(data.error || "Could not create color");
       }
     } catch {
-      setError("Could not create color");
+      setColorError("Network error while creating the color — try again.");
     }
     setAddingColor(false);
   }
@@ -338,13 +359,35 @@ export function ProductsTab() {
   );
 
   const filteredCategories = categories.filter((c) => !f.departmentId || c.departmentId === Number(f.departmentId));
-  const filteredSubcategories = subcategories.filter((s) => s.slug !== undefined && (s as unknown as { categoryId?: number }).categoryId === Number(f.categoryId));
-  // Actually subcategories have categoryId, not departmentId. Let me fix this.
   const subcatsOfCategory = subcategories.filter((s) => (s as unknown as { categoryId?: number }).categoryId === Number(f.categoryId));
 
   const update = (key: string, value: FormField) => {
-    setF((prev) => ({ ...prev, [key]: value }));
-    if (key === "name" && !f.slug) setF((prev) => ({ ...prev, slug: slugify(String(value)) }));
+    setF((prev) => {
+      const next = { ...prev, [key]: value };
+      // Cascade safety: changing the department drops a category/subcategory
+      // that no longer belongs to it (never leaves a stale cross-department
+      // selection in the saved payload), and changing the category drops an
+      // incompatible subcategory.
+      if (key === "departmentId") {
+        const depId = Number(value);
+        const catStillValid = categories.some(
+          (c) => String(c.id) === String(next.categoryId) && (depId === 0 || c.departmentId === depId)
+        );
+        if (!catStillValid) {
+          next.categoryId = "";
+          next.subcategoryId = "";
+        }
+      }
+      if (key === "categoryId") {
+        const subStillValid = subcategories.some(
+          (s) => String(s.id) === String(next.subcategoryId) &&
+            String((s as unknown as { categoryId?: number }).categoryId) === String(value)
+        );
+        if (!subStillValid) next.subcategoryId = "";
+      }
+      if (key === "name" && !prev.slug) next.slug = slugify(String(value));
+      return next;
+    });
   };
 
   const toggleColor = (id: number) => {
@@ -469,15 +512,30 @@ export function ProductsTab() {
     </label>
   );
 
-  const renderSelect = (key: string, label: string, items: MasterItem[], required?: boolean) => (
-    <label key={key} className="text-sm">
-      <span className="block text-gray-600 mb-1">{label}{required ? " *" : ""}</span>
-      <select value={String(f[key] ?? "")} onChange={(e) => update(key, e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 w-full">
-        <option value="">Select…</option>
-        {(items ?? []).map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-      </select>
-    </label>
-  );
+  const renderSelect = (key: string, label: string, items: MasterItem[], required?: boolean) => {
+    const cleanLabel = label.replace(/\s*\*\s*$/, "");
+    const empty = (items ?? []).length === 0;
+    return (
+      <label key={key} className={`text-sm ${empty ? "opacity-80" : ""}`}>
+        <span className="block text-gray-600 mb-1">{label}{required ? " *" : ""}</span>
+        <select
+          value={empty ? "" : String(f[key] ?? "")}
+          onChange={(e) => update(key, e.target.value)}
+          disabled={empty}
+          className={`border rounded-lg px-3 py-2 w-full ${empty ? "border-dashed border-gray-300 bg-gray-50 text-gray-400" : "border-gray-300"}`}
+        >
+          {empty ? (
+            <option value="">No {cleanLabel.toLowerCase()} available yet — add under Master Data</option>
+          ) : (
+            <>
+              <option value="">Select…</option>
+              {items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
+            </>
+          )}
+        </select>
+      </label>
+    );
+  };
 
   const renderBool = (key: string, label: string) => (
     <label key={key} className="text-sm flex items-center gap-2 pt-6">
@@ -545,15 +603,17 @@ export function ProductsTab() {
 
       {showForm && (
         <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 space-y-4">
-          <h3 className="font-semibold text-gray-900 border-b pb-2">Basic Information</h3>
+          {/* ---------------- 1. Basic Information ---------------- */}
+          <h3 className="font-semibold text-gray-900 border-b pb-2">1. Basic Information</h3>
           <div className="grid md:grid-cols-3 gap-3">
             {renderInput("name", "Name *")}
             {renderInput("slug", "Slug *")}
-            {renderInput("sku", "SKU")}
+            {renderInput("sku", "SKU / Product Code")}
+            {renderInput("line", "Model / Product Line")}
             {renderInput("barcode", "Barcode")}
             {renderInput("ndNumber", "ND Number")}
             {renderInput("internalCode", "Internal Item Code")}
-            {renderInput("line", "Product Line")}
+            {renderSelect("brandId", "Brand", brands)}
           </div>
 
           {/* Subcategory-specific custom fields — Main Information area */}
@@ -567,24 +627,13 @@ export function ProductsTab() {
             onError={setError}
           />
 
-          <h3 className="font-semibold text-gray-900 border-b pb-2">Pricing</h3>
-          <div className="grid md:grid-cols-4 gap-3">
-            {renderInput("price", "Selling Price (KD)", "number", { step: "0.001" })}
-            {renderInput("costPrice", "Cost Price (KD)", "number", { step: "0.001" })}
-            {renderInput("discount", "Discount (KD)", "number", { step: "0.001" })}
-          </div>
-
-          <h3 className="font-semibold text-gray-900 border-b pb-2">Categories &amp; Relations</h3>
+          {/* ---------------- 2. Classification ---------------- */}
+          <h3 className="font-semibold text-gray-900 border-b pb-2">2. Classification</h3>
+          <p className="text-xs text-gray-400 -mt-2">Where the product appears on the storefront. Department narrows the Category list; Category narrows the Subcategory list.</p>
           <div className="grid md:grid-cols-3 gap-3">
             {renderSelect("departmentId", "Department", departments)}
             {renderSelect("categoryId", "Category *", filteredCategories)}
             {renderSelect("subcategoryId", "Subcategory", subcatsOfCategory)}
-            {renderSelect("brandId", "Brand", brands)}
-            {renderSelect("materialId", "Material", materials)}
-            {renderSelect("supplierId", "Supplier", suppliers)}
-            {renderSelect("unitId", "Unit", units)}
-            {renderSelect("countryId", "Country", countries)}
-            {renderSelect("taxId", "Tax", taxes)}
           </div>
 
           {/* Manually selected related products */}
@@ -598,28 +647,8 @@ export function ProductsTab() {
             />
           </div>
 
-          <h3 className="font-semibold text-gray-900 border-b pb-2">Colors &amp; Sizes</h3>
-          <div className="grid md:grid-cols-2 gap-3">
-            {renderMultiSelect("Colors", colors, selectedColors, toggleColor, () => setShowAddColor(true))}
-            {renderMultiSelect("Sizes", sizes, selectedSizes, toggleSize)}
-          </div>
-
-          <h3 className="font-semibold text-gray-900 border-b pb-2">Stock &amp; Inventory</h3>
-          <div className="grid md:grid-cols-3 gap-3">
-            {renderInput("stock", "Stock Quantity", "number")}
-            {renderInput("minStock", "Minimum Stock", "number")}
-          </div>
-
-          <h3 className="font-semibold text-gray-900 border-b pb-2">Dimensions &amp; Weight</h3>
-          <div className="grid md:grid-cols-4 gap-3">
-            {renderInput("weight", "Weight (kg)", "number", { step: "0.001" })}
-            {renderInput("length", "Length (cm)", "number", { step: "0.1" })}
-            {renderInput("width", "Width (cm)", "number", { step: "0.1" })}
-            {renderInput("height", "Height (cm)", "number", { step: "0.1" })}
-            {renderInput("warranty", "Warranty")}
-          </div>
-
-          <h3 className="font-semibold text-gray-900 border-b pb-2">Descriptions</h3>
+          {/* ---------------- 3. Descriptions ---------------- */}
+          <h3 className="font-semibold text-gray-900 border-b pb-2">3. Descriptions</h3>
           <div className="grid md:grid-cols-1 gap-3">
             {renderInput("description", "Short Description", "textarea", { span: true })}
             {renderInput("longDescription", "Long Description", "textarea", { span: true })}
@@ -636,11 +665,43 @@ export function ProductsTab() {
             onError={setError}
           />
 
-          <h3 className="font-semibold text-gray-900 border-b pb-2">Specifications</h3>
+          {/* ---------------- 4. Product Details ---------------- */}
+          <h3 className="font-semibold text-gray-900 border-b pb-2">4. Product Details</h3>
+          <div className="grid md:grid-cols-2 gap-3">
+            {renderMultiSelect("Colors", colors, selectedColors, toggleColor, () => setShowAddColor(true))}
+            {renderMultiSelect("Sizes", sizes, selectedSizes, toggleSize)}
+          </div>
+          <div className="grid md:grid-cols-4 gap-3">
+            {renderInput("weight", "Weight (kg)", "number", { step: "0.001" })}
+            {renderInput("length", "Length (cm)", "number", { step: "0.1" })}
+            {renderInput("width", "Width (cm)", "number", { step: "0.1" })}
+            {renderInput("height", "Height (cm)", "number", { step: "0.1" })}
+            {renderInput("warranty", "Warranty")}
+          </div>
+          <div className="grid md:grid-cols-3 gap-3">
+            {renderSelect("materialId", "Material", materials)}
+            {renderSelect("supplierId", "Supplier", suppliers)}
+            {renderSelect("unitId", "Unit", units)}
+            {renderSelect("countryId", "Country", countries)}
+            {renderSelect("taxId", "Tax", taxes)}
+          </div>
+
+          {/* ---------------- 5. Pricing & Inventory ---------------- */}
+          <h3 className="font-semibold text-gray-900 border-b pb-2">5. Pricing &amp; Inventory</h3>
+          <div className="grid md:grid-cols-3 gap-3">
+            {renderInput("price", "Selling Price (KD)", "number", { step: "0.001" })}
+            {renderInput("costPrice", "Cost Price (KD)", "number", { step: "0.001" })}
+            {renderInput("discount", "Discount (KD)", "number", { step: "0.001" })}
+            {renderInput("stock", "Stock Quantity", "number")}
+            {renderInput("minStock", "Minimum Stock", "number")}
+          </div>
+
+          {/* ---------------- 6. Specifications ---------------- */}
+          <h3 className="font-semibold text-gray-900 border-b pb-2">6. Specifications</h3>
+          <SpecsEditor value={String(f.specs ?? "[]")} onChange={(v) => update("specs", v)} />
           <div className="grid md:grid-cols-1 gap-3">
             {renderInput("applications", "Applications", "textarea", { span: true })}
             {renderInput("additionalInfo", "Additional Information", "textarea", { span: true })}
-            {renderInput("specs", "Specifications (JSON)", "textarea", { span: true })}
           </div>
 
           {/* Subcategory-specific custom fields — Specifications area */}
@@ -654,7 +715,7 @@ export function ProductsTab() {
             onError={setError}
           />
 
-          <h3 className="font-semibold text-gray-900 border-b pb-2">Media Library</h3>
+          <h3 className="font-semibold text-gray-900 border-b pb-2">7. Media</h3>
           <div
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
@@ -771,10 +832,13 @@ export function ProductsTab() {
                 <input
                   autoFocus
                   value={newColor.name}
-                  onChange={(e) => setNewColor((c) => ({ ...c, name: e.target.value }))}
+                  onChange={(e) => { setNewColor((c) => ({ ...c, name: e.target.value })); setColorError(""); }}
                   placeholder="e.g. Dark Grey"
                   className="border border-gray-300 rounded-lg px-3 py-2 w-full"
                 />
+                <span className={`block mt-1 font-mono text-[11px] ${slugify(newColor.name.trim()) ? "text-gray-400" : "text-gray-300"}`}>
+                  slug: {slugify(newColor.name.trim()) || "—"}
+                </span>
               </label>
               <label className="block text-sm">
                 <span className="block text-gray-600 mb-1">الاسم — عربي</span>
@@ -801,6 +865,9 @@ export function ProductsTab() {
                 className="border border-gray-300 rounded-lg px-3 py-2 w-28"
               />
             </label>
+            {colorError && (
+              <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{colorError}</p>
+            )}
             <div className="flex justify-end gap-2 pt-1">
               <button type="button" disabled={addingColor} onClick={() => setShowAddColor(false)}
                 className="px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 text-gray-600 hover:bg-gray-100">
