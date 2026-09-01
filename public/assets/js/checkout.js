@@ -228,7 +228,7 @@
             errEl.textContent = msg;
             errEl.classList.remove("hidden");
             try { errEl.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
-          } else { alert(msg); }
+          } else { showToastFallback(msg, "error"); }
           if (fieldEl) {
             fieldEl.classList.add("ring-2", "ring-red-500", "border-red-500");
             try { fieldEl.focus(); } catch (e2) {}
@@ -237,6 +237,27 @@
               fieldEl.removeEventListener("input", clearMark);
             });
           }
+        }
+        // Fallback notification when the #checkout-error banner is absent:
+        // a self-contained, auto-dismissing toast (inline styles — never a
+        // native alert(), whose dialog text exposes the server host).
+        function showToastFallback(msg, type) {
+          var existing = document.getElementById("checkout-toast-fallback");
+          if (existing) existing.remove();
+          var toast = document.createElement("div");
+          toast.id = "checkout-toast-fallback";
+          toast.setAttribute("role", type === "error" ? "alert" : "status");
+          toast.textContent = msg;
+          toast.style.cssText =
+            "position:fixed;top:1.25rem;left:50%;transform:translateX(-50%);z-index:120;" +
+            "max-width:min(92vw,26rem);background:#111d27;color:#fff;border:1px solid rgba(248,113,113,.4);" +
+            "padding:.75rem 1rem;border-radius:.75rem;font-size:.8125rem;line-height:1.45;font-weight:500;" +
+            "box-shadow:0 12px 40px rgba(0,3,8,.25);transition:opacity .35s ease;";
+          document.body.appendChild(toast);
+          setTimeout(function () {
+            toast.style.opacity = "0";
+            setTimeout(function () { if (toast.parentNode) toast.remove(); }, 380);
+          }, 6500);
         }
         function showSuccess(orderNumber, orderId, accessToken, replay) {
           var trackHref = accessToken

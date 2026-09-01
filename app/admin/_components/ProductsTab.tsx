@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { CustomFieldsSection, type CustomAttributeItem, type CustomFieldValue } from "@/app/admin/_components/CustomFieldsSection";
 import { RelatedProductsPicker } from "@/app/admin/_components/RelatedProductsPicker";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 interface MasterItem {
   id: number;
@@ -66,6 +67,7 @@ export function ProductsTab() {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<ProductItem | null>(null);
   // Inline "+ Add New Color" modal (created straight from the product form —
   // becomes immediately available in the Color selection).
   const [showAddColor, setShowAddColor] = useState(false);
@@ -445,7 +447,7 @@ export function ProductsTab() {
   }
 
   async function deleteProduct(p: ProductItem) {
-    if (!confirm(`Delete "${p.name}"? This will hide it from the storefront.`)) return;
+    setPendingDelete(null);
     const res = await fetch(`/api/admin/products?id=${p.id}`, { method: "DELETE", credentials: "same-origin" });
     const data = await res.json();
     if (data.success) {
@@ -519,6 +521,16 @@ export function ProductsTab() {
 
   return (
     <div className="space-y-4">
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={pendingDelete ? `Delete "${pendingDelete.name}"?` : "Delete product?"}
+        body="This will hide the product from the storefront."
+        confirmLabel="Delete"
+        cancelLabel="Keep it"
+        danger
+        onConfirm={() => pendingDelete && deleteProduct(pendingDelete)}
+        onCancel={() => setPendingDelete(null)}
+      />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name, slug, SKU…" className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-64" />
         <button onClick={() => { setShowForm((v) => !v); if (!showForm) resetForm(); }} className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold">
@@ -731,7 +743,7 @@ export function ProductsTab() {
                 </td>
                 <td className="px-4 py-2 text-right whitespace-nowrap">
                   <button onClick={() => openEdit(p)} className="text-blue-600 hover:text-blue-800 text-xs font-semibold mr-3">Edit</button>
-                  <button onClick={() => deleteProduct(p)} className="text-red-600 hover:text-red-800 text-xs font-semibold">Delete</button>
+                  <button onClick={() => setPendingDelete(p)} className="text-red-600 hover:text-red-800 text-xs font-semibold">Delete</button>
                 </td>
               </tr>
             ))}

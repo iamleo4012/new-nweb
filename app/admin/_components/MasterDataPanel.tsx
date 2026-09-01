@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 type SimpleEntityKey =
   | "brands"
@@ -64,6 +65,7 @@ export function MasterDataPanel({ entity }: { entity: EntityKey }) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<Item | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Item | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Record<string, unknown>>({});
 
@@ -174,7 +176,7 @@ export function MasterDataPanel({ entity }: { entity: EntityKey }) {
   }
 
   async function del(item: Item) {
-    if (!confirm(`Delete "${item.name}"?`)) return;
+    setPendingDelete(null);
     setError("");
     setMessage("");
     const res = await fetch(`${baseUrl}?id=${item.id}`, { method: "DELETE", credentials: "same-origin" });
@@ -207,6 +209,16 @@ export function MasterDataPanel({ entity }: { entity: EntityKey }) {
 
   return (
     <div className="space-y-4">
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={`Delete ${pendingDelete ? `"${pendingDelete.name}"` : labelOf(entity)}?`}
+        body="This permanently removes the entry. Products referencing it may lose this attribute."
+        confirmLabel="Delete"
+        cancelLabel="Keep it"
+        danger
+        onConfirm={() => pendingDelete && del(pendingDelete)}
+        onCancel={() => setPendingDelete(null)}
+      />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <input
           value={query}
@@ -353,7 +365,7 @@ export function MasterDataPanel({ entity }: { entity: EntityKey }) {
                     Edit
                   </button>
                   <button
-                    onClick={() => del(item)}
+                    onClick={() => setPendingDelete(item)}
                     className="px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-800 hover:bg-red-200"
                   >
                     Delete

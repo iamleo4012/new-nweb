@@ -27,6 +27,48 @@
 .timeline-dot { position: absolute; left: 3px; top: 4px; width: 12px; height: 12px; border-radius: 50%; }
 @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .toast-animate { animation: slideUp 0.3s ease-out forwards; }
+
+        /* ===== In-app notifications & confirmation dialog =====================
+           Replaces the native alert()/confirm() that rendered as
+           "192.168.x.x says Order confirmed!". Plain CSS on purpose: the
+           storefront uses a compiled Tailwind build, so classes that only
+           exist inside JS strings could be missing from it — these styles
+           work regardless of the compiled CSS and follow the site palette.
+           ======================================================================= */
+        #toast-container { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+        .app-toast {
+            pointer-events: auto; display: flex; align-items: flex-start; gap: 0.625rem;
+            max-width: min(92vw, 26rem); background: #111d27; color: #ffffff;
+            padding: 0.75rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 12px 40px rgba(0, 3, 8, 0.25); font-size: 0.8125rem; line-height: 1.45; font-weight: 500;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        .app-toast .app-toast-icon { font-size: 1.15rem; line-height: 1.25; flex-shrink: 0; }
+        .app-toast .app-toast-msg { flex: 1; overflow-wrap: anywhere; }
+        .app-toast .app-toast-close { background: none; border: 0; color: inherit; opacity: 0.6; cursor: pointer; font-size: 1.05rem; line-height: 1; padding: 0 0 0 0.25rem; flex-shrink: 0; }
+        .app-toast .app-toast-close:hover { opacity: 1; }
+        .app-toast--success .app-toast-icon { color: #34d399; }
+        .app-toast--error .app-toast-icon { color: #f87171; }
+        .app-toast--info .app-toast-icon { color: #93c5fd; }
+        .app-toast--leaving { opacity: 0; transform: translateY(-12px); }
+
+        .app-modal-overlay { position: fixed; inset: 0; z-index: 110; background: rgba(0, 3, 8, 0.55); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .app-modal { background: #f7f9ff; color: #111d27; border-radius: 0.75rem; box-shadow: 0 24px 80px rgba(0, 3, 8, 0.35); max-width: 26rem; width: 100%; padding: 1.5rem; }
+        .dark .app-modal { background: #131e29; color: #ffffff; }
+        .app-modal h3 { font-family: "Manrope", sans-serif; font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em; }
+        .app-modal p { margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.55; color: #44474b; }
+        .dark .app-modal p { color: rgba(255, 255, 255, 0.72); }
+        .app-modal-actions { display: flex; justify-content: flex-end; gap: 0.625rem; margin-top: 1.35rem; }
+        .app-modal-btn { padding: 0.65rem 1.25rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.8125rem; cursor: pointer; border: 0; font-family: inherit; transition: background 0.2s ease; }
+        .app-modal-btn--safe { background: transparent; border: 1px solid rgba(0, 3, 8, 0.2); color: inherit; }
+        .app-modal-btn--safe:hover { background: rgba(0, 3, 8, 0.05); }
+        .dark .app-modal-btn--safe { border-color: rgba(255, 255, 255, 0.25); }
+        .dark .app-modal-btn--safe:hover { background: rgba(255, 255, 255, 0.08); }
+        .app-modal-btn--danger { background: #ba1a1a; color: #ffffff; }
+        .app-modal-btn--danger:hover { background: #a11515; }
+        .app-modal-btn--solid { background: #111d27; color: #ffffff; }
+        .app-modal-btn--solid:hover { background: #825335; }
+        .dark .app-modal-btn--solid { background: #825335; }
         /* MOBILE BREADCRUMB HIDE (≤767px) */
         @media (max-width: 767px) {
             #order-detail-root > nav { display: none !important; margin: 0 !important; padding: 0 !important; height: 0 !important; }
@@ -382,25 +424,100 @@
     root.innerHTML = html;
   }
 
-  window.confirmOrder = function(orderId, action) {
-    if (action === 'cancel' && !confirm('Are you sure you want to cancel this order?')) return;
-    var confirmUrl = '/api/orders/' + orderId + '/confirm' + (ORDER_TOKEN ? '?token=' + encodeURIComponent(ORDER_TOKEN) : '');
-    fetch(confirmUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify({ action: action })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.success) {
-        alert(action === 'confirm' ? 'Order confirmed!' : 'Order cancelled.');
-        loadOrder();
-      } else {
-        alert(data.error || 'Action failed');
+  /* ===== In-app notification (replaces native alert) =====================
+     Typed toasts in the page's existing #toast-container: auto-dismiss
+     (errors linger longer so they can be read), close button, and ARIA
+     roles (role=alert for errors, role=status otherwise). Never exposes
+     the browser-native "<host> says …" dialog. */
+  function showNotification(message, type) {
+    type = type || 'info';
+    var container = document.getElementById('toast-container');
+    if (!container) return;
+    var icons = { success: 'check_circle', error: 'error', info: 'info' };
+    var toast = document.createElement('div');
+    toast.className = 'app-toast toast-animate app-toast--' + type;
+    toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+    toast.innerHTML =
+      '<span class="material-symbols-outlined app-toast-icon" aria-hidden="true">' + (icons[type] || icons.info) + '</span>' +
+      '<span class="app-toast-msg">' + esc(message) + '</span>' +
+      '<button type="button" class="app-toast-close" aria-label="Dismiss notification">&times;</button>';
+    container.appendChild(toast);
+    var gone = false;
+    function dismiss() {
+      if (gone) return;
+      gone = true;
+      toast.classList.add('app-toast--leaving');
+      setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 380);
+    }
+    toast.querySelector('.app-toast-close').addEventListener('click', dismiss);
+    setTimeout(dismiss, type === 'error' ? 6500 : 4000);
+  }
+
+  /* ===== In-app confirmation dialog (replaces native confirm) =============
+     Promise-based modal for destructive actions. The SAFE action receives
+     initial focus; the destructive one is a deliberate second move. Escape
+     and backdrop clicks resolve to "no". */
+  function confirmDialog(opts) {
+    return new Promise(function (resolve) {
+      var prev = document.getElementById('app-confirm-modal');
+      if (prev) prev.remove();
+      var overlay = document.createElement('div');
+      overlay.className = 'app-modal-overlay';
+      overlay.id = 'app-confirm-modal';
+      overlay.innerHTML =
+        '<div class="app-modal" role="dialog" aria-modal="true" aria-labelledby="app-confirm-title">' +
+        '<h3 id="app-confirm-title">' + esc(opts.title || 'Are you sure?') + '</h3>' +
+        '<p>' + esc(opts.body || '') + '</p>' +
+        '<div class="app-modal-actions">' +
+        '<button type="button" class="app-modal-btn app-modal-btn--safe" data-act="no">' + esc(opts.cancelLabel || 'Keep it') + '</button>' +
+        '<button type="button" class="app-modal-btn ' + (opts.danger ? 'app-modal-btn--danger' : 'app-modal-btn--solid') + '" data-act="yes">' + esc(opts.confirmLabel || 'Confirm') + '</button>' +
+        '</div></div>';
+      document.body.appendChild(overlay);
+      function close(result) {
+        document.removeEventListener('keydown', onKey);
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        resolve(result);
       }
-    })
-    .catch(function() { alert('Network error'); });
+      function onKey(e) { if (e.key === 'Escape') close(false); }
+      document.addEventListener('keydown', onKey);
+      overlay.querySelector('[data-act="no"]').addEventListener('click', function () { close(false); });
+      overlay.querySelector('[data-act="yes"]').addEventListener('click', function () { close(true); });
+      overlay.addEventListener('click', function (e) { if (e.target === overlay) close(false); });
+      overlay.querySelector('[data-act="no"]').focus();
+    });
+  }
+
+  window.confirmOrder = function (orderId, action) {
+    var proceed = Promise.resolve(true);
+    if (action === 'cancel') {
+      proceed = confirmDialog({
+        title: 'Cancel this order?',
+        body: 'Cancelling stops this order completely. Reserved items are returned to stock. This cannot be undone.',
+        confirmLabel: 'Yes, cancel order',
+        cancelLabel: 'Keep order',
+        danger: true
+      });
+    }
+    proceed.then(function (ok) {
+      if (!ok) return;
+      var confirmUrl = '/api/orders/' + orderId + '/confirm' + (ORDER_TOKEN ? '?token=' + encodeURIComponent(ORDER_TOKEN) : '');
+      fetch(confirmUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ action: action })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          showNotification(action === 'confirm' ? 'Order confirmed successfully.' : 'Order cancelled successfully.', 'success');
+          loadOrder();
+        } else {
+          showNotification(data.error || 'Action failed. Please try again.', 'error');
+        }
+      })
+      .catch(function() { showNotification('Network error. Please check your connection and try again.', 'error'); });
+    });
   };
 
   loadOrder();
