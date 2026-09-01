@@ -50,8 +50,15 @@ export async function GET() {
     // "Most Ordered Products" uses the same billable definition as the owner
     // analytics (lib/analytics.ts): items from cancelled orders and items
     // removed after confirmation are excluded, so staff sees real demand.
+    // Grouped by SLUG ONLY: the OrderItem name is a display snapshot taken at
+    // order time, and one product can legitimately appear under more than one
+    // historical name (renames, or the TEST_OWNER_ANALYTICS-prefixed analytics
+    // fixtures). Grouping by (slug, name) split such products into several
+    // rows — duplicating the slug in the response and colliding React keys on
+    // the dashboard. Display names are resolved after the query from the live
+    // Product row, falling back to the latest snapshot for retired products.
     prisma.orderItem.groupBy({
-      by: ["slug", "name"],
+      by: ["slug"],
       _sum: { quantity: true },
       where: {
         itemStatus: { notIn: ["REMOVED_AFTER_CONFIRMATION"] },
@@ -85,8 +92,35 @@ export async function GET() {
       },
       ordersByStatus: statusGroups.map((g) => ({ status: g.status, count: g._count._all })),
       recentOrders: recentOrders.map((o) => ({ ...o, total: Number(o.total) })),
-      topProducts: topItems.map((t) => ({ slug: t.slug, name: t.name, sold: t._sum.quantity ?? 0 })),
+      topProducts: await resolveTopProductNames(topItems),
     },
     error: null,
   });
+}
+
+/**
+ * Map grouped (slug -> sold) rows to display names. Prefers the CURRENT
+ * Product.name so renames are reflected; for slugs no longer in the catalog
+ * (product deactivated/retired) falls back to the most recent OrderItem
+ * snapshot name. Always exactly one row per slug.
+ */
+async function resolveTopProductNames(
+  topItems: Array<{ slug: string; _sum: { quantity: number | null } }>
+): Promise<Array<{ slug: string; name: string; sold: number }>> {
+  const slugs = topItems.map((t) => t.slug);
+  if (slugs.length === 0) return [];
+  const [products, fallbacks] = await Promise.all([
+    prisma.product.findMany({ where: { slug: { in: slugs } }, select: { slug: true, name: true } }),
+    // distinct-on-slug latest snapshot for any slug missing from Product
+    prisma.orderItem.findMany({
+      where: { slug: { in: slugs } },
+      orderBy: { id: "desc" },
+      distinct: ["slug"],
+      select: { slug: true, name: true },
+    }),
+  ]);
+  const names = new Map<string, string>();
+  for (const f of fallbacks) names.set(f.slug, f.name); // fallback layer
+  for (const p of products) names.set(p.slug, p.name); // live name wins
+  return topItems.map((t) => ({ slug: t.slug, name: names.get(t.slug) ?? t.slug, sold: t._sum.quantity ?? 0 }));
 }
