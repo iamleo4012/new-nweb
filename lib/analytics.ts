@@ -7,8 +7,12 @@
  *
  *   revenue = SUM(OrderItem.price * OrderItem.quantity)
  *   - EXCLUDING items whose itemStatus is REMOVED_AFTER_CONFIRMATION
- *     (the same NON_BILLABLE_STATUSES rule as calculateBillableTotals() in
- *     lib/order-workflow.ts — reused, not reinterpreted), and
+ *     (a subset of NON_BILLABLE_STATUSES from lib/order-workflow.ts: the
+ *     order APIs additionally exclude UNAVAILABLE items so the customer's
+ *     CURRENT/estimated total reflects only available goods; analytics
+ *     deliberately still counts UNAVAILABLE items as demand until the
+ *     removal is finalized at customer confirmation, when the item becomes
+ *     REMOVED_AFTER_CONFIRMATION and drops out here too), and
  *   - EXCLUDING orders in a terminal CANCELLED_* state (their items were
  *     never sold; cancelled order counts are reported separately).
  *
@@ -23,7 +27,13 @@ import { prisma } from "@/lib/db";
 /* Exclusion rules — mirror lib/order-workflow.ts                      */
 /* ------------------------------------------------------------------ */
 
-/** Same set as NON_BILLABLE_STATUSES in lib/order-workflow.ts. */
+/**
+ * Item statuses excluded from analytics revenue. DELIBERATELY narrower than
+ * NON_BILLABLE_STATUSES in lib/order-workflow.ts (which also excludes
+ * UNAVAILABLE): analytics counts UNAVAILABLE items as demand until the
+ * customer's confirmation finalizes their removal. Do not "sync" this to the
+ * billable set without a deliberate business decision.
+ */
 export const ANALYTICS_EXCLUDED_ITEM_STATUSES = ["REMOVED_AFTER_CONFIRMATION"] as const;
 /** Terminal cancellation states — excluded from revenue, counted separately. */
 export const ANALYTICS_CANCELLED_ORDER_STATUSES = ["CANCELLED_BY_CUSTOMER", "CANCELLED_BY_STAFF"] as const;

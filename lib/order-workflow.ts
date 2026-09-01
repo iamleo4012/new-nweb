@@ -40,9 +40,20 @@ export const ITEM_STATUSES = [
 
 /**
  * Item statuses that should be EXCLUDED from the billable subtotal.
- * These items are not delivered and should not be charged.
+ *
+ *   REMOVED_AFTER_CONFIRMATION — removed for good (post-confirmation).
+ *   UNAVAILABLE — staff verified the item cannot be supplied. While the
+ *                 order awaits the customer's confirmation it must not
+ *                 contribute to the displayed current/estimated subtotal
+ *                 or total; on customer confirmation it becomes
+ *                 REMOVED_AFTER_CONFIRMATION (see the confirm route).
+ *
+ * The stored Order.subtotal/shipping/total keep the original checkout-time
+ * amounts for audit — this set only governs the calculated CURRENT amounts
+ * surfaced by the order APIs (customer + admin).
  */
 const NON_BILLABLE_STATUSES = new Set<string>([
+  "UNAVAILABLE",
   "REMOVED_AFTER_CONFIRMATION",
 ]);
 
