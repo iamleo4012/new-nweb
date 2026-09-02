@@ -9,6 +9,7 @@ export async function GET() {
     where: { isActive: true },
     include: {
       category: true,
+      subcategory: { select: { slug: true, name: true } },
       colors: { include: { color: { select: { name: true } } } },
       ...customFieldsInclude,
     },
@@ -50,6 +51,10 @@ export async function GET() {
     // Each entry carries the sibling product's public slug + a short label —
     // NEVER the internal classCode. Empty array = independent product.
     variantOptions: variantMap.get(p.slug) ?? [],
+    // Subcategory slug from the DB relation (Product → subcategoryId →
+    // Subcategory). Used by the storefront's subcategory filter buttons —
+    // real DB linkage, not name-based guessing. null = no subcategory.
+    subcategorySlug: p.subcategory?.slug ?? null,
     // Additive PIM fields: admin-defined custom info + admin-selected related
     // products. Consumers that ignore them keep working unchanged.
     ...customFieldsPayload(p, i18n),
