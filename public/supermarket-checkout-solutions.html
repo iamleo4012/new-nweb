@@ -1764,8 +1764,51 @@
      #price-max) that live in the <aside> sidebar / mobile drawer, applies
      sorting + price filtering to allProducts, and re-renders the grid.
      ======================================================================== */
-  function applyFiltersAndSort() {
+  
+  /* ===== Subcategory filter (integrated into the rendering pipeline) =====
+     Runs BEFORE sort/price/pagination so the page count and pagination
+     operate on the correctly filtered dataset. Uses the subcategorySlug
+     from /api/catalog (the Product → subcategoryId → Subcategory DB path).
+     Button wiring is at the bottom of this IIFE. */
+  var activeSubcategory = null;
+  function subcatSlugFromName(name) {
+    return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  }
+  function wireSubcategoryButtons() {
+    var btns = document.querySelectorAll(".subcat-tabs .category-btn, .subcat-cat-chip");
+    btns.forEach(function (btn) {
+      if (btn.dataset.subcatWired) return;
+      btn.dataset.subcatWired = "1";
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var text = btn.textContent.replace(/check$/, "").trim();
+        if (/^All/i.test(text)) {
+          activeSubcategory = null;
+        } else {
+          activeSubcategory = subcatSlugFromName(text);
+        }
+        // Update active state on all buttons
+        btns.forEach(function (b) {
+          var t = b.textContent.replace(/check$/, "").trim();
+          var isAll = /^All/i.test(t);
+          b.classList.toggle("is-active", activeSubcategory === null ? isAll : b === btn);
+        });
+        applyFiltersAndSort();
+      });
+    });
+  }
+
+function applyFiltersAndSort() {
     var filteredProducts = allProducts.slice();
+
+    /* --- Subcategory filter (before sort/price/pagination) --- */
+    if (activeSubcategory) {
+      filteredProducts = filteredProducts.filter(function (p) {
+        return p.subcategorySlug === activeSubcategory;
+      });
+    }
+
 
     /* --- Sort --- */
     var sortCheckboxes = document.querySelectorAll('.filter-radio[name="sorting"]');
@@ -1986,6 +2029,18 @@
   function boot() {
     initFilterHandlers();
     loadAndRender();
+
+    // Wire subcategory filter buttons (source + mobile drawer clones)
+    wireSubcategoryButtons();
+    // Re-wire when the mobile drawer clones buttons later
+    if (window.MutationObserver) {
+      var sidebar = document.querySelector(".subcat-sidebar");
+      if (sidebar) {
+        new MutationObserver(function () { wireSubcategoryButtons(); })
+          .observe(sidebar, { childList: true, subtree: true });
+      }
+    }
+
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);
@@ -2329,7 +2384,6 @@
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js" defer></script>
 <script src="assets/js/mobile-nav.js" defer></script>
-<script src="assets/js/subcategory-filter.js" defer></script>
 <!-- Dropdown hover show/hide (from home.html) -->
 <script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script>
 
