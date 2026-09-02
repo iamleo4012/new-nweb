@@ -97,7 +97,7 @@ export function ProductsTab() {
       slug: "", name: "", description: "", longDescription: "",
       price: "0", costPrice: "0", discount: "0",
       stock: "0", minStock: "10",
-      image: "", line: "", sku: "", barcode: "", ndNumber: "", internalCode: "",
+      image: "", line: "", sku: "", barcode: "", ndNumber: "", internalCode: "", classCode: "",
       specs: "[]",
       applications: "", additionalInfo: "",
       seoTitle: "", seoDescription: "",
@@ -128,7 +128,7 @@ export function ProductsTab() {
       slug: p.slug, name: p.name, description: "", longDescription: "",
       price: String(p.price), costPrice: "0", discount: "0",
       stock: String(p.stock), minStock: "10",
-      image: p.image, line: "", sku: p.sku, barcode: "", ndNumber: "", internalCode: "",
+      image: p.image, line: "", sku: p.sku, barcode: "", ndNumber: "", internalCode: "", classCode: (p as { classCode?: string }).classCode ?? "",
       specs: "[]",
       applications: "", additionalInfo: "",
       seoTitle: "", seoDescription: "",
@@ -161,7 +161,7 @@ export function ProductsTab() {
         price: String(full.price), costPrice: String(full.costPrice), discount: String(full.discount),
         stock: String(full.stock), minStock: String(full.minStock),
         image: full.image ?? "", line: full.line ?? "", sku: full.sku ?? "",
-        barcode: full.barcode ?? "", ndNumber: full.ndNumber ?? "", internalCode: full.internalCode ?? "",
+        barcode: full.barcode ?? "", ndNumber: full.ndNumber ?? "", internalCode: full.internalCode ?? "", classCode: full.classCode ?? "",
         specs: typeof full.specs === "string" ? full.specs : JSON.stringify(full.specs ?? []),
         applications: full.applications ?? "", additionalInfo: full.additionalInfo ?? "",
         seoTitle: full.seoTitle ?? "", seoDescription: full.seoDescription ?? "",
@@ -429,7 +429,7 @@ export function ProductsTab() {
       sku: f.sku,
       barcode: f.barcode,
       ndNumber: f.ndNumber,
-      internalCode: f.internalCode,
+      internalCode: f.internalCode, classCode: f.classCode,
       specs: f.specs || "[]",
       applications: f.applications,
       additionalInfo: f.additionalInfo,
@@ -634,6 +634,21 @@ export function ProductsTab() {
             {renderSelect("departmentId", "Department", departments)}
             {renderSelect("categoryId", "Category *", filteredCategories)}
             {renderSelect("subcategoryId", "Subcategory", subcatsOfCategory)}
+          </div>
+          <div className="grid md:grid-cols-3 gap-3">
+            <label className="text-sm">
+              <span className="block text-gray-600 mb-1">Product Class (Internal)</span>
+              <input
+                type="text"
+                value={String(f.classCode ?? "")}
+                onChange={(e) => update("classCode", e.target.value)}
+                placeholder="e.g. ZC-13 (optional)"
+                className="border border-gray-300 rounded-lg px-3 py-2 w-full font-mono"
+              />
+              <span className="block mt-1 text-xs text-gray-400 leading-snug">
+                Products with the same Class belong to the same customer-facing product family (e.g. same basket in Red/Blue/Black). Internal only — customers never see this code. Leave empty if the product is independent.
+              </span>
+            </label>
           </div>
 
           {/* Manually selected related products */}

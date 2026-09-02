@@ -361,6 +361,11 @@ model Product {
   barcode        String      @default("")
   ndNumber       String      @default("")
   internalCode   String      @default("")
+  /// Internal grouping code (e.g. ZC-13, KN-100). Products sharing a class
+  /// form a variant/related group for future storefront grouping. STRICTLY
+  /// INTERNAL: never exposed in public catalog/detail responses. Empty =
+  /// the product is independent (no linked variants).
+  classCode      String      @default("")
   specs          Json        @default("[]")
   applications   String      @default("")
   additionalInfo String      @default("")

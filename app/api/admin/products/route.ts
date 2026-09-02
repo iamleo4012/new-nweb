@@ -31,6 +31,9 @@ const sharedFields = {
   barcode: z.string().max(200),
   ndNumber: z.string().max(100),
   internalCode: z.string().max(100),
+  // Internal grouping code (e.g. ZC-13). STRICTLY INTERNAL — never exposed
+  // in public catalog/detail/search responses. Empty = independent product.
+  classCode: z.string().trim().max(60).optional().default(""),
   specs: z.string().max(20000),
   applications: z.string().max(8000),
   additionalInfo: z.string().max(8000),
@@ -204,6 +207,7 @@ function serializeBase(p: FullProduct, customAttributes: unknown) {
     barcode: p.barcode,
     ndNumber: p.ndNumber,
     internalCode: p.internalCode,
+    classCode: p.classCode,
     specs: typeof p.specs === "string" ? p.specs : JSON.stringify(p.specs),
     applications: p.applications,
     additionalInfo: p.additionalInfo,
