@@ -206,6 +206,11 @@
      physical-store ERP inventory). Populated by loadProduct(); stays hidden
      when the catalog entry carries no stock information. -->
 <div class="hidden items-center gap-2 mb-6 text-xs font-bold uppercase tracking-widest" id="product-availability"></div>
+<!-- Variant selector (populated by loadProduct() from variantOptions) -->
+<div class="hidden mb-8" id="variant-selector">
+<h3 class="text-[10px] font-bold uppercase tracking-widest text-secondary mb-3">Available Options</h3>
+<div class="flex flex-wrap gap-2" id="variant-pills"></div>
+</div>
 <p class="text-on-surface-variant dark:text-white/70 leading-relaxed text-sm mb-10 max-w-md" id="product-desc"></p>
 <div class="space-y-4">
 <div class="flex gap-4">
@@ -571,6 +576,38 @@
         if (addBtn) addBtn.disabled = !inStock;
         if (buyBtn) buyBtn.disabled = !inStock;
       }
+      /* ===== Variant selector (customer-safe sibling options) =====
+         Populated from product.variantOptions — an additive catalog field
+         carrying {id: sibling-slug, label, isCurrent}. Empty array /
+         undefined = independent product. */
+      var variantEl = document.getElementById('variant-selector');
+      var pillsEl = document.getElementById('variant-pills');
+      if (variantEl && pillsEl) {
+        var opts = product.variantOptions || [];
+        // Only show if there is at least one OTHER option besides the current
+        var hasSiblings = opts.filter(function(o) { return !o.isCurrent; }).length > 0;
+        if (hasSiblings) {
+          pillsEl.innerHTML = opts.map(function(o) {
+            var cls = o.isCurrent
+              ? 'bg-primary text-on-primary border-primary font-bold'
+              : 'border-outline-variant/50 dark:border-outline-variant/60 text-on-surface dark:text-white hover:border-primary hover:text-primary dark:hover:text-white cursor-pointer transition-all';
+            var attr = o.isCurrent ? 'aria-current="true"' : 'data-variant-slug="' + escapeHtml(o.id) + '"';
+            return '<button type="button" ' + attr + ' class="px-4 py-2 text-sm rounded-full border ' + cls + '">' + escapeHtml(o.label) + (o.isCurrent ? ' <span class="text-xs ml-1">✓</span>' : '') + '</button>';
+          }).join('');
+          variantEl.classList.remove('hidden');
+          variantEl.style.display = 'block';
+          pillsEl.addEventListener('click', function(e) {
+            var btn = e.target.closest('[data-variant-slug]');
+            if (btn) {
+              window.location.href = 'product-view.html?id=' + encodeURIComponent(btn.getAttribute('data-variant-slug'));
+            }
+          });
+        } else {
+          variantEl.classList.add('hidden');
+          variantEl.style.display = 'none';
+        }
+      }
+
       document.getElementById('product-desc').textContent = product.description;
       document.getElementById('accordion-intro').textContent = product.description;
       // Gallery
