@@ -294,19 +294,6 @@ model MaterialI18n {
   nameAr     String @default("")
 }
 
-/// Depth + selectable dimension unit for a Product (1:1 via natural id —
-/// NO foreign key: the legacy Product table is owned by the postgres
-/// migration role and cannot be ALTERed by the least-privilege app role;
-/// same companion-table pattern as AttributeI18n/OrderSecurity).
-/// dimensionUnit applies to length/width/height/depth. A product with no
-/// row here defaults to depth = null, unit = "cm" (the unit the original
-/// admin form labels always used, so existing data stays valid).
-model ProductDimension {
-  productId     Int      @id
-  depth         Decimal? @db.Decimal(10, 3)
-  dimensionUnit String   @default("cm")
-}
-
 // Per-PRODUCT value for a custom attribute. The definition lives on
 // CustomAttribute; only the value lives here. Empty string = field left blank.
 model ProductCustomValue {
@@ -398,6 +385,10 @@ model Product {
   length         Decimal?    @db.Decimal(10, 3)
   width          Decimal?    @db.Decimal(10, 3)
   height         Decimal?    @db.Decimal(10, 3)
+  depth          Decimal?    @db.Decimal(10, 3)
+  /// Unit shared by length/width/height/depth (mm | cm | m). Existing rows
+  /// default to "cm" — the unit the original admin labels always used.
+  dimensionUnit  String      @default("cm")
   warranty       String      @default("")
   stock          Int         @default(100)
   minStock       Int         @default(10)

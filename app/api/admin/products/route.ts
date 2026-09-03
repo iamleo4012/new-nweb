@@ -48,9 +48,9 @@ const sharedFields = {
   length: z.number().min(0).max(999999).nullable().optional(),
   width: z.number().min(0).max(999999).nullable().optional(),
   height: z.number().min(0).max(999999).nullable().optional(),
-  // Depth + shared dimension unit live in the ProductDimension companion
-  // table (Product itself cannot be ALTERed by the app role). Unit applies
-  // to length/width/height/depth; omitted on PATCH = keep current values.
+  // Depth + shared dimension unit are plain Product columns. The unit
+  // applies to length/width/height/depth; omitted on PATCH = keep current
+  // values (no default in the update schema).
   depth: z.number().min(0).max(999999).nullable().optional(),
   dimensionUnit: z.enum(["mm", "cm", "m"]).optional().default("cm"),
   warranty: z.string().max(200),
@@ -105,7 +105,7 @@ const updateSchema = z.object({
   ...Object.fromEntries(Object.entries(sharedFields).map(([k, v]) => [k, (v as z.ZodTypeAny).optional()])),
   categoryId: z.number().int().positive().optional(),
   subcategoryId: z.number().int().positive().nullable().optional(),
-  // Companion-table fields — explicit (no default) on PATCH so an omitted
+  // Plain Product columns — explicit (no default) on PATCH so an omitted
   // value means "keep current" rather than resetting to cm.
   depth: z.number().min(0).max(999999).nullable().optional(),
   dimensionUnit: z.enum(["mm", "cm", "m"]).optional(),
@@ -154,46 +154,6 @@ const productInclude = {
 
 type FullProduct = Prisma.ProductGetPayload<{ include: typeof productInclude }>;
 
-/** Depth + dimension unit for one product (missing row = cm / no depth). */
-interface DimInfo {
-  depth: number | null;
-  dimensionUnit: string;
-}
-
-async function dimensionOf(productId: number): Promise<DimInfo> {
-  const d = await prisma.productDimension.findUnique({ where: { productId } });
-  return { depth: d?.depth ? Number(d.depth) : null, dimensionUnit: d?.dimensionUnit ?? "cm" };
-}
-
-/** Batch variant for list serialization (no N+1). */
-async function dimensionsOfAll(productIds: number[]): Promise<Map<number, DimInfo>> {
-  if (productIds.length === 0) return new Map();
-  const rows = await prisma.productDimension.findMany({ where: { productId: { in: productIds } } });
-  return new Map(rows.map((d) => [d.productId, { depth: d.depth ? Number(d.depth) : null, dimensionUnit: d.dimensionUnit }]));
-}
-
-/**
- * Persists the ProductDimension companion row. Both values undefined =
- * nothing sent (partial API patch) → keep current. A row that carries no
- * information (no depth + default cm) is removed so legacy products stay
- * row-less.
- */
-async function persistDimensions(productId: number, depth: number | null | undefined, unit: string | undefined) {
-  if (depth === undefined && unit === undefined) return;
-  const existing = await prisma.productDimension.findUnique({ where: { productId } });
-  const nextDepth = depth === undefined ? (existing?.depth ? Number(existing.depth) : null) : depth;
-  const nextUnit = unit ?? existing?.dimensionUnit ?? "cm";
-  if (nextDepth == null && nextUnit === "cm") {
-    await prisma.productDimension.deleteMany({ where: { productId } });
-    return;
-  }
-  await prisma.productDimension.upsert({
-    where: { productId },
-    create: { productId, depth: nextDepth, dimensionUnit: nextUnit },
-    update: { depth: nextDepth, dimensionUnit: nextUnit },
-  });
-}
-
 /** Merged attribute+value shape for the admin product form (bilingual). */
 async function serializeFull(p: FullProduct) {  const valueByAttr = new Map(p.customValues.map((v) => [v.attributeId, v.value]));
   // Definitions for the product's classification: subcategory fields plus,
@@ -235,11 +195,11 @@ async function serializeFull(p: FullProduct) {  const valueByAttr = new Map(p.cu
     value: valueByAttr.get(a.id) ?? "",
     valueAr: valAr.get(a.id) ?? "",
   }));
-  return serializeBase(p, customAttributes, await dimensionOf(p.id));
+  return serializeBase(p, customAttributes);
 }
 
 /** Legacy flat serializer (list rows) — unchanged shape. */
-function serialize(p: FullProduct, dim?: DimInfo) {
+function serialize(p: FullProduct) {
   const valueByAttr = new Map(p.customValues.map((v) => [v.attributeId, v.value]));
   const customAttributes = (p.subcategory?.customAttributes ?? []).map((a) => ({
     id: a.id,
@@ -250,10 +210,10 @@ function serialize(p: FullProduct, dim?: DimInfo) {
     options: a.options,
     value: valueByAttr.get(a.id) ?? "",
   }));
-  return serializeBase(p, customAttributes, dim ?? { depth: null, dimensionUnit: "cm" });
+  return serializeBase(p, customAttributes);
 }
 
-function serializeBase(p: FullProduct, customAttributes: unknown, dim: DimInfo) {
+function serializeBase(p: FullProduct, customAttributes: unknown) {
   return {
     id: p.id,
     slug: p.slug,
@@ -282,8 +242,8 @@ function serializeBase(p: FullProduct, customAttributes: unknown, dim: DimInfo) 
     length: p.length ? Number(p.length) : null,
     width: p.width ? Number(p.width) : null,
     height: p.height ? Number(p.height) : null,
-    depth: dim.depth,
-    dimensionUnit: dim.dimensionUnit,
+    depth: p.depth ? Number(p.depth) : null,
+    dimensionUnit: p.dimensionUnit,
     warranty: p.warranty,
     stock: p.stock,
     minStock: p.minStock,
@@ -317,9 +277,9 @@ function serializeBase(p: FullProduct, customAttributes: unknown, dim: DimInfo) 
   };
 }
 
-function listSerialize(p: FullProduct, dim?: DimInfo) {
+function listSerialize(p: FullProduct) {
   return {
-    ...serialize(p, dim),
+    ...serialize(p),
     category: p.category?.name ?? "",
     categoryName: p.category?.name ?? "",
     departmentName: p.category?.department?.name ?? "",
@@ -437,13 +397,10 @@ export async function GET(req: NextRequest) {
       section: { select: { id: true, name: true } },
     },
   });
-  const dims = await dimensionsOfAll(products.map((p) => p.id));
   return NextResponse.json({
     success: true,
     data: {
-      products: products.map((p) =>
-        withFull ? serialize(p, dims.get(p.id)) : listSerialize(p, dims.get(p.id))
-      ),
+      products: products.map((p) => (withFull ? serialize(p) : listSerialize(p))),
       categories,
     },
     error: null,
@@ -475,7 +432,6 @@ export async function POST(req: NextRequest) {
   const {
     colorIds, sizeIds, customValues, relatedProductIds,
     categoryId, subcategoryId, brandId, materialId, supplierId, unitId, countryId, taxId,
-    depth, dimensionUnit,
     ...productFields
   } = data;
   const productData: Prisma.ProductCreateInput = {
@@ -496,7 +452,6 @@ export async function POST(req: NextRequest) {
   if (sizeIds.length) productData.sizes = { create: sizeIds.map((sid) => ({ sizeId: sid })) };
 
   const created = await prisma.product.create({ data: productData, include: productInclude });
-  await persistDimensions(created.id, depth ?? null, dimensionUnit);
   if (customValues) {
     await persistCustomValues(created.id, subcategoryId ?? null, categoryId, customValues);
   }
@@ -526,7 +481,7 @@ export async function PATCH(req: NextRequest) {
       { status: 400 }
     );
   }
-  const { id, colorIds, sizeIds, customValues, relatedProductIds, depth, dimensionUnit, ...rest } = parsed.data;
+  const { id, colorIds, sizeIds, customValues, relatedProductIds, ...rest } = parsed.data;
   const existing = await prisma.product.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ success: false, data: null, error: "Product not found" }, { status: 404 });
 
@@ -560,9 +515,6 @@ export async function PATCH(req: NextRequest) {
     parsed.data.categoryId !== undefined ? parsed.data.categoryId : existing.categoryId;
 
   const updated = await prisma.product.update({ where: { id }, data: fields, include: productInclude });
-  // Depth/unit live in the companion table, persisted like the other
-  // post-update relations (omitted values keep their current state).
-  await persistDimensions(id, depth, dimensionUnit);
   // Dynamic PIM data is persisted AFTER the row update so the new
   // subcategory (if changed) is the one the attribute values are validated
   // against — switching subcategories replaces the visible field set.
