@@ -313,14 +313,21 @@ export function ProductsTab() {
 
   useEffect(loadAll, [loadAll]);
 
-  // ---- Dynamic custom fields: load definitions for the selected subcategory ----
-  const loadAttributes = useCallback(async (subId: string) => {
-    if (!subId) {
+  // ---- Dynamic custom fields: load the definitions of the selected
+  // classification — the subcategory's fields when one is chosen, otherwise
+  // the category's fallback fields (categories without subcategories). ----
+  const loadAttributes = useCallback(async (subId: string, catId: string) => {
+    const url = subId
+      ? `/api/admin/attributes?subcategoryId=${subId}`
+      : catId
+        ? `/api/admin/attributes?categoryId=${catId}`
+        : null;
+    if (!url) {
       setAttributes([]);
       return;
     }
     try {
-      const r = await fetch(`/api/admin/attributes?subcategoryId=${subId}`, { credentials: "same-origin" });
+      const r = await fetch(url, { credentials: "same-origin" });
       const d = await r.json();
       if (d.success) setAttributes(d.data.items ?? []);
     } catch {
@@ -329,8 +336,8 @@ export function ProductsTab() {
   }, []);
 
   useEffect(() => {
-    loadAttributes(String(f.subcategoryId ?? ""));
-  }, [f.subcategoryId, loadAttributes]);
+    loadAttributes(String(f.subcategoryId ?? ""), String(f.categoryId ?? ""));
+  }, [f.subcategoryId, f.categoryId, loadAttributes]);
 
   const setAttrValue = (id: number, patch: Partial<CustomFieldValue>) => {
     setAttrValues((prev) => ({
@@ -714,10 +721,11 @@ export function ProductsTab() {
           <CustomFieldsSection
             section="HEADER"
             subcategoryId={String(f.subcategoryId ?? "")}
+            categoryId={String(f.categoryId ?? "")}
             attributes={attributes}
             values={attrValues}
             onValueChange={setAttrValue}
-            onRefresh={() => loadAttributes(String(f.subcategoryId ?? ""))}
+            onRefresh={() => loadAttributes(String(f.subcategoryId ?? ""), String(f.categoryId ?? ""))}
             onError={setError}
           />
 
@@ -767,10 +775,11 @@ export function ProductsTab() {
           <CustomFieldsSection
             section="DESCRIPTION"
             subcategoryId={String(f.subcategoryId ?? "")}
+            categoryId={String(f.categoryId ?? "")}
             attributes={attributes}
             values={attrValues}
             onValueChange={setAttrValue}
-            onRefresh={() => loadAttributes(String(f.subcategoryId ?? ""))}
+            onRefresh={() => loadAttributes(String(f.subcategoryId ?? ""), String(f.categoryId ?? ""))}
             onError={setError}
           />
 
@@ -861,10 +870,11 @@ export function ProductsTab() {
           <CustomFieldsSection
             section="SPECIFICATIONS"
             subcategoryId={String(f.subcategoryId ?? "")}
+            categoryId={String(f.categoryId ?? "")}
             attributes={attributes}
             values={attrValues}
             onValueChange={setAttrValue}
-            onRefresh={() => loadAttributes(String(f.subcategoryId ?? ""))}
+            onRefresh={() => loadAttributes(String(f.subcategoryId ?? ""), String(f.categoryId ?? ""))}
             onError={setError}
           />
 

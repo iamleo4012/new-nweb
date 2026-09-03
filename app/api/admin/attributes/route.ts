@@ -21,16 +21,29 @@ function normalizeOptions(raw: z.infer<typeof optionSchema>[]): NormalizedOption
   return raw.map((o) => (typeof o === "string" ? { en: o, ar: "" } : { en: o.en, ar: o.ar }));
 }
 
-const createSchema = z.object({
-  subcategoryId: z.number().int().positive(),
-  name: nameField,
-  nameAr: z.string().trim().max(100).optional().default(""),
-  section: z.enum(["HEADER", "DESCRIPTION", "SPECIFICATIONS"]),
-  fieldType: z.enum(["TEXT", "LONG_TEXT", "NUMBER", "SELECT"]).optional().default("TEXT"),
-  options: z.array(optionSchema).max(50).optional().default([]),
-  /** Only meaningful for SELECT — renders multi-checkbox input on product forms. */
-  multiSelect: z.boolean().optional().default(false),
-});
+const createSchema = z
+  .object({
+    /** Exactly one scope must be given: the subcategory (primary) or, for
+     *  categories without subcategories, the category itself. */
+    subcategoryId: z.number().int().positive().optional(),
+    categoryId: z.number().int().positive().optional(),
+    name: nameField,
+    nameAr: z.string().trim().max(100).optional().default(""),
+    section: z.enum(["HEADER", "DESCRIPTION", "SPECIFICATIONS"]),
+    fieldType: z.enum(["TEXT", "LONG_TEXT", "NUMBER", "SELECT"]).optional().default("TEXT"),
+    options: z.array(optionSchema).max(50).optional().default([]),
+    /** Only meaningful for SELECT — renders multi-checkbox input on product forms. */
+    multiSelect: z.boolean().optional().default(false),
+  })
+  .refine((d) => (d.subcategoryId != null) !== (d.categoryId != null), {
+    message: "Provide exactly one of subcategoryId or categoryId",
+  });
+
+/** Prisma scope filter for one classification (exactly one side set). */
+type AttrScope = { subcategoryId: number } | { categoryId: number; subcategoryId: null };
+function scopeFilter(scope: AttrScope) {
+  return scope;
+}
 
 const updateSchema = z.object({
   id: z.number().int().positive(),
@@ -82,9 +95,9 @@ async function persistAttributeI18n(
 }
 
 /** Merged attribute shape for the admin UI (EN fields unchanged + i18n). */
-async function attributesWithI18n(subcategoryId: number) {
+async function attributesWithI18n(scope: AttrScope) {
   const items = await prisma.customAttribute.findMany({
-    where: { subcategoryId, isDeleted: false },
+    where: { ...scope, isDeleted: false },
     orderBy: [{ section: "asc" }, { displayOrder: "asc" }, { id: "asc" }],
     include: { _count: { select: { values: true } } },
   });
@@ -111,19 +124,26 @@ async function attributesWithI18n(subcategoryId: number) {
 }
 
 /**
- * GET /api/admin/attributes?subcategoryId=X
- * Lists the dynamic custom fields defined for one subcategory (all three
- * information areas), ordered by area then display order. Soft-deleted
- * fields are hidden.
+ * GET /api/admin/attributes?subcategoryId=X  |  ?categoryId=Y
+ * Lists the dynamic custom fields defined for one classification (all three
+ * information areas), ordered by area then display order. Subcategory scope
+ * is primary; category scope is the fallback for categories without
+ * subcategories. Soft-deleted fields are hidden.
  */
 export async function GET(req: NextRequest) {
   const staff = await requireStaff();
   if (!staff) return forbidden();
   const subcategoryId = Number(req.nextUrl.searchParams.get("subcategoryId"));
-  if (!Number.isInteger(subcategoryId) || subcategoryId <= 0) {
-    return NextResponse.json({ success: false, data: null, error: "Invalid subcategoryId" }, { status: 400 });
+  const categoryId = Number(req.nextUrl.searchParams.get("categoryId"));
+  const hasSub = Number.isInteger(subcategoryId) && subcategoryId > 0;
+  const hasCat = Number.isInteger(categoryId) && categoryId > 0;
+  if (hasSub === hasCat) {
+    return NextResponse.json(
+      { success: false, data: null, error: "Provide exactly one of subcategoryId or categoryId" },
+      { status: 400 }
+    );
   }
-  const items = await attributesWithI18n(subcategoryId);
+  const items = await attributesWithI18n(hasSub ? { subcategoryId } : { categoryId, subcategoryId: null });
   return NextResponse.json({ success: true, data: { items }, error: null });
 }
 
@@ -157,31 +177,41 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  const subcategory = await prisma.subcategory.findUnique({ where: { id: data.subcategoryId } });
-  if (!subcategory) {
-    return NextResponse.json({ success: false, data: null, error: "Subcategory not found" }, { status: 400 });
+  const scope: AttrScope = data.subcategoryId != null
+    ? { subcategoryId: data.subcategoryId }
+    : { categoryId: data.categoryId!, subcategoryId: null };
+  if (scope.subcategoryId != null) {
+    const subcategory = await prisma.subcategory.findUnique({ where: { id: scope.subcategoryId } });
+    if (!subcategory) {
+      return NextResponse.json({ success: false, data: null, error: "Subcategory not found" }, { status: 400 });
+    }
+  } else {
+    const category = await prisma.category.findUnique({ where: { id: scope.categoryId } });
+    if (!category) {
+      return NextResponse.json({ success: false, data: null, error: "Category not found" }, { status: 400 });
+    }
   }
-  // Uniqueness is enforced among live (non-deleted) fields of the subcategory,
-  // case-insensitive, across all three areas — the admin thinks of field names
-  // as one namespace per subcategory.
+  // Uniqueness is enforced among live (non-deleted) fields of the SAME
+  // classification, case-insensitive, across all three areas — the admin
+  // thinks of field names as one namespace per classification.
   const existing = await prisma.customAttribute.findMany({
-    where: { subcategoryId: data.subcategoryId, isDeleted: false },
+    where: { ...scope, isDeleted: false },
     select: { name: true },
   });
   if (existing.some((a) => a.name.toLowerCase() === data.name.toLowerCase())) {
     return NextResponse.json(
-      { success: false, data: null, error: `Field "${data.name}" already exists in this subcategory` },
+      { success: false, data: null, error: `Field "${data.name}" already exists in this classification` },
       { status: 409 }
     );
   }
   const maxOrder = await prisma.customAttribute.findFirst({
-    where: { subcategoryId: data.subcategoryId, section: data.section, isDeleted: false },
+    where: { ...scope, section: data.section, isDeleted: false },
     orderBy: { displayOrder: "desc" },
     select: { displayOrder: true },
   });
   const created = await prisma.customAttribute.create({
     data: {
-      subcategoryId: data.subcategoryId,
+      ...scope,
       name: data.name,
       section: data.section,
       fieldType: data.fieldType,
@@ -201,7 +231,7 @@ export async function POST(req: NextRequest) {
       action: "ATTRIBUTE_CREATE",
       entity: "CustomAttribute",
       entityId: String(created.id),
-      detail: `${created.name}${data.nameAr ? " / " + data.nameAr : ""} [${created.section}/${created.fieldType}] subcategory=${data.subcategoryId}`,
+      detail: `${created.name}${data.nameAr ? " / " + data.nameAr : ""} [${created.section}/${created.fieldType}] ${scope.subcategoryId != null ? `subcategory=${scope.subcategoryId}` : `category=${scope.categoryId}`}`,
     },
   });
   return NextResponse.json({ success: true, data: { item: created }, error: null });
@@ -234,13 +264,18 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ success: false, data: null, error: "Field not found" }, { status: 404 });
   }
   if (fields.name) {
+    // Name uniqueness within the attribute's own classification (subcategory
+    // or category fallback scope).
+    const scope: AttrScope = attribute.subcategoryId != null
+      ? { subcategoryId: attribute.subcategoryId }
+      : { categoryId: attribute.categoryId ?? -1, subcategoryId: null };
     const clash = await prisma.customAttribute.findMany({
-      where: { subcategoryId: attribute.subcategoryId, isDeleted: false, id: { not: id } },
+      where: { ...scope, isDeleted: false, id: { not: id } },
       select: { name: true },
     });
     if (clash.some((a) => a.name.toLowerCase() === fields.name!.toLowerCase())) {
       return NextResponse.json(
-        { success: false, data: null, error: `Field "${fields.name}" already exists in this subcategory` },
+        { success: false, data: null, error: `Field "${fields.name}" already exists in this classification` },
         { status: 409 }
       );
     }

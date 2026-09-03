@@ -31,7 +31,10 @@ type UiFieldType = AttributeFieldType | "YESNO";
 
 interface CustomFieldsSectionProps {
   section: AttributeSectionName;
+  /** Selected classification: subcategory (primary) and/or category
+   *  (fallback scope when the category has no subcategory selected). */
   subcategoryId: string;
+  categoryId: string;
   attributes: CustomAttributeItem[];
   values: Record<number, CustomFieldValue>;
   onValueChange: (id: number, patch: Partial<CustomFieldValue>) => void;
@@ -74,6 +77,7 @@ const emptyDraft = () => ({
 export function CustomFieldsSection({
   section,
   subcategoryId,
+  categoryId,
   attributes,
   values,
   onValueChange,
@@ -110,8 +114,16 @@ export function CustomFieldsSection({
     };
   }
 
+  /** Scope payload for definition create/reorder — subcategory if selected,
+   *  otherwise the category (fallback for categories without subcategories). */
+  function scopeBody(): Record<string, number> | null {
+    if (subcategoryId) return { subcategoryId: Number(subcategoryId) };
+    if (categoryId) return { categoryId: Number(categoryId) };
+    return null;
+  }
+
   function openAdd() {
-    if (!subcategoryId) {
+    if (!scopeBody()) {
       setNeedsSubcategory(true);
       return;
     }
@@ -120,7 +132,8 @@ export function CustomFieldsSection({
   }
 
   async function createField() {
-    if (!subcategoryId) {
+    const scope = scopeBody();
+    if (!scope) {
       setNeedsSubcategory(true);
       return;
     }
@@ -131,7 +144,7 @@ export function CustomFieldsSection({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({ subcategoryId: Number(subcategoryId), section, ...payload }),
+        body: JSON.stringify({ ...scope, section, ...payload }),
       });
       const data = await res.json();
       if (data.success) {
@@ -199,12 +212,14 @@ export function CustomFieldsSection({
     if (idx < 0 || swapWith < 0 || swapWith >= list.length) return;
     [list[idx], list[swapWith]] = [list[swapWith], list[idx]];
     try {
+      const scope = scopeBody();
+      if (!scope) return;
       const res = await fetch("/api/admin/attributes/reorder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
         body: JSON.stringify({
-          subcategoryId: Number(subcategoryId),
+          ...scope,
           section,
           orderedIds: list.map((a) => a.id),
         }),
@@ -443,7 +458,7 @@ export function CustomFieldsSection({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
           Custom Fields ({sectionAttrs.length})
-          {!subcategoryId && <span className="ml-2 normal-case font-normal text-gray-400">— defined per subcategory; everything else can be filled independently</span>}
+          {!subcategoryId && !categoryId && <span className="ml-2 normal-case font-normal text-gray-400">— defined per subcategory (or category); everything else can be filled independently</span>}
         </div>
         <div className="flex gap-2">
           {sectionAttrs.length > 1 && (
@@ -467,7 +482,7 @@ export function CustomFieldsSection({
 
       {needsSubcategory && (
         <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-          Custom fields are saved per subcategory — pick a subcategory under <strong>Classification</strong> when convenient, then add the field.
+          Custom fields are saved per classification — pick a subcategory (or a category without subcategories) under <strong>Classification</strong> when convenient, then add the field.
           All other sections can be filled in any order in the meantime.
         </p>
       )}

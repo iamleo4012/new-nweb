@@ -209,17 +209,25 @@ model ProductImage {
   @@index([productId])
 }
 
-// Dynamic custom attribute DEFINITION — belongs to one subcategory.
-// Created once by the admin; every product in that subcategory then gets an
-// input for it. Soft-deleted via isDeleted so historical ProductCustomValue
-// rows survive (values are keyed by attributeId, so renaming never detaches them).
+// Dynamic custom attribute DEFINITION — belongs to one classification:
+// either a Subcategory (primary; exactly what products are filed under) or,
+// as a fallback for categories that have no subcategories, the Category
+// itself (categoryId, natural id, NO foreign key — the Category table is
+// owned by the postgres migration role and cannot take one from the app
+// role). Exactly ONE of subcategoryId / categoryId is set (enforced by the
+// API layer). Created once by the admin; every product under that
+// classification then gets an input for it. Soft-deleted via isDeleted so
+// historical ProductCustomValue rows survive (values are keyed by
+// attributeId, so renaming never detaches them).
 model CustomAttribute {
   id            Int             @id @default(autoincrement())
   name          String
   section       AttributeSection @default(SPECIFICATIONS)
-  fieldType     AttributeType   @default(TEXT)
-  subcategoryId Int
-  subcategory   Subcategory     @relation(fields: [subcategoryId], references: [id])
+  fieldType     AttributeType    @default(TEXT)
+  subcategoryId Int?
+  subcategory   Subcategory?     @relation(fields: [subcategoryId], references: [id])
+  /// Category-level fallback scope (set when subcategoryId is null).
+  categoryId    Int?
   displayOrder  Int             @default(0)
   options       String[]        @default([])
   isDeleted     Boolean         @default(false)
@@ -228,6 +236,7 @@ model CustomAttribute {
   values        ProductCustomValue[]
 
   @@index([subcategoryId])
+  @@index([categoryId])
 }
 
 /* ------------------------------------------------------------------ */

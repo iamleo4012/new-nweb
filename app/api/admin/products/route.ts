@@ -196,7 +196,19 @@ async function persistDimensions(productId: number, depth: number | null | undef
 
 /** Merged attribute+value shape for the admin product form (bilingual). */
 async function serializeFull(p: FullProduct) {  const valueByAttr = new Map(p.customValues.map((v) => [v.attributeId, v.value]));
-  const attrIds = (p.subcategory?.customAttributes ?? []).map((a) => a.id);
+  // Definitions for the product's classification: subcategory fields plus,
+  // as a fallback, category-level fields (for categories without
+  // subcategories). categoryId has no Prisma relation (legacy table), so
+  // category-level definitions are fetched manually and merged.
+  const catAttrs = p.categoryId
+    ? await prisma.customAttribute.findMany({
+        where: { categoryId: p.categoryId, subcategoryId: null, isDeleted: false },
+      })
+    : [];
+  const attrDefs = [...(p.subcategory?.customAttributes ?? []), ...catAttrs].sort(
+    (a, b) => a.displayOrder - b.displayOrder || a.id - b.id
+  );
+  const attrIds = attrDefs.map((a) => a.id);
   const [attrI18n, optionI18n, valueI18n] = await Promise.all([
     attrIds.length
       ? prisma.attributeI18n.findMany({ where: { attributeId: { in: attrIds } } })
@@ -210,7 +222,7 @@ async function serializeFull(p: FullProduct) {  const valueByAttr = new Map(p.cu
   const multi = new Map(attrI18n.map((a) => [a.attributeId, a.multiSelect]));
   const optAr = new Map(optionI18n.map((o) => [`${o.attributeId}:${o.optionEn}`, o.optionAr]));
   const valAr = new Map(valueI18n.map((v) => [v.attributeId, v.valueAr]));
-  const customAttributes = (p.subcategory?.customAttributes ?? []).map((a) => ({
+  const customAttributes = attrDefs.map((a) => ({
     id: a.id,
     name: a.name,
     nameAr: nameAr.get(a.id) ?? "",
@@ -315,25 +327,38 @@ function listSerialize(p: FullProduct, dim?: DimInfo) {
 }
 
 /**
- * Persists per-product custom attribute values. Only attribute ids that belong
- * to the product's (new) subcategory and are not soft-deleted are stored —
- * attributes from unrelated subcategories are silently dropped so switching
- * subcategories never mixes field sets. Empty values are stored as "".
+ * Persists per-product custom attribute values. Only attribute ids that
+ * belong to the product's (new) classification — its subcategory's fields
+ * OR its category's fallback fields — and are not soft-deleted are stored;
+ * attributes from unrelated classifications are silently dropped so
+ * switching classification never mixes field sets. Empty values are stored
+ * as "".
  */
 async function persistCustomValues(
   productId: number,
   subcategoryId: number | null | undefined,
+  categoryId: number | null | undefined,
   customValues: { attributeId: number; value: string; valueAr?: string }[]
 ) {
   await prisma.productCustomValue.deleteMany({ where: { productId } });
-  if (!subcategoryId || customValues.length === 0) {
+  if ((!subcategoryId && !categoryId) || customValues.length === 0) {
     // No values at all — clear any stale Arabic rows too.
     await prisma.productCustomValueI18n.deleteMany({ where: { productId } });
     return;
   }
   const ids = customValues.map((v) => v.attributeId);
   const valid = await prisma.customAttribute.findMany({
-    where: { id: { in: ids }, subcategoryId, isDeleted: false },
+    where: {
+      id: { in: ids },
+      isDeleted: false,
+      OR: [
+        // Subcategory-scoped definitions (primary).
+        ...(subcategoryId ? [{ subcategoryId }] : []),
+        // Category-level fallback definitions (categories without
+        // subcategories); categoryId -1 matches nothing when unknown.
+        { categoryId: categoryId ?? -1, subcategoryId: null },
+      ],
+    },
     select: { id: true },
   });
   const validIds = new Set(valid.map((a) => a.id));
@@ -473,7 +498,7 @@ export async function POST(req: NextRequest) {
   const created = await prisma.product.create({ data: productData, include: productInclude });
   await persistDimensions(created.id, depth ?? null, dimensionUnit);
   if (customValues) {
-    await persistCustomValues(created.id, subcategoryId ?? null, customValues);
+    await persistCustomValues(created.id, subcategoryId ?? null, categoryId, customValues);
   }
   if (relatedProductIds) {
     await persistRelated(created.id, relatedProductIds);
@@ -531,6 +556,8 @@ export async function PATCH(req: NextRequest) {
   }
   const nextSubcategoryId =
     parsed.data.subcategoryId !== undefined ? parsed.data.subcategoryId : existing.subcategoryId;
+  const nextCategoryId =
+    parsed.data.categoryId !== undefined ? parsed.data.categoryId : existing.categoryId;
 
   const updated = await prisma.product.update({ where: { id }, data: fields, include: productInclude });
   // Depth/unit live in the companion table, persisted like the other
@@ -540,7 +567,7 @@ export async function PATCH(req: NextRequest) {
   // subcategory (if changed) is the one the attribute values are validated
   // against — switching subcategories replaces the visible field set.
   if (customValues) {
-    await persistCustomValues(id, nextSubcategoryId, customValues);
+    await persistCustomValues(id, nextSubcategoryId, nextCategoryId, customValues);
   }
   if (relatedProductIds) {
     await persistRelated(id, relatedProductIds);
