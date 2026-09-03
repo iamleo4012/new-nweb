@@ -10,7 +10,36 @@ interface MasterItem {
   id: number;
   name: string;
   slug?: string;
+  /** Colors carry a swatch hex; colors/materials carry an Arabic name. */
+  hex?: string;
+  nameAr?: string;
 }
+
+/** Master-data entities creatable inline from the product form. */
+type MasterEntityKey =
+  | "brands"
+  | "materials"
+  | "colors"
+  | "sizes"
+  | "suppliers"
+  | "units"
+  | "countries"
+  | "taxes";
+
+/** Per-entity form shape for the inline "+ Add New" modal. */
+const MASTER_MODAL_CONFIG: Record<
+  MasterEntityKey,
+  { label: string; nameAr: boolean; hex: boolean; rate: boolean }
+> = {
+  brands: { label: "Brand", nameAr: false, hex: false, rate: false },
+  materials: { label: "Material", nameAr: true, hex: false, rate: false },
+  colors: { label: "Color", nameAr: true, hex: true, rate: false },
+  sizes: { label: "Size", nameAr: false, hex: false, rate: false },
+  suppliers: { label: "Supplier", nameAr: false, hex: false, rate: false },
+  units: { label: "Unit", nameAr: false, hex: false, rate: false },
+  countries: { label: "Country", nameAr: false, hex: false, rate: false },
+  taxes: { label: "Tax", nameAr: false, hex: false, rate: true },
+};
 
 interface CategoryItem extends MasterItem {
   departmentId: number;
@@ -69,13 +98,14 @@ export function ProductsTab() {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [pendingDelete, setPendingDelete] = useState<ProductItem | null>(null);
-  // Inline "+ Add New Color" modal (created straight from the product form —
-  // becomes immediately available in the Color selection).
-  const [showAddColor, setShowAddColor] = useState(false);
-  const [newColor, setNewColor] = useState({ name: "", nameAr: "", hex: "#825335" });
-  // Inline error for the Add-Color modal, shown next to the name input.
-  const [colorError, setColorError] = useState("");
-  const [addingColor, setAddingColor] = useState(false);
+  // Inline "+ Add New" master-data modal (brand/material/color/size/supplier/
+  // unit/country/tax) — created straight from the product form and
+  // immediately selected, so the admin never has to leave the form.
+  const [addMaster, setAddMaster] = useState<MasterEntityKey | null>(null);
+  const [masterDraft, setMasterDraft] = useState({ name: "", nameAr: "", hex: "#825335", rate: "0" });
+  // Inline error for the Add-New modal, shown next to the name input.
+  const [masterError, setMasterError] = useState("");
+  const [addingMaster, setAddingMaster] = useState(false);
 
   const [f, setF] = useState<Record<string, FormField>>({});
   const [selectedColors, setSelectedColors] = useState<number[]>([]);
@@ -302,56 +332,95 @@ export function ProductsTab() {
     }));
   };
 
-  /** Create a new color inline; it is auto-selected on success. */
-  async function createColor() {
-    const name = newColor.name.trim();
+  /** Current in-state list for a master entity (for duplicate pre-checks). */
+  const masterLists: Record<MasterEntityKey, MasterItem[]> = {
+    brands, materials, colors, sizes, suppliers, units, countries, taxes,
+  };
+
+  const openAddMaster = (entity: MasterEntityKey) => {
+    setMasterError("");
+    setMasterDraft({ name: "", nameAr: "", hex: "#825335", rate: "0" });
+    setAddMaster(entity);
+  };
+
+  /** Re-fetch one entity's list after an inline creation (response: data.items). */
+  async function refreshMasterList(entity: MasterEntityKey) {
+    const d = await fetchJson(`/api/admin/master/${entity}`);
+    const setters: Record<MasterEntityKey, (items: MasterItem[]) => void> = {
+      brands: setBrands, materials: setMaterials, colors: setColors, sizes: setSizes,
+      suppliers: setSuppliers, units: setUnits, countries: setCountries, taxes: setTaxes,
+    };
+    setters[entity](d.items);
+  }
+
+  /** Immediately select a freshly created item (multi-select append or select value). */
+  function selectMasterItem(entity: MasterEntityKey, id: number) {
+    if (entity === "colors") {
+      setSelectedColors((prev) => (prev.includes(id) ? prev : [...prev, id]));
+      return;
+    }
+    if (entity === "sizes") {
+      setSelectedSizes((prev) => (prev.includes(id) ? prev : [...prev, id]));
+      return;
+    }
+    const formKey = ({
+      brands: "brandId", materials: "materialId", suppliers: "supplierId",
+      units: "unitId", countries: "countryId", taxes: "taxId",
+    } as const)[entity];
+    update(formKey, String(id));
+  }
+
+  /** Create a new master-data item inline; it is auto-selected on success. */
+  async function createMasterItem() {
+    if (!addMaster) return;
+    const cfg = MASTER_MODAL_CONFIG[addMaster];
+    const name = masterDraft.name.trim();
     const slug = slugify(name);
-    setColorError("");
+    setMasterError("");
     if (!name) {
-      setColorError("Enter an English name for the color.");
+      setMasterError(`Enter a name for the ${cfg.label.toLowerCase()}.`);
       return;
     }
-    if (!slug) {
+    if (slug.length < 2) {
       // slugify strips non-latin characters: an Arabic-only name cannot form
-      // a URL slug. Give the admin a clear reason instead of an API 400.
-      setColorError("The English name must contain latin letters or digits — an Arabic-only name cannot form a URL slug. Keep Arabic in the Arabic name field.");
+      // a URL slug (and the API requires >= 2 chars). Give the admin a clear
+      // reason instead of an API 400.
+      setMasterError("The name must contain at least 2 latin letters or digits — an Arabic-only name cannot form a URL slug. Keep Arabic in the Arabic name field.");
       return;
     }
-    if (colors.some((c) => c.slug === slug)) {
-      setColorError(`A color with the slug "${slug}" already exists — it is already in the selection list above.`);
+    if (masterLists[addMaster].some((i) => i.slug === slug)) {
+      setMasterError(`A ${cfg.label.toLowerCase()} with the slug "${slug}" already exists — it is already in the list; pick it there instead.`);
       return;
     }
-    setAddingColor(true);
+    setAddingMaster(true);
     try {
-      const res = await fetch("/api/admin/master/colors", {
+      const body: Record<string, unknown> = { slug, name };
+      if (cfg.nameAr) body.nameAr = masterDraft.nameAr.trim();
+      if (cfg.hex) body.hex = masterDraft.hex;
+      if (cfg.rate) body.rate = Number(masterDraft.rate) || 0;
+      const res = await fetch(`/api/admin/master/${addMaster}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({
-          slug,
-          name,
-          nameAr: newColor.nameAr.trim(),
-          hex: newColor.hex,
-        }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (data.success) {
-        const listRes = await fetch("/api/admin/master/colors", { credentials: "same-origin" });
-        const listData = await listRes.json();
-        if (listData.success) setColors(listData.items ?? []);
+        const entity = addMaster;
+        await refreshMasterList(entity);
         const created = data.data?.item as { id?: number } | undefined;
-        if (created?.id) setSelectedColors((prev) => (prev.includes(created.id!) ? prev : [...prev, created.id!]));
-        setShowAddColor(false);
-        setNewColor({ name: "", nameAr: "", hex: "#825335" });
+        if (created?.id) selectMasterItem(entity, created.id);
+        setAddMaster(null);
+        setMasterDraft({ name: "", nameAr: "", hex: "#825335", rate: "0" });
       } else if (res.status === 409) {
-        setColorError(`A color with this name already exists (slug "${slug}"). Pick it from the list above, or choose a different name.`);
+        setMasterError(`A ${cfg.label.toLowerCase()} with this name already exists — pick it from the list, or choose a different name.`);
       } else {
-        setColorError(data.error || "Could not create color");
+        setMasterError(data.error || `Could not create ${cfg.label.toLowerCase()}`);
       }
     } catch {
-      setColorError("Network error while creating the color — try again.");
+      setMasterError("Network error while creating — try again.");
     }
-    setAddingColor(false);
+    setAddingMaster(false);
   }
 
   const filtered = products.filter(
@@ -512,12 +581,24 @@ export function ProductsTab() {
     </label>
   );
 
-  const renderSelect = (key: string, label: string, items: MasterItem[], required?: boolean) => {
+  const renderSelect = (
+    key: string,
+    label: string,
+    items: MasterItem[],
+    opts?: { required?: boolean; onAdd?: () => void }
+  ) => {
     const cleanLabel = label.replace(/\s*\*\s*$/, "");
     const empty = (items ?? []).length === 0;
     return (
-      <label key={key} className={`text-sm ${empty ? "opacity-80" : ""}`}>
-        <span className="block text-gray-600 mb-1">{label}{required ? " *" : ""}</span>
+      <label key={key} className="text-sm">
+        <span className="block text-gray-600 mb-1">
+          {label}{opts?.required ? " *" : ""}
+          {opts?.onAdd && (
+            <button type="button" onClick={opts.onAdd} className="ml-2 text-xs font-semibold text-blue-700 hover:underline">
+              + Add New
+            </button>
+          )}
+        </span>
         <select
           value={empty ? "" : String(f[key] ?? "")}
           onChange={(e) => update(key, e.target.value)}
@@ -525,7 +606,11 @@ export function ProductsTab() {
           className={`border rounded-lg px-3 py-2 w-full ${empty ? "border-dashed border-gray-300 bg-gray-50 text-gray-400" : "border-gray-300"}`}
         >
           {empty ? (
-            <option value="">No {cleanLabel.toLowerCase()} available yet — add under Master Data</option>
+            <option value="">
+              {opts?.onAdd
+                ? `No ${cleanLabel.toLowerCase()} yet — click + Add New to create one`
+                : `No ${cleanLabel.toLowerCase()} available yet`}
+            </option>
           ) : (
             <>
               <option value="">Select…</option>
@@ -566,13 +651,23 @@ export function ProductsTab() {
             key={i.id}
             type="button"
             onClick={() => toggle(i.id)}
-            title={(i as { nameAr?: string }).nameAr || undefined}
-            className={`px-2.5 py-1 rounded-md text-xs font-medium border ${selected.includes(i.id) ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"}`}
+            title={i.nameAr || undefined}
+            className={`px-2.5 py-1 rounded-md text-xs font-medium border inline-flex items-center gap-1.5 ${selected.includes(i.id) ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"}`}
           >
+            {i.hex ? (
+              <span
+                className={`inline-block w-3 h-3 rounded-full border ${selected.includes(i.id) ? "border-white/70" : "border-gray-400"}`}
+                style={{ backgroundColor: i.hex }}
+              />
+            ) : null}
             {i.name}
           </button>
         ))}
-        {items.length === 0 && <span className="text-gray-400 text-xs">No items (create in Master Data first)</span>}
+        {items.length === 0 && (
+          <span className="text-gray-400 text-xs">
+            {onAdd ? `No ${label.toLowerCase()} yet — click + Add New to create one` : `No ${label.toLowerCase()} yet`}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -613,7 +708,7 @@ export function ProductsTab() {
             {renderInput("barcode", "Barcode")}
             {renderInput("ndNumber", "ND Number")}
             {renderInput("internalCode", "Internal Item Code")}
-            {renderSelect("brandId", "Brand", brands)}
+            {renderSelect("brandId", "Brand", brands, { onAdd: () => openAddMaster("brands") })}
           </div>
 
           {/* Subcategory-specific custom fields — Main Information area */}
@@ -683,8 +778,8 @@ export function ProductsTab() {
           {/* ---------------- 4. Product Details ---------------- */}
           <h3 className="font-semibold text-gray-900 border-b pb-2">4. Product Details</h3>
           <div className="grid md:grid-cols-2 gap-3">
-            {renderMultiSelect("Colors", colors, selectedColors, toggleColor, () => setShowAddColor(true))}
-            {renderMultiSelect("Sizes", sizes, selectedSizes, toggleSize)}
+            {renderMultiSelect("Colors", colors, selectedColors, toggleColor, () => openAddMaster("colors"))}
+            {renderMultiSelect("Sizes", sizes, selectedSizes, toggleSize, () => openAddMaster("sizes"))}
           </div>
           <div className="grid md:grid-cols-4 gap-3">
             {renderInput("weight", "Weight (kg)", "number", { step: "0.001" })}
@@ -694,11 +789,11 @@ export function ProductsTab() {
             {renderInput("warranty", "Warranty")}
           </div>
           <div className="grid md:grid-cols-3 gap-3">
-            {renderSelect("materialId", "Material", materials)}
-            {renderSelect("supplierId", "Supplier", suppliers)}
-            {renderSelect("unitId", "Unit", units)}
-            {renderSelect("countryId", "Country", countries)}
-            {renderSelect("taxId", "Tax", taxes)}
+            {renderSelect("materialId", "Material", materials, { onAdd: () => openAddMaster("materials") })}
+            {renderSelect("supplierId", "Supplier", suppliers, { onAdd: () => openAddMaster("suppliers") })}
+            {renderSelect("unitId", "Unit", units, { onAdd: () => openAddMaster("units") })}
+            {renderSelect("countryId", "Country", countries, { onAdd: () => openAddMaster("countries") })}
+            {renderSelect("taxId", "Tax", taxes, { onAdd: () => openAddMaster("taxes") })}
           </div>
 
           {/* ---------------- 5. Pricing & Inventory ---------------- */}
@@ -833,65 +928,82 @@ export function ProductsTab() {
         </table>
       </div>
 
-      {/* ---- + Add New Color modal (inline from the product form) ---- */}
-      {showAddColor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => !addingColor && setShowAddColor(false)}>
+      {/* ---- + Add New master-data modal (inline from the product form) ---- */}
+      {addMaster && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => !addingMaster && setAddMaster(null)}>
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
-            <h4 className="font-semibold text-gray-900">Add New Color</h4>
+            <h4 className="font-semibold text-gray-900">Add New {MASTER_MODAL_CONFIG[addMaster].label}</h4>
             <p className="text-xs text-gray-500">
-              Saved to the shared color list — immediately available here and in Master Data.
+              Saved to the shared {MASTER_MODAL_CONFIG[addMaster].label.toLowerCase()} list — immediately available here and in Master Data, and auto-selected for this product.
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className={MASTER_MODAL_CONFIG[addMaster].nameAr ? "grid grid-cols-2 gap-3" : ""}>
               <label className="block text-sm">
                 <span className="block text-gray-600 mb-1">Name — English *</span>
                 <input
                   autoFocus
-                  value={newColor.name}
-                  onChange={(e) => { setNewColor((c) => ({ ...c, name: e.target.value })); setColorError(""); }}
-                  placeholder="e.g. Dark Grey"
+                  value={masterDraft.name}
+                  onChange={(e) => { setMasterDraft((d) => ({ ...d, name: e.target.value })); setMasterError(""); }}
+                  placeholder={`e.g. ${MASTER_MODAL_CONFIG[addMaster].label === "Size" ? "Large" : MASTER_MODAL_CONFIG[addMaster].label}`}
                   className="border border-gray-300 rounded-lg px-3 py-2 w-full"
                 />
-                <span className={`block mt-1 font-mono text-[11px] ${slugify(newColor.name.trim()) ? "text-gray-400" : "text-gray-300"}`}>
-                  slug: {slugify(newColor.name.trim()) || "—"}
+                <span className={`block mt-1 font-mono text-[11px] ${slugify(masterDraft.name.trim()).length >= 2 ? "text-gray-400" : "text-gray-300"}`}>
+                  slug: {slugify(masterDraft.name.trim()) || "—"}
                 </span>
               </label>
-              <label className="block text-sm">
-                <span className="block text-gray-600 mb-1">الاسم — عربي</span>
+              {MASTER_MODAL_CONFIG[addMaster].nameAr && (
+                <label className="block text-sm">
+                  <span className="block text-gray-600 mb-1">الاسم — عربي</span>
+                  <input
+                    dir="rtl"
+                    value={masterDraft.nameAr}
+                    onChange={(e) => setMasterDraft((d) => ({ ...d, nameAr: e.target.value }))}
+                    placeholder="مثال: رمادي غامق"
+                    className="border border-gray-300 rounded-lg px-3 py-2 w-full text-right"
+                  />
+                </label>
+              )}
+            </div>
+            {MASTER_MODAL_CONFIG[addMaster].hex && (
+              <label className="flex items-center gap-3 text-sm">
+                <span className="text-gray-600">Swatch</span>
                 <input
-                  dir="rtl"
-                  value={newColor.nameAr}
-                  onChange={(e) => setNewColor((c) => ({ ...c, nameAr: e.target.value }))}
-                  placeholder="مثال: رمادي غامق"
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full text-right"
+                  type="color"
+                  value={/^#[0-9a-fA-F]{6}$/.test(masterDraft.hex) ? masterDraft.hex : "#825335"}
+                  onChange={(e) => setMasterDraft((d) => ({ ...d, hex: e.target.value }))}
+                  className="h-9 w-14 rounded border border-gray-300"
+                />
+                <input
+                  value={masterDraft.hex}
+                  onChange={(e) => setMasterDraft((d) => ({ ...d, hex: e.target.value }))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-28"
                 />
               </label>
-            </div>
-            <label className="flex items-center gap-3 text-sm">
-              <span className="text-gray-600">Swatch</span>
-              <input
-                type="color"
-                value={/^#[0-9a-fA-F]{6}$/.test(newColor.hex) ? newColor.hex : "#825335"}
-                onChange={(e) => setNewColor((c) => ({ ...c, hex: e.target.value }))}
-                className="h-9 w-14 rounded border border-gray-300"
-              />
-              <input
-                value={newColor.hex}
-                onChange={(e) => setNewColor((c) => ({ ...c, hex: e.target.value }))}
-                className="border border-gray-300 rounded-lg px-3 py-2 w-28"
-              />
-            </label>
-            {colorError && (
-              <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{colorError}</p>
+            )}
+            {MASTER_MODAL_CONFIG[addMaster].rate && (
+              <label className="block text-sm">
+                <span className="block text-gray-600 mb-1">Rate (%) *</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  value={masterDraft.rate}
+                  onChange={(e) => setMasterDraft((d) => ({ ...d, rate: e.target.value }))}
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full"
+                />
+              </label>
+            )}
+            {masterError && (
+              <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{masterError}</p>
             )}
             <div className="flex justify-end gap-2 pt-1">
-              <button type="button" disabled={addingColor} onClick={() => setShowAddColor(false)}
+              <button type="button" disabled={addingMaster} onClick={() => setAddMaster(null)}
                 className="px-4 py-2 rounded-lg text-sm font-semibold border border-gray-300 text-gray-600 hover:bg-gray-100">
                 Cancel
               </button>
-              <button type="button" disabled={addingColor || !newColor.name.trim()}
-                onClick={createColor}
+              <button type="button" disabled={addingMaster || !masterDraft.name.trim()}
+                onClick={createMasterItem}
                 className="px-4 py-2 rounded-lg text-sm font-semibold bg-gray-900 text-white hover:bg-gray-700 disabled:opacity-50">
-                {addingColor ? "Adding…" : "Add Color"}
+                {addingMaster ? "Adding…" : `Add ${MASTER_MODAL_CONFIG[addMaster].label}`}
               </button>
             </div>
           </div>
