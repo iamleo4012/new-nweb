@@ -11,7 +11,6 @@ const SIMPLE_ENTITIES = [
   { key: "units", label: "Units" },
   { key: "suppliers", label: "Suppliers" },
   { key: "countries", label: "Countries" },
-  { key: "taxes", label: "Taxes" },
 ] as const;
 
 const HIERARCHY_ENTITIES = [

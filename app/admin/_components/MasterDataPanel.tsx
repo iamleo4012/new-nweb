@@ -10,8 +10,7 @@ type SimpleEntityKey =
   | "sizes"
   | "units"
   | "suppliers"
-  | "countries"
-  | "taxes";
+  | "countries";
 
 type HierarchyKey = "departments" | "sections" | "categories" | "subcategories";
 
@@ -38,7 +37,6 @@ const SIMPLE_ENTITIES: SimpleEntityKey[] = [
   "units",
   "suppliers",
   "countries",
-  "taxes",
 ];
 
 function isSimple(key: string): key is SimpleEntityKey {
@@ -203,7 +201,6 @@ export function MasterDataPanel({ entity }: { entity: EntityKey }) {
     if (f.key === "departmentId") return (item as unknown as { department?: Relation }).department?.name ?? "—";
     if (f.key === "sectionId") return (item as unknown as { section?: Relation }).section?.name ?? "—";
     if (f.key === "categoryId") return (item as unknown as { category?: Relation }).category?.name ?? "—";
-    if (f.key === "rate") return Number(item.rate).toFixed(3);
     return String(item[f.key] ?? "");
   }
 
@@ -420,7 +417,6 @@ function labelOf(entity: EntityKey): string {
     units: "Unit",
     suppliers: "Supplier",
     countries: "Country",
-    taxes: "Tax",
     departments: "Department",
     sections: "Section",
     categories: "Category",
@@ -489,12 +485,6 @@ function fieldConfig(entity: EntityKey): FieldDef[] {
       return [
         { key: "name", label: "Name", type: "text", required: true, showInList: true },
         { key: "slug", label: "Slug", type: "text", required: true, autoSlug: true },
-      ];
-    case "taxes":
-      return [
-        { key: "name", label: "Name", type: "text", required: true, showInList: true },
-        { key: "slug", label: "Slug", type: "text", required: true, autoSlug: true },
-        { key: "rate", label: "Rate (%)", type: "number", required: true, showInList: true, step: "0.001" },
       ];
     case "departments":
       return [
@@ -578,10 +568,6 @@ function validate(
     if (!f.required) continue;
     const v = form[f.key];
     if (v === "" || v == null) return `${f.label} is required`;
-  }
-  if (entity === "taxes") {
-    const r = Number(form.rate);
-    if (!Number.isFinite(r) || r < 0) return "Tax rate must be a non-negative number";
   }
   if (entity === "colors") {
     const h = form.hex as string;

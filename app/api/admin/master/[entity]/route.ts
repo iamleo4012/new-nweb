@@ -13,8 +13,7 @@ type MasterEntity =
   | "sizes"
   | "suppliers"
   | "units"
-  | "countries"
-  | "taxes";
+  | "countries";
 
 const ENTITY_CONFIG: Record<
   MasterEntity,
@@ -83,14 +82,11 @@ const ENTITY_CONFIG: Record<
       name: z.string().min(1).max(100),
     }),
   },
-  taxes: {
-    model: "tax",
-    schema: z.object({
-      slug: z.string().min(2).max(120).regex(/^[a-z0-9-]+$/),
-      name: z.string().min(1).max(100),
-      rate: z.number().min(0).max(1000),
-    }),
-  },
+  // NOTE: "taxes" was removed from the admin workflow (2026-09-03) — tax is
+  // not used as product master data in this application. The Tax table and
+  // Product.taxId relation remain in the schema so historical data is
+  // untouched; existing product taxId values still round-trip through the
+  // products API.
 };
 
 function forbidden() {

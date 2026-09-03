@@ -83,6 +83,10 @@ export function CustomFieldsSection({
   const [showAdd, setShowAdd] = useState(false);
   const [draft, setDraft] = useState(emptyDraft());
   const [busy, setBusy] = useState(false);
+  // Shown when "+ Add Info" is used before a subcategory is chosen — custom
+  // fields are DEFINED per subcategory (architectural), but nothing else in
+  // the product form depends on Classification being filled first.
+  const [needsSubcategory, setNeedsSubcategory] = useState(false);
 
   const [editId, setEditId] = useState<number | null>(null);
   const [editDraft, setEditDraft] = useState(emptyDraft());
@@ -106,8 +110,20 @@ export function CustomFieldsSection({
     };
   }
 
+  function openAdd() {
+    if (!subcategoryId) {
+      setNeedsSubcategory(true);
+      return;
+    }
+    setNeedsSubcategory(false);
+    setShowAdd(true);
+  }
+
   async function createField() {
-    if (!subcategoryId) return;
+    if (!subcategoryId) {
+      setNeedsSubcategory(true);
+      return;
+    }
     setBusy(true);
     try {
       const payload = draftToPayload(draft);
@@ -427,7 +443,7 @@ export function CustomFieldsSection({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
           Custom Fields ({sectionAttrs.length})
-          {!subcategoryId && <span className="ml-2 normal-case font-normal text-gray-400">— select a subcategory above to add custom info</span>}
+          {!subcategoryId && <span className="ml-2 normal-case font-normal text-gray-400">— defined per subcategory; everything else can be filled independently</span>}
         </div>
         <div className="flex gap-2">
           {sectionAttrs.length > 1 && (
@@ -441,14 +457,20 @@ export function CustomFieldsSection({
           )}
           <button
             type="button"
-            disabled={!subcategoryId}
-            onClick={() => setShowAdd(true)}
-            className="text-xs font-semibold text-white bg-gray-900 hover:bg-gray-700 disabled:opacity-40 px-2.5 py-1.5 rounded-lg"
+            onClick={openAdd}
+            className="text-xs font-semibold text-white bg-gray-900 hover:bg-gray-700 px-2.5 py-1.5 rounded-lg"
           >
             + Add Info
           </button>
         </div>
       </div>
+
+      {needsSubcategory && (
+        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          Custom fields are saved per subcategory — pick a subcategory under <strong>Classification</strong> when convenient, then add the field.
+          All other sections can be filled in any order in the meantime.
+        </p>
+      )}
 
       {subcategoryId && sectionAttrs.length === 0 && !showManage && (
         <p className="text-xs text-gray-400">

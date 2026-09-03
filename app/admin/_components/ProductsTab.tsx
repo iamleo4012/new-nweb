@@ -23,22 +23,20 @@ type MasterEntityKey =
   | "sizes"
   | "suppliers"
   | "units"
-  | "countries"
-  | "taxes";
+  | "countries";
 
 /** Per-entity form shape for the inline "+ Add New" modal. */
 const MASTER_MODAL_CONFIG: Record<
   MasterEntityKey,
-  { label: string; nameAr: boolean; hex: boolean; rate: boolean }
+  { label: string; nameAr: boolean; hex: boolean }
 > = {
-  brands: { label: "Brand", nameAr: false, hex: false, rate: false },
-  materials: { label: "Material", nameAr: true, hex: false, rate: false },
-  colors: { label: "Color", nameAr: true, hex: true, rate: false },
-  sizes: { label: "Size", nameAr: false, hex: false, rate: false },
-  suppliers: { label: "Supplier", nameAr: false, hex: false, rate: false },
-  units: { label: "Unit", nameAr: false, hex: false, rate: false },
-  countries: { label: "Country", nameAr: false, hex: false, rate: false },
-  taxes: { label: "Tax", nameAr: false, hex: false, rate: true },
+  brands: { label: "Brand", nameAr: false, hex: false },
+  materials: { label: "Material", nameAr: true, hex: false },
+  colors: { label: "Color", nameAr: true, hex: true },
+  sizes: { label: "Size", nameAr: false, hex: false },
+  suppliers: { label: "Supplier", nameAr: false, hex: false },
+  units: { label: "Unit", nameAr: false, hex: false },
+  countries: { label: "Country", nameAr: false, hex: false },
 };
 
 interface CategoryItem extends MasterItem {
@@ -89,7 +87,6 @@ export function ProductsTab() {
   const [units, setUnits] = useState<MasterItem[]>([]);
   const [suppliers, setSuppliers] = useState<MasterItem[]>([]);
   const [countries, setCountries] = useState<MasterItem[]>([]);
-  const [taxes, setTaxes] = useState<MasterItem[]>([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -98,11 +95,14 @@ export function ProductsTab() {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [pendingDelete, setPendingDelete] = useState<ProductItem | null>(null);
+  // True once the slug has been manually edited (or an existing product is
+  // being edited): typing the product name then never overwrites the slug.
+  const [slugLocked, setSlugLocked] = useState(false);
   // Inline "+ Add New" master-data modal (brand/material/color/size/supplier/
   // unit/country/tax) — created straight from the product form and
   // immediately selected, so the admin never has to leave the form.
   const [addMaster, setAddMaster] = useState<MasterEntityKey | null>(null);
-  const [masterDraft, setMasterDraft] = useState({ name: "", nameAr: "", hex: "#825335", rate: "0" });
+  const [masterDraft, setMasterDraft] = useState({ name: "", nameAr: "", hex: "#825335" });
   // Inline error for the Add-New modal, shown next to the name input.
   const [masterError, setMasterError] = useState("");
   const [addingMaster, setAddingMaster] = useState(false);
@@ -132,7 +132,7 @@ export function ProductsTab() {
       applications: "", additionalInfo: "",
       seoTitle: "", seoDescription: "",
       tags: "",
-      weight: "", length: "", width: "", height: "", warranty: "",
+      weight: "", length: "", width: "", height: "", depth: "", dimensionUnit: "cm", warranty: "",
       categoryId: "", subcategoryId: "",
       brandId: "", materialId: "", supplierId: "", unitId: "", countryId: "", taxId: "",
       departmentId: "",
@@ -146,6 +146,8 @@ export function ProductsTab() {
     setAttributes([]);
     setAttrValues({});
     setRelatedSelected([]);
+    // New product: the slug follows the name until it is manually edited.
+    setSlugLocked(false);
   };
 
   const openEdit = async (p: ProductItem) => {
@@ -153,6 +155,9 @@ export function ProductsTab() {
     setShowForm(true);
     setMessage("");
     setError("");
+    // Editing an existing product: its slug is deliberate — never regenerate
+    // it from the name while the admin edits.
+    setSlugLocked(true);
     // Start from the list row so the form is usable immediately…
     setF({
       slug: p.slug, name: p.name, description: "", longDescription: "",
@@ -163,7 +168,7 @@ export function ProductsTab() {
       applications: "", additionalInfo: "",
       seoTitle: "", seoDescription: "",
       tags: "",
-      weight: "", length: "", width: "", height: "", warranty: "",
+      weight: "", length: "", width: "", height: "", depth: "", dimensionUnit: "cm", warranty: "",
       categoryId: "", subcategoryId: "",
       brandId: "", materialId: "", supplierId: "", unitId: "", countryId: "", taxId: "",
       departmentId: "",
@@ -197,6 +202,7 @@ export function ProductsTab() {
         seoTitle: full.seoTitle ?? "", seoDescription: full.seoDescription ?? "",
         tags: Array.isArray(full.tags) ? full.tags.join(", ") : "",
         weight: str(full.weight), length: str(full.length), width: str(full.width), height: str(full.height),
+        depth: str(full.depth), dimensionUnit: full.dimensionUnit || "cm",
         warranty: full.warranty ?? "",
         categoryId: full.categoryId ? String(full.categoryId) : "",
         subcategoryId: full.subcategoryId ? String(full.subcategoryId) : "",
@@ -213,7 +219,9 @@ export function ProductsTab() {
         isNewArrival: full.isNewArrival ? "true" : "false",
       }));
       setSelectedColors((full.colors ?? []).map((c: { id: number }) => c.id));
-      setSelectedSizes((full.sizes ?? []).map((s: { id: number }) => s.id));
+      // Size is a single-select dropdown; keep at most one (defensive — the
+      // join table technically allows more, no current product uses it).
+      setSelectedSizes((full.sizes ?? []).slice(0, 1).map((s: { id: number }) => s.id));
       const imgs = Array.isArray(full.images) && full.images.length
         ? full.images
         : full.image ? [full.image] : [];
@@ -301,7 +309,6 @@ export function ProductsTab() {
     fetchJson("/api/admin/master/units").then((d) => setUnits(d.items));
     fetchJson("/api/admin/master/suppliers").then((d) => setSuppliers(d.items));
     fetchJson("/api/admin/master/countries").then((d) => setCountries(d.items));
-    fetchJson("/api/admin/master/taxes").then((d) => setTaxes(d.items));
   }, []);
 
   useEffect(loadAll, [loadAll]);
@@ -334,12 +341,12 @@ export function ProductsTab() {
 
   /** Current in-state list for a master entity (for duplicate pre-checks). */
   const masterLists: Record<MasterEntityKey, MasterItem[]> = {
-    brands, materials, colors, sizes, suppliers, units, countries, taxes,
+    brands, materials, colors, sizes, suppliers, units, countries,
   };
 
   const openAddMaster = (entity: MasterEntityKey) => {
     setMasterError("");
-    setMasterDraft({ name: "", nameAr: "", hex: "#825335", rate: "0" });
+    setMasterDraft({ name: "", nameAr: "", hex: "#825335" });
     setAddMaster(entity);
   };
 
@@ -348,7 +355,7 @@ export function ProductsTab() {
     const d = await fetchJson(`/api/admin/master/${entity}`);
     const setters: Record<MasterEntityKey, (items: MasterItem[]) => void> = {
       brands: setBrands, materials: setMaterials, colors: setColors, sizes: setSizes,
-      suppliers: setSuppliers, units: setUnits, countries: setCountries, taxes: setTaxes,
+      suppliers: setSuppliers, units: setUnits, countries: setCountries,
     };
     setters[entity](d.items);
   }
@@ -360,12 +367,13 @@ export function ProductsTab() {
       return;
     }
     if (entity === "sizes") {
-      setSelectedSizes((prev) => (prev.includes(id) ? prev : [...prev, id]));
+      // Single-select dropdown: replace, not append.
+      setSelectedSizes([id]);
       return;
     }
     const formKey = ({
       brands: "brandId", materials: "materialId", suppliers: "supplierId",
-      units: "unitId", countries: "countryId", taxes: "taxId",
+      units: "unitId", countries: "countryId",
     } as const)[entity];
     update(formKey, String(id));
   }
@@ -397,7 +405,6 @@ export function ProductsTab() {
       const body: Record<string, unknown> = { slug, name };
       if (cfg.nameAr) body.nameAr = masterDraft.nameAr.trim();
       if (cfg.hex) body.hex = masterDraft.hex;
-      if (cfg.rate) body.rate = Number(masterDraft.rate) || 0;
       const res = await fetch(`/api/admin/master/${addMaster}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -411,7 +418,7 @@ export function ProductsTab() {
         const created = data.data?.item as { id?: number } | undefined;
         if (created?.id) selectMasterItem(entity, created.id);
         setAddMaster(null);
-        setMasterDraft({ name: "", nameAr: "", hex: "#825335", rate: "0" });
+        setMasterDraft({ name: "", nameAr: "", hex: "#825335" });
       } else if (res.status === 409) {
         setMasterError(`A ${cfg.label.toLowerCase()} with this name already exists — pick it from the list, or choose a different name.`);
       } else {
@@ -431,6 +438,9 @@ export function ProductsTab() {
   const subcatsOfCategory = subcategories.filter((s) => (s as unknown as { categoryId?: number }).categoryId === Number(f.categoryId));
 
   const update = (key: string, value: FormField) => {
+    // Any direct edit of the slug field locks it — later name changes must
+    // not overwrite the admin's manual value.
+    if (key === "slug") setSlugLocked(true);
     setF((prev) => {
       const next = { ...prev, [key]: value };
       // Cascade safety: changing the department drops a category/subcategory
@@ -454,16 +464,14 @@ export function ProductsTab() {
         );
         if (!subStillValid) next.subcategoryId = "";
       }
-      if (key === "name" && !prev.slug) next.slug = slugify(String(value));
+      // Auto-slug: while not manually edited, the slug tracks the name.
+      if (key === "name" && !slugLocked) next.slug = slugify(String(value));
       return next;
     });
   };
 
   const toggleColor = (id: number) => {
     setSelectedColors((prev) => prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]);
-  };
-  const toggleSize = (id: number) => {
-    setSelectedSizes((prev) => prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]);
   };
 
   async function save() {
@@ -508,6 +516,8 @@ export function ProductsTab() {
       length: optNum(f.length),
       width: optNum(f.width),
       height: optNum(f.height),
+      depth: optNum(f.depth),
+      dimensionUnit: ["mm", "cm", "m"].includes(String(f.dimensionUnit)) ? String(f.dimensionUnit) : "cm",
       warranty: f.warranty,
       isActive: bool(f.isActive),
       isFeatured: bool(f.isFeatured),
@@ -587,35 +597,25 @@ export function ProductsTab() {
     opts?: { required?: boolean; onAdd?: () => void }
   ) => {
     const cleanLabel = label.replace(/\s*\*\s*$/, "");
-    const empty = (items ?? []).length === 0;
     return (
       <label key={key} className="text-sm">
-        <span className="block text-gray-600 mb-1">
-          {label}{opts?.required ? " *" : ""}
-          {opts?.onAdd && (
-            <button type="button" onClick={opts.onAdd} className="ml-2 text-xs font-semibold text-blue-700 hover:underline">
-              + Add New
-            </button>
-          )}
-        </span>
+        <span className="block text-gray-600 mb-1">{label}{opts?.required ? " *" : ""}</span>
         <select
-          value={empty ? "" : String(f[key] ?? "")}
-          onChange={(e) => update(key, e.target.value)}
-          disabled={empty}
-          className={`border rounded-lg px-3 py-2 w-full ${empty ? "border-dashed border-gray-300 bg-gray-50 text-gray-400" : "border-gray-300"}`}
+          value={String(f[key] ?? "")}
+          onChange={(e) => {
+            // The "+ Add New" entry opens the inline modal instead of
+            // selecting a value — leaving state untouched reverts the select.
+            if (e.target.value === "__add__") {
+              opts?.onAdd?.();
+              return;
+            }
+            update(key, e.target.value);
+          }}
+          className="border border-gray-300 rounded-lg px-3 py-2 w-full"
         >
-          {empty ? (
-            <option value="">
-              {opts?.onAdd
-                ? `No ${cleanLabel.toLowerCase()} yet — click + Add New to create one`
-                : `No ${cleanLabel.toLowerCase()} available yet`}
-            </option>
-          ) : (
-            <>
-              <option value="">Select…</option>
-              {items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-            </>
-          )}
+          <option value="">Select {cleanLabel.toLowerCase()}…</option>
+          {opts?.onAdd && <option value="__add__">+ Add New {cleanLabel}</option>}
+          {items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
         </select>
       </label>
     );
@@ -778,21 +778,66 @@ export function ProductsTab() {
           <h3 className="font-semibold text-gray-900 border-b pb-2">4. Product Details</h3>
           <div className="grid md:grid-cols-2 gap-3">
             {renderMultiSelect("Colors", colors, selectedColors, toggleColor, () => openAddMaster("colors"))}
-            {renderMultiSelect("Sizes", sizes, selectedSizes, toggleSize, () => openAddMaster("sizes"))}
+            {/* Size: a normal product-entry dropdown; "+ Add New Size" creates
+                a reusable size inline without leaving the form. */}
+            <label className="text-sm">
+              <span className="block text-gray-600 mb-1">Size</span>
+              <select
+                value={selectedSizes[0] ? String(selectedSizes[0]) : ""}
+                onChange={(e) => {
+                  if (e.target.value === "__add__") {
+                    openAddMaster("sizes");
+                    return;
+                  }
+                  setSelectedSizes(e.target.value ? [Number(e.target.value)] : []);
+                }}
+                className="border border-gray-300 rounded-lg px-3 py-2 w-full"
+              >
+                <option value="">Select size…</option>
+                <option value="__add__">+ Add New Size</option>
+                {sizes.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </select>
+              <span className="block mt-1 text-xs text-gray-400 leading-snug">
+                Free-form values (e.g. 6 inch, Large, 500 ml) — saved as reusable master data.
+              </span>
+            </label>
           </div>
-          <div className="grid md:grid-cols-4 gap-3">
+          <div className="grid md:grid-cols-2 gap-3">
+            {([["length", "Length"], ["width", "Width"], ["height", "Height"], ["depth", "Depth"]] as const).map(([k, lbl]) => (
+              <label key={k} className="text-sm">
+                <span className="block text-gray-600 mb-1">{lbl}</span>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={String(f[k] ?? "")}
+                    onChange={(e) => update(k, e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-2 w-full"
+                  />
+                  <select
+                    value={String(f.dimensionUnit || "cm")}
+                    onChange={(e) => update("dimensionUnit", e.target.value)}
+                    title="Dimension unit"
+                    aria-label={`${lbl} unit`}
+                    className="border border-gray-300 rounded-lg px-2 py-2 w-20 text-gray-600"
+                  >
+                    <option value="mm">mm</option>
+                    <option value="cm">cm</option>
+                    <option value="m">m</option>
+                  </select>
+                </div>
+              </label>
+            ))}
             {renderInput("weight", "Weight (kg)", "number", { step: "0.001" })}
-            {renderInput("length", "Length (cm)", "number", { step: "0.1" })}
-            {renderInput("width", "Width (cm)", "number", { step: "0.1" })}
-            {renderInput("height", "Height (cm)", "number", { step: "0.1" })}
             {renderInput("warranty", "Warranty")}
           </div>
+          <p className="text-xs text-gray-400 -mt-1">The unit applies to all four dimensions of this product.</p>
           <div className="grid md:grid-cols-3 gap-3">
             {renderSelect("materialId", "Material", materials, { onAdd: () => openAddMaster("materials") })}
             {renderSelect("supplierId", "Supplier", suppliers, { onAdd: () => openAddMaster("suppliers") })}
             {renderSelect("unitId", "Unit", units, { onAdd: () => openAddMaster("units") })}
             {renderSelect("countryId", "Country", countries, { onAdd: () => openAddMaster("countries") })}
-            {renderSelect("taxId", "Tax", taxes, { onAdd: () => openAddMaster("taxes") })}
           </div>
 
           {/* ---------------- 5. Pricing & Inventory ---------------- */}
@@ -974,19 +1019,6 @@ export function ProductsTab() {
                   value={masterDraft.hex}
                   onChange={(e) => setMasterDraft((d) => ({ ...d, hex: e.target.value }))}
                   className="border border-gray-300 rounded-lg px-3 py-2 w-28"
-                />
-              </label>
-            )}
-            {MASTER_MODAL_CONFIG[addMaster].rate && (
-              <label className="block text-sm">
-                <span className="block text-gray-600 mb-1">Rate (%) *</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.001"
-                  value={masterDraft.rate}
-                  onChange={(e) => setMasterDraft((d) => ({ ...d, rate: e.target.value }))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full"
                 />
               </label>
             )}
