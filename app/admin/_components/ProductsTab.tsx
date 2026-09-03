@@ -125,7 +125,7 @@ export function ProductsTab() {
   const resetForm = () => {
     setF({
       slug: "", name: "", description: "", longDescription: "",
-      price: "0", costPrice: "0", discount: "0",
+      price: "0", discount: "0",
       stock: "0", minStock: "10",
       image: "", line: "", sku: "", barcode: "", ndNumber: "", internalCode: "", classCode: "",
       specs: "[]",
@@ -156,7 +156,7 @@ export function ProductsTab() {
     // Start from the list row so the form is usable immediately…
     setF({
       slug: p.slug, name: p.name, description: "", longDescription: "",
-      price: String(p.price), costPrice: "0", discount: "0",
+      price: String(p.price), discount: "0",
       stock: String(p.stock), minStock: "10",
       image: p.image, line: "", sku: p.sku, barcode: "", ndNumber: "", internalCode: "", classCode: (p as { classCode?: string }).classCode ?? "",
       specs: "[]",
@@ -188,7 +188,7 @@ export function ProductsTab() {
         ...prev,
         slug: full.slug, name: full.name,
         description: full.description ?? "", longDescription: full.longDescription ?? "",
-        price: String(full.price), costPrice: String(full.costPrice), discount: String(full.discount),
+        price: String(full.price), discount: String(full.discount),
         stock: String(full.stock), minStock: String(full.minStock),
         image: full.image ?? "", line: full.line ?? "", sku: full.sku ?? "",
         barcode: full.barcode ?? "", ndNumber: full.ndNumber ?? "", internalCode: full.internalCode ?? "", classCode: full.classCode ?? "",
@@ -488,7 +488,6 @@ export function ProductsTab() {
       description: f.description,
       longDescription: f.longDescription,
       price: num(f.price),
-      costPrice: num(f.costPrice),
       discount: num(f.discount),
       stock: int(f.stock),
       minStock: int(f.minStock),
@@ -800,7 +799,6 @@ export function ProductsTab() {
           <h3 className="font-semibold text-gray-900 border-b pb-2">5. Pricing &amp; Inventory</h3>
           <div className="grid md:grid-cols-3 gap-3">
             {renderInput("price", "Selling Price (KD)", "number", { step: "0.001" })}
-            {renderInput("costPrice", "Cost Price (KD)", "number", { step: "0.001" })}
             {renderInput("discount", "Discount (KD)", "number", { step: "0.001" })}
             {renderInput("stock", "Stock Quantity", "number")}
             {renderInput("minStock", "Minimum Stock", "number")}

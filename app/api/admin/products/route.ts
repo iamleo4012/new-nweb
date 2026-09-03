@@ -20,7 +20,11 @@ const sharedFields = {
   description: z.string().max(8000),
   longDescription: z.string().max(20000),
   price: z.number().min(0).max(999999),
-  costPrice: z.number().min(0).max(999999),
+  // Cost price is no longer collected in the admin product form (it is not
+  // needed for the selling workflow). Kept optional + defaulted so older
+  // clients that still send it keep working, and existing DB values are
+  // never touched by updates that omit it.
+  costPrice: z.number().min(0).max(999999).optional().default(0),
   discount: z.number().min(0).max(100).optional().default(0),
   stock: z.number().int().min(0).max(1000000),
   minStock: z.number().int().min(0).max(1000000).optional().default(10),
