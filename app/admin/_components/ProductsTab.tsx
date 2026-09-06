@@ -93,6 +93,10 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  // Visibility filter: "" = all, "active", "hidden" (Delete = hide; hidden
+  // products can be reactivated from the list).
+  const [statusFilter, setStatusFilter] = useState("");
+  const [reactivating, setReactivating] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -489,8 +493,37 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
   }
 
   const filtered = products.filter(
-    (p) => !query || p.name.toLowerCase().includes(query.toLowerCase()) || p.slug.includes(query.toLowerCase()) || p.sku.toLowerCase().includes(query.toLowerCase())
+    (p) =>
+      (!statusFilter || (statusFilter === "active" ? p.isActive : !p.isActive)) &&
+      (!query || p.name.toLowerCase().includes(query.toLowerCase()) || p.slug.includes(query.toLowerCase()) || p.sku.toLowerCase().includes(query.toLowerCase()))
   );
+  const hiddenCount = products.filter((p) => !p.isActive).length;
+
+  /** Un-hide a hidden product (restores storefront visibility). */
+  async function reactivateProduct(p: ProductItem) {
+    setReactivating(p.id);
+    setError("");
+    setMessage("");
+    try {
+      const res = await fetch("/api/admin/products", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ id: p.id, isActive: true }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.success) {
+        setMessage(`Product "${p.name}" is active again`);
+        loadAll();
+      } else {
+        setError(data.error || "Could not reactivate the product");
+      }
+    } catch {
+      setError("Could not reach the server while reactivating");
+    } finally {
+      setReactivating(null);
+    }
+  }
 
   const filteredCategories = categories.filter((c) => !f.departmentId || c.departmentId === Number(f.departmentId));
   const subcatsOfCategory = subcategories.filter((s) => (s as unknown as { categoryId?: number }).categoryId === Number(f.categoryId));
@@ -800,7 +833,19 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
         onCancel={() => setConfirmDiscard(false)}
       />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name, slug, SKU…" className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-64" />
+        <div className="flex flex-wrap items-center gap-2">
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name, slug, SKU…" className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-64" />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            aria-label="Filter by visibility"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
+          >
+            <option value="">All products ({products.length})</option>
+            <option value="active">Active ({products.length - hiddenCount})</option>
+            <option value="hidden">Hidden ({hiddenCount})</option>
+          </select>
+        </div>
         <button
           onClick={() => {
             if (showForm && formDirty) {
@@ -1086,6 +1131,15 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
                 </td>
                 <td className="px-4 py-2 text-right whitespace-nowrap">
                   <button onClick={() => openEdit(p)} className="text-blue-600 hover:text-blue-800 text-xs font-semibold mr-3">Edit</button>
+                  {!p.isActive && (
+                    <button
+                      onClick={() => reactivateProduct(p)}
+                      disabled={reactivating === p.id}
+                      className="text-green-700 hover:text-green-900 text-xs font-semibold mr-3 disabled:opacity-50"
+                    >
+                      {reactivating === p.id ? "Activating…" : "Reactivate"}
+                    </button>
+                  )}
                   <button onClick={() => setPendingDelete(p)} className="text-red-600 hover:text-red-800 text-xs font-semibold">Delete</button>
                 </td>
               </tr>
