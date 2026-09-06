@@ -514,6 +514,23 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
   );
   const hiddenCount = products.filter((p) => !p.isActive).length;
 
+  // Client-side pagination (the whole catalog is already loaded for search);
+  // 20 rows per page keeps the list scannable. Changing the search or the
+  // visibility filter restarts from page 1 of the new result set.
+  const PAGE_SIZE = 20;
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageItems = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  function changeQuery(next: string) {
+    setQuery(next);
+    setPage(1);
+  }
+  function changeStatusFilter(next: string) {
+    setStatusFilter(next);
+    setPage(1);
+  }
+
   /** Un-hide a hidden product (restores storefront visibility). */
   async function reactivateProduct(p: ProductItem) {
     setReactivating(p.id);
@@ -851,10 +868,10 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
       />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name, slug, SKU…" className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-64" />
+          <input value={query} onChange={(e) => changeQuery(e.target.value)} placeholder="Search name, slug, SKU…" className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-64" />
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => changeStatusFilter(e.target.value)}
             aria-label="Filter by visibility"
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
           >
@@ -1133,7 +1150,7 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p) => (
+            {pageItems.map((p) => (
               <tr key={p.id} className="border-b last:border-0 hover:bg-gray-50">
                 <td className="px-4 py-2">
                   <div className="font-medium text-gray-900">{p.name}</div>
@@ -1170,6 +1187,27 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
           </tbody>
         </table>
       </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 pt-1 pb-2">
+          <button
+            onClick={() => setPage((v) => Math.max(1, v - 1))}
+            disabled={safePage <= 1}
+            className="px-3 py-1.5 rounded-lg text-sm border border-gray-300 bg-white disabled:opacity-50 hover:bg-gray-100"
+          >
+            ← Prev
+          </button>
+          <span className="text-sm text-gray-600">
+            Page {safePage} of {totalPages} · {filtered.length} product{filtered.length === 1 ? "" : "s"}
+          </span>
+          <button
+            onClick={() => setPage((v) => Math.min(totalPages, v + 1))}
+            disabled={safePage >= totalPages}
+            className="px-3 py-1.5 rounded-lg text-sm border border-gray-300 bg-white disabled:opacity-50 hover:bg-gray-100"
+          >
+            Next →
+          </button>
+        </div>
+      )}
 
       {/* ---- + Add New master-data modal (inline from the product form) ---- */}
       {addMaster && (
