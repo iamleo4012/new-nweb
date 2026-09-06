@@ -307,7 +307,22 @@ export function CustomersTab() {
               <tr><td colSpan={7} className="px-4 py-6 text-center text-gray-500">Loading…</td></tr>
             )}
             {!loading && customers.map((c) => (
-              <tr key={c.id} className="border-b last:border-0 hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedId(c.id)}>
+              <tr
+                key={c.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`Open details for ${c.name}`}
+                onClick={() => setSelectedId(c.id)}
+                onKeyDown={(e) => {
+                  // Open with Enter/Space like a real button; keep native
+                  // table-key navigation for arrow keys.
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSelectedId(c.id);
+                  }
+                }}
+                className="border-b last:border-0 hover:bg-gray-50 focus:bg-blue-50 focus:outline-none cursor-pointer"
+              >
                 <td className="px-4 py-2 font-medium text-gray-900">{c.name}</td>
                 <td className="px-4 py-2 text-gray-600">{c.email}</td>
                 <td className="px-4 py-2 text-gray-600">{c.phone || "—"}</td>
