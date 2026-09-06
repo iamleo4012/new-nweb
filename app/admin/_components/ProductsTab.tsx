@@ -89,6 +89,8 @@ export function ProductsTab() {
   const [countries, setCountries] = useState<MasterItem[]>([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  // Field-located validation messages (key → message) shown under inputs.
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -445,6 +447,8 @@ export function ProductsTab() {
   const subcatsOfCategory = subcategories.filter((s) => (s as unknown as { categoryId?: number }).categoryId === Number(f.categoryId));
 
   const update = (key: string, value: FormField) => {
+    // Clear this field's validation error as soon as the admin edits it.
+    if (fieldErrors[key]) setFieldErrors((prev) => { const next = { ...prev }; delete next[key]; return next; });
     // Any direct edit of the slug field locks it — later name changes must
     // not overwrite the admin's manual value.
     if (key === "slug") setSlugLocked(true);
@@ -481,16 +485,42 @@ export function ProductsTab() {
     setSelectedColors((prev) => prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]);
   };
 
+  /** Client-side pre-validation — mirrors the server rules with clear,
+   *  field-located messages so the admin sees what to fix before submit. */
+  function validateForm(): Record<string, string> {
+    const errs: Record<string, string> = {};
+    const num = (v: FormField) => { const n = Number(v); return Number.isFinite(n) ? n : NaN; };
+    if (!f.name || String(f.name).trim().length < 2) errs.name = "Name must contain at least 2 characters.";
+    else if (String(f.name).length > 200) errs.name = "Name must be at most 200 characters.";
+    if (!f.slug) errs.slug = "Slug is required.";
+    else if (!/^[a-z0-9-]+$/.test(String(f.slug))) errs.slug = "Slug must be lowercase letters, numbers, and dashes only.";
+    if (!f.categoryId) errs.categoryId = "Please select a category.";
+    for (const [key, label] of [["price", "Selling price"], ["discount", "Discount"], ["stock", "Stock"], ["minStock", "Minimum stock"], ["weight", "Weight"], ["length", "Length"], ["width", "Width"], ["height", "Height"], ["depth", "Depth"]] as const) {
+      const raw = f[key];
+      if (raw === "" || raw == null) continue;
+      const n = Number(raw);
+      if (!Number.isFinite(n)) { errs[key] = `${label} must be a number.`; continue; }
+      if (n < 0) errs[key] = `${label} must be 0 or more.`;
+      if ((key === "stock" || key === "minStock") && !Number.isInteger(n)) errs[key] = `${label} must be a whole number.`;
+    }
+    if (f.stock === "" || f.stock == null) errs.stock = "Stock is required.";
+    if (!num(f.price) && num(f.price) !== 0) errs.price = "Selling price must be a number.";
+    return errs;
+  }
+
   async function save() {
     setSaving(true);
     setError("");
     setMessage("");
 
-    if (!f.slug || !f.name) {
-      setError("Slug and Name are required");
+    const fieldErrs = validateForm();
+    if (Object.keys(fieldErrs).length > 0) {
+      setFieldErrors(fieldErrs);
+      setError("Please fix the highlighted fields and save again.");
       setSaving(false);
       return;
     }
+    setFieldErrors({});
 
     const num = (v: FormField) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
     const optNum = (v: FormField) => { if (v === "" || v == null) return null; const n = Number(v); return Number.isFinite(n) ? n : null; };
@@ -556,21 +586,34 @@ export function ProductsTab() {
     const method = isEdit ? "PATCH" : "POST";
     const body: Record<string, unknown> = isEdit ? { id: editingId, ...payload } : payload;
 
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    setSaving(false);
-    if (data.success) {
-      setMessage(isEdit ? "Product updated" : "Product created");
-      setShowForm(false);
-      setEditingId(null);
-      loadAll();
-    } else {
-      setError(data.error || (isEdit ? "Update failed" : "Create failed"));
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify(body),
+      });
+      // The server always answers JSON — but a proxy timeout or dev crash
+      // could still return HTML. Parse defensively so the form NEVER gets
+      // stuck on "Saving…".
+      let data: { success?: boolean; error?: string } = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = { success: false, error: `The server returned an unexpected response (${res.status}). Nothing was saved — your entries are still in the form, please try again.` };
+      }
+      if (data.success) {
+        setMessage(isEdit ? "Product updated" : "Product created");
+        setShowForm(false);
+        setEditingId(null);
+        loadAll();
+      } else {
+        setError(data.error || (isEdit ? "Update failed" : "Create failed"));
+      }
+    } catch {
+      setError("Could not reach the server. Nothing was saved — your entries are still in the form, please check your connection and try again.");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -592,8 +635,9 @@ export function ProductsTab() {
       {type === "textarea" ? (
         <textarea value={String(f[key] ?? "")} onChange={(e) => update(key, e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 w-full" rows={3} />
       ) : (
-        <input type={type} step={opts?.step} value={String(f[key] ?? "")} onChange={(e) => update(key, e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 w-full" />
+        <input type={type} step={opts?.step} value={String(f[key] ?? "")} onChange={(e) => update(key, e.target.value)} className={`border rounded-lg px-3 py-2 w-full ${fieldErrors[key] ? "border-red-400" : "border-gray-300"}`} />
       )}
+      {fieldErrors[key] && <span className="block text-xs text-red-600 mt-1">{fieldErrors[key]}</span>}
     </label>
   );
 
@@ -618,12 +662,13 @@ export function ProductsTab() {
             }
             update(key, e.target.value);
           }}
-          className="border border-gray-300 rounded-lg px-3 py-2 w-full"
+          className={`border rounded-lg px-3 py-2 w-full ${fieldErrors[key] ? "border-red-400" : "border-gray-300"}`}
         >
           <option value="">Select {cleanLabel.toLowerCase()}…</option>
           {opts?.onAdd && <option value="__add__">+ Add New {cleanLabel}</option>}
           {items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
         </select>
+        {fieldErrors[key] && <span className="block text-xs text-red-600 mt-1">{fieldErrors[key]}</span>}
       </label>
     );
   };
