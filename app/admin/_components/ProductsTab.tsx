@@ -74,7 +74,7 @@ async function fetchJson(url: string): Promise<{ items: MasterItem[] }> {
   return d.data ?? { items: [] };
 }
 
-export function ProductsTab() {
+export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean) => void }) {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [departments, setDepartments] = useState<MasterItem[]>([]);
@@ -97,6 +97,11 @@ export function ProductsTab() {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [pendingDelete, setPendingDelete] = useState<ProductItem | null>(null);
+  // ---- Unsaved-changes protection (state; computation lives below with
+  // the form state it snapshots) -------------------------------------
+  const [formBaseline, setFormBaseline] = useState("");
+  const [captureBaseline, setCaptureBaseline] = useState(false);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
   // True once the slug has been manually edited (or an existing product is
   // being edited): typing the product name then never overwrites the slug.
   const [slugLocked, setSlugLocked] = useState(false);
@@ -124,6 +129,41 @@ export function ProductsTab() {
   const [attrValues, setAttrValues] = useState<Record<number, CustomFieldValue>>({});
   const [relatedSelected, setRelatedSelected] = useState<number[]>([]);
 
+  // ---- Unsaved-changes protection -----------------------------------
+  // The form is "dirty" when its full state differs from a baseline
+  // snapshot captured when the form opens (and again after the full record
+  // loads in edit mode). Closing/leaving a dirty form asks first.
+  const formSnapshot = () =>
+    JSON.stringify([f, selectedColors, selectedSizes, gallery, primaryImage, attrValues, relatedSelected]);
+  const formDirty = showForm && !captureBaseline && formSnapshot() !== formBaseline;
+
+  // Capture the baseline whenever a capture is requested and the form state
+  // has settled (covers both the fresh form and the async full-record load).
+  useEffect(() => {
+    if (captureBaseline && showForm) {
+      setFormBaseline(formSnapshot());
+      setCaptureBaseline(false);
+    }
+  }, [captureBaseline, showForm, f, selectedColors, selectedSizes, gallery, primaryImage, attrValues, relatedSelected]);
+
+  // Warn before refresh/close while the form has unsaved changes.
+  useEffect(() => {
+    if (!formDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [formDirty]);
+
+  // Let the parent (AdminApp) guard tab switches while dirty.
+  useEffect(() => {
+    onDirtyChange?.(formDirty);
+    return () => onDirtyChange?.(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formDirty]);
+
   const resetForm = () => {
     setF({
       slug: "", name: "", description: "", longDescription: "",
@@ -150,6 +190,8 @@ export function ProductsTab() {
     setRelatedSelected([]);
     // New product: the slug follows the name until it is manually edited.
     setSlugLocked(false);
+    // Fresh form — capture the clean baseline for dirty detection.
+    setCaptureBaseline(true);
   };
 
   const openEdit = async (p: ProductItem) => {
@@ -157,9 +199,13 @@ export function ProductsTab() {
     setShowForm(true);
     setMessage("");
     setError("");
+    setFieldErrors({});
     // Editing an existing product: its slug is deliberate — never regenerate
     // it from the name while the admin edits.
     setSlugLocked(true);
+    // Capture a baseline for the partial row data now; re-captured below
+    // once the FULL record has loaded.
+    setCaptureBaseline(true);
     // Start from the list row so the form is usable immediately…
     setF({
       slug: p.slug, name: p.name, description: "", longDescription: "",
@@ -239,6 +285,9 @@ export function ProductsTab() {
         )
       );
       setRelatedSelected((full.relatedProducts ?? []).map((r: { id: number }) => r.id));
+      // Full record loaded and every field is populated — this is the clean
+      // baseline the dirty check compares against from now on.
+      setCaptureBaseline(true);
     } catch {
       setError("Could not load full product details");
     }
@@ -735,9 +784,34 @@ export function ProductsTab() {
         onConfirm={() => pendingDelete && deleteProduct(pendingDelete)}
         onCancel={() => setPendingDelete(null)}
       />
+      {/* Discard unsaved changes before closing the form. */}
+      <ConfirmDialog
+        open={confirmDiscard}
+        title="Discard unsaved changes?"
+        body="You have entered information that has not been saved yet. Closing this form will lose it."
+        confirmLabel="Discard changes"
+        cancelLabel="Keep editing"
+        danger
+        onConfirm={() => {
+          setConfirmDiscard(false);
+          setShowForm(false);
+          resetForm();
+        }}
+        onCancel={() => setConfirmDiscard(false)}
+      />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name, slug, SKU…" className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-64" />
-        <button onClick={() => { setShowForm((v) => !v); if (!showForm) resetForm(); }} className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+        <button
+          onClick={() => {
+            if (showForm && formDirty) {
+              setConfirmDiscard(true);
+              return;
+            }
+            setShowForm((v) => !v);
+            if (!showForm) resetForm();
+          }}
+          className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+        >
           {showForm ? "Close" : "+ New Product"}
         </button>
         {editingId !== null && showForm && (

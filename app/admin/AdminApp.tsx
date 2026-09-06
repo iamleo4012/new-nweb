@@ -145,6 +145,19 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
   const [authState, setAuthState] = useState<"loading" | "ok" | "denied">("loading");
   const [userName, setUserName] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
+  // Leaving Products with an unsaved form asks first — the ProductsTab
+  // reports its dirty state up through this callback.
+  const [productsDirty, setProductsDirty] = useState(false);
+  const [pendingTab, setPendingTab] = useState<Tab | null>(null);
+  const handleProductsDirty = useCallback((dirty: boolean) => setProductsDirty(dirty), []);
+
+  function switchTab(next: Tab) {
+    if (tab === "products" && next !== "products" && productsDirty) {
+      setPendingTab(next);
+      return;
+    }
+    setTab(next);
+  }
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "same-origin" })
@@ -199,12 +212,14 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
             stack instead of overflowing the viewport. */}
         <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-y-2">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <span className="font-bold text-lg tracking-wide">AL-NASSIM Admin</span>
+            <span className="flex items-center gap-2">
+              <span className="font-bold text-lg tracking-wide">AL-NASSIM Admin</span>
+            </span>
             <nav className="flex flex-wrap gap-1">
               {(["dashboard", "products", "orders", "master-data", "customers", "audit-log"] as Tab[]).map((t) => (
                 <button
                   key={t}
-                  onClick={() => setTab(t)}
+                  onClick={() => switchTab(t)}
                   className={`px-3 py-1.5 rounded-md text-sm capitalize ${tab === t ? "bg-white text-gray-900 font-semibold" : "text-gray-300 hover:text-white"}`}
                 >
                   {TAB_LABELS[t]}
@@ -229,12 +244,28 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
       </header>
       <main className="max-w-6xl mx-auto px-4 py-6">
         {tab === "dashboard" && <DashboardTab />}
-        {tab === "products" && <ProductsTab />}
+        {tab === "products" && <ProductsTab onDirtyChange={handleProductsDirty} />}
         {tab === "orders" && <OrdersTab />}
         {tab === "master-data" && <MasterDataTab />}
         {tab === "customers" && <CustomersTab />}
         {tab === "audit-log" && <AuditLogTab />}
       </main>
+      {/* Leaving Products with unsaved form changes asks first. */}
+      <ConfirmDialog
+        open={pendingTab !== null}
+        title="Leave with unsaved changes?"
+        body="The product form has unsaved changes. Leaving now will lose them."
+        confirmLabel="Leave anyway"
+        cancelLabel="Stay"
+        danger
+        onConfirm={() => {
+          const next = pendingTab;
+          setPendingTab(null);
+          setProductsDirty(false);
+          if (next) setTab(next);
+        }}
+        onCancel={() => setPendingTab(null)}
+      />
     </div>
   );
 }
