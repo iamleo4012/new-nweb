@@ -10,49 +10,127 @@ function forbidden() {
   return NextResponse.json({ success: false, data: null, error: "Forbidden" }, { status: 403 });
 }
 
+/**
+ * Verifies every referenced master-data/relation id actually exists BEFORE
+ * the create/update transaction runs. A stale id (e.g. a colour deleted
+ * while the admin had the form open) must surface as a clean JSON 400 the
+ * form can show — never as an unhandled 500 that leaves the client stuck.
+ * Returns a human-readable error string, or null when everything resolves.
+ */
+async function relationIdsError(rel: {
+  categoryId?: number | null;
+  subcategoryId?: number | null;
+  brandId?: number | null;
+  materialId?: number | null;
+  supplierId?: number | null;
+  unitId?: number | null;
+  countryId?: number | null;
+  taxId?: number | null;
+  colorIds?: number[];
+  sizeIds?: number[];
+}): Promise<string | null> {
+  const single: Array<[string, number | null | undefined, "category" | "subcategory" | "brand" | "material" | "supplier" | "unit" | "country" | "tax"]> = [
+    ["Category", rel.categoryId, "category"],
+    ["Subcategory", rel.subcategoryId, "subcategory"],
+    ["Brand", rel.brandId, "brand"],
+    ["Material", rel.materialId, "material"],
+    ["Supplier", rel.supplierId, "supplier"],
+    ["Unit", rel.unitId, "unit"],
+    ["Country", rel.countryId, "country"],
+    ["Tax", rel.taxId, "tax"],
+  ];
+  // Resolve one id per relation type (batched per type — usually one lookup).
+  for (const [label, id, table] of single) {
+    if (id == null) continue;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const found = await (prisma as any)[table].findUnique({ where: { id } });
+    if (!found) {
+      return `${label} no longer exists — it may have been removed. Please re-select it and save again.`;
+    }
+  }
+  if (rel.colorIds?.length) {
+    const n = await prisma.color.count({ where: { id: { in: rel.colorIds } } });
+    if (n !== new Set(rel.colorIds).size) return "One of the selected colors no longer exists — please re-select the colors and save again.";
+  }
+  if (rel.sizeIds?.length) {
+    const n = await prisma.size.count({ where: { id: { in: rel.sizeIds } } });
+    if (n !== new Set(rel.sizeIds).size) return "The selected size no longer exists — please re-select the size and save again.";
+  }
+  return null;
+}
+
+/** Uniform JSON 500 — the client always receives a parsable body. */
+function serverError(action: string) {
+  return NextResponse.json(
+    { success: false, data: null, error: `Could not ${action} the product due to a server error. Nothing was saved — please try again.` },
+    { status: 500 }
+  );
+}
+
 const optionalStr = (max: number) => z.string().max(max).optional().default("");
 const optInt = () => z.number().int().min(0).max(1000000).optional();
 const optDec = () => z.number().min(0).max(999999).optional();
 const nullableInt = () => z.number().int().positive().nullable().optional();
 
 const sharedFields = {
-  name: z.string().min(2).max(200),
-  description: z.string().max(8000),
-  longDescription: z.string().max(20000),
-  price: z.number().min(0).max(999999),
+  name: z
+    .string()
+    .min(2, "Name must contain at least 2 characters.")
+    .max(200, "Name must be at most 200 characters."),
+  description: z.string().max(8000, "Short description is too long (max 8000 characters)."),
+  longDescription: z.string().max(20000, "Long description is too long (max 20000 characters)."),
+  price: z
+    .number()
+    .min(0, "Selling price must be 0 or more.")
+    .max(999999, "Selling price is too large."),
   // Cost price is no longer collected in the admin product form (it is not
   // needed for the selling workflow). Kept optional + defaulted so older
   // clients that still send it keep working, and existing DB values are
   // never touched by updates that omit it.
   costPrice: z.number().min(0).max(999999).optional().default(0),
-  discount: z.number().min(0).max(100).optional().default(0),
-  stock: z.number().int().min(0).max(1000000),
-  minStock: z.number().int().min(0).max(1000000).optional().default(10),
+  discount: z.number().min(0, "Discount must be 0 or more.").max(100, "Discount must be 100 or less.").optional().default(0),
+  stock: z
+    .number()
+    .int("Stock must be a whole number.")
+    .min(0, "Stock must be 0 or more.")
+    .max(1000000, "Stock is too large."),
+  minStock: z
+    .number()
+    .int("Minimum stock must be a whole number.")
+    .min(0, "Minimum stock must be 0 or more.")
+    .max(1000000, "Minimum stock is too large.")
+    .optional()
+    .default(10),
   image: z.string().max(1000),
   images: z.array(z.string().max(1000)).optional().default([]),
   line: z.string().max(100),
-  sku: z.string().max(100),
+  sku: z.string().max(100, "SKU is too long (max 100 characters)."),
   barcode: z.string().max(200),
   ndNumber: z.string().max(100),
   internalCode: z.string().max(100),
   // Internal grouping code (e.g. ZC-13). STRICTLY INTERNAL — never exposed
   // in public catalog/detail/search responses. Empty = independent product.
-  classCode: z.string().trim().max(60).optional().default(""),
-  specs: z.string().max(20000),
-  applications: z.string().max(8000),
-  additionalInfo: z.string().max(8000),
+  classCode: z.string().trim().max(60, "Product Class is too long (max 60 characters).").optional().default(""),
+  specs: z
+    .string()
+    .max(20000)
+    .refine((v) => { try { JSON.parse(v || "[]"); return true; } catch { return false; } }, {
+      message: "Specifications contain invalid data — please re-open the Specifications editor and fix the rows.",
+    }),
+  applications: z.string().max(8000, "Applications is too long (max 8000 characters)."),
+  additionalInfo: z.string().max(8000, "Additional information is too long (max 8000 characters)."),
   seoTitle: z.string().max(200),
   seoDescription: z.string().max(500),
-  tags: z.array(z.string().max(60)).optional().default([]),
-  weight: z.number().min(0).max(999999).nullable().optional(),
-  length: z.number().min(0).max(999999).nullable().optional(),
-  width: z.number().min(0).max(999999).nullable().optional(),
-  height: z.number().min(0).max(999999).nullable().optional(),
+  tags: z.array(z.string().max(60, "Each tag must be at most 60 characters.")).optional().default([]),
+  weight: z.number().min(0, "Weight must be 0 or more.").max(999999).nullable().optional(),
+  length: z.number().min(0, "Length must be 0 or more.").max(999999).nullable().optional(),
+  width: z.number().min(0, "Width must be 0 or more.").max(999999).nullable().optional(),
+  height: z.number().min(0, "Height must be 0 or more.").max(999999).nullable().optional(),
   // Depth + shared dimension unit are plain Product columns. The unit
   // applies to length/width/height/depth; omitted on PATCH = keep current
   // values (no default in the update schema).
-  depth: z.number().min(0).max(999999).nullable().optional(),
-  dimensionUnit: z.enum(["mm", "cm", "m"]).optional().default("cm"),
+  depth: z.number().min(0, "Depth must be 0 or more.").max(999999).nullable().optional(),
+  dimensionUnit: z.enum(["mm", "cm", "m"], { message: "Dimension unit must be mm, cm, or m." }).optional().default("cm"),
   warranty: z.string().max(200),
   isActive: z.boolean(),
   isFeatured: z.boolean(),
@@ -107,8 +185,8 @@ const updateSchema = z.object({
   subcategoryId: z.number().int().positive().nullable().optional(),
   // Plain Product columns — explicit (no default) on PATCH so an omitted
   // value means "keep current" rather than resetting to cm.
-  depth: z.number().min(0).max(999999).nullable().optional(),
-  dimensionUnit: z.enum(["mm", "cm", "m"]).optional(),
+  depth: z.number().min(0, "Depth must be 0 or more.").max(999999).nullable().optional(),
+  dimensionUnit: z.enum(["mm", "cm", "m"], { message: "Dimension unit must be mm, cm, or m." }).optional(),
   brandId: nullableInt(),
   materialId: nullableInt(),
   supplierId: nullableInt(),
@@ -425,15 +503,24 @@ export async function POST(req: NextRequest) {
   }
   const data = parsed.data;
   const dup = await prisma.product.findUnique({ where: { slug: data.slug } });
-  if (dup) return NextResponse.json({ success: false, data: null, error: "Slug already exists" }, { status: 409 });
+  if (dup) return NextResponse.json({ success: false, data: null, error: "A product with this slug already exists — please choose a different slug." }, { status: 409 });
   const category = await prisma.category.findUnique({ where: { id: data.categoryId } });
-  if (!category) return NextResponse.json({ success: false, data: null, error: "Category not found" }, { status: 400 });
+  if (!category) return NextResponse.json({ success: false, data: null, error: "The selected category no longer exists — please re-select the classification." }, { status: 400 });
 
   const {
     colorIds, sizeIds, customValues, relatedProductIds,
     categoryId, subcategoryId, brandId, materialId, supplierId, unitId, countryId, taxId,
     ...productFields
   } = data;
+  // Every referenced master-data id must resolve before the transaction —
+  // stale ids get a clean JSON 400 instead of an unhandled 500.
+  const badRelation = await relationIdsError({
+    categoryId, subcategoryId: subcategoryId ?? null, brandId: brandId ?? null, materialId: materialId ?? null,
+    supplierId: supplierId ?? null, unitId: unitId ?? null, countryId: countryId ?? null, taxId: taxId ?? null,
+    colorIds, sizeIds,
+  });
+  if (badRelation) return NextResponse.json({ success: false, data: null, error: badRelation }, { status: 400 });
+
   const productData: Prisma.ProductCreateInput = {
     ...productFields,
     specs: (() => {
@@ -451,18 +538,23 @@ export async function POST(req: NextRequest) {
   if (colorIds.length) productData.colors = { create: colorIds.map((cid) => ({ colorId: cid })) };
   if (sizeIds.length) productData.sizes = { create: sizeIds.map((sid) => ({ sizeId: sid })) };
 
-  const created = await prisma.product.create({ data: productData, include: productInclude });
-  if (customValues) {
-    await persistCustomValues(created.id, subcategoryId ?? null, categoryId, customValues);
+  try {
+    const created = await prisma.product.create({ data: productData, include: productInclude });
+    if (customValues) {
+      await persistCustomValues(created.id, subcategoryId ?? null, categoryId, customValues);
+    }
+    if (relatedProductIds) {
+      await persistRelated(created.id, relatedProductIds);
+    }
+    const fresh = await prisma.product.findUnique({ where: { id: created.id }, include: productInclude });
+    await prisma.auditLog.create({
+      data: { actorId: staff.id, action: "PRODUCT_CREATE", entity: "Product", entityId: String(created.id), detail: created.slug },
+    });
+    return NextResponse.json({ success: true, data: { product: await serializeFull(fresh ?? created) }, error: null });
+  } catch (err) {
+    console.error("product create failed:", err);
+    return serverError("create");
   }
-  if (relatedProductIds) {
-    await persistRelated(created.id, relatedProductIds);
-  }
-  const fresh = await prisma.product.findUnique({ where: { id: created.id }, include: productInclude });
-  await prisma.auditLog.create({
-    data: { actorId: staff.id, action: "PRODUCT_CREATE", entity: "Product", entityId: String(created.id), detail: created.slug },
-  });
-  return NextResponse.json({ success: true, data: { product: await serializeFull(fresh ?? created) }, error: null });
 }
 
 export async function PATCH(req: NextRequest) {
@@ -514,38 +606,66 @@ export async function PATCH(req: NextRequest) {
   const nextCategoryId =
     parsed.data.categoryId !== undefined ? parsed.data.categoryId : existing.categoryId;
 
-  const updated = await prisma.product.update({ where: { id }, data: fields, include: productInclude });
-  // Dynamic PIM data is persisted AFTER the row update so the new
-  // subcategory (if changed) is the one the attribute values are validated
-  // against — switching subcategories replaces the visible field set.
-  if (customValues) {
-    await persistCustomValues(id, nextSubcategoryId, nextCategoryId, customValues);
-  }
-  if (relatedProductIds) {
-    await persistRelated(id, relatedProductIds);
-  }
-  const fresh = await prisma.product.findUnique({ where: { id }, include: productInclude });
-  await prisma.auditLog.create({
-    data: { actorId: staff.id, action: "PRODUCT_UPDATE", entity: "Product", entityId: String(id), detail: Object.keys(fields).join(",") },
+  // Validate every referenced relation id before the update — stale ids get
+  // a clean JSON 400 instead of an unhandled 500 (same as create).
+  const badRelation = await relationIdsError({
+    categoryId: nextCategoryId ?? null,
+    subcategoryId: nextSubcategoryId ?? null,
+    brandId: (parsed.data as Record<string, unknown>).brandId as number | null | undefined ?? null,
+    materialId: (parsed.data as Record<string, unknown>).materialId as number | null | undefined ?? null,
+    supplierId: (parsed.data as Record<string, unknown>).supplierId as number | null | undefined ?? null,
+    unitId: (parsed.data as Record<string, unknown>).unitId as number | null | undefined ?? null,
+    countryId: (parsed.data as Record<string, unknown>).countryId as number | null | undefined ?? null,
+    taxId: (parsed.data as Record<string, unknown>).taxId as number | null | undefined ?? null,
+    colorIds,
+    sizeIds,
   });
-  // Stock changes get their own explicit old→new audit event so the owner
-  // activity feed can answer "who changed this product's stock, when, from
-  // what, to what" (additive — the generic PRODUCT_UPDATE row above remains).
-  // The update schema is spread-built (sharedFields), so read the value
-  // defensively instead of through the inferred type.
-  const stockInput = "stock" in parsed.data ? (parsed.data as Record<string, unknown>).stock : undefined;
-  if (typeof stockInput === "number" && stockInput !== existing.stock) {
+  if (badRelation) return NextResponse.json({ success: false, data: null, error: badRelation }, { status: 400 });
+
+  try {
+    const updated = await prisma.product.update({ where: { id }, data: fields, include: productInclude });
+    // Dynamic PIM data is persisted AFTER the row update so the new
+    // subcategory (if changed) is the one the attribute values are validated
+    // against — switching subcategories replaces the visible field set.
+    if (customValues) {
+      await persistCustomValues(id, nextSubcategoryId, nextCategoryId, customValues);
+    }
+    if (relatedProductIds) {
+      await persistRelated(id, relatedProductIds);
+    }
+    const fresh = await prisma.product.findUnique({ where: { id }, include: productInclude });
     await prisma.auditLog.create({
-      data: {
-        actorId: staff.id,
-        action: "PRODUCT_STOCK_CHANGE",
-        entity: "Product",
-        entityId: String(id),
-        detail: `slug=${existing.slug}; stock: ${existing.stock} -> ${stockInput}`,
-      },
+      data: { actorId: staff.id, action: "PRODUCT_UPDATE", entity: "Product", entityId: String(id), detail: Object.keys(fields).join(",") },
     });
+    // Stock changes get their own explicit old→new audit event so the owner
+    // activity feed can answer "who changed this product's stock, when, from
+    // what, to what" (additive — the generic PRODUCT_UPDATE row above remains).
+    // The update schema is spread-built (sharedFields), so read the value
+    // defensively instead of through the inferred type.
+    const stockInput = "stock" in parsed.data ? (parsed.data as Record<string, unknown>).stock : undefined;
+    if (typeof stockInput === "number" && stockInput !== existing.stock) {
+      await prisma.auditLog.create({
+        data: {
+          actorId: staff.id,
+          action: "PRODUCT_STOCK_CHANGE",
+          entity: "Product",
+          entityId: String(id),
+          detail: `slug=${existing.slug}; stock: ${existing.stock} -> ${stockInput}`,
+        },
+      });
+    }
+    return NextResponse.json({ success: true, data: { product: await serializeFull(fresh ?? updated) }, error: null });
+  } catch (err) {
+    // Editing the slug to one that already exists violates the unique index.
+    if ((err as { code?: string }).code === "P2002") {
+      return NextResponse.json(
+        { success: false, data: null, error: "A product with this slug already exists — please choose a different slug." },
+        { status: 409 }
+      );
+    }
+    console.error("product update failed:", err);
+    return serverError("update");
   }
-  return NextResponse.json({ success: true, data: { product: await serializeFull(fresh ?? updated) }, error: null });
 }
 
 export async function DELETE(req: NextRequest) {
