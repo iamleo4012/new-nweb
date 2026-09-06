@@ -520,7 +520,9 @@
 <div style="background:#fff;max-width:420px;width:100%;border-radius:12px;padding:2rem;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);" class="dark:bg-surface-container">\
   <span class="material-symbols-outlined text-5xl text-error mb-4 block">warning</span>\
   <h3 class="font-display text-xl font-extrabold text-primary dark:text-white uppercase tracking-tight mb-3">Delete My Account</h3>\
-  <p class="text-sm text-on-surface-variant dark:text-white/70 leading-relaxed mb-6">Deleting your account is permanent.<br>All your account information and saved contact details will be removed.<br>You will need to sign up again later.</p>\
+  <p class="text-sm text-on-surface-variant dark:text-white/70 leading-relaxed mb-4">Deleting your account is permanent.<br>All your account information and saved contact details will be removed.<br>You will need to sign up again later.</p>\
+  <p class="text-xs text-on-surface-variant dark:text-white/70 mb-2 text-left font-semibold uppercase tracking-wider">Confirm with your password</p>\
+  <input type="password" id="delete-password-input" autocomplete="current-password" placeholder="Your password" style="width:100%;box-sizing:border-box;padding:0.75rem;border-radius:6px;border:1px solid #ccc;margin-bottom:0.9rem;font-size:0.9rem;background:#fff;color:#000;" class="dark:bg-white/10 dark:border-white/20 dark:text-white" />\
   <div style="display:flex;gap:0.75rem;flex-direction:column;">\
     <button onclick="NassimAccount.closeDeletePopup()" style="width:100%;padding:0.875rem;border-radius:6px;font-weight:700;font-size:0.8125rem;text-transform:uppercase;letter-spacing:0.1em;border:2px solid #333;background:#fff;color:#000;cursor:pointer;transition:background 0.2s;" class="dark:text-white dark:border-white/40 dark:bg-white dark:hover:bg-gray-100">Cancel</button>\
     <button onclick="NassimAccount.doDeleteAccount()" id="delete-confirm-btn" style="width:100%;padding:0.75rem;border-radius:6px;font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;border:none;background:#ef4444;color:#fff;cursor:pointer;transition:background 0.2s;">Delete My Account</button>\
@@ -528,7 +530,12 @@
 </div>';
     document.body.appendChild(backdrop);
     document.body.style.overflow = "hidden";
-    // Escape key closes popup
+    // Enter key in the password field submits; Escape closes the popup.
+    var pwInput = document.getElementById("delete-password-input");
+    if (pwInput) {
+      pwInput.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); doDeleteAccount(); } });
+      try { pwInput.focus(); } catch (err) { /* non-fatal */ }
+    }
     backdrop._escHandler = function (e) { if (e.key === "Escape") closeDeletePopup(); };
     document.addEventListener("keydown", backdrop._escHandler);
   }
@@ -546,10 +553,19 @@
 
   function doDeleteAccount() {
     var btn = document.getElementById("delete-confirm-btn");
+    var pwInput = document.getElementById("delete-password-input");
+    var password = pwInput ? pwInput.value : "";
+    if (!password) {
+      showAuthToast("Please enter your password to confirm the deletion");
+      if (pwInput) pwInput.focus();
+      return;
+    }
     if (btn) { btn.disabled = true; btn.textContent = "Deleting..."; btn.style.opacity = "0.6"; }
     fetch("/api/auth/delete-account", {
       method: "DELETE",
-      credentials: "same-origin"
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: password })
     }).then(function (r) { return r.json(); }).then(function (data) {
       closeDeletePopup();
       if (data && data.success) {
@@ -568,7 +584,11 @@
         showView("signin");
         showAuthToast("Account deleted successfully");
       } else {
+        // Re-enable the button so the customer can retry with the correct
+        // password — the popup stays closed (closed above); reopening keeps
+        // context via the same delete entry point.
         showAuthToast(data.error || "Failed to delete account");
+        if (data && /Incorrect password/i.test(data.error || "")) deleteAccount();
       }
     }).catch(function () {
       closeDeletePopup();
