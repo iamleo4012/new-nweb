@@ -27,6 +27,7 @@ interface StatsData {
     pendingReview: number;
     waitingConfirmation: number;
     readyForPacking: number;
+    currentlyPacking: number;
     readyForDelivery: number;
     deliveredToday: number;
     completedToday: number;
@@ -213,6 +214,7 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
         <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-y-2">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <span className="flex items-center gap-2">
+              <img src="/LOGO.png" alt="AL-NASSIM" className="h-8 w-auto" />
               <span className="font-bold text-lg tracking-wide">AL-NASSIM Admin</span>
             </span>
             <nav className="flex flex-wrap gap-1">
@@ -295,7 +297,8 @@ function DashboardTab() {
   const operationalCards = [
     { label: "Awaiting Review", value: op.pendingReview, color: "text-yellow-600" },
     { label: "Waiting Confirmation", value: op.waitingConfirmation, color: "text-indigo-600" },
-    { label: "Ready for Packing", value: op.readyForPacking, color: "text-green-600" },
+    { label: "Ready to Pack (Confirmed)", value: op.readyForPacking, color: "text-green-600" },
+    { label: "Currently Packing", value: op.currentlyPacking, color: "text-orange-600" },
     { label: "Ready for Delivery", value: op.readyForDelivery, color: "text-cyan-600" },
     { label: "Delivered Today", value: op.deliveredToday, color: "text-teal-600" },
     { label: "Completed Today", value: op.completedToday, color: "text-gray-700" },
