@@ -168,7 +168,21 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formDirty]);
 
+  // Success banners self-dismiss after a few seconds (they are informational
+  // and must not linger over the next form); errors stay until addressed
+  // or until the next operation starts.
+  useEffect(() => {
+    if (!message) return;
+    const t = setTimeout(() => setMessage(""), 6000);
+    return () => clearTimeout(t);
+  }, [message]);
+
   const resetForm = () => {
+    // Opening a fresh form clears stale banners so a previous success is
+    // never mistaken for something that just happened.
+    setError("");
+    setMessage("");
+    setFieldErrors({});
     setF({
       slug: "", name: "", description: "", longDescription: "",
       price: "0", discount: "0",
@@ -447,6 +461,7 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
     const name = masterDraft.name.trim();
     const slug = slugify(name);
     setMasterError("");
+    setMessage("");
     if (!name) {
       setMasterError(`Enter a name for the ${cfg.label.toLowerCase()}.`);
       return;
@@ -701,6 +716,8 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
 
   async function deleteProduct(p: ProductItem) {
     setPendingDelete(null);
+    setMessage("");
+    setError("");
     const res = await fetch(`/api/admin/products?id=${p.id}`, { method: "DELETE", credentials: "same-origin" });
     const data = await res.json();
     if (data.success) {
