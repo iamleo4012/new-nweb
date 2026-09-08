@@ -122,14 +122,3 @@ export async function requireAdmin(): Promise<User | null> {
   if (!user || user.role !== "ADMIN") return null;
   return user;
 }
-
-/**
- * Owner gate for the Superadmin dashboard APIs. SUPERADMIN only — every
- * /api/superadmin/* handler MUST call this first; USER and ADMIN receive 403.
- * This is the server-side security boundary (frontend hiding is cosmetic).
- */
-export async function requireOwner(): Promise<User | null> {
-  const user = await getSessionUser();
-  if (!user || user.role !== "SUPERADMIN") return null;
-  return user;
-}

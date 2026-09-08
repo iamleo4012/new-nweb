@@ -129,12 +129,12 @@ async function verifyJwtEdge(token: string): Promise<{ role?: string } | null> {
 
 /**
  * Page-gate role check. SECURITY: the signed token is VERIFIED whenever
- * JWT_SECRET is available — a forged unsigned JWT with an admin/owner role
+ * JWT_SECRET is available — a forged unsigned JWT with an admin role
  * claim must never pass the gate. The unsigned jwt.decode fallback exists
  * only for the documented dev edge case where the secret is not propagated
  * to the edge runtime; the real enforcement (signature + DB session check)
- * always happens in every API route via requireStaff()/requireAdmin()/
- * requireOwner(), so this gate remains defence-in-depth, not the authority.
+ * always happens in every API route via requireStaff()/requireAdmin(),
+ * so this gate remains defence-in-depth, not the authority.
  */
 async function hasRoleToken(token: string | undefined, allowed: (string | undefined)[]): Promise<boolean> {
   if (!token) return false;
@@ -160,15 +160,6 @@ async function isAdminToken(token: string | undefined): Promise<boolean> {
   return hasRoleToken(token, ["ADMIN", "STAFF"]);
 }
 
-/**
- * Owner page-gate check: only a SUPERADMIN role claim may load /superadmin/*.
- * Like isAdminToken this is defence-in-depth — every /api/superadmin/* route
- * enforces requireOwner() server-side with full signature verification.
- */
-async function isOwnerToken(token: string | undefined): Promise<boolean> {
-  return hasRoleToken(token, ["SUPERADMIN"]);
-}
-
 function jsonError(status: number, error: string, retryAfterSec?: number): NextResponse {
   return NextResponse.json(
     { success: false, data: null, error },
@@ -187,28 +178,14 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // 1. Admin page gate — block the React admin shell at the edge.
-  //    API routes under /api/admin/* enforce their own requireStaff() gate;
-  //    this protects the page chrome from rendering for unauthenticated users.
-  //    Allow the login page itself to pass through.
+  //    API routes under /api/admin/* enforce their own requireStaff()/
+  //    requireAdmin() gates; this protects the page chrome from rendering
+  //    for unauthenticated users. Allow the login page itself to pass through.
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const token = req.cookies.get(COOKIE_NAME)?.value;
     if (!(await isAdminToken(token))) {
       const loginUrl = req.nextUrl.clone();
       loginUrl.pathname = "/admin/login";
-      loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-
-  // 1b. Superadmin (owner) page gate — only SUPERADMIN may load the owner
-  //     dashboard shell. /api/superadmin/* routes enforce requireOwner()
-  //     server-side; this gate protects the page chrome. The owner login
-  //     page itself passes through.
-  if (pathname.startsWith("/superadmin") && pathname !== "/superadmin/login") {
-    const token = req.cookies.get(COOKIE_NAME)?.value;
-    if (!(await isOwnerToken(token))) {
-      const loginUrl = req.nextUrl.clone();
-      loginUrl.pathname = "/superadmin/login";
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
     }

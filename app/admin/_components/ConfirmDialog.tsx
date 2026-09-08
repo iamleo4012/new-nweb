@@ -3,8 +3,8 @@
 /**
  * Styled confirmation dialog for destructive or high-impact admin actions
  * (order cancellation, order completion, account deactivation). Mirrors the
- * modal pattern already used by EmployeeManager in the superadmin panel so
- * confirmations look and behave the same across both areas.
+ * shared modal pattern so confirmations look and behave the same across
+ * admin areas.
  */
 
 interface ConfirmDialogProps {

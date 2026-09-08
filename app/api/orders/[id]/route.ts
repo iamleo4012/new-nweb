@@ -18,7 +18,7 @@ const ORDER_INCLUDE = {
  *
  * Access rules (security fix: guests can no longer enumerate orders):
  *   - Authenticated customer: only their own order (userId match).
- *   - Staff (ADMIN, STAFF, SUPERADMIN): any order.
+ *   - Staff (ADMIN, STAFF): any order.
  *   - Guest: ONLY with a valid capability token (?token=…) issued at
  *     checkout. Sequential ids / order numbers alone grant nothing — an
  *     unauthenticated caller receives 401, and a wrong/absent token 404.
@@ -53,8 +53,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
     // Ownership is anchored to the current account's userId only — never by
     // email alone, so a reused email cannot surface a deleted account's order.
-    // SUPERADMIN is admitted as staff so the owner retains order oversight.
-    const isStaff = user.role === "ADMIN" || user.role === "STAFF" || user.role === "SUPERADMIN";
+    const isStaff = user.role === "ADMIN" || user.role === "STAFF";
     const isOwner = order.userId === user.id;
     if (!isStaff && !isOwner) {
       return NextResponse.json({ success: false, data: null, error: "Forbidden" }, { status: 403 });

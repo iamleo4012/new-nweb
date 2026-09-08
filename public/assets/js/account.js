@@ -361,11 +361,7 @@
           updateAccountButton();
           // Merge guest cart into server cart
           mergeGuestCart();
-          if (currentUser.isOwner) {
-            closePanel();
-            showAuthToast("Welcome back! Redirecting to Owner Portal...");
-            setTimeout(function () { window.location.href = "/superadmin"; }, 800);
-          } else if (currentUser.isAdmin) {
+          if (currentUser.isAdmin) {
             closePanel();
             showAuthToast("Welcome back! Redirecting to dashboard...");
             setTimeout(function () { window.location.href = "/admin"; }, 800);

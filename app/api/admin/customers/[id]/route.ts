@@ -116,11 +116,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         throw new TxError(404, "Customer not found");
       }
 
-      // Role hierarchy: SUPERADMIN accounts are managed exclusively through the
-      // owner-gated employee system (/api/superadmin/employees), which enforces
-      // the self-protection and last-active-owner safeguards. Customer management
-      // must never modify a SUPERADMIN — this denies ADMIN (and anyone else)
-      // reaching an owner account through this endpoint.
+      // Role hierarchy: legacy SUPERADMIN rows still exist in the database
+      // (the role is removed from production, not from historical data).
+      // Customer management must never modify them — this denies ADMIN
+      // (and anyone else) reaching such an account through this endpoint.
       if (existing.role === "SUPERADMIN") {
         throw new TxError(403, "Forbidden");
       }
