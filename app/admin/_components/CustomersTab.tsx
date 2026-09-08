@@ -56,7 +56,9 @@ const STATUS_COLORS: Record<string, string> = {
   REFUNDED: "bg-orange-100 text-orange-800",
 };
 
-export function CustomersTab() {
+// readOnly: staff see customer information needed to process orders but no
+// account-management controls (the PATCH API is admin-only regardless).
+export function CustomersTab({ readOnly = false }: { readOnly?: boolean }) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -148,16 +150,22 @@ export function CustomersTab() {
                   <p className="text-sm text-gray-600">{detail.user.email} · {detail.user.phone || "No phone"}</p>
                   <p className="text-xs text-gray-400 mt-1">Role: {detail.user.role} · Joined: {new Date(detail.user.createdAt).toLocaleDateString()}</p>
                 </div>
-                <button
-                  onClick={() => {
-                    if (detail.user.isActive) setConfirmDeactivate(detail.user);
-                    else toggleActive(detail.user);
-                  }}
-                  disabled={toggling}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold disabled:opacity-50 ${detail.user.isActive ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"}`}
-                >
-                  {toggling ? "Updating…" : detail.user.isActive ? "Active" : "Inactive"}
-                </button>
+                {readOnly ? (
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${detail.user.isActive ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"}`}>
+                    {detail.user.isActive ? "Active" : "Inactive"}
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => {
+                      if (detail.user.isActive) setConfirmDeactivate(detail.user);
+                      else toggleActive(detail.user);
+                    }}
+                    disabled={toggling}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold disabled:opacity-50 ${detail.user.isActive ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"}`}
+                  >
+                    {toggling ? "Updating…" : detail.user.isActive ? "Active" : "Inactive"}
+                  </button>
+                )}
               </div>
             </div>
 

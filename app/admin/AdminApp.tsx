@@ -4,9 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { MasterDataTab } from "@/app/admin/_components/MasterDataTab";
 import { ProductsTab } from "@/app/admin/_components/ProductsTab";
 import { CustomersTab } from "@/app/admin/_components/CustomersTab";
+import StaffTab from "@/app/admin/_components/StaffTab";
 import { ConfirmDialog } from "@/app/admin/_components/ConfirmDialog";
 
-type Tab = "dashboard" | "products" | "orders" | "master-data" | "customers" | "audit-log";
+type Tab = "dashboard" | "products" | "orders" | "master-data" | "customers" | "staff" | "audit-log";
 
 const TAB_LABELS: Record<Tab, string> = {
   dashboard: "Dashboard",
@@ -14,6 +15,7 @@ const TAB_LABELS: Record<Tab, string> = {
   orders: "Orders",
   "master-data": "Master Data",
   customers: "Customers",
+  staff: "Staff",
   "audit-log": "Audit Log",
 };
 
@@ -145,6 +147,10 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
   const [tab, setTab] = useState<Tab>(initialTab);
   const [authState, setAuthState] = useState<"loading" | "ok" | "denied">("loading");
   const [userName, setUserName] = useState("");
+  // Role from the verified session ("ADMIN" | "STAFF"). ADMIN sees the full
+  // panel; STAFF gets the order-focused interface. The APIs enforce the same
+  // split server-side — this only shapes the UI.
+  const [role, setRole] = useState<"ADMIN" | "STAFF" | "">("");
   const [loggingOut, setLoggingOut] = useState(false);
   // Leaving Products with an unsaved form asks first — the ProductsTab
   // reports its dirty state up through this callback.
@@ -164,9 +170,10 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
     fetch("/api/auth/me", { credentials: "same-origin" })
       .then((r) => r.json())
       .then((data) => {
-        const role = data?.data?.user?.role;
-        if (role === "ADMIN" || role === "STAFF" || role === "SUPERADMIN") {
-          setUserName(data.data.user.name);
+        const me = data?.data?.user;
+        if (me && (me.role === "ADMIN" || me.role === "STAFF")) {
+          setUserName(me.name);
+          setRole(me.role);
           setAuthState("ok");
         } else {
           setAuthState("denied");
@@ -206,6 +213,15 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
     );
   }
 
+  // Staff may only open the order-facing tabs; a deep link to an admin-only
+  // tab (e.g. /admin/products) falls back to the staff home ("orders").
+  // Server APIs enforce the real permission split regardless of the tab.
+  const allowedTabs: Tab[] =
+    role === "ADMIN"
+      ? ["dashboard", "products", "orders", "master-data", "customers", "staff", "audit-log"]
+      : ["dashboard", "orders", "customers"];
+  const activeTab: Tab = allowedTabs.includes(tab) ? tab : "orders";
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-gray-900 text-white">
@@ -218,11 +234,11 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
               <span className="font-bold text-lg tracking-wide">AL-NASSIM Admin</span>
             </span>
             <nav className="flex flex-wrap gap-1">
-              {(["dashboard", "products", "orders", "master-data", "customers", "audit-log"] as Tab[]).map((t) => (
+              {(allowedTabs).map((t) => (
                 <button
                   key={t}
                   onClick={() => switchTab(t)}
-                  className={`px-3 py-1.5 rounded-md text-sm capitalize ${tab === t ? "bg-white text-gray-900 font-semibold" : "text-gray-300 hover:text-white"}`}
+                  className={`px-3 py-1.5 rounded-md text-sm capitalize ${activeTab === t ? "bg-white text-gray-900 font-semibold" : "text-gray-300 hover:text-white"}`}
                 >
                   {TAB_LABELS[t]}
                 </button>
@@ -245,12 +261,13 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
         </div>
       </header>
       <main className="max-w-6xl mx-auto px-4 py-6">
-        {tab === "dashboard" && <DashboardTab />}
-        {tab === "products" && <ProductsTab onDirtyChange={handleProductsDirty} />}
-        {tab === "orders" && <OrdersTab />}
-        {tab === "master-data" && <MasterDataTab />}
-        {tab === "customers" && <CustomersTab />}
-        {tab === "audit-log" && <AuditLogTab />}
+        {activeTab === "dashboard" && <DashboardTab />}
+        {activeTab === "products" && <ProductsTab onDirtyChange={handleProductsDirty} />}
+        {activeTab === "orders" && <OrdersTab />}
+        {activeTab === "master-data" && <MasterDataTab />}
+        {activeTab === "customers" && <CustomersTab readOnly={role !== "ADMIN"} />}
+        {activeTab === "staff" && <StaffTab />}
+        {activeTab === "audit-log" && <AuditLogTab />}
       </main>
       {/* Leaving Products with unsaved form changes asks first. */}
       <ConfirmDialog

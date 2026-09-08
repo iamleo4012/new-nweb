@@ -23,7 +23,7 @@ function AdminLoginForm() {
     fetch("/api/auth/me", { credentials: "same-origin" })
       .then((r) => r.json())
       .then((data) => {
-        if (data?.data?.user && (data.data.user.role === "ADMIN" || data.data.user.role === "STAFF" || data.data.user.role === "SUPERADMIN")) {
+        if (data?.data?.user && (data.data.user.role === "ADMIN" || data.data.user.role === "STAFF")) {
           router.push(redirect);
         }
       })
@@ -45,7 +45,7 @@ function AdminLoginForm() {
       const data = await res.json();
       if (data.success && data.data?.user) {
         const role = data.data.user.role;
-        if (role === "ADMIN" || role === "STAFF" || role === "SUPERADMIN") {
+        if (role === "ADMIN" || role === "STAFF") {
           router.push(redirect);
         } else {
           setError("This account does not have staff access.");
