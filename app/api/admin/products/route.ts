@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { requireStaff, requireAdmin } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -448,8 +448,8 @@ async function persistRelated(productId: number, relatedProductIds: number[]) {
 }
 
 export async function GET(req: NextRequest) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
   const withFull = req.nextUrl.searchParams.get("full") === "1";
   // Optional single-product fetch (used by the edit form to load the full
   // record including custom field values and related products).
@@ -486,8 +486,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
   let body: unknown;
   try {
     body = await req.json();
@@ -548,7 +548,7 @@ export async function POST(req: NextRequest) {
     }
     const fresh = await prisma.product.findUnique({ where: { id: created.id }, include: productInclude });
     await prisma.auditLog.create({
-      data: { actorId: staff.id, action: "PRODUCT_CREATE", entity: "Product", entityId: String(created.id), detail: created.slug },
+      data: { actorId: admin.id, action: "PRODUCT_CREATE", entity: "Product", entityId: String(created.id), detail: created.slug },
     });
     return NextResponse.json({ success: true, data: { product: await serializeFull(fresh ?? created) }, error: null });
   } catch (err) {
@@ -558,8 +558,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
   let body: unknown;
   try {
     body = await req.json();
@@ -635,7 +635,7 @@ export async function PATCH(req: NextRequest) {
     }
     const fresh = await prisma.product.findUnique({ where: { id }, include: productInclude });
     await prisma.auditLog.create({
-      data: { actorId: staff.id, action: "PRODUCT_UPDATE", entity: "Product", entityId: String(id), detail: Object.keys(fields).join(",") },
+      data: { actorId: admin.id, action: "PRODUCT_UPDATE", entity: "Product", entityId: String(id), detail: Object.keys(fields).join(",") },
     });
     // Stock changes get their own explicit old→new audit event so the owner
     // activity feed can answer "who changed this product's stock, when, from
@@ -646,7 +646,7 @@ export async function PATCH(req: NextRequest) {
     if (typeof stockInput === "number" && stockInput !== existing.stock) {
       await prisma.auditLog.create({
         data: {
-          actorId: staff.id,
+          actorId: admin.id,
           action: "PRODUCT_STOCK_CHANGE",
           entity: "Product",
           entityId: String(id),

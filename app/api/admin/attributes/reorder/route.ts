@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { requireStaff } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -24,8 +24,8 @@ const reorderSchema = z
  * index.
  */
 export async function POST(req: NextRequest) {
-  const staff = await requireStaff();
-  if (!staff) return NextResponse.json({ success: false, data: null, error: "Forbidden" }, { status: 403 });
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.json({ success: false, data: null, error: "Forbidden" }, { status: 403 });
   let body: unknown;
   try {
     body = await req.json();
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   );
   await prisma.auditLog.create({
     data: {
-      actorId: staff.id,
+      actorId: admin.id,
       action: "ATTRIBUTE_REORDER",
       entity: "CustomAttribute",
       entityId: String(parsed.data.subcategoryId ?? parsed.data.categoryId),

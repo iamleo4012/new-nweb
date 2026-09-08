@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
-import { requireStaff } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -34,8 +34,8 @@ function sniffImageType(buf: Buffer): string | null {
 }
 
 export async function POST(req: NextRequest) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
 
   const form = await req.formData();
   const files = form.getAll("file").filter((f): f is File => f instanceof File);

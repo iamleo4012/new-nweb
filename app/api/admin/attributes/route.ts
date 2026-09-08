@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { requireStaff, requireAdmin } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -131,8 +131,8 @@ async function attributesWithI18n(scope: AttrScope) {
  * subcategories. Soft-deleted fields are hidden.
  */
 export async function GET(req: NextRequest) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
   const subcategoryId = Number(req.nextUrl.searchParams.get("subcategoryId"));
   const categoryId = Number(req.nextUrl.searchParams.get("categoryId"));
   const hasSub = Number.isInteger(subcategoryId) && subcategoryId > 0;
@@ -154,8 +154,8 @@ export async function GET(req: NextRequest) {
  * ProductCustomValue).
  */
 export async function POST(req: NextRequest) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
   let body: unknown;
   try {
     body = await req.json();
@@ -227,7 +227,7 @@ export async function POST(req: NextRequest) {
   );
   await prisma.auditLog.create({
     data: {
-      actorId: staff.id,
+      actorId: admin.id,
       action: "ATTRIBUTE_CREATE",
       entity: "CustomAttribute",
       entityId: String(created.id),
@@ -243,8 +243,8 @@ export async function POST(req: NextRequest) {
  * values stay attached via attributeId, so product data survives renames.
  */
 export async function PATCH(req: NextRequest) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
   let body: unknown;
   try {
     body = await req.json();
@@ -299,7 +299,7 @@ export async function PATCH(req: NextRequest) {
   );
   await prisma.auditLog.create({
     data: {
-      actorId: staff.id,
+      actorId: admin.id,
       action: "ATTRIBUTE_UPDATE",
       entity: "CustomAttribute",
       entityId: String(id),

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { requireStaff } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +13,8 @@ function forbidden() {
  * Query params: q (search), entity (filter), page, limit (max 100)
  */
 export async function GET(req: NextRequest) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
 
   const { searchParams } = req.nextUrl;
   const q = searchParams.get("q") || "";

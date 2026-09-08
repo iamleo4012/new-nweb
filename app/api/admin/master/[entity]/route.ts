@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { requireStaff, requireAdmin } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -132,8 +132,8 @@ function isMasterEntity(value: string): value is MasterEntity {
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ entity: string }> }) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
 
   const { entity } = await params;
   if (!isMasterEntity(entity)) {
@@ -149,8 +149,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ enti
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ entity: string }> }) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
 
   const { entity } = await params;
   if (!isMasterEntity(entity)) {
@@ -188,7 +188,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ent
   await upsertMasterI18n(entity, (created as { id: number }).id, nameAr ?? "");
   await prisma.auditLog.create({
     data: {
-      actorId: staff.id,
+      actorId: admin.id,
       action: "MASTER_CREATE",
       entity: cfg.model as string,
       entityId: String((created as { id: number }).id),
@@ -199,8 +199,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ent
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ entity: string }> }) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
 
   const { entity } = await params;
   if (!isMasterEntity(entity)) {
@@ -236,7 +236,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ en
   if (nameAr !== undefined) await upsertMasterI18n(entity, id, nameAr);
   await prisma.auditLog.create({
     data: {
-      actorId: staff.id,
+      actorId: admin.id,
       action: "MASTER_UPDATE",
       entity: cfg.model as string,
       entityId: String(id),

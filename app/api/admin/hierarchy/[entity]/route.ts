@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { requireStaff, requireAdmin } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -75,8 +75,8 @@ function isEntity(value: string): value is HierarchyEntity {
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ entity: string }> }) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
   const { entity } = await params;
   if (!isEntity(entity)) {
     return NextResponse.json({ success: false, data: null, error: "Unknown entity" }, { status: 404 });
@@ -102,8 +102,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ enti
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ entity: string }> }) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
   const { entity } = await params;
   if (!isEntity(entity)) {
     return NextResponse.json({ success: false, data: null, error: "Unknown entity" }, { status: 404 });
@@ -148,14 +148,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ ent
   }
 
   await prisma.auditLog.create({
-    data: { actorId: staff.id, action: "HIER_CREATE", entity, entityId: String(created.id), detail: created.slug },
+    data: { actorId: admin.id, action: "HIER_CREATE", entity, entityId: String(created.id), detail: created.slug },
   });
   return NextResponse.json({ success: true, data: { item: created }, error: null });
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ entity: string }> }) {
-  const staff = await requireStaff();
-  if (!staff) return forbidden();
+  const admin = await requireAdmin();
+  if (!admin) return forbidden();
   const { entity } = await params;
   if (!isEntity(entity)) {
     return NextResponse.json({ success: false, data: null, error: "Unknown entity" }, { status: 404 });
@@ -194,7 +194,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ en
   }
 
   await prisma.auditLog.create({
-    data: { actorId: staff.id, action: "HIER_UPDATE", entity, entityId: String(id), detail: Object.keys(fields).join(",") },
+    data: { actorId: admin.id, action: "HIER_UPDATE", entity, entityId: String(id), detail: Object.keys(fields).join(",") },
   });
   return NextResponse.json({ success: true, data: { item: updated }, error: null });
 }
