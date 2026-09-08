@@ -101,29 +101,25 @@ export function publicUser(u: User) {
 
 /**
  * Gate for any staff route (ADMIN or STAFF). Use this for read access and
- * routine operations that both roles may perform.
- *
- * NOTE (owner access): SUPERADMIN is also admitted so the owner can use the
- * existing Admin panel whose data APIs (stats, orders, products, customers,
- * audit-log) are gated here. This is the single demonstrably-required change
- * to this guard — behaviour for ADMIN and STAFF is byte-identical.
+ * routine operations that both roles may perform (order management,
+ * customer lookups needed to process orders, dashboard stats).
  */
 export async function requireStaff(): Promise<User | null> {
   const user = await getSessionUser();
-  if (!user || (user.role !== "ADMIN" && user.role !== "STAFF" && user.role !== "SUPERADMIN")) return null;
+  if (!user || (user.role !== "ADMIN" && user.role !== "STAFF")) return null;
   return user;
 }
 
 /**
  * Strict gate for ADMIN-level operations. STAFF users are denied even though
  * they pass requireStaff. Use this for destructive or privilege-escalating
- * actions: deactivating admins, role changes, deleting master data, etc.
- * SUPERADMIN (owner) outranks ADMIN and is admitted so the owner can use the
- * existing Admin panel and its ADMIN-gated APIs.
+ * actions: catalog and master-data mutations, uploads, staff management,
+ * deactivating accounts, etc. The production role model has exactly one
+ * active ADMIN; SUPERADMIN is no longer admitted anywhere.
  */
 export async function requireAdmin(): Promise<User | null> {
   const user = await getSessionUser();
-  if (!user || (user.role !== "ADMIN" && user.role !== "SUPERADMIN")) return null;
+  if (!user || user.role !== "ADMIN") return null;
   return user;
 }
 

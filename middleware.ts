@@ -157,7 +157,7 @@ async function hasRoleToken(token: string | undefined, allowed: (string | undefi
 }
 
 async function isAdminToken(token: string | undefined): Promise<boolean> {
-  return hasRoleToken(token, ["ADMIN", "STAFF", "SUPERADMIN"]);
+  return hasRoleToken(token, ["ADMIN", "STAFF"]);
 }
 
 /**
