@@ -25,12 +25,14 @@
  *   mobile-shelving-unit        → Warehouse → Heavy Duty Racking
  *   industrial-cage-trolley     → Warehouse → Trolleys & Baskets → Trolleys
  *   heavy-duty-platform-trolley → Warehouse → Trolleys & Baskets → Trolleys
+ *   foldable-hand-trolley       → Warehouse → Trolleys & Baskets → Trolleys (owner-approved)
+ *   light-duty-service-trolley  → Warehouse → Trolleys & Baskets → Trolleys (owner-approved)
+ *   wire-mesh-basket-trolley    → Warehouse → Trolleys & Baskets → Trolleys (owner-approved)
  *   basket-liner-pack           → subcategory link removed (invalid cross-category ref)
  *
- * Deliberately NOT touched: Freezer/Cooler & Chiller subs; products 58/61/57
- * (foldable-hand-trolley, light-duty-service-trolley, wire-mesh-basket-trolley)
- * pending the owner's department decision; inactive E2E products; Cold Room and
- * Customised Packaging (storefront-only concepts, no DB records).
+ * Deliberately NOT touched: Freezer/Cooler & Chiller subs; inactive E2E
+ * products; Cold Room and Customised Packaging (storefront-only concepts,
+ * no DB records).
  *
  * The script is idempotent — every step verifies the current state first and
  * skips what is already correct, so a partial run can simply be re-run.
@@ -111,6 +113,9 @@ async function main() {
     { slug: "mobile-shelving-unit", expectCat: "warehouse-equipment", toCat: "heavy-duty-racking", toSub: null },
     { slug: "industrial-cage-trolley", expectCat: "trolleys-baskets", toCat: "warehouse-trolleys-baskets", toSub: "trolleys" },
     { slug: "heavy-duty-platform-trolley", expectCat: "trolleys-baskets", toCat: "warehouse-trolleys-baskets", toSub: "trolleys" },
+    { slug: "foldable-hand-trolley", expectCat: "trolleys-baskets", toCat: "warehouse-trolleys-baskets", toSub: "trolleys" },
+    { slug: "light-duty-service-trolley", expectCat: "trolleys-baskets", toCat: "warehouse-trolleys-baskets", toSub: "trolleys" },
+    { slug: "wire-mesh-basket-trolley", expectCat: "trolleys-baskets", toCat: "warehouse-trolleys-baskets", toSub: "trolleys" },
   ];
   for (const m of moves) {
     const product = await prisma.product.findUnique({ where: { slug: m.slug }, include: { category: true } });
