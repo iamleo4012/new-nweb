@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MasterDataPanel } from "@/app/admin/_components/MasterDataPanel";
+import { HierarchyTree } from "@/app/admin/_components/HierarchyTree";
 
 const SIMPLE_ENTITIES = [
   { key: "brands", label: "Brands" },
@@ -22,35 +23,34 @@ const HIERARCHY_ENTITIES = [
 
 type SimpleKey = (typeof SIMPLE_ENTITIES)[number]["key"];
 type HierKey = (typeof HIERARCHY_ENTITIES)[number]["key"];
-type EntityKey = SimpleKey | HierKey;
+type EntityKey = SimpleKey | HierKey | "hierarchy";
 
 export function MasterDataTab() {
-  const [active, setActive] = useState<EntityKey>("departments");
+  const [active, setActive] = useState<EntityKey>("hierarchy");
+
+  const tabCls = (isActive: boolean) =>
+    `px-3 py-1.5 rounded-md text-sm ${isActive ? "bg-gray-900 text-white" : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-100"}`;
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-1.5">
+        <button onClick={() => setActive("hierarchy")} className={tabCls(active === "hierarchy")}>
+          Hierarchy
+        </button>
+        <span className="px-2 text-gray-400 self-center">·</span>
         {HIERARCHY_ENTITIES.map((e) => (
-          <button
-            key={e.key}
-            onClick={() => setActive(e.key)}
-            className={`px-3 py-1.5 rounded-md text-sm ${active === e.key ? "bg-gray-900 text-white" : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-100"}`}
-          >
+          <button key={e.key} onClick={() => setActive(e.key)} className={tabCls(active === e.key)}>
             {e.label}
           </button>
         ))}
         <span className="px-2 text-gray-400 self-center">·</span>
         {SIMPLE_ENTITIES.map((e) => (
-          <button
-            key={e.key}
-            onClick={() => setActive(e.key)}
-            className={`px-3 py-1.5 rounded-md text-sm ${active === e.key ? "bg-gray-900 text-white" : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-100"}`}
-          >
+          <button key={e.key} onClick={() => setActive(e.key)} className={tabCls(active === e.key)}>
             {e.label}
           </button>
         ))}
       </div>
-      <MasterDataPanel entity={active} />
+      {active === "hierarchy" ? <HierarchyTree /> : <MasterDataPanel entity={active} />}
     </div>
   );
 }
