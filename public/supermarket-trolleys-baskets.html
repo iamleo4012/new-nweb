@@ -1523,7 +1523,10 @@
 (function () {
   "use strict";
 
-  var CATEGORY = "Trolleys & Baskets";
+  /* Filter by category SLUG, not display name: a second Trolleys & Baskets
+     category exists under the Warehouse department — the shared name cannot
+     identify this page's products. Slug is unique per category record. */
+  var CATEGORY_SLUG = "trolleys-baskets";
   var CART_KEY = "nassim_cart";
   var WISH_KEY = "nassim_wishlist";
   var grid = document.getElementById("product-grid");
@@ -1752,7 +1755,7 @@
   function loadAndRender() {
     if (window.NASSIM_PRODUCTS) {
       allProducts = window.NASSIM_PRODUCTS.filter(function (p) {
-        return p.category === CATEGORY;
+        return p.categorySlug === CATEGORY_SLUG;
       });
       applyFiltersAndSort();
     } else {
