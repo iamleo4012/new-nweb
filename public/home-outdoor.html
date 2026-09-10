@@ -575,7 +575,7 @@
     function loadProducts() {
         if (window.NASSIM_PRODUCTS) {
             allProducts = window.NASSIM_PRODUCTS.filter(function(p) {
-                return p.category === "Home Care";
+                return p.category === "Home & Outdoor";
             });
             applyFiltersAndSort(); // re-render with real data
         } else {
