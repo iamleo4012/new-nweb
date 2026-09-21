@@ -12,6 +12,45 @@
 (function () {
   "use strict";
 
+  /* ===== GUEST-ONLY STOREFRONT (temporary test strategy) ==================
+     Hides the customer-facing Account and Favorites UI across the storefront
+     while leaving every underlying system intact (auth APIs, wishlist APIs,
+     database, account panel) — fully REVERSIBLE by deleting this block.
+
+     Hidden entry points:
+       #account-btn            desktop header account button
+       [data-mbnav="account"]  mobile bottom-bar Account item
+       #add-favorite-btn       product page favorite (heart) button
+       .sc-wish                category/product-card heart buttons
+       a[href="wishlist.html"] wishlist page links
+       #save-address-wrapper   checkout "save to my account" option
+       .wishlist-btn           cart page per-item Wishlist (heart) buttons
+       #logged-in-banner       checkout "Using saved account information"
+
+     Layout compensation (same rollback scope): with the bottom-bar Account
+     item hidden, #mobile-bottom-nav-inner must drop its 4-column grid so
+     Home | Categories | Cart sit as three balanced columns with no empty
+     fourth slot.
+     wishlist.html / password-reset.html additionally redirect direct
+     visits to home.html (guest-mode guard at the top of those pages).
+     Customers keep the full guest flow: browse → cart → checkout → order.
+     Staff continue to use /admin/login (unaffected). */
+  (function guestOnlyStorefront() {
+    var style = document.createElement("style");
+    style.id = "guest-only-storefront";
+    style.textContent =
+      "#account-btn," +
+      ' [data-mbnav="account"],' +
+      " #add-favorite-btn," +
+      " .sc-wish," +
+      ' a[href="wishlist.html"],' +
+      " #save-address-wrapper," +
+      " #cart-items-container .wishlist-btn," +
+      " #logged-in-banner { display: none !important; }" +
+      " #mobile-bottom-nav-inner { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }";
+    document.head.appendChild(style);
+  })();
+
   // Remove legacy localStorage auth state (previously stored plaintext passwords).
   try { localStorage.removeItem("nassim_auth"); } catch (e) {}
 
@@ -38,7 +77,11 @@
       // Admin-panel entry points. Staff accounts manage orders only, so the
       // storefront links them to the dashboard and orders — not products.
       isAdmin: u.role === "ADMIN" || u.role === "STAFF",
-      isFullAdmin: u.role === "ADMIN"
+      isFullAdmin: u.role === "ADMIN",
+      // Dedicated Store Orders Staff account — internal Order Page only
+      // (see scripts/create-store-orders-staff.mjs). Identity-based, no
+      // role or schema change.
+      isStoreOrdersStaff: (u.email || "").toLowerCase() === "store.orders@alnassim.com"
     };
   }
 
@@ -216,7 +259,13 @@
     var isAdmin = user.isAdmin === true;
     var isFullAdmin = user.isFullAdmin === true;
     var menuItems = "";
-    if (isAdmin) {
+    if (user.isStoreOrdersStaff) {
+      // Dedicated Store Orders Staff: only the internal Order Page plus the
+      // account controls — no dashboard, orders management, or product links.
+      menuItems = '\
+      <a href="/internal-orders.html" class="w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors text-left"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70">receipt_long</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white">Store Orders</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto">chevron_right</span></a>\
+      <button onclick="NassimAccount.showView(\'edit-profile\')" class="nassim-account-item w-full flex items-center gap-4 px-6 py-4 hover:bg-surface-container dark:hover:bg-transparent transition-colors text-left group/account"><span class="material-symbols-outlined text-xl text-on-surface-variant dark:text-white/70 transition-colors duration-200 group-hover/account:text-secondary">person</span><span class="font-headline text-sm font-bold text-on-surface dark:text-white transition-all duration-200 group-hover/account:text-secondary group-hover/account:font-extrabold">Edit Profile</span><span class="material-symbols-outlined text-lg text-on-surface-variant/40 ml-auto transition-colors duration-200 group-hover/account:text-secondary">chevron_right</span></button>';
+    } else if (isAdmin) {
       // Staff see the dashboard and order management links; the Product
       // Management link is admin-only (the products tab rejects staff).
       var productItem = isFullAdmin
@@ -361,7 +410,12 @@
           updateAccountButton();
           // Merge guest cart into server cart
           mergeGuestCart();
-          if (currentUser.isAdmin) {
+          if (currentUser.isStoreOrdersStaff) {
+            // Dedicated Store Orders Staff go straight to the internal Order Page.
+            closePanel();
+            showAuthToast("Welcome back! Opening Store Orders...");
+            setTimeout(function () { window.location.href = "/internal-orders.html"; }, 800);
+          } else if (currentUser.isAdmin) {
             closePanel();
             showAuthToast("Welcome back! Redirecting to dashboard...");
             setTimeout(function () { window.location.href = "/admin"; }, 800);

@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Store Orders | AL-NASSIM</title>
+<!-- INTERNAL staff page: view + print customer orders. Page access is gated
+     by middleware (staff JWT); data comes from /api/admin/orders which
+     enforces requireStaff() server-side. Read-only by design — order
+     processing stays in the existing Admin panel. -->
+<style>
+  :root { --ink:#1a2332; --muted:#64748b; --line:#e2e8f0; --bg:#f1f5f9; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; background:var(--bg); color:var(--ink); }
+  .topbar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:#0f172a; color:#fff; padding:12px 24px; }
+  .topbar .brand { font-weight:800; letter-spacing:.08em; }
+  .topbar .sub { color:#94a3b8; font-size:13px; }
+  .topbar .spacer { flex:1; }
+  .topbar a { color:#cbd5e1; font-size:13px; text-decoration:none; }
+  .topbar a:hover { color:#fff; }
+  main { max-width:1100px; margin:24px auto 60px; padding:0 16px; }
+  .controls { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
+  .controls select, .controls input[type="search"] {
+    padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:#fff; font-size:13.5px; color:var(--ink);
+  }
+  .btn { padding:8px 14px; border:1px solid var(--line); border-radius:8px; background:#fff; font-size:13.5px; font-weight:600; color:var(--ink); cursor:pointer; }
+  .btn:hover { background:#f8fafc; }
+  .btn.primary { background:#0f766e; border-color:#0f766e; color:#fff; }
+  .btn.primary:hover { background:#115e59; }
+  .error-box { display:none; margin:0 0 14px; padding:10px 14px; border:1px solid #fecaca; background:#fef2f2; color:#b91c1c; border-radius:8px; font-size:13.5px; }
+  table.orders { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(15,23,42,.08); }
+  table.orders th, table.orders td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); font-size:13.5px; vertical-align:top; }
+  table.orders th { background:#f8fafc; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  table.orders tbody tr:hover { background:#f8fafc; cursor:pointer; }
+  table.orders .num { font-weight:700; white-space:nowrap; }
+  table.orders .muted { color:var(--muted); }
+  .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; }
+  .section-title { font-size:18px; font-weight:800; margin:0 0 14px; letter-spacing:.02em; }
+  .view-btn { white-space:nowrap; }
+  .pager { display:flex; align-items:center; gap:10px; margin-top:14px; font-size:13px; color:var(--muted); }
+  .empty { padding:40px; text-align:center; color:var(--muted); background:#fff; border-radius:10px; }
+  .detail-actions { display:flex; gap:8px; margin-bottom:14px; }
+  /* WhatsApp button — sits next to the customer's phone number (list row and
+     detail sheet). Opens wa.me with a pre-filled bilingual message; the staff
+     member still presses Send inside WhatsApp. */
+  .wa-btn { display:inline-block; margin-inline-start:8px; padding:3px 10px; background:#25d366; color:#fff; border:0; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap; vertical-align:middle; font-family:inherit; }
+  .wa-btn:hover { background:#1fb857; }
+  @media (max-width:640px) { .wa-btn { margin-top:4px; } }
+  /* ===== Horizontal day tabs + single list container ====================== */
+  .day-tabs { display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:#fff; margin-bottom:14px; }
+  .day-tab { flex:1 1 0; min-width:0; padding:10px 8px; text-align:center; background:#f8fafc; border:0; border-inline-end:1px solid var(--line); cursor:pointer; font-family:inherit; }
+  .day-tab:last-child { border-inline-end:0; }
+  .day-tab .tab-title { display:block; font-size:12.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+  .day-tab .tab-date { display:block; font-size:11px; color:var(--muted); margin-top:2px; }
+  .day-tab.active { background:#e5e7eb; }
+  .day-tab.active .tab-title, .day-tab.active .tab-date { color:#111827; }
+  .day-list-box { background:#fff; border:1px solid var(--line); border-radius:10px; padding:6px 10px; box-shadow:0 1px 3px rgba(15,23,42,.08); }
+  .day-list-box .empty { padding:14px; text-align:center; }
+  @media (max-width:767px) {
+    .day-tabs { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .day-tab { min-width:96px; padding:8px 6px; }
+    .day-tab .tab-title { font-size:11px; }
+    .day-tab .tab-date { font-size:10px; }
+    /* notification icon button: no white box on mobile */
+    #notify-enable-btn { background:transparent; border:0; box-shadow:none; padding:4px 6px; }
+  }
+
+  /* ===== Mobile: prevent keyboard auto-zoom on inputs =====================
+     Mobile browsers zoom into any focused input whose font size is below
+     16px. 16px inputs = no zoom, so the page never jumps or stays zoomed. */
+  @media (max-width:767px) {
+    .controls input[type="search"], .controls select,
+    .range-field input, #from-date, #to-date { font-size:16px; }
+  }
+  /* ===== Mobile: wide orders table scrolls within its own box ============ */
+  @media (max-width:767px) {
+    table.orders { display:block !important; overflow-x:auto !important; -webkit-overflow-scrolling:touch; white-space:nowrap; }
+  }
+  /* ===== Mobile header + controls polish ================================= */
+  @media (max-width: 767px) {
+    /* brand block centered on its own line */
+    .topbar > div:first-child { width: 100%; text-align: center; }
+    /* three equal columns: language | bell | hamburger (bell centered) */
+    .toolbar-row { display: grid; grid-template-columns: 1fr 1fr 1fr; justify-items: center; }
+    .toolbar-row .lang-btn, .toolbar-row #notify-enable-btn, .toolbar-row .hb-btn { width: auto; min-height: 40px; }
+  }
+  /* ===== WhatsApp button in View Order ====================================
+     Desktop: TEXT ONLY (icon image hidden) so the action row stays compact
+     and intact. Mobile: ICON ONLY. The desktop rule must live at TOP LEVEL —
+     the previous nesting inside the max-width:767px block above could never
+     match on desktop (nested media queries AND their conditions), which
+     leaked the raw icon image onto desktop and broke the button row. */
+  @media (min-width: 768px) {
+    #detail-wa-btn img { display: none; }
+    #detail-wa-btn { display: inline-flex; align-items: center; }
+    .detail-actions { flex-wrap: wrap; }
+  }
+  @media (max-width: 767px) {
+    /* mobile: WhatsApp ICON only — bigger, no container/background */
+    #detail-wa-btn { background: transparent !important; border: 0 !important; padding: 0 !important; box-shadow: none !important; }
+    #detail-wa-btn img { width: 44px !important; height: 44px !important; }
+    #detail-wa-btn .wa-label { display: none !important; }
+    .detail-actions { flex-wrap: wrap; }
+  }
+  /* ===== Three day sheets + From/To ====================================== */
+  .range-group { display:inline-flex; align-items:center; gap:8px; margin-inline-start:12px; }
+  .range-field { display:inline-flex; align-items:center; gap:4px; font-size:12.5px; color:var(--muted); }
+  .range-field input { padding:6px 8px; border:1px solid var(--line); border-radius:8px; font:inherit; }
+  .sheet-block { background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:18px; box-shadow:0 1px 3px rgba(15,23,42,.08); }
+  .sheet-head { display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
+  .sheet-title { font-size:13px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#166534; }
+  .sheet-date { font-size:12px; color:var(--muted); }
+  .sheet-empty { font-size:12.5px; color:var(--muted); padding:6px 0; }
+  .hb-btn { display:none; }
+  #mobile-menu { display:none; }
+  @media (max-width:767px) {
+    #refresh-btn, #signout-btn, #push-enable-btn { display:none !important; }
+    .hb-btn { display:inline-block; }
+    #mobile-menu { display:block; background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:8px; }
+    #mobile-menu[hidden] { display:none; }
+    .mm-item { font-size:13px; padding:6px 0; border-bottom:1px solid var(--line); }
+    .mm-item:last-child { border-bottom:0; }
+    .notify-txt { display:none; }
+    .notify-ico { font-size:18px; }
+    .controls { flex-wrap:wrap; gap:8px; }
+    .range-group { flex-wrap:wrap; margin-inline-start:0; width:100%; }
+    /* compact mobile order rows: Order Number | Status | View Order */
+    table.orders th:nth-child(2), table.orders td:nth-child(2),
+    table.orders th:nth-child(3), table.orders td:nth-child(3),
+    table.orders th:nth-child(4), table.orders td:nth-child(4),
+    table.orders th:nth-child(5), table.orders td:nth-child(5),
+    table.orders th:nth-child(6), table.orders td:nth-child(6) { display:none; }
+    table.orders th, table.orders td { padding:7px 8px; font-size:12.5px; }
+    /* Status badge on mobile: long statuses like "Order Received" wrap onto
+       two lines ("Order" / "Received") so the badge fits the compact row;
+       short statuses like "Pending" still fit a single line. Pure layout —
+       the status values themselves never change; desktop is untouched. */
+    .badge { white-space: normal; max-width: 6em; text-align: center; line-height: 1.35; }
+    .sheet-block { padding:10px 12px; }
+    .section-title { font-size:15px; }
+  }
+  /* ===== Language toggle (EN | العربية) ================================== */
+  .lang-btn .lang-sep { margin:0 6px; opacity:.5; }
+  .lang-btn .lang-en, .lang-btn .lang-ar { opacity:.55; }
+  .lang-btn .on { opacity:1; font-weight:800; }
+  html[dir="rtl"] .order-toast { border-right:0; border-left:4px solid #25d366; }
+  html[dir="rtl"] .detail-actions, html[dir="rtl"] .topbar, html[dir="rtl"] .pager { direction:rtl; }
+  /* ===== New-order notifications (staff) ================================= */
+  .notify-pill { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:#fff; color:var(--muted); white-space:nowrap; }
+  .notify-pill.on { color:#166534; background:#dcfce7; border-color:#86efac; }
+  .notify-pill.warn { color:#92400e; background:#fef3c7; border-color:#fcd34d; }
+  .notify-pill::before { content:""; width:8px; height:8px; border-radius:50%; background:currentColor; }
+  /* Push status sentences (blocked/needs-HTTPS) can be long — wrap instead of
+     overflowing the viewport on phones. */
+  /* Brief attention pulse when staff tap the push control on a device where
+     the browser blocks push, so the tap is never "dead". */
+  @keyframes pill-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(146, 64, 14, 0); } 50% { box-shadow: 0 0 0 5px rgba(146, 64, 14, .3); } }
+  .btn.pulse { animation: pill-pulse 1s ease-in-out 3; }
+  /* ===== Mobile topbar: notification controls stay reachable and tappable ==
+     The push/sound controls are NEVER hidden on mobile — they just take full
+     rows with comfortable tap targets on small screens. RTL-neutral (flex
+     row direction follows the document dir). */
+  .toolbar-row {
+    display: flex; align-items: center; justify-content: flex-end;
+    width: 100%; gap: 12px; padding-top: 10px;
+    border-top: 1px solid rgba(148, 163, 184, .25);
+  }
+  .toolbar-row .lang-btn, .toolbar-row #notify-enable-btn, .toolbar-row .hb-btn { margin: 0; }
+  @media (max-width: 767px) {
+    .toolbar-row { display: grid; grid-template-columns: 1fr 1fr 1fr; justify-items: center; padding-top: 8px; }
+    /* icon-only notification toggle on mobile */
+    #notify-enable-btn { background: transparent; border: 0; padding: 4px 8px; font-size: 18px; }
+    #notify-enable-btn .notify-txt { display: none; }
+  }
+  #order-toasts { position:fixed; right:16px; bottom:16px; z-index:9999; display:flex; flex-direction:column; gap:8px; max-width:min(92vw, 360px); }
+  .order-toast { background:#111d27; color:#fff; border-radius:10px; padding:12px 14px; box-shadow:0 10px 30px rgba(15,23,42,.35); font-size:13.5px; line-height:1.45; border-right:4px solid #25d366; animation:toast-in .25s ease-out; }
+  .order-toast strong { color:#7dd3fc; }
+  @keyframes toast-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+  /* ===== Detail view — embedded customer Order Sent sheet ================
+     Staff "View Order" loads the real customer Order Sent page in a
+     same-origin frame (see #order-sheet-frame below); the sheet keeps ALL of
+     its own styles inside the frame — nothing is restyled or duplicated
+     here. The frame itself just fills the width and sizes to its content.
+     FOUC control: the frame carries .sheet-pending (invisible, zero height)
+     from the moment navigation starts until the sheet is rendered AND the
+     storefront chrome inside it is hidden — the customer page is therefore
+     never painted; the area simply stays empty until the sheet is ready. */
+  #order-sheet-frame { display:block; width:100%; border:0; background:transparent; }
+  #order-sheet-frame.sheet-pending { visibility:hidden; }
+  @media print {
+    .no-print { display:none !important; }
+    body { background:#fff; }
+    main { margin:0; max-width:none; padding:0; }
+    /* Print Order prints the sheet INSIDE the frame (its own print styles);
+       the parent page never needs to print this container. */
+    #order-sheet-frame { display:none !important; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar no-print">
+  <div>
+    <div class="brand" data-i18n="brand">Store Orders</div>
+    <div class="sub" data-i18n="sub">Store Orders Staff</div>
+  </div>
+  <span class="spacer"></span>
+  <button class="btn" id="refresh-btn" type="button" data-i18n="refresh">Refresh</button>
+  <button class="btn" id="signout-btn" type="button" data-i18n="signout">Sign Out</button>
+  <!-- Web Push toggle: "Enable Push Notifications" before setup, then an
+       ON/OFF toggle for this device's system notifications (see
+       updatePushStatus / the click handler in the page script). -->
+  <button class="btn" id="push-enable-btn" type="button" hidden>Enable Push Notifications</button>
+  <div class="toolbar-row">
+    <button class="btn lang-btn" id="lang-btn" type="button" title="Switch language"><span class="lang-en on">EN</span><span class="lang-sep">|</span><span class="lang-ar">العربية</span></button>
+    <button class="btn" id="notify-enable-btn" type="button">Enable Notifications &amp; Sound</button>
+    <button class="btn hb-btn" id="hb-btn" type="button" aria-label="Menu">☰</button>
+  </div>
+</header>
+<div id="mobile-menu" class="no-print" hidden>
+  <div class="mm-item" id="mm-push">⚠ Push notifications unavailable on this browser</div>
+  <div class="mm-item"><button class="btn" id="signout-hb" type="button" data-i18n="signout">Sign Out</button></div>
+</div>
+<main>
+  <div class="error-box" id="error-box" role="alert"></div>
+
+  <!-- ===== List view ===== -->
+  <section id="list-view">
+    <h1 class="section-title">Orders</h1>
+    <div class="controls no-print">
+      <input type="search" id="search-box" placeholder="Search order number or customer name…" data-i18n-ph="searchPh" aria-label="Search orders"/>
+      <button class="btn" id="search-btn" type="button" data-i18n="search">Search</button>
+      <span class="range-group" id="range-group">
+        <label class="range-field"><span data-i18n="from">From</span> <input type="date" id="from-date"/></label>
+        <label class="range-field"><span data-i18n="to">To</span> <input type="date" id="to-date"/></label>
+        <button class="btn" id="apply-range-btn" type="button" data-i18n="apply">Apply</button>
+        <button class="btn" id="clear-range-btn" type="button" data-i18n="clearRange" style="display:none">Clear</button>
+      </span>
+    </div>
+    <div class="day-tabs no-print" id="day-tabs"></div>
+    <div class="day-list-box" id="day-list"></div>
+    <div id="range-wrap" style="display:none">
+      <table class="orders" id="orders-table">
+        <thead>
+          <tr>
+            <th data-i18n="thOrderNo">Order #</th><th data-i18n="thDate">Date &amp; Time</th><th data-i18n="thCustomer">Customer</th><th data-i18n="thPhone">Phone</th>
+            <th data-i18n="thLocation">Location</th><th class="r" data-i18n="thTotal">Total</th><th data-i18n="thStatus">Status</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="orders-body"></tbody>
+      </table>
+      <div class="empty" id="empty-msg" style="display:none" data-i18n="rangeEmpty">No orders found for this range.</div>
+    </div>
+    <div class="pager no-print">
+      <button class="btn" id="prev-btn" type="button" data-i18n="prev">← Prev</button>
+      <span id="page-info"></span>
+      <button class="btn" id="next-btn" type="button" data-i18n="next">Next →</button>
+    </div>
+  </section>
+
+  <!-- ===== Detail view — the customer "Order Sent" sheet ==================
+       Staff "View Order" embeds the EXISTING customer Order Sent page
+       (order-detail.html through the signed /o/{id}-{signature} short link —
+       the same mechanism the WhatsApp button already uses), so staff see the
+       exact same sheet the customer sees: design, product images, stored
+       names/prices/quantities, delivery info, POS note and watermark.
+       Staff-only controls (Back / Print Order / Order Received) stay OUTSIDE
+       the sheet in the bar above. -->
+  <section id="detail-view" style="display:none">
+    <div class="detail-actions no-print">
+      <button class="btn" id="back-btn" type="button" data-i18n="back">← Back to Orders</button>
+      <button class="btn primary" id="print-btn" type="button" data-i18n="print">🖨 Print Order</button>
+      <button class="btn primary" id="order-received-btn" type="button" style="display:none;" data-i18n="orderReceived">Order Received</button>
+      <button class="btn wa-btn" id="detail-wa-btn" type="button" style="display:none;" aria-label="Send WhatsApp Message">
+        <img src="/topcar/whatsapp.png" alt="">
+        <span class="wa-label">Send WhatsApp Message</span>
+      </button>
+    </div>
+    <!-- The frame stays invisible (.sheet-pending) until the Order Sent sheet
+         is rendered and dressed — the customer page is never painted, and the
+         area is simply empty for the brief load. -->
+    <iframe id="order-sheet-frame" class="sheet-pending" title="Order Sent" loading="eager"></iframe>
+  </section>
+</main>
+<div id="order-toasts"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var state = { q: "", page: 1, limit: 100, total: 0, totalPages: 1, current: null, from: "", to: "" };
+
+  /* ===== Staff interface language (EN | العربية) ==========================
+     UI-only: translates the Staff Orders INTERFACE. Customer-entered order
+     data (names, phones, addresses, product names, codes, prices) is always
+     rendered exactly as stored. Preference persists per staff device. */
+  var LANG = "en";
+  try { LANG = localStorage.getItem("nassimStaffLang") === "ar" ? "ar" : "en"; } catch (e) {}
+  var T = {
+    "brand": "طلبات المتجر",
+    "sub": "صفحة موظف الطلبات",
+    "refresh": "تحديث",
+    "signout": "تسجيل الخروج",
+    "search": "بحث",
+    "searchPh": "ابحث برقم الطلب أو اسم العميل…",
+    "thOrderNo": "رقم الطلب",
+    "thDate": "التاريخ والوقت",
+    "thCustomer": "العميل",
+    "thPhone": "الهاتف",
+    "thLocation": "المنطقة",
+    "thTotal": "الإجمالي",
+    "thStatus": "الحالة",
+    "empty": "لا توجد طلبات.",
+    "prev": "السابق ←",
+    "next": "التالي →",
+    "back": "عودة للطلبات ←",
+    "print": "🖨 طباعة الطلب",
+    "orderReceived": "تم استلام الطلب",
+    "viewOrder": "عرض الطلب",
+    "sendWa": "إرسال رسالة واتساب",
+    "orderSheetForStore": "كشف الطلب — للاستخدام الداخلي",
+    "orderLbl": "الطلب:",
+    "dateLbl": "التاريخ:",
+    "statusLbl": "الحالة:",
+    "customerBlock": "العميل",
+    "name": "الاسم",
+    "phone": "الهاتف",
+    "email": "البريد",
+    "location": "المنطقة",
+    "address": "العنوان",
+    "notes": "ملاحظات",
+    "products": "المنتجات",
+    "pcs": "قطعة",
+    "product": "المنتج",
+    "qty": "الكمية",
+    "unitPrice": "سعر الوحدة",
+    "lineTotal": "إجمالي السطر",
+    "totals": "الإجماليات",
+    "subtotal": "المجموع الفرعي",
+    "grandTotal": "الإجمالي الكلي",
+    "loadFail": "تعذر تحميل الطلبات.",
+    "netErrLoad": "خطأ في الشبكة — تعذر تحميل الطلبات.",
+    "saving": "جارٍ الحفظ…",
+    "statusUpdateFail": "تعذر تحديث الحالة.",
+    "netErrStatus": "خطأ في الشبكة — تعذر تحديث الحالة.",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    " ": " ",
+    "code": "الكود:",
+    "today": "اليوم",
+    "yesterday": "أمس",
+    "dayBefore": "أول أمس",
+    "from": "من",
+    "to": "إلى",
+    "apply": "تطبيق",
+    "clearRange": "مسح",
+    "rangeEmpty": "لا توجد طلبات في هذا النطاق.",
+    "status": "الحالة",
+    "orderNo": "رقم الطلب",
+    "orderSent": "تم إرسال الطلب",
+    "notFoundTitle": "الطلب غير موجود",
+    "notFoundSub": "يرجى استخدام رابط تأكيد الطلب أو التواصل مع المتجر.",
+    "notifyNew": "تم استلام طلب جديد —",
+    "notifyOn": "🔔 الإشعارات والصوت — تشغيل",
+    "notifyOff": "🔕 الإشعارات والصوت — إيقاف",
+    "notifyEnable": "تفعيل الإشعارات والصوت",
+    "notifyLblOn": "Notifications & Sound — ON",
+    "notifyLblOff": "Notifications & Sound — OFF",
+    "pushEnable": "تفعيل الإشعارات الفورية (Push)",
+    "pushEnabling": "جارٍ التفعيل…",
+    "pushToggleOn": "🔔 الإشعارات الفورية — تشغيل",
+    "pushToggleOff": "🔕 الإشعارات الفورية — إيقاف",
+    "pushBlocked": "الإشعارات الفورية محظورة من المتصفح — يرجى السماح بالإشعارات من إعدادات المتصفح.",
+    "pushInsecure": "🔕 الإشعارات الفورية: غير متوفرة",
+    "preparing": "جارٍ التحضير…",
+    "waPrepFail": "تعذر تجهيز رابط واتساب.",
+    "waNetErr": "خطأ في الشبكة — تعذر تجهيز رابط واتساب."
+  };
+  var STATUS_AR = {
+    "PENDING": "قيد الانتظار",
+    "UNDER_REVIEW": "تم استلام الطلب",
+    "READY_FOR_CONFIRMATION": "بانتظار تأكيد العميل",
+    "CONFIRMED": "مؤكد",
+    "PACKING": "قيد التجهيز",
+    "READY_FOR_DELIVERY": "جاهز للتوصيل",
+    "OUT_FOR_DELIVERY": "قيد التوصيل",
+    "DELIVERED": "تم التسليم",
+    "COMPLETED": "مكتمل",
+    "CANCELLED_BY_CUSTOMER": "ملغي من العميل",
+    "CANCELLED_BY_STAFF": "ملغي من المتجر"
+  };
+  var ITEM_TAGS_AR = {
+    "AVAILABLE": "متوفر",
+    "UNAVAILABLE": "غير متوفر",
+    "REMOVED_AFTER_CONFIRMATION": "محذوف",
+    "DELIVERED": "تم التسليم"
+  };
+  function t(en, arKey) { return LANG === "ar" ? (T[arKey] || en) : en; }
+  window.__staffT = t;
+  window.__staffLang = function () { return LANG; };
+  function applyLang() {
+    var isAr = LANG === "ar";
+    document.documentElement.setAttribute("dir", isAr ? "rtl" : "ltr");
+    document.documentElement.setAttribute("lang", isAr ? "ar" : "en");
+    Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function (el) {
+      var k = el.getAttribute("data-i18n");
+      if (!el.getAttribute("data-orig")) el.setAttribute("data-orig", el.textContent);
+      el.textContent = isAr ? (T[k] || el.getAttribute("data-orig")) : el.getAttribute("data-orig"); // EN mode keeps the original English markup
+    });
+    var sb = document.getElementById("search-box");
+    if (sb) { if (!sb.getAttribute("data-orig-ph")) sb.setAttribute("data-orig-ph", sb.placeholder); sb.placeholder = isAr ? t("Search order number or customer name…", "searchPh") : sb.getAttribute("data-orig-ph"); }
+    var langBtn = document.getElementById("lang-btn");
+    if (langBtn) {
+      langBtn.querySelector(".lang-en").classList.toggle("on", !isAr);
+      langBtn.querySelector(".lang-ar").classList.toggle("on", isAr);
+    }
+    if (typeof loadOrders === "function") loadOrders();
+    if (state.current) openOrder(state.current);
+    if (window.__staffUpdateStatus) window.__staffUpdateStatus();
+    if (window.__staffUpdatePushStatus) window.__staffUpdatePushStatus(); // push pill follows the language toggle too
+  }
+
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function fmtKd(v, c) { return (c || "KD") + " " + Number(v || 0).toFixed(3); }
+  function fmtDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) +
+      ", " + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+  }
+  var STATUS_BADGES = {
+    PENDING: ["#fef9c3", "#854d0e"], UNDER_REVIEW: ["#dbeafe", "#1e40af"],
+    READY_FOR_CONFIRMATION: ["#e0e7ff", "#3730a3"], CONFIRMED: ["#dcfce7", "#166534"],
+    PACKING: ["#f3e8ff", "#6b21a8"], READY_FOR_DELIVERY: ["#cffafe", "#155e75"],
+    OUT_FOR_DELIVERY: ["#ffedd5", "#9a3412"], DELIVERED: ["#ccfbf1", "#115e59"],
+    COMPLETED: ["#e5e7eb", "#374151"],
+    CANCELLED_BY_CUSTOMER: ["#fee2e2", "#991b1b"], CANCELLED_BY_STAFF: ["#fee2e2", "#991b1b"]
+  };
+  var ITEM_TAGS = {
+    PENDING: "", AVAILABLE: "Available", UNAVAILABLE: "Unavailable",
+    REMOVED_AFTER_CONFIRMATION: "Removed", DELIVERED: "Delivered"
+  };
+  // This page speaks store language: the workflow state UNDER_REVIEW is
+  // "Order Received" here (the store has taken/acknowledged the order).
+  var UNDER_REVIEW_LABEL_EN = "Order Received";
+  function storeStatusLabel(o) { if (LANG === "ar") return STATUS_AR[o.status] || o.statusLabel || o.status; return o.status === "UNDER_REVIEW" ? UNDER_REVIEW_LABEL_EN : (o.statusLabel || o.status); }
+
+  function showError(msg) {
+    var el = document.getElementById("error-box");
+    el.textContent = msg;
+    el.style.display = msg ? "block" : "none";
+  }
+
+  function authFailed(res) {
+    if (res.status === 401 || res.status === 403) {
+      window.location.href = "/admin/login?redirect=/internal-orders.html";
+      return true;
+    }
+    return false;
+  }
+
+  /* ===== WhatsApp message =====
+     Builds a bilingual (EN + AR) pre-filled WhatsApp message for one order.
+     The tracking URL reuses the site's EXISTING order-detail mechanism
+     (?number=…). The guest capability token cannot be reconstructed by staff
+     (only its SHA-256 hash is stored), so no token is appended — logged-in
+     customers open it directly; guests can reply or call. No customer data
+     is stored anywhere; everything is built in-page on click. */
+  function waPhone(phone) {
+    var digits = String(phone || "").replace(/[^\d]/g, "");
+    // Kuwait: local 8-digit numbers get the 965 country code; numbers that
+    // already carry 965 (or any other country code) are kept as-is.
+    if (digits.indexOf("965") !== 0 && digits.length === 8) digits = "965" + digits;
+    return digits;
+  }
+  function waOrderUrl(o) {
+    // Signed short public link (/o/{id}-{signature}) from the staff orders
+    // API: the server resolves the order, so NO token appears anywhere and
+    // the link cannot be manipulated to reach another customer’s order.
+    if (o.shortPath) return window.location.origin + o.shortPath;
+    return window.location.origin + "/order-detail.html?number=" + encodeURIComponent(o.orderNumber);
+  }
+  function waMessage(o, orderUrl) {
+    var url = orderUrl || waOrderUrl(o);
+    // Bilingual headline stays on ONE line (full stop after RECEIVED.).
+    var header = "YOUR ORDER HAS BEEN RECEIVED. \u062A\u0645 \u0627\u0633\u062A\u0644\u0627\u0645 \u0637\u0644\u0628\u0643\u0645.";
+    var en = "Dear " + o.customerName + ",\n"
+      + "Thank you for your order with Al-Nassim. Our store team will contact you by phone to confirm your order and product availability. We're here to help if you need anything.\n\n"
+      + "YOU CAN VIEW YOUR ORDER # " + o.orderNumber;
+    var ar = "\u0639\u0632\u064A\u0632\u064A/\u0639\u0632\u064A\u0632\u062A\u064A " + o.customerName + "\u060C\n"
+      + "\u062A\u0645 \u0627\u0633\u062A\u0644\u0627\u0645 \u0637\u0644\u0628\u0643\u0645.\n"
+      + "\u0633\u064A\u062A\u0648\u0627\u0635\u0644 \u0645\u0639\u0643\u0645 \u0641\u0631\u064A\u0642 \u0627\u0644\u0645\u062A\u062C\u0631 \u0639\u0628\u0631 \u0627\u0644\u0647\u0627\u062A\u0641 \u0644\u062A\u0623\u0643\u064A\u062F \u0627\u0644\u0637\u0644\u0628 \u0648\u0627\u0644\u062A\u0623\u0643\u062F \u0645\u0646 \u062A\u0648\u0641\u0631 \u0627\u0644\u0645\u0646\u062A\u062C\u0627\u062A. \u0646\u062D\u0646 \u0647\u0646\u0627 \u0644\u0644\u0645\u0633\u0627\u0639\u062F\u0629 \u0625\u0630\u0627 \u0644\u0632\u0645 \u0627\u0644\u0623\u0645\u0631.\n\n"
+      + "\u064A\u0645\u0643\u0646\u0643\u0645 \u0639\u0631\u0636 \u0637\u0644\u0628\u0643\u0645 \u0631\u0642\u0645 " + o.orderNumber;
+    // Single CTA + URL at the very bottom of the whole bilingual message.
+    return header + "\n\n" + en + "\n\n" + ar + "\n\nView my order / \u0639\u0631\u0636 \u0637\u0644\u0628\u064A:\n" + url;
+  }
+  function waUrl(o, orderUrl) {
+    return "https://wa.me/" + waPhone(o.customerPhone) + "?text=" + encodeURIComponent(waMessage(o, orderUrl));
+  }
+  // Delegated handler: works for buttons rendered in the list AND the detail
+  // sheet. stopPropagation keeps the row's "open order" click from firing.
+  // Delegated handler: works for buttons rendered in the list AND the detail
+  // sheet. stopPropagation keeps the row's "open order" click from firing.
+  // The signed short path (/o/{id}-{signature}) comes from the staff orders
+  // API on every render — staff never see or handle any access token, and
+  // the URL cannot be manipulated to reach another customer’s order.
+  document.addEventListener("click", function (e) {
+    var btn = e.target && e.target.closest ? e.target.closest(".wa-btn") : null;
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var waTarget = waUrl({
+      customerPhone: btn.getAttribute("data-wa-phone"),
+      customerName: btn.getAttribute("data-wa-name"),
+      orderNumber: btn.getAttribute("data-wa-number"),
+      shortPath: btn.getAttribute("data-wa-path") || ""
+    });
+    if (window.matchMedia("(max-width: 767px)").matches) {
+      window.location.href = waTarget; // mobile: same tab, straight to WhatsApp
+    } else {
+      window.open(waTarget, "_blank"); // desktop: keep the staff page open
+    }
+  });
+
+  /* ===== List ===== */
+  var refreshing = false;
+  function loadOrders() {
+    if (refreshing) return; // one request at a time
+    refreshing = true;
+    var rb = document.getElementById("refresh-btn");
+    var rbText = rb.textContent;
+    rb.disabled = true;
+    rb.textContent = "Refreshing…";
+    showError("");
+    // Always fetched fresh from the server with the current page/search —
+    // never from data already in memory. Default view = the last three days
+    // (Today / Yesterday / Day Before Yesterday); From/To overrides it with
+    // a server-side inclusive date-range search (paginated).
+    var params = new URLSearchParams({ page: String(state.page), limit: String(state.limit) });
+    if (state.q) params.set("q", state.q);
+    if (state.from) params.set("from", state.from);
+    if (state.to) params.set("to", state.to);
+    fetch("/api/admin/orders?" + params.toString(), { credentials: "same-origin" })
+      .then(function (res) {
+        if (authFailed(res)) return null;
+        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+      })
+      .then(function (r) {
+        if (!r) return;
+        if (!r.ok || !r.data || !r.data.success) { showError((r.data && r.data.error) || t("Could not load orders.", "loadFail")); return; }
+        renderList(r.data.data.orders, r.data.data.pagination);
+      })
+      .catch(function () { showError(t("Network error — could not load orders.", "netErrLoad")); })
+      .then(function () {
+        refreshing = false;
+        rb.disabled = false;
+        rb.textContent = rbText;
+      });
+  }
+
+  function rowHtml(o) {
+    var badge = STATUS_BADGES[o.status] || ["#e5e7eb", "#374151"];
+    var tr = document.createElement("tr");
+    tr.setAttribute("data-order", JSON.stringify(o));
+    tr.innerHTML =
+      '<td class="num">' + esc(o.orderNumber) + '</td>' +
+      '<td class="muted">' + esc(fmtDate(o.createdAt)) + '</td>' +
+      '<td>' + esc(o.customerName) + '</td>' +
+      '<td>' + esc(o.customerPhone) + '</td>' +
+      '<td class="muted">' + esc(o.city || "") + '</td>' +
+      '<td class="num">' + esc(fmtKd(o.total, o.currency)) + '</td>' +
+      '<td><span class="badge" style="background:' + badge[0] + ';color:' + badge[1] + '">' + esc(storeStatusLabel(o)) + '</span></td>' +
+      '<td><button class="btn view-btn" type="button">' + t("View Order", "viewOrder") + '</button></td>';
+    return tr.outerHTML;
+  }
+  function wireRows(root) {
+    Array.prototype.forEach.call(root.querySelectorAll("tr[data-order]"), function (tr) {
+      tr.addEventListener("click", function () {
+        try { openOrder(JSON.parse(tr.getAttribute("data-order"))); } catch (e) { window.__rowErrs = (window.__rowErrs || []).concat(e && e.message); }
+      });
+    });
+  }
+  function dayKey(d) { return d.toDateString(); }
+  function longDate(d) {
+    try { return d.toLocaleDateString(LANG === "ar" ? "ar" : "en-GB", { day: "numeric", month: "long", year: "numeric" }); }
+    catch (e) { return d.toLocaleDateString(); }
+  }
+  /* Default view: exactly THREE day sheets — Today, Yesterday, Day Before
+     Yesterday (Kuwait/local calendar, via the browser’s local timezone).
+     Midnight shifts them automatically because grouping is computed from
+     the current date on every render. */
+  var selectedDay = "today";
+  var lastSheetOrders = [];
+  function dayKey(d) { return d.toDateString(); }
+  function longDate(d) {
+    try { return d.toLocaleDateString(LANG === "ar" ? "ar" : "en-GB", { day: "numeric", month: "long", year: "numeric" }); }
+    catch (e) { return d.toLocaleDateString(); }
+  }
+  function shortDate(d) {
+    try { return d.toLocaleDateString(LANG === "ar" ? "ar" : "en-GB", { day: "numeric", month: "short" }); }
+    catch (e) { return d.toLocaleDateString(); }
+  }
+  /* Three HORIZONTAL day tabs + ONE list container. Only the selected
+     day’s orders are ever visible. Grouping uses the local (Kuwait)
+     calendar date and recomputes on every render, so the tabs shift at
+     midnight automatically. */
+  function renderSheets(orders) {
+    lastSheetOrders = orders;
+    var now = new Date();
+    var t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var y0 = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 1);
+    var db0 = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() - 2);
+    var buckets = { today: [], yesterday: [], dayBefore: [] };
+    orders.forEach(function (o) {
+      var key = dayKey(new Date(o.createdAt));
+      if (key === dayKey(t0)) buckets.today.push(o);
+      else if (key === dayKey(y0)) buckets.yesterday.push(o);
+      else if (key === dayKey(db0)) buckets.dayBefore.push(o);
+    });
+    var tabs = [
+      { key: "today", title: t("Today", "today"), date: longDate(t0) },
+      { key: "yesterday", title: t("Yesterday", "yesterday"), date: longDate(y0), bucket: buckets.yesterday },
+      { key: "dayBefore", title: t("Day Before Yesterday", "dayBefore"), date: longDate(db0), bucket: buckets.dayBefore }
+    ];
+    var strip = document.getElementById("day-tabs");
+    strip.innerHTML = tabs.map(function (tb, i) {
+      var active = (selectedDay === tb.key) ? ' active' : '';
+      var count = buckets[tb.key].length;
+      return '<button class="day-tab' + active + '" type="button" data-day="' + tb.key + '">'
+        + (tb.date ? '<span class="tab-date">' + tb.date + '</span>' : '')
+        + '<span class="tab-count">' + count + '</span>'
+        + '</button>';
+    }).join("");
+    Array.prototype.forEach.call(strip.querySelectorAll(".day-tab"), function (b) {
+      b.addEventListener("click", function () {
+        selectedDay = b.getAttribute("data-day");
+        renderSheets(lastSheetOrders);
+      });
+    });
+    renderSelectedDay(buckets[selectedDay] || []);
+  }
+  function renderSelectedDay(list) {
+    var box = document.getElementById("day-list");
+    if (!list.length) {
+      box.innerHTML = '<div class="empty" style="display:block">' + t("No orders found.", "empty") + '</div>';
+      return;
+    }
+    box.innerHTML = '<table class="orders"><thead><tr>'
+      + '<th>' + t("Order #", "thOrderNo") + '</th>'
+      + '<th>' + t("Date & Time", "thDate") + '</th>'
+      + '<th>' + t("Customer", "thCustomer") + '</th>'
+      + '<th>' + t("Phone", "thPhone") + '</th>'
+      + '<th>' + t("Location", "thLocation") + '</th>'
+      + '<th class="r">' + t("Total", "thTotal") + '</th>'
+      + '<th>' + t("Status", "thStatus") + '</th>'
+      + '<th></th>'
+      + '</tr></thead><tbody>' + list.map(rowHtml).join("") + '</tbody></table>';
+    wireRows(box);
+  }
+  function renderList(orders, pagination) {
+    state.total = pagination.total;
+    state.totalPages = pagination.totalPages;
+    var isSheets = !state.q && !state.from && !state.to;
+    document.getElementById("day-tabs").style.display = isSheets ? "" : "none";
+    document.getElementById("day-list").style.display = isSheets ? "" : "none";
+    document.getElementById("range-wrap").style.display = isSheets ? "none" : "";
+    document.getElementById("page-info").textContent =
+      "Page " + pagination.page + " of " + pagination.totalPages + " — " + pagination.total + " " + t("order(s)", "ordersCount");
+    if (isSheets) {
+      renderSheets(orders);
+      return;
+    }
+    document.getElementById("page-info").textContent =
+      "Page " + pagination.page + " of " + pagination.totalPages + " — " + pagination.total + " " + t("order(s)", "ordersCount");
+    var body = document.getElementById("orders-body");
+    var has = orders.length > 0;
+    document.getElementById("empty-msg").style.display = has ? "none" : "block";
+    document.getElementById("orders-table").style.display = has ? "table" : "none";
+    body.innerHTML = orders.map(rowHtml).join("");
+    wireRows(body);
+    if (pendingOpenOrder) {
+      var wanted = pendingOpenOrder;
+      pendingOpenOrder = null;
+      var hit = orders.filter(function (o) { return o.orderNumber === wanted; })[0];
+      if (hit) openOrder(hit);
+    }
+    document.getElementById("prev-btn").disabled = pagination.page <= 1;
+    document.getElementById("next-btn").disabled = pagination.page >= pagination.totalPages;
+  }
+
+  /* ===== Detail view — the customer "Order Sent" sheet =====================
+     Staff "View Order" embeds the EXISTING customer Order Sent page
+     (public/order-detail.html) through the signed /o/{id}-{signature} short
+     link — the very same mechanism the WhatsApp button uses. Staff therefore
+     see the EXACT sheet the customer sees after checkout: identical design,
+     product images, stored names/codes/prices/quantities, delivery
+     information, "final invoice" note and watermark. The sheet is never
+     redesigned or duplicated here — this page only frames it.
+
+     The frame is same-origin, which lets the staff page (without touching
+     the sheet itself) hide the storefront chrome + customer-only controls,
+     auto-size the frame to the sheet, drive its EN/AR language from the
+     staff toggle, and print it through its own print stylesheet. */
+  var frameRO = null;
+  var frameToken = 0; // bumps on every openOrder — stale pollers bail out
+
+  /* FOUC control — the framed customer page must never be painted. The
+     frame is concealed (visibility:hidden, zero height) for the whole
+     navigation; reveal happens ONLY after the sheet is rendered AND the
+     storefront chrome inside the frame is hidden (dressFrame). Nothing is
+     shown in its place — detection-driven, no artificial delay. */
+  function concealFrame() {
+    var f = document.getElementById("order-sheet-frame");
+    if (!f) return;
+    f.classList.add("sheet-pending");
+    f.style.height = "0px"; // collapsed while invisible — no empty gap
+  }
+  function revealFrame() {
+    var f = document.getElementById("order-sheet-frame");
+    if (!f) return;
+    f.classList.remove("sheet-pending");
+  }
+  function frameDoc() {
+    try {
+      var f = document.getElementById("order-sheet-frame");
+      return f && f.contentDocument ? f.contentDocument : null;
+    } catch (e) { return null; }
+  }
+  // Hide storefront chrome and customer-only controls INSIDE the frame. The
+  // Order Sent sheet itself is left completely untouched.
+  function dressFrame() {
+    var f = document.getElementById("order-sheet-frame");
+    var doc = frameDoc();
+    if (!f || !doc || !doc.body || !doc.getElementById("order-detail-root")) return;
+    [
+      "body > nav",               // storefront header
+      "body > footer",            // storefront footer
+      "#mobile-bottom-nav",       // mobile tab bar
+      "a[aria-label='WhatsApp']", // floating WhatsApp button
+      "#toast-container",         // customer toasts
+      "main .bg-indigo-50",       // customer confirm/cancel banner
+      "main > .no-print"          // customer BACK TO HOME PAGE button
+    ].forEach(function (sel) {
+      Array.prototype.forEach.call(doc.querySelectorAll(sel), function (el) { el.style.display = "none"; });
+    });
+    var m = doc.getElementById("order-detail-root");
+    if (m) { m.style.padding = "6px 0 12px"; m.style.minHeight = "0"; }
+    doc.body.style.background = "transparent";
+    doc.body.style.paddingBottom = "0";
+    doc.documentElement.style.background = "transparent";
+    // Keep the frame exactly as tall as the sheet as it renders and grows.
+    try {
+      var RO = f.contentWindow.ResizeObserver;
+      if (RO) {
+        if (frameRO) frameRO.disconnect();
+        frameRO = new RO(function () { sizeFrame(); });
+        frameRO.observe(doc.body);
+        frameRO.observe(doc.documentElement);
+      }
+    } catch (e) {}
+  }
+  function sizeFrame() {
+    var f = document.getElementById("order-sheet-frame");
+    var doc = frameDoc();
+    if (!f || !doc || !doc.body) return;
+    var h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+    if (h > 40) f.style.height = h + "px";
+  }
+  function openOrder(o) {
+    state.current = o;
+    // The Order Sent sheet follows the STAFF page's language. The embedded
+    // page reads the storefront-wide 'nassim-lang' preference — same-origin,
+    // so the staff page sets it to match the staff toggle BEFORE the frame
+    // loads. Only INTERFACE text switches (EN/AR + RTL); order and customer
+    // data always renders exactly as stored.
+    try { localStorage.setItem("nassim-lang", LANG === "ar" ? "ar" : "en"); } catch (e) {}
+
+    // Status acknowledgment: only a Pending order can be marked "Order
+    // Received" here. Everything past that belongs to the existing admin
+    // workflow and is displayed read-only on this page.
+    var waBtn = document.getElementById("detail-wa-btn");
+    waBtn.setAttribute("data-wa-phone", o.customerPhone || "");
+      waBtn.setAttribute("data-wa-name", o.customerName || "");
+      waBtn.setAttribute("data-wa-number", o.orderNumber || "");
+      waBtn.setAttribute("data-wa-path", o.shortPath || "");
+      waBtn.style.display = "inline-block";
+    var ackBtn = document.getElementById("order-received-btn");
+    if (o.status === "PENDING") {
+      ackBtn.style.display = "inline-block";
+      ackBtn.disabled = false;
+    } else {
+      ackBtn.style.display = "none";
+    }
+
+    var f = document.getElementById("order-sheet-frame");
+    concealFrame(); // nothing of the customer page is ever painted
+    f.src = o.shortPath || "/order-detail.html?number=" + encodeURIComponent(o.orderNumber);
+
+    document.getElementById("list-view").style.display = "none";
+    document.getElementById("detail-view").style.display = "block";
+    window.scrollTo(0, 0);
+
+    // Reveal once the NEW document's sheet is rendered AND dressed (chrome
+    // hidden). Right after src is assigned, contentDocument still points at
+    // the PREVIOUS order's document — which already has a receipt sheet — so
+    // a reference comparison (doc !== prevDoc) is what proves the browser
+    // actually swapped documents; without it the frame would be revealed
+    // early and the undressed customer page would flash during the swap. If
+    // the sheet never appears (bad link), reveal best-effort at the end so
+    // the frame's own error message is shown; the load listener dresses too.
+    var my = ++frameToken;
+    var prevDoc = frameDoc(); // the document being replaced (if any)
+    var sheetFrame = document.getElementById("order-sheet-frame");
+    sheetFrame.__prevDoc = prevDoc; // the load handler re-checks the swap
+    var tries = 0;
+    (function waitForFrame() {
+      if (my !== frameToken) return; // a newer order was opened meanwhile
+      var doc = frameDoc();
+      if (doc && doc !== prevDoc && doc.querySelector(".receipt-sheet")) { dressFrame(); sizeFrame(); revealFrame(); return; }
+      if (++tries < 80) setTimeout(waitForFrame, 100);
+      else revealFrame();
+    })();
+  }
+  document.getElementById("order-sheet-frame").addEventListener("load", function () {
+    dressFrame();
+    sizeFrame();
+    // Safety net: if the poller somehow missed the render, reveal now — but
+    // only for the document this navigation actually loaded (never for the
+    // stale previous one, which could still be in flight during rapid
+    // re-navigation).
+    var f = document.getElementById("order-sheet-frame");
+    var doc = frameDoc();
+    if (doc && doc !== f.__prevDoc && doc.querySelector(".receipt-sheet")) revealFrame();
+    // Images and fonts settle after load — re-measure a few more times.
+    [200, 700, 1600].forEach(function (ms) { setTimeout(sizeFrame, ms); });
+  });
+
+  function backToList() {
+    var wb = document.getElementById("detail-wa-btn");
+    if (wb) wb.style.display = "none";
+    state.current = null;
+    document.getElementById("detail-view").style.display = "none";
+    document.getElementById("list-view").style.display = "block";
+    loadOrders();
+  }
+
+  /* ===== Status acknowledgment (Pending → Order Received) =====
+     ONE button. Uses the EXISTING workflow state UNDER_REVIEW via the
+     existing staff-gated PATCH /api/admin/orders — a transition staff could
+     already make. No new status value, no schema change. */
+  var savingStatus = false;
+  document.getElementById("order-received-btn").addEventListener("click", function () {
+    var btn = this;
+    if (savingStatus || !state.current || state.current.status !== "PENDING") return;
+    savingStatus = true;
+    btn.disabled = true;
+    btn.textContent = t("Saving…", "saving");
+    fetch("/api/admin/orders", {
+      method: "PATCH",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: state.current.id, status: "UNDER_REVIEW", note: "Order received by store (Store Orders Page)" })
+    })
+      .then(function (r) {
+        if (r.status === 401 || r.status === 403) { window.location.href = "/admin/login?redirect=/internal-orders.html"; return null; }
+        return r.json().then(function (j) { return { ok: r.ok, j: j }; });
+      })
+      .then(function (r) {
+        if (!r) return;
+        if (!r.ok || !r.j || !r.j.success) { showError((r.j && r.j.error) || t("Could not update status.", "statusUpdateFail")); return; }
+        showError("");
+        state.current.status = "UNDER_REVIEW";
+        state.current.statusLabel = "Under Review";
+        openOrder(state.current); // sheet now shows "Order Received"; button hidden
+        loadOrders();             // refresh the list badge
+      })
+      .catch(function () { showError(t("Network error — could not update status.", "netErrStatus")); })
+      .then(function () { savingStatus = false; btn.disabled = false; btn.textContent = t("Order Received", "orderReceived"); });
+  });
+
+  /* ===== Wiring ===== */
+  document.getElementById("search-btn").addEventListener("click", function () {
+    state.q = document.getElementById("search-box").value.trim();
+    state.page = 1;
+    loadOrders();
+  });
+  document.getElementById("search-box").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") document.getElementById("search-btn").click();
+  });
+  document.getElementById("refresh-btn").addEventListener("click", loadOrders);
+  document.getElementById("lang-btn").addEventListener("click", function () {
+    LANG = LANG === "ar" ? "en" : "ar";
+    try { localStorage.setItem("nassimStaffLang", LANG); } catch (e) {}
+    applyLang();
+  });
+  window.__staffRefresh = loadOrders; // used by the new-order notifier
+  document.getElementById("hb-btn").addEventListener("click", function () {
+    var m = document.getElementById("mobile-menu");
+    m.hidden = !m.hidden;
+    if (typeof updatePushStatus === "function") updatePushStatus();
+  });
+  document.getElementById("signout-hb").addEventListener("click", function () {
+    document.getElementById("signout-btn").click();
+  });
+  function clearRangeFilter() {
+    state.from = ""; state.to = ""; state.page = 1;
+    document.getElementById("from-date").value = "";
+    document.getElementById("to-date").value = "";
+    document.getElementById("clear-range-btn").style.display = "none";
+    selectedDay = "today";
+    loadOrders();
+  }
+  document.getElementById("apply-range-btn").addEventListener("click", function () {
+    state.from = document.getElementById("from-date").value;
+    state.to = document.getElementById("to-date").value;
+    document.getElementById("clear-range-btn").style.display = (state.from || state.to) ? "" : "none";
+    state.page = 1;
+    loadOrders();
+  });
+  document.getElementById("clear-range-btn").addEventListener("click", clearRangeFilter);
+  document.getElementById("signout-btn").addEventListener("click", function () {
+    fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
+      .catch(function () {})
+      .finally(function () { window.location.href = "/home.html"; });
+  });
+  document.getElementById("prev-btn").addEventListener("click", function () { if (state.page > 1) { state.page--; loadOrders(); } });
+  document.getElementById("next-btn").addEventListener("click", function () { if (state.page < state.totalPages) { state.page++; loadOrders(); } });
+  document.getElementById("back-btn").addEventListener("click", backToList);
+  document.getElementById("print-btn").addEventListener("click", function () {
+    // Print the Order Sent SHEET itself (inside the frame) — never the staff
+    // orders table. The embedded page's own print stylesheet prints only the
+    // sheet, in the currently selected language (EN/LTR or AR/RTL), because
+    // its document already carries that language.
+    var f = document.getElementById("order-sheet-frame");
+    try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) {}
+  });
+
+  /* ===== Push-notification deep links ====================================
+     /internal-orders.html?order=AN-2026-000282 is the Web Push tap target
+     (see public/sw.js): the list is searched for that order and its detail
+     sheet auto-opens. The service worker posts the same shape when staff
+     tap a system notification while this page is already open. */
+  var pendingOpenOrder = null;
+  function focusOrderNumber(num) {
+    state.page = 1;
+    state.q = num;
+    var sb = document.getElementById("search-box");
+    if (sb) sb.value = num;
+    pendingOpenOrder = num;
+    loadOrders();
+  }
+  (function () {
+    var num = new URLSearchParams(window.location.search).get("order");
+    if (num) focusOrderNumber(num);
+  })();
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("message", function (e) {
+      var d = e && e.data;
+      if (!d || d.type !== "open-order" || !d.url) return;
+      var target = new URL(d.url, window.location.origin).searchParams.get("order");
+      if (target) focusOrderNumber(target);
+    });
+  }
+
+  applyLang();
+  loadOrders();
+})();
+</script>
+
+<script>
+/* ===== NEW ORDER NOTIFICATIONS (staff page) =============================
+   Lightweight polling of the EXISTING /api/admin/orders endpoint (no new
+   infrastructure, no schema change). New orders are detected by comparing
+   order numbers against a per-staff-session set (sessionStorage), so page
+   refreshes and re-renders never re-notify. Sound is a WebAudio chime
+   (unlocked by the FIRST interaction with the page — any tap, click or
+   keypress — as well as by the "Enable Notifications & Sound" button, so
+   browser autoplay policy never silences it); desktop
+   notifications use the Notification API after the same one-time permission
+   request. The enable state is remembered in localStorage. */
+(function () {
+  "use strict";
+  var POLL_MS = 15000;
+  var LS_ENABLED = "nassimStaffNotify";
+  var SS_SEEN = "nassimStaffSeenOrders";
+
+  // Seen-order tracking: in-memory set (authoritative for this page load) with
+  // sessionStorage as best-effort persistence — some embedded browsers block it,
+  // so nothing may depend on it working.
+  var seenInMemory = null;
+  function escLocal(x) { return String(x == null ? "" : x).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function fmtLocal(v, c) { return (c || "KD") + " " + Number(v || 0).toFixed(3); }
+  function seenList() {
+    if (seenInMemory) return seenInMemory;
+    try { seenInMemory = JSON.parse(sessionStorage.getItem(SS_SEEN) || "[]"); } catch (e) { seenInMemory = []; }
+    return seenInMemory;
+  }
+  function markSeen(arr) { saveSeen(arr); }
+  function saveSeen(arr) {
+    seenInMemory = arr;
+    try { sessionStorage.setItem(SS_SEEN, JSON.stringify(arr)); } catch (e) {}
+  }
+  function enabled() {
+    try { return localStorage.getItem(LS_ENABLED) === "1"; } catch (e) { return false; }
+  }
+  function setEnabled(v) {
+    try { localStorage.setItem(LS_ENABLED, v ? "1" : "0"); } catch (e) {}
+    updateStatus();
+  }
+  // True until the very first enable click (null preference).
+  function prefNotSet() {    try { return localStorage.getItem(LS_ENABLED) === null; } catch (e) { return true; }
+  }
+  function updateStatus() {
+    var t8 = window.__staffT || function (en) { return en; };
+    var btn = document.getElementById("notify-enable-btn");
+    var on = enabled();
+    var ico = on ? "🔔" : "🔕";
+    var label = t8(on ? "Notifications & Sound — ON" : "Notifications & Sound — OFF", on ? "notifyLblOn" : "notifyLblOff");
+    // No on-screen sound-lock hint: browsers keep WebAudio suspended until
+    // the first interaction, and the page silently unlocks it on ANY tap/
+    // click/keypress (unlockAudioOnGesture) — the chime simply works from a
+    // staff member's first touch, with nothing extra displayed.
+    if (btn) {
+      // Before first setup the button reads Enable Notifications & Sound;
+      // afterwards it becomes the ON/OFF toggle.
+      btn.innerHTML = prefNotSet()
+        ? '<span class="notify-ico">🔔</span><span class="notify-txt">Enable Notifications & Sound</span>'
+        : '<span class="notify-ico">' + ico + '</span><span class="notify-txt">' + label + '</span>';
+      btn.style.display = "";
+    }
+  }
+  // Language toggle re-renders these labels (called from applyLang).
+  window.__staffUpdateStatus = updateStatus;
+
+  /* WebAudio chime. Browsers only let audio run AFTER a user gesture on the
+     page (autoplay policy): a context created outside a gesture starts
+     "suspended", and resume() called from ordinary code (e.g. this poll
+     callback) is rejected — tones scheduled on the frozen suspended clock
+     stay silent while toasts still show. The context is therefore
+     created/resumed:
+       - on the FIRST pointer/key interaction ANYWHERE on the page (below),
+       - inside the "Enable Notifications & Sound" click,
+       - inside the "Enable Push Notifications" click (its first-time setup
+         also switches the toggle ON, so audio must unlock there too).
+     Once running it stays unlocked for the whole session — later new-order
+     chimes need no further clicks. If a chime fires while the context is
+     still suspended (page not yet interacted with), it waits for resume()
+     and plays only once the context really runs, so tones are never
+     scheduled on a frozen clock. */
+  var audioCtx = null;
+  var pendingChime = 0; // timestamp of a chime blocked by the autoplay policy
+  function ensureAudio() {
+    try {
+      // Recreate a context the browser closed (memory pressure) as well.
+      if (!audioCtx || audioCtx.state === "closed") audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      // Render one silent sample INSIDE the gesture: iOS Safari only fully
+      // starts the audio session when audio is actually played in the
+      // handler, not on resume() alone.
+      var warm = audioCtx.createBufferSource();
+      warm.buffer = audioCtx.createBuffer(1, 1, 22050);
+      warm.connect(audioCtx.destination);
+      warm.start(0);
+    } catch (e) {}
+    try { audioCtx.onstatechange = function () { updateStatus(); }; } catch (e) {}
+  }
+  function audioUnlocked() { return !!audioCtx && audioCtx.state === "running"; }
+  // Any tap/click/keypress anywhere unlocks the chime (runs on every gesture
+  // until unlocked — harmless afterwards, and it re-heals the context if the
+  // browser suspends it again mid-session, e.g. after a device sleep).
+  function unlockAudioOnGesture() {
+    if (!audioUnlocked()) ensureAudio();
+    // A chime that fired while audio was still locked (page opened without
+    // ANY interaction — the browser forbids sound until the first touch)
+    // plays the moment the context actually runs, so the alert is heard on
+    // the staff member's very first tap instead of being lost forever.
+    if (pendingChime) {
+      var tries = 0;
+      var wait = setInterval(function () {
+        var running = audioCtx && audioCtx.state === "running";
+        if (running || ++tries > 25) {
+          clearInterval(wait);
+          var due = pendingChime;
+          pendingChime = 0;
+          if (running && due && Date.now() - due < 60000) { try { playTones(); } catch (e) {} }
+        }
+      }, 100);
+    }
+  }
+  document.addEventListener("pointerdown", unlockAudioOnGesture, true);
+  document.addEventListener("keydown", unlockAudioOnGesture, true);
+  function playTones() {
+    var t0 = audioCtx.currentTime;
+    [880, 1174.66].forEach(function (freq, i) {
+      var start = t0 + i * 0.28;
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.5, start + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.7);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(start); osc.stop(start + 0.75);
+    });
+  }
+  function chime() {
+    try {
+      if (!audioCtx || audioCtx.state === "closed") audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "running") { playTones(); return; }
+      // Still suspended — the page has never been interacted with, so the
+      // browser's autoplay policy rejects resume() from this poll callback.
+      // Remember the alert (60s window) and keep trying: it plays as soon as
+      // audio unlocks (first tap — unlockAudioOnGesture) or a later resume
+      // succeeds. The toast + notification still fire immediately either way.
+      pendingChime = Date.now();
+      audioCtx.resume().then(function () {
+        if (audioCtx.state === "running" && Date.now() - pendingChime < 60000) { pendingChime = 0; playTones(); }
+      }, function () {});
+    } catch (e) {}
+  }
+
+  function showToasts(orders) {
+    var wrap = document.getElementById("order-toasts");
+    if (!wrap) return;
+    orders.forEach(function (o) {
+      var el = document.createElement("div");
+      el.className = "order-toast";
+      el.innerHTML = "<strong>" + tt("New Order Received — ", "notifyNew") + " " + escLocal(o.orderNumber) + "</strong><br>"
+        + escLocal(o.customerName) + " · " + fmtLocal(o.total, o.currency);
+      wrap.appendChild(el);
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 12000);
+    });
+  }
+  function desktopNotify(orders) {
+    if (!enabled() || typeof Notification === "undefined" || Notification.permission !== "granted") return;
+    orders.forEach(function (o) {
+      try { new Notification(tt("New Order Received — ", "notifyNew") + " " + o.orderNumber, { body: o.customerName + " · " + fmtLocal(o.total, o.currency) }); } catch (e) {}
+    });
+  }
+
+  function poll() {
+    fetch("/api/admin/orders?page=1&limit=50", { credentials: "same-origin" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || !d.success) return;
+        var orders = d.data.orders || [];
+        var seen = seenList();
+        // First successful poll of this staff session = baseline: mark every
+        // current order as seen WITHOUT notifying (existing orders must be silent).
+        if (baseline === false) {
+          markSeen(orders.map(function (o) { return o.orderNumber; }));
+          baseline = true;
+          return;
+        }
+        var fresh = orders.filter(function (o) { return seen.indexOf(o.orderNumber) === -1; });
+        if (!fresh.length) return;
+        // Detection and list refresh ALWAYS run; only the alert is gated
+        // by the ON/OFF toggle.
+        markSeen(seen.concat(fresh.map(function (o) { return o.orderNumber; })));
+        if (typeof window.__staffRefresh === "function") window.__staffRefresh();
+        if (!enabled()) return; // alerts OFF: detection/refresh still ran
+        chime();                    // one chime per batch of new orders
+        showToasts(fresh);          // one in-page banner per order
+        desktopNotify(fresh);       // one desktop notification per order
+        if (typeof window.__staffRefresh === "function") window.__staffRefresh();
+      })
+      .catch(function () {});
+  }
+  var baseline = false;
+
+  document.getElementById("notify-enable-btn").addEventListener("click", function () {
+    var firstTime = prefNotSet();
+    var next = firstTime ? true : !enabled();
+    setEnabled(next);
+    updateStatus();
+    updatePushStatus();
+    // Unlock WebAudio inside this click (user gesture) so autoplay policy
+    // never blocks the chime later.
+    ensureAudio();
+    // Web Push has its OWN toggle (the push button) — this control no longer
+    // pauses/resumes the device's subscription.
+    // First ever click of the SOUND toggle requests only the CLASSIC
+    // desktop-notification permission, and only where Web Push does not
+    // exist at all (old browsers). The Web Push permission prompt belongs
+    // exclusively to the push button: a surprise prompt here gets dismissed,
+    // and in modern Chrome a DISMISSED prompt is recorded as "denied" —
+    // which would then show "Push blocked" even though staff never actually
+    // answered the question.
+    if (firstTime && !pushSupported() && window.isSecureContext !== false
+        && typeof Notification !== "undefined" && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  });
+
+  /* ===== Web Push (background / locked-screen layer) =====================
+     Everything above (polling, chime, toasts, desktop notifications) works
+     while this page is visible. Web Push adds the SYSTEM-level layer so
+     staff still get notified when the browser is backgrounded or the phone
+     is locked — the service worker (public/sw.js) receives the push event
+     and shows the OS notification. The server fires pushes only at the
+     moment a genuinely NEW order is created (never for existing/historical
+     orders), and only to non-paused staff subscriptions. Its ON/OFF switch
+     is the push BUTTON below — independent of the Notifications & Sound
+     toggle, so staff can e.g. keep in-page sound on while silencing system
+     notifications on a shared device. */
+  var LS_PUSH_ENDPOINT = "nassimStaffPushEndpoint";
+  // This device's own push on/off choice. The server mirrors it onto the
+  // subscription's paused flag; the mirror is re-applied on every load
+  // because healing (re-saving) the subscription re-enables it server-side.
+  var LS_PUSH_PAUSED = "nassimStaffPushPaused";
+  function tt(en, key) { return window.__staffT ? window.__staffT(en, key) : en; }
+  function pushSupported() {
+    return "serviceWorker" in navigator && "PushManager" in window && typeof Notification !== "undefined";
+  }
+  function pushPermissionDenied() {
+    return typeof Notification !== "undefined" && Notification.permission === "denied";
+  }
+  function storedEndpoint() {
+    try { return localStorage.getItem(LS_PUSH_ENDPOINT) || null; } catch (e) { return null; }
+  }
+  function pushPausedLocally() {
+    try { return localStorage.getItem(LS_PUSH_PAUSED) === "1"; } catch (e) { return false; }
+  }
+  function setPushPausedLocally(paused) {
+    try { localStorage.setItem(LS_PUSH_PAUSED, paused ? "1" : "0"); } catch (e) {}
+  }
+  function pushState() {
+    // Insecure origin (http://192.168.x.x …): the browser does not expose
+    // serviceWorker/PushManager AT ALL there — this is a site-access issue,
+    // not a browser-support one, and it is the usual reason the Enable
+    // button "disappears" on a phone tested over LAN HTTP while desktop
+    // (localhost) works. Its own state so the button stays visible and the
+    // tap explains what to do (open over https:// or localhost).
+    if (window.isSecureContext === false) return "insecure";
+    if (!pushSupported()) return "unsupported";
+    if (pushPermissionDenied()) return "denied"; // never re-prompt after a deny
+    return storedEndpoint() ? (pushPausedLocally() ? "paused" : "on") : "not-set-up";
+  }
+  function updatePushStatus() {
+    // The BUTTON is the single push control: "Enable Push Notifications"
+    // before setup, then an ON/OFF toggle for this device's subscription.
+    // Blocked / needs-HTTPS explanations also render on the button, so no
+    // separate status pill is needed (the ON/OFF label must not appear
+    // twice — same rule as the Notifications & Sound toggle).
+    var btn = document.getElementById("push-enable-btn");
+    if (!btn) return;
+    var s = pushState();
+    btn.disabled = false;
+    if (s === "not-set-up") {
+      btn.hidden = false;
+      btn.textContent = tt("Enable Push Notifications", "pushEnable");
+    } else if (s === "on") {
+      btn.hidden = false;
+      btn.textContent = tt("🔔 Push Notifications — ON", "pushToggleOn");
+    } else if (s === "paused") {
+      btn.hidden = false;
+      btn.textContent = tt("🔕 Push Notifications — OFF", "pushToggleOff");
+    } else if (s === "denied") {
+      // Browsers never re-prompt after a deny — explain on the button and
+      // disable it until staff allow notifications in browser settings
+      // (re-checked whenever the tab becomes visible again).
+      btn.hidden = false;
+      btn.disabled = true;
+      btn.textContent = tt("🔕 Push blocked — allow notifications in browser settings", "pushBlocked");
+    } else if (s === "insecure") {
+      // Tappable (not dead): the tap pulses the button with the reason.
+      btn.hidden = false;
+      btn.textContent = tt("🔕 push notifications: unavailable", "pushInsecure");
+    } else {
+      btn.hidden = true; // truly unsupported on this browser
+    }
+  }
+  window.__staffUpdatePushStatus = updatePushStatus;
+  // Attention pulse on the push button (used when it is tapped on a device
+  // where the browser blocks push, so the tap is never "dead").
+  function highlightPushStatus() {
+    var btn = document.getElementById("push-enable-btn");
+    if (!btn || btn.hidden) return;
+    btn.classList.remove("pulse");
+    // restart the animation even when the class was just removed
+    void btn.offsetWidth;
+    btn.classList.add("pulse");
+    setTimeout(function () { btn.classList.remove("pulse"); }, 3200);
+    try { btn.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) {}
+  }
+  function urlB64ToUint8Array(b64) {
+    var padding = "=".repeat((4 - (b64.length % 4)) % 4);
+    var base64 = (b64 + padding).replace(/-/g, "+").replace(/_/g, "/");
+    var raw = window.atob(base64);
+    var out = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+  // Register this device's subscription against the signed-in staff account
+  // (staff-gated API; re-saving re-enables the device without touching other
+  // devices' subscriptions).
+  function saveSubServer(sub) {
+    var json = sub.toJSON();
+    return fetch("/api/staff/push", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys })
+    }).then(function (res) {
+      if (!res.ok) throw new Error("save " + res.status);
+      try { localStorage.setItem(LS_PUSH_ENDPOINT, json.endpoint); } catch (e) {}
+    });
+  }
+  // Mirror the device's push toggle onto its stored subscription (paused =
+  // no system notifications for new orders; in-page alerts keep working).
+  // Resolves true only when the server confirmed, so callers never flip
+  // their local state on a failed request.
+  function syncPushPaused(alertsOn) {
+    var ep = storedEndpoint();
+    if (!ep) return Promise.resolve(false); // this device has no push subscription
+    return fetch("/api/staff/push", {
+      method: "PATCH",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ endpoint: ep, paused: !alertsOn })
+    })
+      .then(function (res) { return res.ok; })
+      .catch(function () { return false; });
+  }
+  var pushBusy = false;
+  // Create/reuse the browser push subscription and register it on the
+  // server. Notification permission must ALREADY be granted on entry —
+  // this never prompts (used by the push button after Allow, and by
+  // initPush to auto-restore an already-granted device).
+  function subscribeDevice() {
+    // 1) register the service worker (root scope); 2) create/reuse the push
+    // subscription with the server's VAPID public key; 3) register it on
+    // the server.
+    return navigator.serviceWorker.register("/sw.js", { scope: "/" })
+      .then(function () { return navigator.serviceWorker.ready; })
+      .then(function (reg) {
+        return reg.pushManager.getSubscription().then(function (existing) {
+          if (existing) return existing;
+          return fetch("/api/staff/push", { credentials: "same-origin" })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+              var pk = d && d.data && d.data.publicKey;
+              if (!pk) throw new Error("VAPID key unavailable");
+              return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8Array(pk) });
+            });
+        });
+      })
+      .then(function (sub) { return saveSubServer(sub); });
+  }
+  function enablePush() {
+    // Site opened over plain http:// (e.g. a LAN IP on a phone): the browser
+    // does not expose the Push API at all there. Show WHY — never a dead tap.
+    if (window.isSecureContext === false) { updatePushStatus(); highlightPushStatus(); return; }
+    if (!pushSupported() || pushBusy) return;
+    // Already DENIED: the browser never re-shows the prompt after a deny, so
+    // do not ask again — show how to unblock in browser settings instead.
+    if (pushPermissionDenied()) { updatePushStatus(); highlightPushStatus(); return; }
+    pushBusy = true;
+    var btn = document.getElementById("push-enable-btn");
+    if (btn) btn.textContent = tt("Enabling…", "pushEnabling");
+    // "default" = the staff has NEVER answered the browser prompt → ask now
+    // (the browser's NATIVE prompt, from this click). "granted" = already
+    // allowed → go straight to the subscription, no prompt. DEFAULT IS NOT
+    // BLOCKED: only an explicit deny (or Chrome counting a dismissal as a
+    // deny) can produce the blocked state.
+    var perm = Notification.permission === "default" ? Notification.requestPermission() : Promise.resolve(Notification.permission);
+    perm.then(function (result) {
+        if (result !== "granted") { updatePushStatus(); return; } // denied → blocked message
+        return subscribeDevice()
+          .then(function () { setPushPausedLocally(false); updatePushStatus(); });
+      })
+      .catch(function () {})
+      .then(function () { pushBusy = false; updatePushStatus(); });
+  }
+  // The push BUTTON: one control for setup AND on/off. Once subscribed it
+  // reads 🔔 ON / 🔕 OFF and toggles THIS DEVICE's subscription — completely
+  // independent of the Notifications & Sound toggle.
+  var pushToggleBusy = false;
+  document.getElementById("push-enable-btn").addEventListener("click", function () {
+    // This click is a user gesture, so it also unlocks the chime (same as
+    // the Notifications & Sound button).
+    ensureAudio();
+    var s = pushState();
+    if (s === "on" || s === "paused") {
+      // OFF pauses the subscription server-side (no system notifications;
+      // the service worker and in-page alerts are untouched); ON resumes
+      // for FUTURE orders only — pushes are event-driven, nothing replays.
+      // The label flips only after the server confirms.
+      if (pushToggleBusy) return;
+      pushToggleBusy = true;
+      var wantOn = s === "paused";
+      syncPushPaused(wantOn).then(function (ok) {
+        if (ok) setPushPausedLocally(!wantOn);
+        pushToggleBusy = false;
+        updatePushStatus();
+      });
+      return;
+    }
+    // not-set-up (the denied/insecure states explain themselves on the
+    // button): first-time setup also turns the Notifications & Sound toggle
+    // ON if no preference exists yet on this device.
+    if (prefNotSet()) { setEnabled(true); updateStatus(); }
+    enablePush();
+  });
+  // Staff may allow notifications in browser settings while this tab is in
+  // the background — re-evaluate the push control when they come back.
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) updatePushStatus();
+  });
+  // On load: warm up the service worker, heal the stored subscription (e.g.
+  // after a server data reset) and re-apply this device's OWN push toggle
+  // (healing re-enables the subscription server-side, so the paused choice
+  // must be re-sent every load).
+  function initPush() {
+    if (!pushSupported()) { updatePushStatus(); return; }
+    navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(function () {});
+    navigator.serviceWorker.ready
+      .then(function (reg) { return reg.pushManager.getSubscription(); })
+      .then(function (sub) {
+        if (sub && Notification.permission === "granted") {
+          saveSubServer(sub)
+            .catch(function () {})
+            .then(function () { syncPushPaused(!pushPausedLocally()); })
+            .then(updatePushStatus);
+        } else if (!sub) {
+          // Browser lost the subscription (site data cleared / browser
+          // reinstated it) — forget the flag so the Enable button returns.
+          try { localStorage.removeItem(LS_PUSH_ENDPOINT); } catch (e) {}
+          // Permission ALREADY granted but no subscription on this device:
+          // never set up (or dropped). No prompt is needed — restore the
+          // subscription automatically and show Push: On. The device's own
+          // ON/OFF choice is preserved (the server re-save re-enables the
+          // subscription, so the choice is re-applied right after).
+          if (Notification.permission === "granted" && window.isSecureContext !== false) {
+            subscribeDevice()
+              .then(function () { return syncPushPaused(!pushPausedLocally()); })
+              .catch(function () {})
+              .then(updatePushStatus);
+          } else {
+            updatePushStatus();
+          }
+        } else {
+          updatePushStatus();
+        }
+      })
+      .catch(function () { updatePushStatus(); });
+  }
+
+  updateStatus();
+  updatePushStatus();
+  initPush();
+  // Baseline first (silent), then poll for genuinely new orders.
+  poll();
+  window.__nassimPollNow = poll; // debug/manual trigger
+  window.__nassimAudioState = function () { return audioCtx ? audioCtx.state : "none"; }; // debug/verification hook
+  setInterval(poll, POLL_MS);
+})();
+</script>
+</body>
+</html>

@@ -1,7 +1,8 @@
 ﻿<!DOCTYPE html>
 <html class="light scroll-smooth" lang="en">
 <head>
-<script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"||(!s&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
+<script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
+ document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <link rel="icon" href="/LOGO.png" type="image/png"/>
@@ -72,6 +73,99 @@
         /* MOBILE BREADCRUMB HIDE (≤767px) */
         @media (max-width: 767px) {
             #order-detail-root > nav { display: none !important; margin: 0 !important; padding: 0 !important; height: 0 !important; }
+        }
+
+        /* ===== Order Sent — receipt / order-slip sheet =========================
+           A compact retail-receipt sheet (like internal-orders.html's document
+           sheet): white paper, subtle shadow, diagonal light-red watermark
+           behind the content. Stays white even in dark mode — it represents a
+           printed document. ================================================================================================== */
+        .receipt-sheet {
+            position: relative; background: #ffffff; color: #111827;
+            max-width: 607px; margin: 0 auto; padding: 34px 34px;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, .12); border-radius: 8px; overflow: hidden;
+        }
+        /* Repeated security watermark: "THIS IS NOT AN INVOICE" tiled
+           diagonally (~30°) across the ENTIRE sheet, top to bottom — like
+           watermarked security paper. Pure CSS overlay: one ::before
+           pseudo-element (no DOM nodes, no JS), absolutely positioned and
+           oversized (300% × 300%, rotated) so the tiled pattern is
+           geometrically guaranteed to cover every corner of the sheet at ANY
+           height — short or long orders, desktop or mobile. It never
+           participates in document flow (the sheet's height is untouched)
+           and the sheet's overflow:hidden clips it to the sheet boundaries
+           (no page overflow). Layering: z-index 1 — above the totals card
+           background (stamp effect, preserved from the old tape design) but
+           below ALL content text (z-index 2), so order details stay fully
+           readable. print-color-adjust keeps the pattern on paper. */
+        .receipt-sheet::before {
+            content: "";
+            position: absolute; top: 50%; left: 50%;
+            width: 300%; height: 300%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='340' height='190'><text x='170' y='105' font-family='Arial, sans-serif' font-size='20' font-weight='bold' letter-spacing='3' fill='%23dc2626' fill-opacity='0.16' text-anchor='middle'>THIS IS NOT AN INVOICE</text></svg>");
+            background-repeat: repeat;
+            pointer-events: none; z-index: 1;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        /* Content layering: every direct sheet child sits ABOVE the
+           watermark pattern (the ::before layer is z-index 1). */
+        .receipt-sheet > * { position: relative; z-index: 2; }
+        /* Total Amount container — three-layer split so the watermark crosses
+           it like a printed stamp: the card BACKGROUND sits below the
+           watermark layer, while the card TEXT stays above it. */
+        .receipt-sheet > .receipt-totals { z-index: auto; background: transparent; }
+        .receipt-totals::before {
+            content: ""; position: absolute; inset: 0;
+            background: #f9fafb; border-radius: 6px; z-index: 0;
+        }
+        .receipt-totals > span { position: relative; z-index: 2; }
+        /* Product card: image on the LEFT, all product lines (name +
+           Code/Qty/U.Price/AMT) on the RIGHT of the image. */
+        .receipt-item { border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px 12px; }
+        .receipt-item + .receipt-item { margin-top: 10px; }
+        .receipt-totals { background: #f9fafb; border-color: #d1d5db; }
+        .r-img {
+            width: var(--imgcol); height: var(--imgcol); flex: 0 0 auto;
+            display: flex; align-items: center; justify-content: center;
+            background: #f9fafb; border-radius: 4px; overflow: hidden;
+        }
+        .r-img img { width: 100%; height: 100%; object-fit: contain; }
+        .receipt-sheet { --imgcol: 72px; }
+        .r-info { flex: 1 1 auto; min-width: 0; }
+        .r-info-row {
+            display: grid; grid-template-columns: minmax(0,1fr) 36px 62px 80px;
+            gap: 0 6px; align-items: baseline;
+            font-variant-numeric: tabular-nums; font-size: 14px;
+            margin-top: 2px; color: #374151;
+        }
+        /* Column header row (CODE / QTY / U.PRICE / AMT (KWD)) — same grid,
+           muted small caps so the values below stay the focus. */
+        .r-info-head {
+            display: grid; grid-template-columns: minmax(0,1fr) 36px 62px 80px;
+            gap: 0 6px; align-items: baseline;
+            font-size: 11px; font-weight: 700; letter-spacing: .08em;
+            text-transform: uppercase; color: #9ca3af; margin-top: 8px;
+        }
+        .r-num { text-align: right; white-space: nowrap; }
+        @media (max-width: 480px) {
+            .receipt-sheet { --imgcol: 56px; padding: 22px 14px; }
+            .r-info-row, .r-info-head { grid-template-columns: minmax(0,1fr) 30px 52px 62px; gap: 0 3px; }
+            .r-info-head { font-size: 10px; }
+            .r-info-row { font-size: 13px; }
+        }
+        @media (max-width: 400px) {
+            .receipt-sheet { --imgcol: 48px; padding: 20px 12px; }
+            .r-img { width: 48px; height: 48px; }
+            .r-info-row, .r-info-head { grid-template-columns: minmax(0,1fr) 26px 46px 62px; gap: 0 2px; }
+        }
+        /* Print: only the receipt sheet — hide site chrome, toasts, buttons. */
+        @media print {
+            body > nav, body > footer, #toast-container, .no-print { display: none !important; }
+            main#order-detail-root { padding: 0 !important; max-width: none !important; background: #fff !important; }
+            .receipt-sheet { box-shadow: none; border-radius: 0; max-width: 100%; }
+            html, body { background: #fff !important; }
         }
     </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
@@ -251,6 +345,83 @@
   var ORDER_TOKEN = new URLSearchParams(window.location.search).get('token');
   var root = document.getElementById('order-detail-root');
 
+  /* ===== EN/AR interface language =========================================
+     Reads the storefront-wide preference stored by the existing EN|AR toggle
+     (localStorage 'nassim-lang', exposed via window.NassimLang). Only STATIC
+     interface text is translated — every dynamic order value (product names,
+     order numbers, phones, addresses, amounts, date/time) is rendered exactly
+     as stored. Numeric/phone values are wrapped in LTR isolates so RTL layout
+     can never corrupt or reorder them. */
+  var AR = {
+    orderSent: 'تم إرسال الطلب',
+    received: 'تم استلام طلبك. سيتواصل معك فريق المتجر هاتفياً لتأكيد طلبك وتوفر المنتجات.',
+    orderNumber: 'رقم الطلب',
+    dateTime: 'التاريخ / الوقت',
+    items: 'المنتجات',
+    code: 'الرمز',
+    qty: 'الكمية',
+    rate: 'سعر الوحدة',
+    lineTotal: 'المبلغ (د.ك)',
+    totalAmount: 'المبلغ الإجمالي',
+    posNote: 'بعد من يتواصل معكم فريق المتجر ويوفر التأكيد النهائي للطلب، تُصدر الفاتورة في نقطة البيع الخاصة بالمتجر وتُرسل إليكم مع البضائع.\nملاحظة: قد يختلف المجموع الإجمالي بناءً على المنتجات المسلَمة فعليًا.',
+    subtotal: 'المجموع الفرعي',
+    shipping: 'الشحن (تقديري)',
+    estTotal: 'الإجمالي التقديري',
+    deliveryInfo: 'معلومات التوصيل',
+    name: 'الاسم',
+    phone: 'الهاتف',
+    address: 'العنوان',
+    backHome: 'العودة إلى الصفحة الرئيسية',
+    confirmTitle: 'مطلوب إجراء: تأكيد طلبك',
+    confirmBody: 'لقد تحقق فريقنا من توفر المنتجات. يرجى المراجعة والتأكيد.',
+    unavailable: 'منتجات غير متوفرة:',
+    confirmBtn: '\u2713 تأكيد المنتجات المتوفرة',
+    cancelBtn: '\u2717 إلغاء الطلب',
+    confirmNote: 'سيتم المتابعة بالمنتجات المتوفرة فقط. تُنشأ الفاتورة في نظام نقاط البيع لدينا للمنتجات المسلَّمة.',
+    staffNote: 'ملاحظة الفريق',
+    noOrder: 'لم يتم تحديد أي طلب.',
+    useLink: 'يرجى استخدام الرابط الوارد في تأكيد طلبك.',
+    notFound: 'الطلب غير موجود',
+    linkInvalid: 'رابط الطلب غير صالح. يرجى التواصل مع المتجر.',
+    loadFail: 'فشل تحميل الطلب.',
+    cancelTitle: 'إلغاء هذا الطلب؟',
+    cancelBody: 'الإلغاء يوقف هذا الطلب بالكامل. تُعاد المنتجات المحجوزة إلى المخزون. لا يمكن التراجع عن هذا الإجراء.',
+    yesCancel: 'نعم، إلغاء الطلب',
+    keepOrder: 'الاحتفاظ بالطلب',
+    confirmedOk: 'تم تأكيد الطلب بنجاح.',
+    cancelledOk: 'تم إلغاء الطلب بنجاح.',
+    actionFailed: 'تعذر تنفيذ الإجراء. يرجى المحاولة مرة أخرى.',
+    networkError: 'خطأ في الشبكة. يرجى التحقق من اتصالك والمحاولة مرة أخرى.'
+  };
+  function lang() {
+    // Read the stored preference directly — this inline script runs before the
+    // deferred dark-overrides.js, so window.NassimLang may not exist yet. The
+    // key matches NassimLang.get() exactly ('nassim-lang', 'ar' = Arabic).
+    try { return localStorage.getItem('nassim-lang') === 'ar' ? 'ar' : 'en'; } catch (e) { return 'en'; }
+  }
+  function t(en, arKey) { return lang() === 'ar' ? AR[arKey] : en; }
+  /* LTR isolate: keeps numbers, order numbers, phones and prices readable
+     (uncorrupted) inside the RTL layout. */
+  function ltr(v) { return '<span dir="ltr" style="unicode-bidi:isolate">' + v + '</span>'; }
+
+  /* Reflect the language on the document and re-render the cached order.
+     Called on load and whenever the EN|AR toggle changes the preference. */
+  var lastOrder = null;
+  function applyLangDir() {
+    var ar = lang() === 'ar';
+    document.documentElement.setAttribute('dir', ar ? 'rtl' : 'ltr');
+    document.documentElement.setAttribute('lang', ar ? 'ar' : 'en');
+  }
+  function applyLang() {
+    applyLangDir();
+    if (lastOrder) renderOrder(lastOrder);
+  }
+  window.addEventListener('nassim-langchange', applyLang);
+  // Other tabs/windows changing the preference (storage events) also re-render.
+  window.addEventListener('storage', function (e) {
+    if (!e.key || e.key === 'nassim-lang') applyLang();
+  });
+
   var STATUS_STYLES = {
     PENDING: { bg: 'bg-yellow-100 text-yellow-800', dot: '#eab308' },
     UNDER_REVIEW: { bg: 'bg-blue-100 text-blue-800', dot: '#2563eb' },
@@ -289,14 +460,25 @@
     return '<span class="status-badge ' + s + '">' + label(status) + '</span>';
   }
 
+  /* Watermark: the repeated "THIS IS NOT AN INVOICE" security pattern is a
+     pure-CSS ::before overlay on .receipt-sheet (see the stylesheet) — no
+     JavaScript, no DOM nodes, nothing to measure or reveal. Its oversized
+     rotated tiled background covers the whole sheet geometrically at any
+     height, so no fitting/timing logic is needed anymore. */
   function loadOrder() {
+    // Short-link delivery (/o/…): the server already resolved the order and
+    // injected it here — render it directly, no API call, no token in any URL.
+    if (window.__NASSIM_ORDER__ && window.__NASSIM_ORDER__.success) {
+      renderOrder(window.__NASSIM_ORDER__.data.order);
+      return;
+    }
     var url;
     if (ORDER_NUM) {
       url = '/api/orders/' + encodeURIComponent(ORDER_NUM) + '?by=number';
     } else if (ORDER_ID) {
       url = '/api/orders/' + encodeURIComponent(ORDER_ID);
     } else {
-      root.innerHTML = '<div class="text-center py-20"><p class="text-red-600 text-lg font-semibold">No order specified.</p><p class="text-on-surface-variant dark:text-white/70 mt-2">Please use the link from your order confirmation.</p><a href="home.html" class="inline-block mt-6 bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Continue Shopping</a></div>';
+      root.innerHTML = '<div class="text-center py-20"><p class="text-red-600 text-lg font-semibold">' + t('No order specified.', 'noOrder') + '</p><p class="text-on-surface-variant dark:text-white/70 mt-2">' + t('Please use the link from your order confirmation.', 'useLink') + '</p><a href="home.html" class="inline-block mt-6 bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">' + t('BACK TO HOME PAGE', 'backHome') + '</a></div>';
       return;
     }
     if (ORDER_TOKEN) url += (url.indexOf('?') === -1 ? '?' : '&') + 'token=' + encodeURIComponent(ORDER_TOKEN);
@@ -305,17 +487,19 @@
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (!data.success) {
-          root.innerHTML = '<div class="text-center py-20"><p class="text-red-600 text-lg font-semibold">' + esc(data.error || 'Order not found') + '</p><a href="home.html" class="inline-block mt-6 text-secondary hover:underline text-sm">Continue Shopping</a></div>';
+          root.innerHTML = '<div class="text-center py-20"><p class="text-red-600 text-lg font-semibold">' + esc(data.error && /sign in/i.test(data.error) ? t('This order link is not valid. Please contact the store.', 'linkInvalid') : (data.error || t('Order not found', 'notFound'))) + '</p><a href="home.html" class="inline-block mt-6 text-secondary hover:underline text-sm">' + t('BACK TO HOME PAGE', 'backHome') + '</a></div>';
           return;
         }
         renderOrder(data.data.order);
       })
       .catch(function() {
-        root.innerHTML = '<div class="text-center py-20"><p class="text-red-600">Failed to load order.</p></div>';
+        root.innerHTML = '<div class="text-center py-20"><p class="text-red-600">' + t('Failed to load order.', 'loadFail') + '</p></div>';
       });
   }
 
   function renderOrder(o) {
+    lastOrder = o;
+    applyLangDir();
     var canConfirm = o.status === 'READY_FOR_CONFIRMATION';
     var isCancelled = o.status === 'CANCELLED_BY_CUSTOMER' || o.status === 'CANCELLED_BY_STAFF';
     var unavailableItems = o.items.filter(function(i) { return i.itemStatus === 'UNAVAILABLE'; });
@@ -323,105 +507,122 @@
     var html = '';
     // Breadcrumbs removed site-wide by request.
 
-    // Header
-    html += '<div class="mb-6">';
-    html += '  <h1 class="font-headline text-2xl font-extrabold text-primary dark:text-white mb-2">Order Details</h1>';
-    html += '  <div class="flex items-center gap-3 flex-wrap">';
-    html += '    <span class="font-mono text-sm text-on-surface-variant dark:text-white/70">' + esc(o.orderNumber) + '</span>';
-    html += '    ' + badge(o.status);
-    html += '    <span class="text-xs text-on-surface-variant dark:text-white/50">' + new Date(o.createdAt).toLocaleString() + '</span>';
-    html += '  </div>';
-    html += '</div>';
-
     // Confirmation banner
     if (canConfirm) {
       html += '<div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-6 mb-6">';
-      html += '  <h2 class="font-headline text-lg font-bold text-indigo-900 dark:text-indigo-200 mb-2">Action Required: Confirm Your Order</h2>';
-      html += '  <p class="text-sm text-indigo-700 dark:text-indigo-300 mb-4">Our staff has checked availability. Please review and confirm.</p>';
+      html += '  <h2 class="font-headline text-lg font-bold text-indigo-900 dark:text-indigo-200 mb-2">' + t('Action Required: Confirm Your Order', 'confirmTitle') + '</h2>';
+      html += '  <p class="text-sm text-indigo-700 dark:text-indigo-300 mb-4">' + t('Our staff has checked availability. Please review and confirm.', 'confirmBody') + '</p>';
       if (unavailableItems.length > 0) {
         html += '  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">';
-        html += '    <p class="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">\u26a0 ' + unavailableItems.length + ' item(s) unavailable:</p>';
+        html += '    <p class="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">\u26a0 ' + unavailableItems.length + ' ' + t('item(s) unavailable:', 'unavailable') + '</p>';
         html += '    <ul class="space-y-1">';
         unavailableItems.forEach(function(i) { html += '<li class="text-sm text-gray-600 dark:text-gray-400 line-through">' + esc(i.name) + ' (\u00d7' + i.quantity + ')</li>'; });
         html += '    </ul>';
-        html += '    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Confirming will proceed with available items only. Invoice created at our POS for delivered items.</p>';
+        html += '    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">' + t('Confirming will proceed with available items only. Invoice created at our POS for delivered items.', 'confirmNote') + '</p>';
         html += '  </div>';
       }
       html += '  <div class="flex gap-3">';
-      html += '    <button onclick="confirmOrder(' + o.id + ', \'confirm\')" class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold text-sm hover:bg-green-700 transition-all">\u2713 Confirm Available Items</button>';
-      html += '    <button onclick="confirmOrder(' + o.id + ', \'cancel\')" class="px-6 py-3 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded-lg font-semibold text-sm hover:bg-red-200 dark:hover:bg-red-900/50 transition-all">\u2717 Cancel Order</button>';
+      html += '    <button onclick="confirmOrder(' + o.id + ', \'confirm\')" class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold text-sm hover:bg-green-700 transition-all">' + t('\u2713 Confirm Available Items', 'confirmBtn') + '</button>';
+      html += '    <button onclick="confirmOrder(' + o.id + ', \'cancel\')" class="px-6 py-3 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded-lg font-semibold text-sm hover:bg-red-200 dark:hover:bg-red-900/50 transition-all">' + t('\u2717 Cancel Order', 'cancelBtn') + '</button>';
       html += '  </div>';
       html += '</div>';
     }
 
     if (o.staffNotes) {
-      html += '<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6"><p class="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase mb-1">Staff Note</p><p class="text-sm text-amber-800 dark:text-amber-200">' + esc(o.staffNotes) + '</p></div>';
+      html += '<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6"><p class="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase mb-1">' + t('Staff Note', 'staffNote') + '</p><p class="text-sm text-amber-800 dark:text-amber-200">' + esc(o.staffNotes) + '</p></div>';
     }
 
-    // Two columns
-    html += '<div class="grid md:grid-cols-2 gap-6">';
+    /* Receipt / order-slip sheet. Compact single white document: centered
+       AL-NASSIM header, order meta, two-level product cards (image+name, then
+       SL/CODE/QTY/RATE/TOTAL), one Total Amount line (no shipping/fee rows),
+       delivery info, closing note. Dynamic order values are rendered exactly
+       as stored — never translated. */
+    html += '<div class="receipt-sheet">';
 
-    // Items
-    html += '  <div class="bg-surface-container-lowest dark:bg-surface-container rounded-xl shadow-sm border border-outline-variant/20 dark:border-gray-700 p-5">';
-    html += '    <h2 class="font-headline font-bold text-primary dark:text-white mb-3 text-sm uppercase tracking-wide">Items</h2>';
-    html += '    <table class="w-full text-sm">';
-    html += '      <tbody>';
-    o.items.forEach(function(i) {
-      html += '  <tr class="border-b border-outline-variant/10 dark:border-gray-700">';
-      html += '    <td class="py-2 text-on-surface dark:text-white">' + esc(i.name) + ' (\u00d7' + i.quantity + ')</td>';
-      html += '    <td class="py-2 text-right">' + itemBadge(i.itemStatus) + '</td>';
-      html += '    <td class="py-2 text-right text-on-surface-variant dark:text-white/70">' + fmt(i.price) + ' KD</td>';
-      html += '  </tr>';
-    });
-    html += '      </tbody>';
-    html += '      <tfoot>';
-    html += '        <tr><td colspan="2" class="pt-2 text-gray-500 dark:text-gray-400 text-xs">Subtotal</td><td class="pt-2 text-right text-gray-500 dark:text-gray-400 text-xs">' + fmt(o.subtotal) + ' KD</td></tr>';
-    html += '        <tr><td class="text-gray-500 dark:text-gray-400 text-xs">Shipping (est.)</td><td></td><td class="text-right text-gray-500 dark:text-gray-400 text-xs">' + fmt(o.shipping) + ' KD</td></tr>';
-    html += '        <tr><td colspan="2" class="font-bold text-sm pt-1 text-on-surface dark:text-white">Estimated Total</td><td class="text-right font-bold text-sm pt-1 text-primary dark:text-white">' + fmt(o.total) + ' KD</td></tr>';
-    html += '      </tfoot>';
-    html += '    </table>';
-    html += '    <p class="text-xs text-on-surface-variant/50 dark:text-white/40 mt-3">Final invoice is generated by our POS. Total may vary based on delivered items.</p>';
+    // Letterhead — the Al-Nassim logo (same asset as the site header), kept
+    // compact and centered like a receipt letterhead.
+    html += '  <div style="text-align:center;">';
+    html += '    <img src="LOGO.png" alt="AL-Nassim" style="height:52px;width:auto;max-width:100%;object-fit:contain;margin:0 auto 4px;display:block;"/>';
+    html += '    <div class="font-headline font-bold tracking-[0.3em] text-[15px] uppercase mt-1" style="color:#374151;">' + t('Order Sent', 'orderSent') + '</div>';
     html += '  </div>';
 
-    // Timeline
-    html += '  <div class="bg-surface-container-lowest dark:bg-surface-container rounded-xl shadow-sm border border-outline-variant/20 dark:border-gray-700 p-5">';
-    html += '    <h2 class="font-headline font-bold text-primary dark:text-white mb-3 text-sm uppercase tracking-wide">Order Timeline</h2>';
-    if (o.timeline && o.timeline.length > 0) {
-      html += '    <div>';
-      o.timeline.forEach(function(t) {
-        var dotColor = (STATUS_STYLES[t.status] || {}).dot || '#9ca3af';
-        html += '<div class="timeline-item">';
-        html += '  <div class="timeline-dot" style="background:' + dotColor + ';"></div>';
-        html += '  <div>';
-        html += '    <p class="text-sm font-semibold text-on-surface dark:text-white">' + esc(t.statusLabel || label(t.status)) + '</p>';
-        if (t.note) html += '<p class="text-xs text-on-surface-variant dark:text-white/60">' + esc(t.note) + '</p>';
-        html += '    <p class="text-xs text-on-surface-variant/40 dark:text-white/40">' + new Date(t.createdAt).toLocaleString() + '</p>';
-        html += '  </div>';
-        html += '</div>';
-      });
+    /* Order meta — date/time first (smaller, right-aligned), then the bold
+       horizontally-centered order number. */
+    html += '  <div style="text-align:center;">';
+    html += '    <div class="text-[13px]" style="color:#6b7280;text-align:right;">' + t('Date/Time', 'dateTime') + ' : ' + ltr(esc(new Date(o.createdAt).toLocaleString())) + '</div>';
+    html += '    <div class="font-bold mt-1" style="color:#111827;font-size:17px;">' + t('Order Number', 'orderNumber') + ' : ' + ltr(esc(o.orderNumber)) + '</div>';
+    html += '    <p class="text-[14px] font-bold mt-3" style="color:#111827;">' + t('Your order has been received. Our store team will contact you by phone to confirm your order and product availability.', 'received') + '</p>';
+    html += '  </div>';
+
+    html += '  <hr style="border:0;border-top:1px dashed #d1d5db;margin:14px 0;">';
+
+    function itemCode(name) {
+      // Display code extracted from the stored product name (e.g.
+      // "… - Al-nassim-ND-6724" → "ND-6724"). Purely presentational —
+      // the stored name itself is shown untouched on level 1.
+      var m = String(name || '').match(/al-nassim-([A-Za-z]+-\d+)/i);
+      if (m) return m[1];
+      var parts = String(name || '').split('-');
+      var tail = parts[parts.length - 1];
+      return /[A-Za-z]-?\d/.test(tail) ? tail.trim() : '\u2014';
+    }
+
+    var runningTotal = 0;
+    o.items.forEach(function(i, idx) {
+      var lineTotal = Number(i.price) * Number(i.quantity);
+      runningTotal += lineTotal;
+      html += '  <div class="receipt-item">';
+      // Image LEFT — every product line (name + Code/Qty/U.Price/AMT) on the RIGHT
+      html += '    <div class="flex items-start" style="gap:12px;">';
+      html += '      <div class="r-img">' + (i.image ? '<img src="' + esc(i.image) + '" alt=""/>' : '<span class="material-symbols-outlined" style="color:#9ca3af;font-size:28px;">image</span>') + '</div>';
+      html += '      <div class="r-info">';
+      // Product name (stored data, never translated) — beside the image
+      html += '        <div class="text-[15px] font-semibold leading-snug" style="color:#111827;word-break:break-word;">' + esc(i.name) + '</div>';
+      html += '        <div class="r-info-head">';
+      html += '          <span>' + t('Code', 'code') + '</span>';
+      html += '          <span class="r-num">' + t('Qty', 'qty') + '</span>';
+      html += '          <span class="r-num">' + t('U.Price', 'rate') + '</span>';
+      html += '          <span class="r-num">' + t('AMT (KWD)', 'lineTotal') + '</span>';
+      html += '        </div>';
+      html += '        <div class="r-info-row">';
+      html += '          <span dir="ltr" style="unicode-bidi:isolate;">' + esc(itemCode(i.name)) + '</span>';
+      html += '          <span class="r-num">' + i.quantity + '</span>';
+      html += '          <span class="r-num">' + fmt(i.price) + '</span>';
+      html += '          <span class="r-num font-bold" style="color:#111827;">' + fmt(lineTotal) + '</span>';
+      html += '        </div>';
+      html += '      </div>';
       html += '    </div>';
-    } else {
-      html += '    <p class="text-sm text-on-surface-variant dark:text-white/60">No timeline events yet.</p>';
-    }
+      html += '  </div>';
+    });
+
+    // One separate totals container for the whole order — deliberately NO
+    // shipping/delivery fee rows.
+    html += '  <div class="receipt-item receipt-totals flex justify-between items-baseline mt-3" style="padding:12px;">';
+    html += '    <span class="font-headline font-bold text-[16px]" style="color:#111827;">' + t('Total Amount', 'totalAmount') + '</span>';
+    html += '    <span class="font-bold text-[16px]" style="color:#111827;font-variant-numeric:tabular-nums;">' + ltr(fmt(runningTotal) + ' KD') + '</span>';
     html += '  </div>';
+
+    html += '  <hr style="border:0;border-top:1px dashed #d1d5db;margin:14px 0;">';
+
+    // Delivery information — customer values are stored data, never translated.
+    html += '  <h2 class="font-headline font-bold text-[15px] uppercase tracking-wide mb-2" style="color:#111827;">' + t('Delivery Information', 'deliveryInfo') + '</h2>';
+    html += '  <div class="text-[14px] space-y-1.5" style="color:#374151;">';
+    html += '    <div><span style="color:#6b7280;">' + t('Name', 'name') + '</span> : ' + esc(o.customerName) + '</div>';
+    html += '    <div><span style="color:#6b7280;">' + t('Phone', 'phone') + '</span> : ' + ltr(esc(o.customerPhone)) + '</div>';
+    html += '    <div><span style="color:#6b7280;">' + t('Address', 'address') + '</span> : ' + esc(o.address) + ', ' + esc(o.city) + '</div>';
+    html += '    <p class="text-[15px] font-bold mt-2" style="color:#374151;text-align:justify;">' + t('Once the store team contacts you and provides the final order confirmation, the invoice is issued at the store’s point of sale and sent to you along with the goods.\nNote: The total may vary based on actually delivered items.', 'posNote').replace('\n', '<br>') + '</p>';
+    html += '  </div>';
+
     html += '</div>';
 
-    // Delivery info
-    html += '<div class="bg-surface-container-lowest dark:bg-surface-container rounded-xl shadow-sm border border-outline-variant/20 dark:border-gray-700 p-5 mt-6">';
-    html += '  <h2 class="font-headline font-bold text-primary dark:text-white mb-3 text-sm uppercase tracking-wide">Delivery Information</h2>';
-    html += '  <div class="grid md:grid-cols-2 gap-4 text-sm">';
-    html += '    <div><span class="text-on-surface-variant dark:text-white/60">Name:</span> <span class="text-on-surface dark:text-white">' + esc(o.customerName) + '</span></div>';
-    html += '    <div><span class="text-on-surface-variant dark:text-white/60">Phone:</span> <span class="text-on-surface dark:text-white">' + esc(o.customerPhone) + '</span></div>';
-    html += '    <div class="md:col-span-2"><span class="text-on-surface-variant dark:text-white/60">Address:</span> <span class="text-on-surface dark:text-white">' + esc(o.address) + ', ' + esc(o.city) + '</span></div>';
-    html += '  </div>';
-    html += '</div>';
-
-    // Continue Shopping button
-    html += '<div class="mt-8 text-center">';
-    html += '  <a href="home.html" class="inline-block bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Continue Shopping</a>';
+    // BACK TO HOME PAGE button (screen only — never printed)
+    html += '<div class="mt-8 text-center no-print">';
+    html += '  <a href="home.html" class="inline-block bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">' + t('BACK TO HOME PAGE', 'backHome') + '</a>';
     html += '</div>';
 
     root.innerHTML = html;
+    // No watermark JS needed: the ::before security pattern covers the sheet
+    // purely via CSS at any rendered size.
   }
 
   /* ===== In-app notification (replaces native alert) =====================
@@ -491,10 +692,10 @@
     var proceed = Promise.resolve(true);
     if (action === 'cancel') {
       proceed = confirmDialog({
-        title: 'Cancel this order?',
-        body: 'Cancelling stops this order completely. Reserved items are returned to stock. This cannot be undone.',
-        confirmLabel: 'Yes, cancel order',
-        cancelLabel: 'Keep order',
+        title: t('Cancel this order?', 'cancelTitle'),
+        body: t('Cancelling stops this order completely. Reserved items are returned to stock. This cannot be undone.', 'cancelBody'),
+        confirmLabel: t('Yes, cancel order', 'yesCancel'),
+        cancelLabel: t('Keep order', 'keepOrder'),
         danger: true
       });
     }
@@ -510,16 +711,21 @@
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (data.success) {
-          showNotification(action === 'confirm' ? 'Order confirmed successfully.' : 'Order cancelled successfully.', 'success');
+          showNotification(action === 'confirm' ? t('Order confirmed successfully.', 'confirmedOk') : t('Order cancelled successfully.', 'cancelledOk'), 'success');
           loadOrder();
         } else {
-          showNotification(data.error || 'Action failed. Please try again.', 'error');
+          showNotification(data.error || t('Action failed. Please try again.', 'actionFailed'), 'error');
         }
       })
-      .catch(function() { showNotification('Network error. Please check your connection and try again.', 'error'); });
+      .catch(function() { showNotification(t('Network error. Please check your connection and try again.', 'networkError'), 'error'); });
     });
   };
 
+  applyLangDir(); // honour the stored EN/AR preference before first render
+  // If the page loaded with Arabic stored, re-render once the deferred
+  // EN|AR toggle script (dark-overrides.js) is live and the DOM is ready.
+  document.addEventListener('DOMContentLoaded', applyLang);
+  window.addEventListener('load', applyLang);
   loadOrder();
 })();
 </script>
@@ -527,6 +733,7 @@
 <!-- Theme toggle (shared inline) -->
 <script>
 </script>
+<script src="assets/js/nav-submenu.js" defer></script>
 <script src="assets/js/mobile-nav.js" defer></script>
 <!-- ==================== MOBILE SEARCH WIRING ====================
      Wires the mobile inline search bar to a dropdown below the input. Reuses

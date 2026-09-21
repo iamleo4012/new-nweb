@@ -41,6 +41,20 @@ interface StatsData {
   topProducts: { slug: string; name: string; sold: number }[];
 }
 
+interface LowStockData {
+  items: {
+    id: number;
+    slug: string;
+    name: string;
+    sku: string;
+    stock: number;
+    threshold: number;
+    category: string;
+    status: "OUT_OF_STOCK" | "LOW_STOCK";
+  }[];
+  counts: { total: number; outOfStock: number; lowStock: number };
+}
+
 interface AdminOrder {
   id: number;
   orderNumber: string;
@@ -231,7 +245,7 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <span className="flex items-center gap-2">
               <img src="/LOGO.png" alt="AL-NASSIM" className="h-8 w-auto" />
-              <span className="font-bold text-lg tracking-wide">AL-NASSIM Admin</span>
+              <span className="font-bold text-lg tracking-wide">Admin</span>
             </span>
             <nav className="flex flex-wrap gap-1">
               {(allowedTabs).map((t) => (
@@ -296,6 +310,9 @@ export default function AdminApp({ initialTab }: { initialTab: Tab }) {
 function DashboardTab() {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [error, setError] = useState("");
+  // Low-stock alerts: active products whose online stock is at or below their
+  // per-product "Minimum Stock" threshold (see /api/admin/low-stock).
+  const [lowStock, setLowStock] = useState<LowStockData | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/stats", { credentials: "same-origin" })
@@ -305,6 +322,12 @@ function DashboardTab() {
         else setError(data.error || "Failed to load stats");
       })
       .catch(() => setError("Failed to load stats"));
+    fetch("/api/admin/low-stock", { credentials: "same-origin" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) setLowStock(data.data);
+      })
+      .catch(() => {/* low-stock panel simply stays empty on failure */});
   }, []);
 
   if (error) return <p className="text-red-600">{error}</p>;
@@ -321,6 +344,11 @@ function DashboardTab() {
     { label: "Completed Today", value: op.completedToday, color: "text-gray-700" },
     { label: "Cancelled Today", value: op.cancelledToday, color: "text-red-600" },
     { label: "Unread Notifications", value: op.unreadNotifications, color: "text-blue-600" },
+    {
+      label: "Low Stock Alerts",
+      value: lowStock ? lowStock.counts.total : "…",
+      color: lowStock && lowStock.counts.total > 0 ? "text-amber-600" : "text-gray-700",
+    },
   ];
 
   return (
@@ -350,7 +378,7 @@ function DashboardTab() {
           </ul>
         </section>
         <section className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 min-w-0">
-          <h2 className="font-semibold text-gray-900 mb-3">Most Ordered Products</h2>
+          <h2 className="font-semibold text-gray-900 mb-1">Most Ordered Products</h2>
           <ul className="space-y-2">
             {stats.topProducts.map((p) => (
               <li key={p.slug} className="flex justify-between text-sm gap-2 min-w-0">
@@ -360,6 +388,61 @@ function DashboardTab() {
             ))}
             {stats.topProducts.length === 0 && <li className="text-sm text-gray-500">No orders yet</li>}
           </ul>
+        </section>
+        {/* Low-stock replenishment list — active products at or below their
+            per-product Minimum Stock threshold, worst first. */}
+        <section className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 md:col-span-2 min-w-0">
+          <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+            <h2 className="font-semibold text-gray-900">Low Stock — Replenishment Needed</h2>
+            {lowStock && (
+              <span className="text-xs text-gray-500">
+                {lowStock.counts.total} product{lowStock.counts.total === 1 ? "" : "s"} at or below minimum stock
+                {lowStock.counts.outOfStock > 0 && ` (${lowStock.counts.outOfStock} out of stock)`}
+              </span>
+            )}
+          </div>
+          {lowStock === null ? (
+            <p className="text-sm text-gray-500">Loading low-stock data…</p>
+          ) : lowStock.items.length === 0 ? (
+            <p className="text-sm text-gray-500">No low-stock products — every active product is above its minimum stock level.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm whitespace-nowrap">
+                <thead>
+                  <tr className="text-left text-gray-500 text-xs uppercase tracking-wide">
+                    <th className="py-1 pr-4">Product</th>
+                    <th className="py-1 pr-4">SKU</th>
+                    <th className="py-1 pr-4">Stock</th>
+                    <th className="py-1 pr-4">Threshold</th>
+                    <th className="py-1 pr-4">Category</th>
+                    <th className="py-1">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lowStock.items.map((p) => (
+                    <tr key={p.id} className="border-t border-gray-100">
+                      <td className="py-1.5 pr-4">
+                        <span className="font-medium text-gray-900">{p.name}</span>
+                        <span className="block text-xs text-gray-400 font-mono">{p.slug}</span>
+                      </td>
+                      <td className="py-1.5 pr-4 font-mono text-xs">{p.sku}</td>
+                      <td className={`py-1.5 pr-4 font-semibold ${p.status === "OUT_OF_STOCK" ? "text-red-600" : "text-amber-600"}`}>{p.stock}</td>
+                      <td className="py-1.5 pr-4 text-gray-600">{p.threshold}</td>
+                      <td className="py-1.5 pr-4 text-gray-600">{p.category}</td>
+                      <td className="py-1.5">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${p.status === "OUT_OF_STOCK" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-800"}`}>
+                          {p.status === "OUT_OF_STOCK" ? "Out of Stock" : "Low Stock"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="text-xs text-gray-400 mt-2">
+            Threshold is each product&apos;s &quot;Minimum Stock&quot; field (product form). Only active products are listed.
+          </p>
         </section>
         <section className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 md:col-span-2 min-w-0">
           <h2 className="font-semibold text-gray-900 mb-3">Recent Orders</h2>

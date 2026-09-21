@@ -39,7 +39,12 @@ const CSP = [
 
 const nextConfig = {
   async rewrites() {
-    return [{ source: "/", destination: "/home.html" }];
+    return [
+      { source: "/", destination: "/home.html" },
+      // Staff Order Page — the admin login redirects to the extensionless
+      // path (it strips ".html"), so serve the page under both.
+      { source: "/internal-orders", destination: "/internal-orders.html" },
+    ];
   },
   async redirects() {
     return [
@@ -65,6 +70,24 @@ const nextConfig = {
   },
   async headers() {
     const headers = [
+      {
+        // Order Sent sheet (customer page + /o/{slug} short-link delivery):
+        // always revalidate so phones never render a stale cached copy after
+        // fixes to the sheet or its watermark tape.
+        source: "/((?:order-detail\\.html)|o(?:/.*)?)",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, must-revalidate" },
+        ],
+      },
+      {
+        // Service worker (staff Web Push): always revalidate so staff devices
+        // pick up sw.js updates immediately; explicit root scope.
+        source: "/sw\\.js",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, must-revalidate" },
+          { key: "Service-Worker-Allowed", value: "/" },
+        ],
+      },
       {
         // home.html is the entry page iterated on from phones — force
         // revalidation so a stale Safari cache can never serve an old copy

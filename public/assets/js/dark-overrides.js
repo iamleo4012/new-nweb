@@ -88,10 +88,22 @@ window.addEventListener("pageshow", function () {
     dl.addEventListener("click", function () { appComingSoon(); });
     row.appendChild(dl);
 
-    /* --- EN | AR language selector: HIDDEN until Arabic actually exists ---
-       The old button only stored a preference and reloaded the page with no
-       visible effect, which reads as broken. Re-add it when the Arabic/RTL
-       roadmap work (H-P02) ships. */
+    /* --- EN | AR language selector: UI-ONLY storefront toggle ------------
+       Visible next to the Download icon (matching the desktop header order).
+       Persists the choice in localStorage('nassim-lang') and swaps the
+       highlighted side via window.NassimLang (wired by the shared module
+       below), but translates NOTHING yet — no dictionary, no RTL, no reload.
+       The future Arabic/RTL engine (roadmap H-P02) can consume the stored
+       preference; default stays English. */
+    var lang = document.createElement("button");
+    lang.type = "button";
+    lang.className = "nassim-mu-btn nassim-mu-lang";
+    lang.setAttribute("aria-label", "Language: English or Arabic");
+    lang.innerHTML =
+      '<span class="nassim-mu-opt" data-lang="en">EN</span>' +
+      '<span class="nassim-mu-sep">|</span>' +
+      '<span class="nassim-mu-opt" data-lang="ar">AR</span>';
+    row.appendChild(lang);
 
     // --- Theme toggle (reuses theme.js via id="theme-toggle") ---
     var theme = document.createElement("button");
@@ -164,24 +176,135 @@ window.addEventListener("pageshow", function () {
   if (mq.addEventListener) mq.addEventListener("change", function () { if (isMobile()) inject(); else { var e = document.getElementById("nassim-mobile-utils"); if (e) e.remove(); } });
   else if (mq.addListener) mq.addListener(function () { if (isMobile()) inject(); else { var e = document.getElementById("nassim-mobile-utils"); if (e) e.remove(); } });
 
-  /* --- DESKTOP header language toggle ----------------------------------
-     The shared desktop header renders an "EN | AR" button that was purely
-     decorative (clicking it stored a preference and reloaded the page with
-     no visible effect). Arabic/RTL does not exist yet (roadmap H-P02), so
-     every such button is HIDDEN — on both desktop and mobile — until the
-     real language switcher ships. Remove this routine when that happens. */
-  function hideDesktopLangButtons() {
-    document.querySelectorAll("nav button").forEach(function (btn) {
-      if (btn.closest("#nassim-mobile-utils") || btn.hasAttribute("data-lang-hidden")) return;
-      var spans = btn.querySelectorAll("span");
-      var en = null, ar = null;
-      spans.forEach(function (s) { var t = (s.textContent || "").trim(); if (t === "EN" && !en) en = s; if (t === "AR" && !ar) ar = s; });
-      if (!en || !ar) return;
-      btn.setAttribute("data-lang-hidden", "1");
-      btn.style.display = "none";
-    });
+  /* Re-wire language toggles after a breakpoint re-injection. */
+  function wireLangAfterInject() {
+    if (window.NassimLang && window.NassimLang.wire) window.NassimLang.wire();
   }
-  ready(hideDesktopLangButtons);
+  var _origInject = inject;
+  inject = function () { _origInject(); wireLangAfterInject(); };
+})();
+
+/* ============================================================================
+   EN | AR LANGUAGE TOGGLE — shared, storefront-wide, UI-ONLY
+   ----------------------------------------------------------------------------
+   One mechanism for every language control on the customer storefront:
+     - the desktop header "EN | AR" button (sits next to the Download icon),
+     - the mobile header utility row built above (Download | EN|AR | Theme),
+     - the "Language  EN | AR" row inside the hamburger drawer.
+
+   Behavior (deliberately minimal — presentation strategy):
+     - Persists the choice in localStorage('nassim-lang'); default 'en'.
+     - Swaps the highlighted side of every wired control (aria + .is-active /
+       .nassim-lang-on/.nassim-lang-off states, styled in dark-overrides.css).
+     - Translates NOTHING: no dictionary, no RTL/dir switch, no reload. When
+       the Arabic/RTL engine (roadmap H-P02) ships it can read the stored
+       preference via window.NassimLang.get().
+
+   Detection is structural (a <button> whose direct spans are exactly "EN"
+   and "AR" with a short total label), so per-page markup variants and
+   dynamically built controls (drawer, injected rows) are all covered. The
+   Admin SPA / internal pages do not load this script and are unaffected.
+   ============================================================================ */
+(function () {
+  function ready(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  }
+
+  function findLangButtons() {
+    var found = [];
+    document.querySelectorAll("button").forEach(function (btn) {
+      if (btn.hasAttribute("data-lang-wired")) return;
+      var en = null, ar = null;
+      btn.querySelectorAll("span").forEach(function (s) {
+        var t = (s.textContent || "").trim();
+        if (t === "EN" && !en) en = s;
+        if (t === "AR" && !ar) ar = s;
+      });
+      if (!en || !ar) return;
+      // Guard: only compact EN|AR switches, not unrelated buttons that
+      // happen to contain both strings. The label may include a leading icon
+      // ligature + word (e.g. "language Language EN | AR" in the drawer), so
+      // allow some prefix and require EN to precede AR.
+      var label = (btn.textContent || "").replace(/\s+/g, " ").trim();
+      if (label.length > 40) return;
+      if (label.indexOf("EN") === -1 || label.indexOf("AR") === -1) return;
+      if (label.indexOf("EN") > label.indexOf("AR")) return;
+      found.push({ btn: btn, en: en, ar: ar });
+    });
+    return found;
+  }
+
+  window.NassimLang = {
+    get: function () {
+      try { return localStorage.getItem("nassim-lang") === "ar" ? "ar" : "en"; } catch (e) { return "en"; }
+    },
+    set: function (lang) {
+      var v = lang === "ar" ? "ar" : "en";
+      var changed = this.get() !== v;
+      try { localStorage.setItem("nassim-lang", v); } catch (e) {}
+      this.sync();
+      // Let listening pages re-render in the chosen language (e.g. the
+      // order confirmation page). Fires only when the value actually changed.
+      if (changed) {
+        try { window.dispatchEvent(new CustomEvent("nassim-langchange", { detail: { lang: v } })); } catch (e) {}
+      }
+    },
+    toggle: function () { this.set(this.get() === "ar" ? "en" : "ar"); },
+    // Reflect the stored language on every wired control. Pure presentation.
+    sync: function () {
+      var active = this.get();
+      document.querySelectorAll('button[data-lang-wired] [data-lang]').forEach(function (opt) {
+        var on = opt.getAttribute("data-lang") === active;
+        opt.classList.toggle("nassim-lang-on", on);
+        opt.classList.toggle("nassim-lang-off", !on);
+        if (opt.classList.contains("nassim-mu-opt")) opt.classList.toggle("is-active", on);
+      });
+      document.querySelectorAll('button[data-lang-wired]').forEach(function (btn) {
+        btn.setAttribute("aria-label", active === "ar" ? "Language: Arabic selected" : "Language: English selected");
+      });
+    },
+    // Wire every EN|AR control found in the document (idempotent).
+    wire: function () {
+      findLangButtons().forEach(function (pair) {
+        pair.btn.setAttribute("data-lang-wired", "1");
+        pair.btn.style.display = ""; // clear any legacy inline hide
+        pair.en.setAttribute("data-lang", "en");
+        pair.ar.setAttribute("data-lang", "ar");
+        pair.btn.addEventListener("click", function (e) {
+          var hit = e.target && e.target.closest ? e.target.closest("[data-lang]") : null;
+          if (hit === pair.en) window.NassimLang.set("en");
+          else if (hit === pair.ar) window.NassimLang.set("ar");
+          else window.NassimLang.toggle(); // tapped the button body/separator
+        });
+      });
+      this.sync();
+    }
+  };
+
+  ready(function () { window.NassimLang.wire(); });
+  window.addEventListener("load", function () { window.NassimLang.wire(); });
+  // Late pass: the hamburger drawer and other deferred markup may render
+  // after load — wire those too (idempotent).
+  setTimeout(function () { window.NassimLang.wire(); }, 1200);
+  // The hamburger drawer rebuilds its utilities row when it opens, which can
+  // replace an already-wired button with fresh markup. Re-wire whenever a
+  // button enters the DOM (cheap scan, idempotent, presentation-only).
+  if (window.MutationObserver) {
+    var mo = new MutationObserver(function (muts) {
+      for (var i = 0; i < muts.length; i++) {
+        var add = muts[i].addedNodes;
+        for (var j = 0; j < add.length; j++) {
+          var n = add[j];
+          if (n.nodeType === 1 && (n.tagName === "BUTTON" || n.querySelector("button"))) {
+            window.NassimLang.wire();
+            return;
+          }
+        }
+      }
+    });
+    mo.observe(document.documentElement, { childList: true, subtree: true });
+  }
 })();
 
 /* ============================================================================

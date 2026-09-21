@@ -51,6 +51,7 @@ interface ProductItem {
   sku: string;
   price: number;
   stock: number;
+  minStock: number;
   isActive: boolean;
   category: string;
   image: string;
@@ -185,7 +186,7 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
     setFieldErrors({});
     setF({
       slug: "", name: "", description: "", longDescription: "",
-      price: "0", discount: "0",
+      price: "0",
       stock: "0", minStock: "10",
       image: "", line: "", sku: "", barcode: "", ndNumber: "", internalCode: "", classCode: "",
       specs: "[]",
@@ -227,7 +228,7 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
     // Start from the list row so the form is usable immediately…
     setF({
       slug: p.slug, name: p.name, description: "", longDescription: "",
-      price: String(p.price), discount: "0",
+      price: String(p.price),
       stock: String(p.stock), minStock: "10",
       image: p.image, line: "", sku: p.sku, barcode: "", ndNumber: "", internalCode: "", classCode: (p as { classCode?: string }).classCode ?? "",
       specs: "[]",
@@ -259,7 +260,7 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
         ...prev,
         slug: full.slug, name: full.name,
         description: full.description ?? "", longDescription: full.longDescription ?? "",
-        price: String(full.price), discount: String(full.discount),
+        price: String(full.price),
         stock: String(full.stock), minStock: String(full.minStock),
         image: full.image ?? "", line: full.line ?? "", sku: full.sku ?? "",
         barcode: full.barcode ?? "", ndNumber: full.ndNumber ?? "", internalCode: full.internalCode ?? "", classCode: full.classCode ?? "",
@@ -609,7 +610,7 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
     if (!f.slug) errs.slug = "Slug is required.";
     else if (!/^[a-z0-9-]+$/.test(String(f.slug))) errs.slug = "Slug must be lowercase letters, numbers, and dashes only.";
     if (!f.categoryId) errs.categoryId = "Please select a category.";
-    for (const [key, label] of [["price", "Selling price"], ["discount", "Discount"], ["stock", "Stock"], ["minStock", "Minimum stock"], ["weight", "Weight"], ["length", "Length"], ["width", "Width"], ["height", "Height"], ["depth", "Depth"]] as const) {
+    for (const [key, label] of [["price", "Selling price"], ["stock", "Stock"], ["minStock", "Minimum stock"], ["weight", "Weight"], ["length", "Length"], ["width", "Width"], ["height", "Height"], ["depth", "Depth"]] as const) {
       const raw = f[key];
       if (raw === "" || raw == null) continue;
       const n = Number(raw);
@@ -647,7 +648,6 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
       description: f.description,
       longDescription: f.longDescription,
       price: num(f.price),
-      discount: num(f.discount),
       stock: int(f.stock),
       minStock: int(f.minStock),
       image: primaryImage || gallery[0] || f.image,
@@ -1051,10 +1051,12 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
           <h3 className="font-semibold text-gray-900 border-b pb-2">5. Pricing &amp; Inventory</h3>
           <div className="grid md:grid-cols-3 gap-3">
             {renderInput("price", "Selling Price (KD)", "number", { step: "0.001" })}
-            {renderInput("discount", "Discount (KD)", "number", { step: "0.001" })}
             {renderInput("stock", "Stock Quantity", "number")}
-            {renderInput("minStock", "Minimum Stock", "number")}
+            {renderInput("minStock", "Minimum Stock (low-stock alert threshold)", "number")}
           </div>
+          <p className="text-xs text-gray-400 -mt-1">
+            The product appears on the low-stock list when its online stock falls to or below the minimum stock level.
+          </p>
 
           {/* ---------------- 6. Specifications ---------------- */}
           <h3 className="font-semibold text-gray-900 border-b pb-2">6. Specifications</h3>
@@ -1145,12 +1147,17 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
               <th className="px-4 py-3">Product</th>
               <th className="px-4 py-3">SKU</th>
               <th className="px-4 py-3">Price (KD)</th>
+              <th className="px-4 py-3">Stock</th>
               <th className="px-4 py-3">Active</th>
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {pageItems.map((p) => (
+            {pageItems.map((p) => {
+              // Low-stock badge mirrors the dashboard alert rule: active
+              // products at or below their minimum-stock threshold.
+              const stockAlert = !p.isActive ? null : p.stock <= 0 ? "OUT" : p.stock <= p.minStock ? "LOW" : null;
+              return (
               <tr key={p.id} className="border-b last:border-0 hover:bg-gray-50">
                 <td className="px-4 py-2">
                   <div className="font-medium text-gray-900">{p.name}</div>
@@ -1158,6 +1165,14 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
                 </td>
                 <td className="px-4 py-2 text-gray-600 font-mono text-xs">{p.sku || "—"}</td>
                 <td className="px-4 py-2">{Number(p.price).toFixed(3)}</td>
+                <td className="px-4 py-2">
+                  <span className="font-semibold mr-1.5">{p.stock}</span>
+                  {stockAlert && (
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${stockAlert === "OUT" ? "bg-red-100 text-red-800" : "bg-amber-100 text-amber-800"}`}>
+                      {stockAlert === "OUT" ? "Out of Stock" : "Low Stock"}
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-2">
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold ${p.isActive ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"}`}>
                     {p.isActive ? "Active" : "Hidden"}
@@ -1177,12 +1192,13 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
                   <button onClick={() => setPendingDelete(p)} className="text-red-600 hover:text-red-800 text-xs font-semibold">Delete</button>
                 </td>
               </tr>
-            ))}
+              );
+            })}
             {loading && (
-              <tr><td colSpan={5} className="px-4 py-6 text-center text-gray-500">Loading products…</td></tr>
+              <tr><td colSpan={6} className="px-4 py-6 text-center text-gray-500">Loading products…</td></tr>
             )}
             {!loading && filtered.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-6 text-center text-gray-500">No products found</td></tr>
+              <tr><td colSpan={6} className="px-4 py-6 text-center text-gray-500">No products found</td></tr>
             )}
           </tbody>
         </table>

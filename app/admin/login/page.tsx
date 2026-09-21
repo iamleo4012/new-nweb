@@ -3,13 +3,23 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+// Dedicated Store Orders Staff account (see scripts/create-store-orders-staff.mjs).
+// After sign-in this account goes straight to the dedicated Order Page instead
+// of the admin dashboard. Identity is matched by email only — the account's
+// role, and every other staff/admin account, behave exactly as before.
+const STORE_ORDERS_STAFF_EMAIL = "store.orders@alnassim.com";
+
 function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawRedirect = searchParams.get("redirect") || "/admin";
-  // Sanitize: strip .html suffix and ensure it starts with /admin
-  const redirect = rawRedirect.replace(/\.html$/, "").startsWith("/admin")
-    ? rawRedirect.replace(/\.html$/, "")
+  // Sanitize: strip .html suffix and ensure it starts with /admin.
+  // "/internal-orders" (the staff Order Page) is also allowed — it shares the
+  // same staff auth and its own middleware gate; everything else falls back
+  // to /admin.
+  const normalizedRedirect = rawRedirect.replace(/\.html$/, "");
+  const redirect = normalizedRedirect.startsWith("/admin") || normalizedRedirect.startsWith("/internal-orders")
+    ? normalizedRedirect
     : "/admin";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +34,7 @@ function AdminLoginForm() {
       .then((r) => r.json())
       .then((data) => {
         if (data?.data?.user && (data.data.user.role === "ADMIN" || data.data.user.role === "STAFF")) {
-          router.push(redirect);
+          router.push(data.data.user.email === STORE_ORDERS_STAFF_EMAIL ? "/internal-orders.html" : redirect);
         }
       })
       .catch(() => {});
@@ -46,7 +56,7 @@ function AdminLoginForm() {
       if (data.success && data.data?.user) {
         const role = data.data.user.role;
         if (role === "ADMIN" || role === "STAFF") {
-          router.push(redirect);
+          router.push(data.data.user.email === STORE_ORDERS_STAFF_EMAIL ? "/internal-orders.html" : redirect);
         } else {
           setError("This account does not have staff access.");
         }

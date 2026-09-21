@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
+import { derivedStockStatus } from "@/lib/low-stock";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -88,7 +89,12 @@ const sharedFields = {
   // clients that still send it keep working, and existing DB values are
   // never touched by updates that omit it.
   costPrice: z.number().min(0).max(999999).optional().default(0),
-  discount: z.number().min(0, "Discount must be 0 or more.").max(100, "Discount must be 100 or less.").optional().default(0),
+  // NOTE: `discount` is intentionally NOT accepted. Product discounts are not
+  // offered at this stage; pricing is the selling price only (the storefront
+  // and checkout never applied a discount). Unknown body keys are stripped by
+  // zod, so legacy clients that still send `discount` keep working — the
+  // value is simply ignored and never persisted. The DB column (always 0)
+  // remains untouched to avoid an unnecessary migration.
   stock: z
     .number()
     .int("Stock must be a whole number.")
@@ -301,7 +307,6 @@ function serializeBase(p: FullProduct, customAttributes: unknown) {
     price: Number(p.price),
     costPrice: Number(p.costPrice),
     currency: p.currency,
-    discount: Number(p.discount),
     image: p.image,
     images: p.images,
     line: p.line,
@@ -539,6 +544,13 @@ export async function POST(req: NextRequest) {
   if (sizeIds.length) productData.sizes = { create: sizeIds.map((sid) => ({ sizeId: sid })) };
 
   try {
+    // Initial derived stock status (IN_STOCK / LOW_STOCK / OUT_OF_STOCK)
+    // from the entered stock vs minimum stock.
+    productData.stockStatus = derivedStockStatus(
+      productFields.stock,
+      productFields.minStock ?? 10,
+      "IN_STOCK"
+    );
     const created = await prisma.product.create({ data: productData, include: productInclude });
     if (customValues) {
       await persistCustomValues(created.id, subcategoryId ?? null, categoryId, customValues);
@@ -653,6 +665,22 @@ export async function PATCH(req: NextRequest) {
           detail: `slug=${existing.slug}; stock: ${existing.stock} -> ${stockInput}`,
         },
       });
+    }
+    // Re-derive the low-stock/out-of-stock status when the stock level or
+    // the minimum-stock threshold changed (manual PREORDER/DISCONTINUED
+    // statuses are preserved inside derivedStockStatus).
+    const minStockInput = "minStock" in parsed.data ? (parsed.data as Record<string, unknown>).minStock : undefined;
+    if (typeof stockInput === "number" || typeof minStockInput === "number") {
+      const freshRow = await prisma.product.findUnique({
+        where: { id },
+        select: { stock: true, minStock: true, stockStatus: true },
+      });
+      if (freshRow) {
+        const next = derivedStockStatus(freshRow.stock, freshRow.minStock, freshRow.stockStatus);
+        if (next !== freshRow.stockStatus) {
+          await prisma.product.update({ where: { id }, data: { stockStatus: next } });
+        }
+      }
     }
     return NextResponse.json({ success: true, data: { product: await serializeFull(fresh ?? updated) }, error: null });
   } catch (err) {

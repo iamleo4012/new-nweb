@@ -57,3 +57,8 @@ gui-test-screenshots/
 
 # Temporary scripts
 .tmp-*.cjs
+
+# Local HTTPS development certificates (mkcert) — NEVER commit: the key file
+# is a live private key trusted by the LAN's dev devices. Regenerate with
+# `npm run dev:https:certs` if lost.
+certs/

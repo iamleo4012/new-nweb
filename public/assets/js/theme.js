@@ -15,8 +15,10 @@
 function __nassimThemeInit() {
   try {
     var saved = localStorage.getItem("color-theme");
-    var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    var isDark = saved === "dark" || (!saved && prefersDark);
+    // Default is ALWAYS light ("white") mode: the OS prefers-color-scheme is
+    // deliberately NOT followed — dark applies only when the visitor
+    // explicitly chose it with the toggle on this device.
+    var isDark = saved === "dark";
     document.documentElement.classList.toggle("dark", isDark);
     document.documentElement.classList.toggle("light", !isDark);
   } catch (e) {

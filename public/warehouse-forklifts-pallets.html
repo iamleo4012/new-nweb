@@ -1,5 +1,6 @@
 <!DOCTYPE html><html class="" lang="en"><head>
-<script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"||(!s&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
+<script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
+ document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
 <title>AL-Nassim | Forklifts &amp; Pallets</title>
@@ -1107,7 +1108,7 @@
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-cooling-appliances.html">Cooling Appliances</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-trolleys-baskets.html">Trolleys & Baskets</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-shelves-stands.html">Shelves & Stands</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-checkout-solutions.html">Checkout Solutions</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-checkout-solutions.html">Counters and Scales</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-accessories.html">Accessories</a></li>
 </ul>
 </div>
@@ -1782,7 +1783,17 @@
      operate on the correctly filtered dataset. Uses the subcategorySlug
      from /api/catalog (the Product → subcategoryId → Subcategory DB path).
      Button wiring is at the bottom of this IIFE. */
-  var activeSubcategory = null;
+  /* Deep-link (?sub=<slug> from the nav cascading submenu): start with the
+   subcategory ALREADY active, so the page FIRST renders the filtered grid
+   and the "All" default is never shown or flashed. Same filtering path
+   as a chip click — activeSubcategory drives applyFiltersAndSort(). */
+var activeSubcategory = (function () {
+  try {
+    var slug = new URLSearchParams(location.search).get("sub");
+    if (slug) window.__nassimSubcatSlug = slug; // chip cloner ticks THIS chip
+    return slug || null;
+  } catch (e) { return null; }
+})();
   function subcatSlugFromName(name) {
     return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   }
@@ -2121,7 +2132,11 @@ function applyFiltersAndSort() {
         btns.forEach(function (b, i) {
           var chip = document.createElement('button');
           chip.type = 'button';
-          chip.className = 'subcat-cat-chip category-btn' + (i === 0 ? ' is-active' : '');
+          /* Initial tick: the deep-linked subcategory's chip (?sub=…) when present,
+     otherwise the first chip ("All") — always matches the first render. */
+  var preSlug = window.__nassimSubcatSlug || null;
+  var slugifyName = function (s) { return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); };
+          chip.className = 'subcat-cat-chip category-btn' + ((preSlug ? slugifyName(b.textContent.trim()) === preSlug : i === 0) ? ' is-active' : '');
           chip.setAttribute('data-cat-name', b.textContent.trim());
           var label = document.createElement('span'); label.textContent = b.textContent.trim();
           var tick = document.createElement('span'); tick.className = 'material-symbols-outlined subcat-cat-tick'; tick.textContent = 'check';
@@ -2395,6 +2410,7 @@ function applyFiltersAndSort() {
 <script src="assets/js/listing-pagination.js" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js" defer></script>
+<script src="assets/js/nav-submenu.js" defer></script>
 <script src="assets/js/mobile-nav.js" defer></script>
 <!-- Dropdown hover show/hide (from home.html) -->
 <script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script>

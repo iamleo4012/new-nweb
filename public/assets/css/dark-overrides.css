@@ -766,6 +766,18 @@ footer .text-primary.material-symbols-outlined {
   html.dark #nassim-mobile-utils .nassim-mu-lang .nassim-mu-opt.is-active { color: #f7b994 !important; }
   #nassim-mobile-utils .nassim-mu-lang .nassim-mu-opt:not(.is-active) { opacity: 0.55 !important; }
 }
+
+/* ============================================================================
+   EN|AR TOGGLE SHARED ACTIVE STATES (all breakpoints)
+   ----------------------------------------------------------------------------
+   Used by window.NassimLang (dark-overrides.js) on every wired language
+   control — desktop header button, mobile utility row, hamburger drawer row.
+   Opacity-based so each control keeps its own existing colour classes in
+   both light and dark themes. UI-only: nothing is translated.
+   ============================================================================ */
+button[data-lang-wired] span[data-lang] { cursor: pointer !important; }
+button[data-lang-wired] span[data-lang].nassim-lang-on { opacity: 1 !important; }
+button[data-lang-wired] span[data-lang].nassim-lang-off { opacity: 0.45 !important; }
 @media (min-width: 768px) {
   /* The injected mobile utility row is mobile-only — never show on desktop/tablet */
   #nassim-mobile-utils { display: none !important; }

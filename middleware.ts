@@ -191,6 +191,21 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // 1b. Internal Order Page gate — the staff-only operational page for
+  //     viewing/printing customer orders. Same edge pattern as the /admin
+  //     gate (defence-in-depth; the data itself is protected server-side by
+  //     requireStaff() inside /api/admin/orders). Matches both with and
+  //     without the .html suffix.
+  if (pathname === "/internal-orders" || pathname === "/internal-orders.html") {
+    const token = req.cookies.get(COOKIE_NAME)?.value;
+    if (!(await isAdminToken(token))) {
+      const loginUrl = req.nextUrl.clone();
+      loginUrl.pathname = "/admin/login";
+      loginUrl.searchParams.set("redirect", "/internal-orders.html");
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
   // 2. Rate limit auth endpoints.
   if (pathname === "/api/auth/login" || pathname === "/api/auth/register") {
     const ip = clientIp(req);

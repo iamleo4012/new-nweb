@@ -59,9 +59,10 @@
       var link = trigger.querySelector("a");
       if (!link) continue;
       var subcats = [];
-      var subLinks = trigger.querySelectorAll(".dropdown-menu a");
+      var subLinks = trigger.querySelectorAll(".dropdown-menu > ul > li > a");
       for (var j = 0; j < subLinks.length; j++) {
-        subcats.push({ name: subLinks[j].textContent.trim(), href: subLinks[j].href });
+        // strip the desktop submenu arrow glyph so mobile labels are unchanged
+        subcats.push({ name: subLinks[j].textContent.replace(/\u203a/g, "").trim(), href: subLinks[j].href });
       }
       categories.push({ name: extractNavLinkName(link), href: link.href, subcats: subcats });
     }

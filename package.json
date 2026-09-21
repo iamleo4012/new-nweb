@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
+    "dev:https": "next dev -p 3000 --experimental-https --experimental-https-key ./certs/dev-lan-key.pem --experimental-https-cert ./certs/dev-lan.pem",
+    "dev:https:certs": "mkcert -cert-file certs/dev-lan.pem -key-file certs/dev-lan-key.pem 192.168.1.172 localhost 127.0.0.1 ::1",
     "build": "node --require ./scripts/readlink-shim.cjs ./node_modules/next/dist/bin/next build",
     "start": "next start -p 3000",
     "prisma:generate": "prisma generate",
@@ -29,6 +31,7 @@
     "react-dom": "^19.0.0",
     "recharts": "^3.10.1",
     "resend": "^6.18.0",
+    "web-push": "^3.6.7",
     "zod": "^3.24.1"
   },
   "devDependencies": {
@@ -39,6 +42,7 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/web-push": "^3.6.4",
     "autoprefixer": "^10.5.4",
     "postcss": "^8.5.21",
     "prisma": "^6.3.0",

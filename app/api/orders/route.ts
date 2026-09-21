@@ -3,10 +3,11 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { calculateBillableTotals } from "@/lib/order-workflow";
-import { reserveOnlineStock, InsufficientStockError } from "@/lib/online-stock";
 import { generateOrderAccessToken, hashOrderAccessToken } from "@/lib/order-access";
-import { getShippingFee } from "@/lib/shipping";
+import { orderShortPath } from "@/lib/order-link";
+import { getShippingRule, computeShipping } from "@/lib/shipping";
 import { rateLimit, getClientIp } from "@/lib/security";
+import { notifyStaffOfNewOrder } from "@/lib/web-push";
 import type { Order } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 
@@ -59,6 +60,8 @@ function orderResponse(order: Order & { items: Prisma.OrderItemGetPayload<object
         // Raw capability token for guest order tracking — returned once here
         // (and on idempotent replays of the SAME submission). Never logged.
         accessToken,
+        // Signed short public link (/o/{id}-{signature}) — the customer-facing order link for the guest flow.
+        shortPath: orderShortPath(order.id),
         idempotentReplay,
         ...calculateBillableTotals(
           (order.items as { price: unknown; quantity: number; itemStatus: string }[]).map((i) => ({ price: i.price, quantity: i.quantity, itemStatus: i.itemStatus })),
@@ -79,8 +82,8 @@ function orderResponse(order: Order & { items: Prisma.OrderItemGetPayload<object
 }
 
 export async function POST(req: NextRequest) {
-  // Abuse guard: order creation is guest-accessible and reserves real stock on
-  // every call. 8 orders / 10 minutes / IP is far above any legitimate
+  // Abuse guard: order creation is guest-accessible and commits a real order
+  // on every call. 8 orders / 10 minutes / IP is far above any legitimate
   // customer rate while capping spam and duplicate floods.
   const ip = getClientIp(req);
   const rl = rateLimit(`orders:${ip}`, { max: 8, windowMs: 10 * 60 * 1000 });
@@ -130,10 +133,13 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Verify products exist and are active. ONLINE STOCK is validated and
-  // atomically deducted inside the transaction below (never at cart time) —
-  // the website's stock is its own manually-allocated online quantity and is
-  // never compared against the physical-store ERP.
+  // Verify products exist and are active. NO online-stock validation happens
+  // here: a storefront order is a customer REQUEST — availability is confirmed
+  // by store staff over the phone (internal Order Page), never by blocking
+  // checkout. Product.stock is left untouched at placement; because no
+  // reservation ledger rows are written for the order, the later *_RESTORE
+  // operations in lib/online-stock.ts are correct no-ops for it (same
+  // treatment as legacy pre-ledger orders).
   const slugs = Array.from(new Set(input.items.map((i) => i.slug)));
   const products = await prisma.product.findMany({ where: { slug: { in: slugs }, isActive: true } });
   const bySlug = new Map(products.map((p) => [p.slug, p]));
@@ -150,10 +156,12 @@ export async function POST(req: NextRequest) {
 
   const user = await getSessionUser();
 
-  // SERVER-AUTHORITATIVE shipping: derived from the Setting table (flat fee
-  // default 2.500 KWD). The client-sent value — if any — is never read, so a
-  // manipulated payload cannot change the order total.
-  const shipping = await getShippingFee();
+  // SERVER-AUTHORITATIVE shipping rule (Setting-configurable): below the
+  // threshold a flat fee applies, at or above it shipping is free. The fee
+  // is computed from the SERVER-side subtotal below (DB product prices) —
+  // the client-sent value, if any, is never read, so a manipulated payload
+  // cannot change the order total.
+  const shippingRule = await getShippingRule();
 
   // Guest-tracking capability token: raw value returned once in the response;
   // only its SHA-256 hash is stored (see lib/order-access.ts).
@@ -176,6 +184,9 @@ export async function POST(req: NextRequest) {
           itemStatus: "PENDING" as const,
         };
       });
+      // Threshold decision from the SERVER-side subtotal just accumulated
+      // (never a client-supplied amount).
+      const shipping = computeShipping(subtotal, shippingRule);
       const total = subtotal + shipping;
 
       const created = await tx.order.create({
@@ -207,16 +218,6 @@ export async function POST(req: NextRequest) {
       });
 
       const orderNumber = `AN-${new Date().getFullYear()}-${String(created.id).padStart(6, "0")}`;
-
-      // ONLINE STOCK: atomically validate + deduct inside this transaction.
-      // Insufficient stock throws → the whole order creation rolls back and
-      // stock is left untouched. Concurrent orders for the last unit
-      // serialise on the product row lock — only one can win.
-      await reserveOnlineStock(
-        tx,
-        orderItems.map((i) => ({ productId: i.productId, name: i.name, quantity: i.quantity })),
-        orderNumber
-      );
 
       // Security metadata (capability-token hash + idempotency key) commits
       // atomically with the order. A concurrent duplicate submission with the
@@ -254,15 +255,19 @@ export async function POST(req: NextRequest) {
       return updated;
     });
 
+    // Web Push to staff devices — fired ONLY for a genuinely NEW order (this
+    // code path is unreachable for idempotent replays, which return earlier).
+    // notifyStaffOfNewOrder never throws, so checkout can never fail because
+    // of push delivery problems.
+    await notifyStaffOfNewOrder({
+      orderNumber: order.orderNumber,
+      customerName: order.customerName,
+      total: Number(order.total),
+      currency: order.currency,
+    });
+
     return orderResponse(order, accessToken, false);
   } catch (err) {
-    if (err instanceof InsufficientStockError) {
-      // Oversell prevented — nothing was created and stock is unchanged.
-      return NextResponse.json(
-        { success: false, data: null, error: err.message },
-        { status: 409 }
-      );
-    }
     // Lost idempotency race: an identical concurrent submission (same key)
     // committed microseconds earlier — return its order instead of a duplicate.
     if (

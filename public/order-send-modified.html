@@ -1,0 +1,1020 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
+ document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<link rel="icon" href="/LOGO.png" type="image/png"/>
+<title>Shopping Cart | AL-NASSIM</title>
+<script></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-nav { background: rgba(247, 249, 255, 0.7); backdrop-filter: blur(20px); }
+        .dark .glass-nav { background: rgba(10, 15, 20, 0.9); }
+        .dark-glass-dropdown { background: rgba(247, 249, 255, 0.96); backdrop-filter: blur(20px); border: 1px solid rgba(0, 3, 8, 0.1); border-radius: 1rem; }
+        .dark .dark-glass-dropdown { background: rgba(255, 255, 255, 0.98); }
+        .dark .dark-glass-dropdown a { color: #111d27 !important; }
+        .dark .dark-glass-dropdown a:hover { color: #825335 !important; }
+        /* Dropdown show/hide is now JS-driven (250ms close delay) */
+        .dropdown-menu { opacity: 0; visibility: hidden; transform: translateY(10px); }
+        /* Invisible hover bridge so the dropdown stays open when moving the cursor from the trigger to the menu. */
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* ===== YOU MAY ALSO LIKE — horizontal scroll-snap carousel =====
+           Converts the product list into a single-row, swipe/drag-scrollable
+           carousel across desktop, tablet, and mobile. The individual product
+           card markup/design is NOT touched — only the list container layout.
+           Scrollbar is fully hidden via .hide-scrollbar (defined above). */
+        .yml-carousel {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            scroll-snap-type: x mandatory !important;
+            scroll-behavior: smooth !important;
+            -webkit-overflow-scrolling: touch;
+            /* Same inter-card spacing as the original `gap-8` on desktop. Mobile
+               tightens it below. Padding lets the first/last card breathe and
+               keeps the focus ring/box-shadow from being clipped. */
+            gap: 2rem !important;
+            padding: 0.5rem 0.25rem 1rem !important;
+            margin: 0 !important;
+        }
+        /* Each card becomes a scroll-snap target with a fixed width per
+           breakpoint. The card's own classes/styles are unchanged. */
+        .yml-carousel > .product-card {
+            flex: 0 0 auto !important;
+            scroll-snap-align: start !important;
+            scroll-snap-stop: always !important;
+            width: 260px !important;     /* mobile default */
+            min-width: 0 !important;
+        }
+        @media (min-width: 768px) {
+            .yml-carousel { gap: 2rem !important; }
+            .yml-carousel > .product-card { width: 280px !important; }   /* tablet */
+        }
+        @media (min-width: 1024px) {
+            .yml-carousel > .product-card { width: 300px !important; }   /* desktop */
+        }
+        /* Drag-to-scroll cursor affordance (desktop) */
+        .yml-carousel.is-grabbing { cursor: grabbing !important; }
+        .yml-carousel { cursor: grab; }
+        .cart-item.fade-out { opacity: 0; transform: translateX(20px); transition: all 0.3s ease; }
+
+        /* ===== Premium loading skeleton =====
+           Shown on first paint while auth + cart (local + server + merge)
+           resolve. Removed the moment finaliseCart() runs, so the genuine
+           empty-cart state can NEVER flash before load completes. */
+        @keyframes nassim-sk-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+        .ns-sk {
+            display: block; border-radius: 0.5rem;
+            background: linear-gradient(90deg, rgba(0,3,8,0.06) 25%, rgba(0,3,8,0.10) 50%, rgba(0,3,8,0.06) 75%);
+            background-size: 800px 100%;
+            animation: nassim-sk-shimmer 1.4s infinite linear;
+        }
+        html.dark .ns-sk {
+            background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.06) 75%);
+            background-size: 800px 100%;
+        }
+        #cart-skeleton { display: flex; flex-direction: column; gap: 1.5rem; }
+        @media (max-width: 767px) { #cart-skeleton { gap: 0.75rem !important; padding: 0 1rem !important; } }
+        .cs-card { display: flex; gap: 1.5rem; background: #ffffff; border-radius: 0.625rem; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,3,8,0.05); }
+        html.dark .cs-card { background: #141a22; }
+        @media (max-width: 767px) {
+            .cs-card { padding: 0.75rem !important; gap: 0.75rem !important; border-radius: 0.625rem !important; }
+            .cs-card .cs-img { width: 92px !important; height: 92px !important; border-radius: 0.5rem !important; }
+        }
+        .cs-card .cs-img { width: 10rem; height: 10rem; border-radius: 0.5rem; flex-shrink: 0; }
+        .cs-card .cs-body { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.6rem; }
+        .cs-card .cs-line { height: 0.8rem; border-radius: 0.25rem; }
+        .cs-card .cs-qty { height: 1.5rem; width: 5rem; border-radius: 0.25rem; margin-top: auto; }
+        .cs-card .cs-price { height: 1rem; width: 4.5rem; margin-left: auto; border-radius: 0.25rem; }
+    </style>
+<style>
+/* ==================== MOBILE CART UX (≤767px) ====================
+   Matches the approved mobile shopping experience: no breadcrumbs, content
+   flush under the compact mobile header, premium cart cards with larger image,
+   quantity selector, and icon-only Remove (trash) / Wishlist (heart) controls.
+   Desktop/tablet untouched. Reuses ALL existing cart JS — the mobile card keeps
+   every class/attribute the event delegation depends on (data-id, data-price,
+   .quantity-value, .quantity-btn-plus/minus, .remove-btn, .wishlist-btn,
+   .item-total-price, h3, img). */
+@media (max-width: 767px) {
+    /* Hide breadcrumb + its surrounding space; content begins right under header */
+    main > nav.mb-8 { display: none !important; }
+    /* Compact mobile header is ~52px (3.25rem); desktop pt-32 over-clears it */
+    #cart-main { padding-top: 3.25rem !important; padding-left: 0 !important; padding-right: 0 !important; }
+    /* Page header: tighter, full width */
+    #cart-main > #cart-main-content > div > div.lg\:w-\[70\%\] > .flex {
+        margin-bottom: 1rem !important; padding: 0 1rem !important;
+    }
+    #cart-main h1 { font-size: 1.5rem !important; }
+    #cart-items-total-label { font-size: 0.7rem !important; }
+
+    /* Items stack: full width, comfortable side margins, tighter vertical rhythm */
+    #cart-items-container { padding: 0 1rem !important; gap: 0.75rem !important; }
+
+    /* ---- CART CARD (mobile) ---- */
+    #cart-items-container .cart-item {
+        background: #ffffff !important; border-radius: 0.625rem !important;
+        padding: 0.75rem !important; gap: 0.75rem !important;
+        box-shadow: 0 2px 12px rgba(0,3,8,0.05);
+        display: flex !important; flex-direction: row !important; align-items: stretch !important;
+    }
+    html.dark #cart-items-container .cart-item { background: #141a22 !important; }
+    /* Larger image — uniform square, rounded */
+    #cart-items-container .cart-item > div:first-child {
+        width: 92px !important; height: 92px !important; flex-shrink: 0 !important;
+        border-radius: 0.5rem !important; overflow: hidden !important; background: #edf4ff !important;
+    }
+    html.dark #cart-items-container .cart-item > div:first-child { background: #1a1f2e !important; }
+    #cart-items-container .cart-item > div:first-child img {
+        width: 100% !important; height: 100% !important; object-fit: cover !important;
+    }
+    /* Info column: fills card, flex column */
+    #cart-items-container .cart-item > div:nth-child(2) {
+        flex: 1 1 auto !important; min-width: 0 !important; gap: 0 !important;
+    }
+    /* Name/price row: name column grows + can wrap; price column is reserved
+       (flex-shrink:0) and never crowds the name. Adds a gap so the two never
+       touch, regardless of name length. */
+    #cart-items-container .cart-item > div:nth-child(2) > div:first-child {
+        display: flex !important; justify-content: space-between !important;
+        align-items: flex-start !important; gap: 0.75rem !important;
+    }
+    #cart-items-container .cart-item > div:nth-child(2) > div:first-child > div:first-child {
+        flex: 1 1 auto !important; min-width: 0 !important;
+    }
+    #cart-items-container .cart-item > div:nth-child(2) > div:first-child > div:last-child {
+        flex: 0 0 auto !important; min-width: 4.5rem !important; text-align: right !important;
+    }
+    /* Name row */
+    #cart-items-container .cart-item h3 {
+        font-size: 0.82rem !important; line-height: 1.2 !important; margin-bottom: 0.1rem !important;
+    }
+    /* Hide the secondary line label + SKU on mobile for a cleaner card */
+    #cart-items-container .cart-item .text-secondary,
+    #cart-items-container .cart-item p[class*="SKU"] { display: none !important; }
+    /* Price: prominent */
+    #cart-items-container .cart-item .item-total-price {
+        font-size: 0.95rem !important; font-family: 'Manrope', sans-serif !important; font-weight: 800 !important;
+    }
+    #cart-items-container .cart-item p.uppercase.tracking-wider,
+    #cart-items-container .cart-item p[class*="tracking-wider"] { display: none !important; }
+
+    /* Bottom action row: quantity (left) + icon buttons (right) */
+    #cart-items-container .cart-item > div:nth-child(2) > div:last-child {
+        margin-top: auto !important; padding-top: 0.4rem !important;
+    }
+    /* Quantity selector — compact */
+    #cart-items-container .cart-item .quantity-btn-minus,
+    #cart-items-container .cart-item .quantity-btn-plus { padding: 0.4rem 0.6rem !important; }
+    #cart-items-container .cart-item .quantity-value { font-size: 0.78rem !important; padding: 0 0.6rem !important; }
+
+    /* Icon-only Remove + Wishlist buttons (replace text links).
+       Hide the text label; keep only the icon. */
+    #cart-items-container .cart-item .remove-btn,
+    #cart-items-container .cart-item .wishlist-btn {
+        gap: 0 !important; padding: 0.4rem !important;
+        width: 34px; height: 34px; border-radius: 9999px;
+        justify-content: center !important; align-items: center !important;
+        background: rgba(0,3,8,0.05) !important;
+    }
+    html.dark #cart-items-container .cart-item .remove-btn,
+    html.dark #cart-items-container .cart-item .wishlist-btn { background: rgba(255,255,255,0.08) !important; }
+    #cart-items-container .cart-item .remove-btn .material-symbols-outlined,
+    #cart-items-container .cart-item .wishlist-btn .material-symbols-outlined { font-size: 18px !important; }
+    /* Icon-only on mobile: hide the text label */
+    #cart-items-container .cart-item .cart-action-label { display: none !important; }
+
+    /* ---- ORDER SUMMARY (mobile): premium, full-width card ---- */
+    /* Reuses the existing data + calculations (no JS change). */
+    #cart-main-content .lg\:w-\[30\%\] { width: 100% !important; }
+    #cart-main-content .sticky {
+        position: static !important; padding: 1.25rem !important;
+        border-radius: 0.75rem !important; margin: 1rem 1rem 0 !important;
+        box-shadow: 0 4px 24px rgba(0,3,8,0.06) !important;
+        border: 1px solid rgba(196,198,204,0.4) !important;
+    }
+    html.dark #cart-main-content .sticky { border-color: rgba(255,255,255,0.1) !important; }
+    #cart-main-content .sticky > h2 {
+        font-size: 1.05rem !important; margin-bottom: 1rem !important;
+        padding-bottom: 0.75rem !important; letter-spacing: -0.01em !important;
+    }
+    #cart-main-content .sticky .space-y-4 { gap: 0.6rem !important; margin-bottom: 1rem !important; }
+    #cart-main-content .sticky .space-y-4 > div { font-size: 0.8rem !important; }
+    #cart-main-content .sticky .space-y-4 > div span:last-child { font-weight: 600 !important; }
+    #cart-main-content .sticky .flex.items-baseline { padding-top: 0.75rem !important; border-top: 1px solid rgba(196,198,204,0.4) !important; margin-bottom: 1rem !important; }
+    html.dark #cart-main-content .sticky .flex.items-baseline { border-top-color: rgba(255,255,255,0.1) !important; }
+    #cart-main-content .sticky .flex.items-baseline > span:first-child { font-size: 0.7rem !important; }
+    #cart-main-content .sticky .flex.items-baseline > span:last-child { font-size: 1.5rem !important; }
+    #cart-main-content .sticky a[href="checkout.html"] {
+        padding: 0.9rem !important; border-radius: 0.5rem !important;
+        font-size: 0.7rem !important; letter-spacing: 0.12em !important;
+    }
+
+    /* ---- YOU MAY ALSO LIKE (mobile): 2-col premium grid ----
+       Reuses the existing .product-card markup + product-nav.js navigation.
+       The hover-reveal View Product bar is made permanently visible (no hover
+       on touch), and an always-visible Add to Cart is injected via JS below. */
+    main > section.mt-32 { margin-top: 2rem !important; padding: 0 1rem !important; }
+    main > section.mt-32 > .flex.justify-between { margin-bottom: 1rem !important; }
+    main > section.mt-32 > .flex.justify-between > div > span { font-size: 0.6rem !important; letter-spacing: 0.2em !important; }
+    main > section.mt-32 > .flex.justify-between > div > h2 { font-size: 1.2rem !important; }
+    main > section.mt-32 > .flex.justify-between > .flex { display: none !important; }   /* hide prev/next on mobile */
+    /* Mobile: tighten the carousel so ~1.6 cards are visible (peek of the next
+       card signals "swipe for more"). Overrides the desktop gap/width above. */
+    main > section.mt-32 > .yml-carousel {
+        gap: 0.75rem !important; padding: 0.5rem 1rem 1rem !important;
+    }
+    main > section.mt-32 > .yml-carousel > .product-card { width: 62vw !important; max-width: 260px !important; }
+    /* Recommendation card */
+    main > section.mt-32 .product-card {
+        background: transparent !important; min-width: 0; display: flex; flex-direction: column;
+    }
+    main > section.mt-32 .product-image-container {
+        aspect-ratio: 1 / 1 !important; margin-bottom: 0.45rem !important;
+        border-radius: 0.625rem !important; overflow: hidden !important;
+    }
+    main > section.mt-32 .product-image-container img { width: 100% !important; height: 100% !important; object-fit: cover !important; }
+    /* Mobile-only: remove the "View Product" hover bar from recommendation cards.
+       The whole card (except the ATC button below) is tappable and opens the
+       Product View via product-nav.js delegation, so the button is redundant on
+       touch. display:none collapses the bar — no leftover space remains, and the
+       image keeps its square aspect-ratio. */
+    main > section.mt-32 .product-image-container > div:last-child { display: none !important; }
+    /* Name + price typography */
+    main > section.mt-32 .product-card p.font-label { display: none !important; }   /* hide category eyebrow */
+    main > section.mt-32 .product-card h3 {
+        font-size: 0.72rem !important; line-height: 1.2 !important; margin-bottom: 0.15rem !important;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        min-height: calc(2 * 1.2em) !important;
+    }
+    main > section.mt-32 .product-card p.font-headline { font-size: 0.8rem !important; }
+
+    /* Always-visible Add to Cart on each recommendation card (mobile only) */
+    main > section.mt-32 .yml-atc {
+        margin-top: auto !important; width: 100%;
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;
+        background: #000308; color: #fff;
+        font-family: 'Manrope', sans-serif; font-size: 0.6rem; font-weight: 800;
+        letter-spacing: 0.06em; text-transform: uppercase;
+        padding: 0.5rem 0.4rem; border-radius: 0.5rem; border: none;
+        cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    main > section.mt-32 .yml-atc:active { background: #825335; }
+    main > section.mt-32 .yml-atc .material-symbols-outlined { font-size: 15px; }
+    html.dark main > section.mt-32 .yml-atc { background: #fff; color: #000308; }
+}
+@media (min-width: 768px) {
+    /* desktop card unchanged */
+}
+</style>
+<link rel="stylesheet" href="/assets/css/tailwind.css">
+</head>
+<body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white overflow-x-hidden antialiased">
+
+<!-- ===== Shared Header (same as home.html) ===== -->
+<nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
+<div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-12">
+<a href="home.html" class="flex items-center gap-2 group cursor-pointer shrink-0">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/>
+</a>
+<div class="hidden md:flex gap-8">
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-cleaning-tools.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-kitchenware.html">Kitchenware</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-cooling-appliances.html">Cooling Appliances</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-shelves-stands.html">Shelves &amp; Stands</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-checkout-solutions.html">Counters and Scales</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-accessories.html">Accessories</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-forklifts-pallets.html">Forklifts &amp; Pallets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racking</a></li></ul></div></div>
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a>
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+</div>
+</div>
+<!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
+     direct flex child of the header row so all three elements share the same
+     vertical centre via the parent items-center. The search icon lives inside a
+     <label> so search.js bindTriggers() skips it. -->
+<form class="flex-1 mx-2 md:hidden relative m-0" id="mobile-inline-search" role="search" autocomplete="off">
+<label class="absolute inset-y-0 left-2 flex items-center pointer-events-none" for="mobile-inline-search-input">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-white/60" style="font-size:20px;">search</span>
+</label>
+<input id="mobile-inline-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-full h-9 pl-8 pr-3 rounded-lg bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 outline-none focus:ring-2 focus:ring-primary/40 transition"/>
+</form>
+<div class="flex items-center gap-2 md:gap-6 shrink-0">
+<!-- Desktop inline search bar -->
+<form class="hidden md:flex relative m-0 items-center" id="desktop-inline-search" role="search" autocomplete="off">
+<input id="desktop-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-44 lg:w-56 h-9 px-3 py-2 rounded-full bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 dark:border-white/20 outline-none focus:ring-2 focus:ring-primary/40 focus:w-64 transition-all duration-300"/>
+</form>
+<button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center"><span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span><span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span><span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span></button>
+<div class="relative group hidden md:block" id="download-btn-container"><button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn"><span class="material-symbols-outlined dark:text-white" style="font-size: 30px;">download</span></button><div class="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 z-50" id="download-popup"><div class="bg-[#135bec] rounded-2xl shadow-2xl overflow-hidden"><div class="px-6 py-4 border-b border-white/20" style="background-color: #135bec;"><h3 class="text-white font-headline font-bold text-sm uppercase tracking-wider">DOWNLOAD OUR APP</h3><p class="text-white/80 text-xs mt-1 font-light">Upgrade Your Experience</p></div><div class="space-y-3 flex flex-col items-center bg-transparent"><a href="#" class="flex items-center justify-center rounded-lg overflow-hidden w-fit p-2" style="background-color: #135bec;"><img loading="lazy" src="topcar/aple.png" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg"/></a><a href="#" class="flex items-center justify-center rounded-lg overflow-hidden w-fit p-2" style="background-color: #135bec;"><img loading="lazy" src="topcar/ggle.png" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg"/></a></div></div></div></div>
+<button class="hidden md:block hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span></button>
+<a href="cart.html" class="hover:opacity-80 transition-all duration-300 active:scale-95 hidden md:flex relative items-center gap-1 text-secondary border-b-2 border-secondary pb-1" aria-label="View cart"><span class="material-symbols-outlined dark:text-white" style="font-size: 30px;">shopping_cart</span><span class="nassim-cart-badge absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full bg-secondary text-white text-[9px] font-bold items-center justify-center leading-none" style="display:none;">00</span></a>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95 hidden md:flex" id="account-btn"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">person</span></button>
+<button id="hamburger-slot" class="md:hidden hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center justify-center p-0" aria-label="Open menu"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">menu</span></button>
+</div>
+</div>
+</nav>
+
+<!-- ===== Main Content (Order Sent — professional confirmation, order-send-modified) ===== -->
+<style>
+  /* ---- scoped design for the Order Sent content area (this page only) ---- */
+  #os-wrap { background: #FFFFFF; }
+  #os-wrap .os-container { max-width: 1200px; margin: 0 auto; padding: 130px 24px 80px; }
+  #os-wrap .os-eyebrow { display: flex; align-items: center; gap: 10px; }
+  #os-wrap .os-check { width: 26px; height: 26px; border-radius: 50%; background: #16a34a; color: #fff; display: flex; align-items: center; justify-content: center; }
+  #os-wrap .os-check .material-symbols-outlined { font-size: 18px; }
+  #os-wrap .os-label { font-size: 13px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: #64748b; }
+  #os-wrap .os-title { font-size: 36px; line-height: 1.15; font-weight: 800; color: #0f172a; margin: 14px 0 0; }
+  #os-wrap .os-meta-row { margin-top: 16px; font-size: 18px; color: #0f172a; }
+  #os-wrap .os-meta-row .material-symbols-outlined { font-size: 18px; vertical-align: -4px; color: #64748b; margin-right: 6px; }
+  #os-wrap .os-meta-row b { font-weight: 800; color: #0f172a; letter-spacing: 0.02em; }
+  #os-wrap .os-date { margin-top: 8px; font-size: 16px; color: #475569; }
+  #os-wrap .os-date .material-symbols-outlined { font-size: 18px; vertical-align: -4px; color: #64748b; margin-right: 6px; }
+  #os-wrap .os-msg { margin-top: 14px; font-size: 16px; line-height: 1.6; color: #475569; max-width: 640px; }
+  #os-wrap .os-section { font-size: 20px; font-weight: 800; color: #0f172a; margin: 40px 0 0; }
+  #os-wrap .os-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; margin-top: 8px; }
+  #os-wrap .os-table-head, #os-wrap .os-row {
+    display: grid; grid-template-columns: 34px minmax(0, 1fr) 150px 60px 130px;
+    gap: 14px; align-items: center;
+  }
+  #os-wrap .os-table-head { padding: 12px 4px; border-bottom: 2px solid #111827;
+    font-size: 13px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #111827; }
+  #os-wrap .os-table-head span:not(:first-child) { text-align: right; }
+  #os-wrap .os-row { padding: 18px 4px; border-bottom: 1px solid #eef2f7; }
+  #os-wrap .os-idx { font-size: 13px; color: #94a3b8; }
+  #os-wrap .os-img { width: 76px; height: 76px; background: #fff; border: 1px solid #eef2f7; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  #os-wrap .os-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  #os-wrap .os-img .material-symbols-outlined { color: #cbd5e1; }
+  #os-wrap .os-prod { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  #os-wrap .os-pname { font-size: 17px; font-weight: 800; color: #111827; line-height: 1.35; word-break: break-word; }
+  #os-wrap .os-pcode { font-size: 13px; color: #64748b; margin-top: 3px; }
+  #os-wrap .os-price, #os-wrap .os-qty, #os-wrap .os-total { text-align: right; font-size: 16px; font-weight: 600; color: #111827; font-variant-numeric: tabular-nums; }
+  #os-wrap .os-total { font-weight: 800; color: #111827; }
+  #os-wrap .os-totals { margin: 28px 0 0 auto; max-width: 420px; background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 12px; padding: 20px 22px; }
+  #os-wrap .os-trow { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 16px; color: #111827; }
+  #os-wrap .os-trow .os-tlabel { font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; font-size: 13px; color: #111827; }
+  #os-wrap .os-trow .os-tval { font-weight: 700; color: #0f172a; font-variant-numeric: tabular-nums; }
+  #os-wrap .os-grand { border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 12px; }
+  #os-wrap .os-grand .os-tlabel, #os-wrap .os-grand .os-tval { font-size: 17px; }
+  #os-wrap .os-side { display: flex; flex-direction: column; gap: 28px; }
+  #os-wrap .os-card { border-radius: 12px; padding: 22px 24px; border: 1px solid #e2e8f0; }
+  #os-wrap .os-card-blue { background: #eff6ff; border-color: #dbeafe; }
+  #os-wrap .os-card-green { background: #f0fdf4; border-color: #dcfce7; }
+  #os-wrap .os-card h2 { font-size: 20px; font-weight: 900; color: #0f172a; margin: 0 0 14px; }
+  #os-wrap .os-card .os-line { display: flex; align-items: flex-start; gap: 8px; font-size: 16px; color: #111827; padding: 6px 0; }
+  #os-wrap .os-card .os-line .material-symbols-outlined { font-size: 18px; color: #64748b; margin-top: 1px; }
+  #os-wrap .os-card .os-line span.os-v { color: #0f172a; }
+  #os-wrap .os-notice { margin-top: 40px; background: #eff6ff; border: 1px solid #dbeafe; border-radius: 12px;
+    padding: 20px 24px; font-size: 16px; line-height: 1.65; color: #334155; }
+  #os-wrap .os-notice p { margin: 0 0 6px; } #os-wrap .os-notice p:last-child { margin-bottom: 0; }
+  #os-wrap .os-btn { display: inline-block; background: #0f172a; color: #fff; padding: 12px 22px; border-radius: 8px;
+    font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; }
+  #os-wrap .os-btn:hover { background: #1e293b; }
+  @media (max-width: 1023px) {
+    #os-wrap .os-grid { display: block; }
+    #os-wrap .os-side { margin-top: 40px; }
+    #os-wrap .os-table-head { display: none; }
+    #os-wrap .os-row { display: block; }
+    #os-wrap .os-prod { margin-bottom: 12px; }
+    #os-wrap .os-idx { display: none; }
+    #os-wrap .os-line-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 15px; }
+    #os-wrap .os-line-row .os-k { color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+    #os-wrap .os-price, #os-wrap .os-total { display: none; }
+    #os-wrap .os-totals { margin-left: 0; max-width: none; }
+  }
+  @media (min-width: 1024px) { #os-wrap .os-line-row { display: none; } }
+</style>
+<div id="os-wrap" style="background:#FFFFFF;">
+<div class="os-container">
+<div id="os-loading" style="padding:120px 0;text-align:center;color:#64748b;">Loading order…</div>
+<div id="os-error" style="display:none;padding:120px 0;text-align:center;color:#dc2626;font-size:18px;font-weight:600;"></div>
+<div id="os-main" style="display:none;">
+  <div class="os-eyebrow">
+    <span class="os-check"><span class="material-symbols-outlined">check</span></span>
+    <span class="os-label">Order Sent</span>
+  </div>
+  <h1 class="os-title">Your order has been received!</h1>
+  <div class="os-meta-row">
+    <span class="material-symbols-outlined">receipt_long</span>Order Number: <b id="os-number"></b>
+  </div>
+  <div class="os-date"><span class="material-symbols-outlined">calendar_month</span>Date: <span id="os-date"></span></div>
+  <p class="os-msg">Your order has been received. Our store team will contact you by phone to confirm your order and product availability.</p>
+
+  <div class="os-grid">
+    <div class="os-main-col">
+      <h2 class="os-section">Order Items (<span id="os-count">0</span>)</h2>
+      <div class="os-table-head">
+        <span style="grid-column:1 / 3;">Product</span><span>Unit Price</span><span>Qty</span><span>Total (KWD)</span>
+      </div>
+      <div id="os-items"></div>
+      <div class="os-totals">
+        <div class="os-trow"><span class="os-tlabel">Delivery Fee</span><span class="os-tval" id="os-shipping">KWD 0.000</span></div>
+        <div class="os-trow"><span class="os-tlabel">Total</span><span class="os-tval" id="os-total">KWD 0.000</span></div>
+      </div>
+    </div>
+    <aside class="os-side">
+      <div class="os-card os-card-blue">
+        <h2>Delivery Address</h2>
+        <div class="os-line"><span class="material-symbols-outlined">person</span><span>Name : <span class="os-v" id="os-name"></span></span></div>
+        <div class="os-line"><span class="material-symbols-outlined">call</span><span>Phone : <span class="os-v" id="os-phone"></span></span></div>
+        <div class="os-line"><span class="material-symbols-outlined">location_on</span><span>Address : <span class="os-v" id="os-address"></span></span></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="os-notice">
+    <p>Once the store team contacts you and provides the final order confirmation, the invoice is issued at the store&rsquo;s point of sale and sent to you along with the goods.</p>
+    <p>Note: The total may vary based on actually delivered items.</p>
+  </div>
+  <div style="text-align:center;margin-top:40px;">
+    <a href="home.html" class="os-btn">Back to Home Page</a>
+  </div>
+</div>
+</div>
+</div>
+<script>
+    /* ===== Account button ===== */
+    var acctBtn = document.getElementById('account-btn');
+    if (acctBtn) { acctBtn.style.cursor = 'pointer'; acctBtn.addEventListener('click', function() { if (window.NassimAccount) window.NassimAccount.openPanel(); }); }
+    /* ===== Order Sent — renders the placed order (visual redesign only; data
+       flow identical to order-detail.html: __NASSIM_ORDER__ injection or
+       ?number=&token= API fallback) ===== */
+    document.addEventListener('DOMContentLoaded', function () {
+        function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+        function ltr(v) { return '<span dir="ltr" style="unicode-bidi:isolate;">' + v + '</span>'; }
+        function fmt(n) { return Number(n).toFixed(3); }
+        function itemCode(name) {
+            var m = String(name || '').match(/al-nassim-([A-Za-z]+-\d+)/i);
+            if (m) return m[1];
+            var parts = String(name || '').split('-');
+            var tail = parts[parts.length - 1];
+            return /[A-Za-z]-?\d/.test(tail) ? tail.trim() : '\u2014';
+        }
+        function render(o) {
+            document.getElementById('os-number').textContent = o.orderNumber;
+            var d = new Date(o.createdAt);
+            var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            document.getElementById('os-date').textContent = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+            var items = o.items || [];
+            document.getElementById('os-count').textContent = items.length;
+            var runningTotal = 0;
+            var html = '';
+            items.forEach(function (i, idx) {
+                var lineTotal = Number(i.price) * Number(i.quantity);
+                runningTotal += lineTotal;
+                html += '<div class="os-row">' +
+                    '<span class="os-idx">' + (idx + 1) + '</span>' +
+                    '<div class="os-prod">' +
+                    '<div class="os-img">' + (i.image ? '<img src="' + esc(i.image) + '" alt="' + esc(i.name) + '"/>' : '<span class="material-symbols-outlined">image</span>') + '</div>' +
+                    '<div style="min-width:0;">' + '<div class="os-pname">' + esc(i.name) + '</div>' +
+                    '<div class="os-pcode">Code: ' + ltr(esc(itemCode(i.name))) + '</div>' +
+                    '<div class="os-line-row"><span class="os-k">Unit Price (KWD)</span><span>' + fmt(i.price) + '</span></div>' +
+                    '<div class="os-line-row"><span class="os-k">Qty</span><span>' + i.quantity + '</span></div>' +
+                    '<div class="os-line-row"><span class="os-k">Total (KWD)</span><span>' + fmt(lineTotal) + '</span></div>' +
+                    '</div></div>' +
+                    '<span class="os-price">' + fmt(i.price) + '</span>' +
+                    '<span class="os-qty">' + i.quantity + '</span>' +
+                    '<span class="os-total">' + fmt(lineTotal) + '</span>' +
+                    '</div>';
+            });
+            document.getElementById('os-items').innerHTML = html;
+            // Product clicks must not navigate anywhere on this page
+            var itemsEl = document.getElementById('os-items');
+            itemsEl.style.cursor = 'default';
+            itemsEl.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); }, true);
+            // Product clicks must not navigate anywhere on this page
+            var itemsEl = document.getElementById('os-items');
+            itemsEl.style.cursor = 'default';
+            itemsEl.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); }, true);
+            var total = fmt(runningTotal), shipping = '0.000';
+            document.getElementById('os-total').textContent = 'KWD ' + total;
+            document.getElementById('os-shipping').textContent = 'KWD ' + shipping;
+            document.getElementById('os-name').textContent = o.customerName || '';
+            document.getElementById('os-phone').innerHTML = ltr(esc(o.customerPhone || ''));
+            document.getElementById('os-address').textContent = o.address + (o.city ? ', ' + o.city : '');
+            document.getElementById('os-loading').style.display = 'none';
+            document.getElementById('os-main').style.display = 'block';
+        }
+        function fail(msg) {
+            document.getElementById('os-loading').style.display = 'none';
+            var e = document.getElementById('os-error');
+            e.textContent = msg;
+            e.style.display = 'block';
+        }
+        if (window.__NASSIM_ORDER__ && window.__NASSIM_ORDER__.success) { render(window.__NASSIM_ORDER__.data.order); return; }
+        var params = new URLSearchParams(window.location.search);
+        var num = params.get('number');
+        var token = params.get('token');
+        if (!num) { fail('No order specified.'); return; }
+        var url = '/api/orders/' + encodeURIComponent(num) + '?by=number' + (token ? '&token=' + encodeURIComponent(token) : '');
+        fetch(url, { credentials: 'same-origin' })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (!d.success) { fail(d.error || 'Order not found'); return; }
+                render(d.data.order);
+            })
+            .catch(function () { fail('Network error. Please check your connection and try again.'); });
+    });
+</script>
+
+<!-- ==================== MOBILE BOTTOM NAVIGATION ====================
+     Reuses existing systems — no duplication:
+       Home -> home.html, Categories -> existing mobile drawer (mobile-nav.js),
+       Account -> window.NassimAccount.openPanel(), Cart -> cart.html.
+     Implemented as <div role="navigation"> (not <nav>) so the auto-wiring in
+     cart-nav.js / account.js / search.js is NOT re-triggered here. -->
+<style>
+    #mobile-bottom-nav-inner { padding-bottom: env(safe-area-inset-bottom); }
+    .mbnav-item { color: #44474b; }
+    .dark .mbnav-item { color: rgba(255,255,255,0.6); }
+    .mbnav-item:hover { color: #825335; }
+    .dark .mbnav-item:hover { color: #f7b994; }
+    .mbnav-item.mbnav-active { color: #825335; }
+    .dark .mbnav-item.mbnav-active { color: #f7b994; }
+    .mbnav-item.mbnav-active .material-symbols-outlined {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    @media (max-width: 767px) {
+        body { padding-bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
+    }
+</style>
+<div id="mobile-bottom-nav" role="navigation" aria-label="Mobile" class="mbnav-vv md:hidden fixed inset-x-0 bottom-0 z-[90] glass-nav dark:bg-[#0a0f14]/90 border-t border-outline-variant/30 shadow-[0_-20px_40px_rgba(0,3,8,0.04)]">
+    <div id="mobile-bottom-nav-inner" class="grid grid-cols-4 items-stretch max-w-screen-sm mx-auto">
+        <button type="button" data-mbnav="home" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">home</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Home</span>
+        </button>
+        <button type="button" data-mbnav="categories" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">grid_view</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Categories</span>
+        </button>
+        <button type="button" data-mbnav="account" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">person</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Account</span>
+        </button>
+        <button type="button" data-mbnav="cart" class="mbnav-item relative flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="relative inline-flex">
+                <span class="material-symbols-outlined" style="font-size:24px;">shopping_cart</span>
+                <span id="header-cart-count" class="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full bg-secondary text-white text-[9px] font-bold flex items-center justify-center leading-none" style="display:none;">00</span>
+            </span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Cart</span>
+        </button>
+    </div>
+</div>
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+        ready(function () {
+            var nav = document.getElementById('mobile-bottom-nav');
+            if (!nav || nav.dataset.bound) return;
+            nav.dataset.bound = '1';
+
+            var path = (location.pathname.split('/').pop() || location.pathname || '').toLowerCase();
+            var onHome = (path === '' || path === 'home.html' || path === 'index.html');
+            var homeBtn = nav.querySelector('[data-mbnav="home"]');
+            if (homeBtn && onHome) homeBtn.classList.add('mbnav-active');
+
+            if (homeBtn) homeBtn.addEventListener('click', function () {
+                if (onHome) return;
+                window.location.href = 'home.html';
+            });
+
+            var catBtn = nav.querySelector('[data-mbnav="categories"]');
+            if (catBtn) catBtn.addEventListener('click', function () {
+                var slot = document.getElementById('hamburger-slot');
+                if (slot) slot.click();
+            });
+
+            var accBtn = nav.querySelector('[data-mbnav="account"]');
+            if (accBtn) accBtn.addEventListener('click', function () {
+                if (window.NassimAccount && window.NassimAccount.openPanel) window.NassimAccount.openPanel();
+            });
+
+            var cartBtn = nav.querySelector('[data-mbnav="cart"]');
+            if (cartBtn) cartBtn.addEventListener('click', function () {
+                window.location.href = 'cart.html';
+            });
+
+            var badge = document.getElementById('header-cart-count');
+            function syncBadge() {
+                if (!badge) return;
+                var n = parseInt((badge.textContent || '').trim(), 10);
+                badge.style.display = (isNaN(n) || n <= 0) ? 'none' : 'flex';
+            }
+            syncBadge();
+            if (badge && window.MutationObserver) {
+                new MutationObserver(syncBadge).observe(badge, { childList: true, characterData: true, subtree: true });
+            }
+            window.addEventListener('pageshow', syncBadge);
+            window.addEventListener('storage', syncBadge);
+        });
+    })();
+</script>
+<script src="assets/js/theme.js" defer></script>
+<script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/cart-nav.js" defer></script>
+<script src="assets/js/product-nav.js" defer></script>
+<script src="assets/js/listing-pagination.js" defer></script>
+<script src="assets/js/search.js" defer></script>
+<script src="assets/js/account.js" defer></script>
+<script src="assets/js/nav-submenu.js" defer></script>
+<script src="assets/js/mobile-nav.js" defer></script>
+<!-- ==================== MOBILE SEARCH WIRING ====================
+     Wires the mobile inline search bar to a dropdown below the input. Reuses
+     NassimSearch filtering logic; does NOT open the old overlay popup. -->
+<script>
+    (function () {
+        var mobileResults = null;
+
+        function createMobileResults() {
+            mobileResults = document.createElement('div');
+            mobileResults.id = 'mobile-search-dropdown';
+            mobileResults.style.cssText = 'position:absolute;top:100%;left:0;right:0;z-index:200;background:#fff;color:#111;border-radius:0 0 12px 12px;box-shadow:0 8px 24px rgba(0,0,0,0.18);max-height:60vh;overflow-y:auto;display:none;';
+            var form = document.getElementById('mobile-inline-search');
+            if (form) form.appendChild(mobileResults);
+            return mobileResults;
+        }
+
+        function renderMobileResults(list) {
+            if (!mobileResults) mobileResults = createMobileResults();
+            mobileResults.innerHTML = '';
+            if (!list || !list.length) {
+                var empty = document.createElement('p');
+                empty.style.cssText = 'padding:16px;text-align:center;color:#888;font-size:13px;';
+                empty.textContent = 'No products found';
+                mobileResults.appendChild(empty);
+                mobileResults.style.display = 'block';
+                return;
+            }
+            list.slice(0, 15).forEach(function (p) {
+                var a = document.createElement('a');
+                a.href = 'product-view.html?id=' + encodeURIComponent(p.id);
+                a.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;text-decoration:none;color:inherit;border-bottom:1px solid rgba(0,0,0,0.06);';
+                a.onmouseenter = function () { a.style.background = 'rgba(0,0,0,0.04)'; };
+                a.onmouseleave = function () { a.style.background = ''; };
+
+                var img = document.createElement('img');
+                img.src = p.img || p.image || (p.images && p.images[0]) || '';
+                img.alt = p.name;
+                img.style.cssText = 'width:40px;height:40px;object-fit:cover;border-radius:8px;background:#f2f2f2;flex-shrink:0;';
+                img.onerror = function () { img.style.visibility = 'hidden'; };
+
+                var info = document.createElement('div');
+                info.style.cssText = 'min-width:0;flex:1;';
+                var name = document.createElement('div');
+                name.textContent = p.name;
+                name.style.cssText = 'font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                var meta = document.createElement('div');
+                meta.textContent = (p.line ? p.line + ' · ' : '') + Number(p.price).toFixed(3) + ' ' + (p.currency || 'KD');
+                meta.style.cssText = 'font-size:11px;color:#777;';
+                info.appendChild(name);
+                info.appendChild(meta);
+
+                a.appendChild(img);
+                a.appendChild(info);
+                mobileResults.appendChild(a);
+            });
+            mobileResults.style.display = 'block';
+        }
+
+        function closeMobileResults() {
+            if (mobileResults) mobileResults.style.display = 'none';
+        }
+
+        function doMobileSearch(q) {
+            var ns = window.NassimSearch;
+            if (!ns || !ns.loadProducts) return;
+            q = q.trim().toLowerCase();
+            ns.loadProducts().then(function (list) {
+                if (!q) { closeMobileResults(); return; }
+                var terms = q.split(/\s+/);
+                var filtered = list.filter(function (p) {
+                    var hay = (p.name + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
+                    return terms.every(function (t) { return hay.indexOf(t) !== -1; });
+                });
+                renderMobileResults(filtered);
+            });
+        }
+
+        function bind() {
+            var form = document.getElementById('mobile-inline-search');
+            if (!form || form.dataset.bound) return;
+            form.dataset.bound = '1';
+            var input = document.getElementById('mobile-inline-search-input');
+
+            createMobileResults();
+
+            if (input) {
+                var debounce = null;
+                input.addEventListener('input', function () {
+                    clearTimeout(debounce);
+                    debounce = setTimeout(function () {
+                        doMobileSearch(input.value);
+                    }, 150);
+                });
+                input.addEventListener('focus', function () {
+                    if (input.value.trim()) doMobileSearch(input.value);
+                });
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (input && input.value.trim()) doMobileSearch(input.value);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (mobileResults && !form.contains(e.target)) {
+                    closeMobileResults();
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+        else bind();
+    })();
+</script>
+<!-- ==================== MOBILE CATEGORIES DRAWER: NAME = LINK, ARROW = TOGGLE ======
+     Splits the department header so the NAME navigates and the ARROW only
+     expands/collapses. Reuses mobile-nav.js's existing toggle listener and the
+     desktop nav's existing hrefs — no new links, no duplicated JS. -->
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+
+        function buildDeptHrefMap() {
+            var map = {};
+            var triggers = document.querySelectorAll('.dropdown-trigger');
+            triggers.forEach(function (t) {
+                var link = t.querySelector('a');
+                if (!link) return;
+                var name = '';
+                for (var i = 0; i < link.childNodes.length; i++) {
+                    var n = link.childNodes[i];
+                    if (n.nodeType === 3 || n.nodeType === 1) {
+                        var txt = n.textContent.trim();
+                        if (txt) name += (name ? ' ' : '') + txt;
+                    }
+                }
+                if (name && link.href) map[name.toLowerCase()] = link.getAttribute('href');
+            });
+            if (triggers.length > 0) {
+                var sib = triggers[triggers.length - 1].nextElementSibling;
+                while (sib) {
+                    if (sib.tagName === 'A' && !sib.classList.contains('dropdown-trigger')) {
+                        var parts = [];
+                        for (var j = 0; j < sib.childNodes.length; j++) {
+                            var nn = sib.childNodes[j];
+                            if (nn.nodeType === 3 || nn.nodeType === 1) {
+                                var tt = nn.textContent.trim();
+                                if (tt) parts.push(tt);
+                            }
+                        }
+                        var nm = parts.join(' ');
+                        if (nm && sib.getAttribute('href')) map[nm.toLowerCase()] = sib.getAttribute('href');
+                    }
+                    sib = sib.nextElementSibling;
+                }
+            }
+            return map;
+        }
+
+        var hrefMap = {};
+
+        function hrefForName(rawName) {
+            if (!rawName) return null;
+            var norm = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            var keys = Object.keys(hrefMap);
+            for (var i = 0; i < keys.length; i++) {
+                if (keys[i].replace(/[^a-z0-9]/g, '') === norm) return hrefMap[keys[i]];
+            }
+            var firstWord = rawName.toLowerCase().trim().split(/\s+/)[0];
+            for (var j = 0; j < keys.length; j++) {
+                if (keys[j].replace(/[^a-z0-9]/g, '') === firstWord.replace(/[^a-z0-9]/g, '')) return hrefMap[keys[j]];
+            }
+            return null;
+        }
+
+        function transformItems() {
+            var dept = document.getElementById('mobile-nav-departments');
+            if (!dept) return;
+            var triggers = dept.querySelectorAll('.mobile-accordion-trigger');
+            triggers.forEach(function (trigger) {
+                if (trigger.getAttribute('data-name-linked') === '1') return;
+                var nameSpan = trigger.querySelector('span.flex.flex-col');
+                if (!nameSpan) { trigger.setAttribute('data-name-linked', '1'); return; }
+                var deptName = nameSpan.textContent.replace(/\s+/g, ' ').trim();
+                var href = hrefForName(deptName);
+                if (!href) { trigger.setAttribute('data-name-linked', '1'); return; }
+                var a = document.createElement('a');
+                a.href = href;
+                a.className = nameSpan.className;
+                a.innerHTML = nameSpan.innerHTML;
+                a.addEventListener('click', function (e) { e.stopPropagation(); }, true);
+                nameSpan.parentNode.replaceChild(a, nameSpan);
+                trigger.setAttribute('data-name-linked', '1');
+            });
+        }
+
+        function setupObserver() {
+            var dept = document.getElementById('mobile-nav-departments');
+            if (!dept) return false;
+            transformItems();
+            if (window.MutationObserver && !dept.dataset.splitObs) {
+                dept.dataset.splitObs = '1';
+                new MutationObserver(function () { transformItems(); })
+                    .observe(dept, { childList: true, subtree: true });
+            }
+            return true;
+        }
+
+        ready(function () {
+            hrefMap = buildDeptHrefMap();
+            var tries = 0;
+            (function poll() {
+                if (setupObserver()) return;
+                if (++tries > 60) return;
+                setTimeout(poll, 50);
+            })();
+        });
+    })();
+</script>
+<!-- ==================== MOBILE DRAWER CONTENT SPLIT ====================
+     Hamburger -> utilities ONLY (EN|AR, Download App, Dark/Light).
+     Categories -> departments ONLY. Reuses mobile-nav.js's drawer/open/close
+     and theme.js's __nassimThemeToggle. -->
+<style>
+    html.dark #mob-bar1,
+    html.dark #mob-bar2,
+    html.dark #mob-bar3 { background-color: #ffffff !important; }
+</style>
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+
+        function whenDrawerReady(cb, tries) {
+            tries = tries || 0;
+            if (document.getElementById('mobile-nav-drawer')) { cb(); return; }
+            if (tries > 40) return;
+            setTimeout(function () { whenDrawerReady(cb, tries + 1); }, 50);
+        }
+
+        function buildUtilitiesHTML() {
+            return '' +
+              '<div class="px-5 pt-3">' +
+              '  <button type="button" class="flex items-center justify-between w-full py-3 px-3 rounded-lg text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">' +
+              '    <span class="flex items-center gap-3"><span class="material-symbols-outlined text-lg">language</span> Language</span>' +
+              '    <span class="flex items-center">' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-900 dark:text-white">EN</span>' +
+              '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">AR</span>' +
+              '    </span>' +
+              '  </button>' +
+              '</div>' +
+              '<div class="px-5">' +
+              '  <div class="flex items-center justify-between w-full py-3 px-3 rounded-lg text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">' +
+              '    <span class="flex items-center gap-3"><span class="material-symbols-outlined text-lg">download</span> Download App</span>' +
+              '    <span class="flex items-center">' +
+              '      <a href="#" aria-label="Download on the App Store" class="flex items-center justify-center hover:opacity-80 transition-opacity">' +
+              '        <img src="topcar/app-store.png" alt="Download on the App Store" loading="lazy" class="h-5 w-auto dark:hidden"/>' +
+              '        <img src="topcar/app-store (1).png" alt="Download on the App Store" loading="lazy" class="h-5 w-auto hidden dark:block"/>' +
+              '      </a>' +
+              '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
+              '      <a href="#" aria-label="Get it on Google Play" class="flex items-center justify-center text-gray-900 dark:text-white hover:text-secondary dark:hover:text-[#f7b994] transition-colors">' +
+              '        <span class="material-symbols-outlined text-lg">android</span>' +
+              '      </a>' +
+              '    </span>' +
+              '  </div>' +
+              '</div>' +
+              '<div class="px-5 pb-4">' +
+              '  <button type="button" id="mobile-nav-theme-toggle" role="switch" aria-checked="false" class="flex items-center justify-between w-full py-3 px-3 rounded-lg text-sm font-bold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">' +
+              '    <span class="flex items-center gap-3"><span class="material-symbols-outlined text-lg">dark_mode</span> Appearance</span>' +
+              '    <span class="mntheme-switch-track relative inline-flex items-center h-6 w-11 rounded-full bg-gray-300 dark:bg-secondary transition-colors duration-300 flex-shrink-0">' +
+              '      <span class="mntheme-switch-thumb inline-block h-5 w-5 rounded-full bg-white shadow translate-x-0.5 dark:translate-x-[22px] transition-transform duration-300"></span>' +
+              '    </span>' +
+              '  </button>' +
+              '</div>';
+        }
+
+        function setDrawerMode(mode) {
+            var drawer = document.getElementById('mobile-nav-drawer');
+            if (!drawer) return;
+            drawer.setAttribute('data-drawer-mode', mode);
+            var dept = document.getElementById('mobile-nav-departments');
+            var util = document.getElementById('mobile-nav-utilities');
+            if (mode === 'utilities') {
+                if (dept) dept.style.display = 'none';
+                if (util) util.style.display = '';
+            } else {
+                if (dept) dept.style.display = '';
+                if (util) util.style.display = 'none';
+            }
+        }
+
+        var pendingDrawerMode = 'utilities';
+
+        function syncThemeIcon() {
+            var btn = document.getElementById('mobile-nav-theme-toggle');
+            if (!btn) return;
+            var isDark = document.documentElement.classList.contains('dark');
+            var icon = btn.querySelector('.material-symbols-outlined');
+            if (icon) icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+            btn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+        }
+
+        function init() {
+            whenDrawerReady(function () {
+                var drawer = document.getElementById('mobile-nav-drawer');
+                if (!drawer || drawer.getAttribute('data-split-bound') === '1') return;
+                drawer.setAttribute('data-split-bound', '1');
+
+                if (!document.getElementById('mobile-nav-utilities')) {
+                    var util = document.createElement('div');
+                    util.id = 'mobile-nav-utilities';
+                    util.innerHTML = buildUtilitiesHTML();
+                    drawer.appendChild(util);
+                }
+
+                var themeBtn = document.getElementById('mobile-nav-theme-toggle');
+                if (themeBtn && themeBtn.getAttribute('data-theme-wired') !== '1') {
+                    themeBtn.setAttribute('data-theme-wired', '1');
+                    themeBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (typeof window.__nassimThemeToggle === 'function') window.__nassimThemeToggle();
+                        syncThemeIcon();
+                    });
+                }
+                syncThemeIcon();
+                window.addEventListener('storage', function (e) {
+                    if (e.key === 'color-theme') syncThemeIcon();
+                });
+
+                var slot = document.getElementById('hamburger-slot');
+                if (slot) {
+                    slot.addEventListener('click', function () {
+                        setDrawerMode(pendingDrawerMode);
+                        pendingDrawerMode = 'utilities';
+                    }, true);
+                }
+
+                var catBtn = document.querySelector('[data-mbnav="categories"]');
+                if (catBtn && catBtn.getAttribute('data-split-wired') !== '1') {
+                    catBtn.setAttribute('data-split-wired', '1');
+                    catBtn.addEventListener('click', function () {
+                        pendingDrawerMode = 'categories';
+                    }, true);
+                }
+            });
+        }
+
+        ready(init);
+    })();
+</script>
+
+
+<style>
+/* MOBILE BOTTOM-NAV: FIXED PIN — NO JS REPOSITIONING.
+   The nav is position:fixed (Tailwind) with bottom-0, so it is already pinned
+   to the VISIBLE bottom edge on iOS Safari/Chrome and Android. We do NOT drive
+   `bottom` from visualViewport anymore: the old tracker listened to
+   visualViewport 'scroll'/'resize' (and window 'resize'), which fire
+   continuously during scrolling, pull-to-refresh and toolbar hide/show, and
+   rewrote the inline bottom frame-by-frame — that is what caused the bounce.
+   The bottom is now owned by CSS only and never written from JS, so there is no
+   per-frame repositioning, no jumping, no flicker. Safe-area inset is still
+   handled by #mobile-bottom-nav-inner { padding-bottom: env(safe-area-inset-bottom) }. */
+#mobile-bottom-nav { bottom: 0 !important; }
+</style>
+<script>
+/* One-time cleanup only. Remove any inline `bottom` left behind by the old
+   tracker so the CSS bottom:0 (above) owns the position permanently. We never
+   write `bottom` again and we bind NO scroll/resize/visualViewport listeners,
+   so the bar cannot bounce, jump or flicker while scrolling or pull-to-refresh. */
+(function () {
+  function ready(fn){ if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
+  ready(function () {
+    var nav = document.getElementById('mobile-bottom-nav');
+    if (!nav) return;
+    nav.style.removeProperty('bottom');
+  });
+})();
+</script>
+<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script></body>
+</html>

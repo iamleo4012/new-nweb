@@ -13,6 +13,7 @@ import {
   calculateBillableTotals,
 } from "@/lib/order-workflow";
 import { restoreOnlineStockForOrder, restoreStockForRemovedItems } from "@/lib/online-stock";
+import { orderShortPath } from "@/lib/order-link";
 import type { OrderStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -104,6 +105,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(100, Math.max(1, Number(req.nextUrl.searchParams.get("limit")) || 20));
   const where: {
     status?: OrderStatus;
+    createdAt?: { gte?: Date; lte?: Date };
     OR?: Array<{ orderNumber: { contains: string; mode: "insensitive" } } | { customerName: { contains: string; mode: "insensitive" } }>;
   } = {};
   if (status && (ORDER_STATUSES as readonly string[]).includes(status)) {
@@ -115,6 +117,15 @@ export async function GET(req: NextRequest) {
       { customerName: { contains: q, mode: "insensitive" } },
     ];
   }
+  // Optional inclusive creation-date range (YYYY-MM-DD, server-local).
+  // Used by the Store Orders page for historical From/To searches; when
+  // absent, the page defaults to the last three days via its own from param.
+  const fromRaw = req.nextUrl.searchParams.get("from");
+  const toRaw = req.nextUrl.searchParams.get("to");
+  const createdAt: { gte?: Date; lte?: Date } = {};
+  if (fromRaw) { const d = new Date(fromRaw + "T00:00:00"); if (!isNaN(d.getTime())) createdAt.gte = d; }
+  if (toRaw) { const d = new Date(toRaw + "T23:59:59.999"); if (!isNaN(d.getTime())) createdAt.lte = d; }
+  if (createdAt.gte || createdAt.lte) where.createdAt = createdAt;
   const [total, orders] = await Promise.all([
     prisma.order.count({ where }),
     prisma.order.findMany({
@@ -129,7 +140,9 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     success: true,
     data: {
-      orders: orders.map(serializeOrder),
+      orders: orders.map(function (o) {
+        return { ...serializeOrder(o), shortPath: orderShortPath(o.id) };
+      }),
       pagination: { page, limit, total, totalPages },
     },
     error: null,

@@ -14,7 +14,8 @@
          background is correct in dark mode from frame one. The resolved
          splash colour is also published as a CSS variable consumed by the
          inline style on #loading-screen below. -->
-    <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"||(!s&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);document.documentElement.style.setProperty("--splash-bg",d?"#0a0f14":"#f7f9ff");}catch(e){document.documentElement.classList.add("light");document.documentElement.style.setProperty("--splash-bg","#f7f9ff");}}__nassimThemeInit();</script>
+    <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
+ document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);document.documentElement.style.setProperty("--splash-bg",d?"#0a0f14":"#f7f9ff");}catch(e){document.documentElement.classList.add("light");document.documentElement.style.setProperty("--splash-bg","#f7f9ff");}}__nassimThemeInit();</script>
 <!-- Loading Screen — logo + dots, shown until the page fully loads, then a
      smooth logo-zoom reveal (mobile + desktop, home.html only).
 
@@ -655,7 +656,7 @@
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-cooling-appliances.html">Cooling Appliances</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-trolleys-baskets.html">Trolleys & Baskets</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-shelves-stands.html">Shelves & Stands</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-checkout-solutions.html">Checkout Solutions</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-checkout-solutions.html">Counters and Scales</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-accessories.html">Accessories</a></li>
 </ul>
 </div>
@@ -824,7 +825,7 @@
 <div class="max-w-xs md:max-w-xl">
 <span class="font-label text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-secondary mb-2 md:mb-4 block"></span>
 <h2 class="font-headline text-[1.6rem] sm:text-3xl md:text-6xl font-extrabold text-primary tracking-tighter mb-2 md:mb-6 leading-[1.1]">OUTDOOR<br/>PEDAL BIN.</h2>
-<p class="text-on-surface-variant text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Hands-free hygiene. Rugged durability for a cleaner workspace.</p>
+<p class="text-on-surface-variant text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Hands-free, rugged and durable for a clean environment.</p>
 <button class="bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl" data-product-id="outdoor-pedal-bin">View Product</button>
 </div>
 </div>
@@ -957,7 +958,7 @@
 <h3 class="font-headline text-[13px] font-extrabold text-white tracking-tighter uppercase mb-1 leading-tight">Customized<br/>Packaging</h3>
 <p class="text-white/50 font-headline text-[8px] tracking-[0.2em] uppercase mb-3 leading-relaxed">Tailored packaging solutions</p>
 <a class="flex items-center gap-1 text-white font-headline text-[9px] uppercase tracking-[0.2em] hover:text-secondary transition-colors" href="customized-packaging.html">
-<span>Solutions</span>
+<span>Explore</span>
 <span class="material-symbols-outlined text-[10px]">arrow_forward</span>
 </a>
 </div>
@@ -970,7 +971,7 @@
 <h3 class="font-headline text-[13px] font-extrabold text-white tracking-tighter uppercase mb-1 leading-tight">Cold Rooms</h3>
 <p class="text-white/50 font-headline text-[8px] tracking-[0.2em] uppercase mb-3 leading-relaxed">Built to your requirements</p>
 <a class="flex items-center gap-1 text-white font-headline text-[9px] uppercase tracking-[0.2em] hover:text-secondary transition-colors" href="cold-room.html">
-<span>Solutions</span>
+<span>Explore</span>
 <span class="material-symbols-outlined text-[10px]">arrow_forward</span>
 </a>
 </div>
@@ -988,7 +989,7 @@
 <h3 class="font-headline text-4xl font-extrabold text-white tracking-tighter uppercase mb-4 leading-none">Houseware</h3>
 <p class="font-headline text-[16px] text-white/60 font-light max-w-xs mb-10 leading-relaxed uppercase tracking-[0.25em]">Simple tools to make everyday home tasks easier</p>
 <a class="flex items-center gap-4 font-headline text-[13px] text-white uppercase tracking-[0.3em] group/link" href="houseware.html">
-<span class="border-b border-white/30 pb-1 group-hover/link:border-secondary transition-all">Explore Selection</span>
+<span class="border-b border-white/30 pb-1 group-hover/link:border-secondary transition-all">Explore Items</span>
 <span class="material-symbols-outlined text-sm group-hover/link:translate-x-2 transition-transform">arrow_forward</span>
 </a>
 </div>
@@ -1004,7 +1005,7 @@
 <h3 class="font-headline text-[27px] font-extrabold text-white tracking-tighter uppercase mb-3">Supermarket<br/><span class="block text-[18px]">Equipment</span></h3>
 <p class="text-white/50 font-headline text-[15px] tracking-[0.3em] uppercase mb-5 leading-loose">Everything needed to run a smart store</p>
 <a class="flex items-center gap-3 font-headline text-[13px] text-white uppercase tracking-[0.3em] hover:text-secondary transition-colors" href="supermarket.html">
-<span>Explore Selection</span>
+<span>Explore Items</span>
 <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
 </a>
 </div>
@@ -1019,7 +1020,7 @@
 <h3 class="font-headline text-[27px] font-extrabold text-white tracking-tighter uppercase mb-3">Warehouse<br/><span class="block text-[18px]">Equipment</span></h3>
 <p class="text-white/50 font-headline text-[13px] tracking-[0.3em] uppercase mb-5 leading-loose">Structural Logistics &amp; Heavy Storage</p>
 <a class="flex items-center gap-3 font-headline text-[13px] text-white uppercase tracking-[0.3em] hover:text-secondary transition-colors" href="warehouse.html">
-<span>Explore Selection</span>
+<span>Explore Items</span>
 <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
 </a>
 </div>
@@ -1035,7 +1036,7 @@
 <h3 class="font-headline text-2xl font-extrabold text-white tracking-tighter uppercase mb-3">Customized Packaging</h3>
 <p class="text-white/50 font-headline text-[13px] tracking-[0.4em] uppercase mb-6 leading-relaxed">Custom packaging solutions tailored to your requirements.</p>
 <a class="flex items-center gap-2 text-white font-headline text-[13px] uppercase tracking-[0.4em] hover:text-secondary transition-colors" href="customized-packaging.html">
-<span>Solutions</span>
+<span>Explore</span>
 <span class="material-symbols-outlined text-sm">arrow_forward</span>
 </a>
 </div>
@@ -1054,7 +1055,7 @@
 <h3 class="font-headline text-2xl font-extrabold text-white tracking-tighter uppercase mb-3">Cold Rooms</h3>
 <p class="text-white/50 font-headline text-[13px] tracking-[0.4em] uppercase mb-6 leading-relaxed">Cold room solutions built according to your requirements.</p>
 <a class="flex items-center gap-2 text-white font-headline text-[13px] uppercase tracking-[0.4em] hover:text-secondary transition-colors" href="cold-room.html">
-<span>Solutions</span>
+<span>Explore</span>
 <span class="material-symbols-outlined text-sm">arrow_forward</span>
 </a>
 </div>
@@ -1071,7 +1072,7 @@
 <section class="outdoor-living pt-0 pb-10 md:pt-16 md:pb-20 bg-surface dark:bg-[#0a0f14]">
 <div class="max-w-screen-2xl mx-auto px-4 md:px-8">
 <div class="text-center reveal-on-scroll">
-<span class="font-label text-[22px] md:text-[31px] uppercase tracking-[0.22em] md:tracking-[0.4em] text-primary dark:text-white mb-1 md:mb-4 block">OUTDOOR LIVING</span>
+<span class="font-label text-[22px] md:text-[31px] uppercase tracking-[0.22em] md:tracking-[0.4em] text-primary dark:text-white mb-1 md:mb-4 block">OUTDOOR MOMENTS</span>
 <h2 class="font-label text-[18px] md:text-[23px] text-secondary tracking-tighter inline-block">ELEVATE YOUR OUTDOORS</h2>
 <p class="font-body text-on-surface-variant dark:text-white/70 text-[14px] md:text-[16px] mt-2 md:mt-6 max-w-2xl mx-auto leading-relaxed"> For the stories told around the fire and the moments that linger.</p>
 </div>
@@ -1409,7 +1410,7 @@
     const themeToggleBtn = document.getElementById('theme-toggle');
     
     // Check for saved user preference, if any, on load
-    if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (localStorage.getItem('color-theme') === 'dark') {
         document.documentElement.classList.add('dark');
         document.documentElement.classList.remove('light');
     } else {
@@ -1856,6 +1857,7 @@
 <script src="assets/js/listing-pagination.js" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js" defer></script>
+<script src="assets/js/nav-submenu.js" defer></script>
 <script src="assets/js/mobile-nav.js" defer></script>
 <!-- ==================== MOBILE DRAWER CONTENT SPLIT (home.html only) ====================
      Splits the single shared mobile drawer (owned by mobile-nav.js) so the two

@@ -30,6 +30,7 @@
  */
 import type { Prisma, OrderItem } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { syncStockStatus } from "@/lib/low-stock";
 
 type Tx = Prisma.TransactionClient;
 
@@ -98,6 +99,9 @@ export async function reserveOnlineStock(
         detail: `order ${orderNumber}; reserved ${qty}; online stock reduced by ${qty}`,
       },
     });
+    // Keep the derived low-stock/out-of-stock status in step with the new
+    // stock level (see lib/low-stock.ts).
+    await syncStockStatus(tx, productId);
   }
 }
 
@@ -159,6 +163,8 @@ async function restoreUnits(
         detail: `order ${orderNumber}; online stock: ${before?.stock ?? "?"} -> ${(before?.stock ?? 0) + allowed}; reason: ${reason}; ${note}`,
       },
     });
+    // Restored units may lift the product back out of low/out-of-stock.
+    await syncStockStatus(tx, productId);
     restoredTotal += allowed;
   }
   return restoredTotal;

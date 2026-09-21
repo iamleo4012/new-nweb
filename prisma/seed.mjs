@@ -140,11 +140,34 @@ async function main() {
   });
   console.log(`Admin user ready: ${adminEmail}`);
 
+  const staffEmail = process.env.STAFF_SEED_EMAIL || "staff@alnassim.com";
+  const staffPassword = process.env.STAFF_SEED_PASSWORD;
+  if (staffPassword) {
+    await prisma.user.upsert({
+      where: { email: staffEmail },
+      update: { role: "STAFF" },
+      create: {
+        email: staffEmail,
+        name: "Staff",
+        passwordHash: await bcrypt.hash(staffPassword, 12),
+        role: "STAFF",
+      },
+    });
+    console.log(`Staff user ready: ${staffEmail}`);
+  }
+
   // NOTE: the SUPERADMIN (owner) seed was removed — the production role
   // model is ADMIN / STAFF / CUSTOMER only. Existing SUPERADMIN rows (if
   // any) are left untouched by the seed; no new ones are ever created.
 
-  await prisma.setting.upsert({ where: { key: "shipping_fee" }, update: {}, create: { key: "shipping_fee", value: "2.5" } });
+  // Shipping rule (lib/shipping.ts): below the threshold a flat fee applies,
+  // at or above it shipping is free. Upserts create-only so runtime changes
+  // made via the Setting table are never overwritten by a re-seed.
+  await prisma.setting.upsert({ where: { key: "shipping_threshold" }, update: {}, create: { key: "shipping_threshold", value: "20" } });
+  await prisma.setting.upsert({ where: { key: "shipping_fee_below_threshold" }, update: {}, create: { key: "shipping_fee_below_threshold", value: "1" } });
+  await prisma.setting.upsert({ where: { key: "shipping_fee_at_or_above" }, update: {}, create: { key: "shipping_fee_at_or_above", value: "0" } });
+  // Legacy flat fee key — superseded by the threshold rule above.
+  await prisma.setting.deleteMany({ where: { key: "shipping_fee" } });
   await prisma.setting.upsert({ where: { key: "currency" }, update: {}, create: { key: "currency", value: "KD" } });
   console.log("Settings ready");
 }
