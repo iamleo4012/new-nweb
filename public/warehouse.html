@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 
-<html class="light scroll-smooth" lang="en"><head>
+<html class="light scroll-smooth" lang="en" translate="no"><head>
+<meta name="google" content="notranslate"/>
 <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
  document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
 <meta charset="utf-8"/>
@@ -75,14 +76,6 @@
             transform: translateY(10px);
             }
 
-        /* Warehouse Carousel Fade Transition */
-        .carousel-slide {
-            opacity: 0;
-            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .carousel-slide.active {
-            opacity: 1;
-        }
         /* Loading Screen Styles */
         #loading-screen {
             position: fixed;
@@ -147,12 +140,7 @@
            posters. Card functionality, images, and links are unchanged.
            ===================================================================== */
         @media (max-width: 767px) {
-            /* Hide the "MOVE SMARTER WITH US" heading and carousel on mobile. */
-            #warehouse-move-smarter-heading,
-            #warehouse-ad-carousel,
-            #warehouse-ad-carousel + div {          /* spacer after carousel */
-                display: none !important;
-            }
+            /* Carousel removed — nothing extra to hide on mobile. */
 
             /* Section: drop the tall fixed height + center alignment so the
                column can flow at its own compact size. Reduced horizontal
@@ -182,7 +170,7 @@
                 overflow: hidden !important;
             }
 
-            /* Last card (Heavy Duty Racking) has no card after it, so the flex
+            /* Last card (Heavy Duty Racks) has no card after it, so the flex
                `gap` below doesn't apply — add the same 1rem bottom spacing the
                first two cards get via the gap. Matches the existing gap value. */
             .perspective-1000 > div[class*="card"]:last-child {
@@ -296,69 +284,11 @@
             }
         }
         
-        // Warehouse Advertisement Carousel Logic
-        document.addEventListener('DOMContentLoaded', () => {
-            const warehouseSlides = document.querySelectorAll('#warehouse-ad-carousel .carousel-slide');
-            const warehouseDots = document.querySelectorAll('.warehouse-carousel-dot');
-            const warehousePrevBtn = document.getElementById('warehousePrevSlide');
-            const warehouseNextBtn = document.getElementById('warehouseNextSlide');
-            let currentWarehouseSlide = 0;
-
-            const updateWarehouseCarousel = (index) => {
-                warehouseSlides.forEach(s => s.classList.remove('active', 'z-10'));
-                warehouseSlides.forEach(s => s.classList.add('z-0'));
-                warehouseDots.forEach(d => d.classList.remove('bg-white', 'scale-125'));
-                warehouseDots.forEach(d => d.classList.add('bg-white/30'));
-                
-                if(warehouseSlides[index]) {
-                    warehouseSlides[index].classList.add('active', 'z-10');
-                    warehouseSlides[index].classList.remove('z-0');
-                }
-                if(warehouseDots[index]) {
-                    warehouseDots[index].classList.add('bg-white', 'scale-125');
-                    warehouseDots[index].classList.remove('bg-white/30');
-                }
-                currentWarehouseSlide = index;
-            };
-
-            const nextWarehouseSlide = () => {
-                let next = (currentWarehouseSlide + 1) % warehouseSlides.length;
-                updateWarehouseCarousel(next);
-            };
-
-            const prevWarehouseSlide = () => {
-                let prev = (currentWarehouseSlide - 1 + warehouseSlides.length) % warehouseSlides.length;
-                updateWarehouseCarousel(prev);
-            };
-
-            if(warehouseNextBtn) warehouseNextBtn.addEventListener('click', nextWarehouseSlide);
-            if(warehousePrevBtn) warehousePrevBtn.addEventListener('click', prevWarehouseSlide);
-            warehouseDots.forEach((dot, i) => dot.addEventListener('click', () => updateWarehouseCarousel(i)));
-
-            // Auto-play with hover pause functionality
-            let warehouseCarouselInterval = setInterval(nextWarehouseSlide, 4000);
-            let isWarehousePaused = false;
-            
-            // Pause on hover - attach directly to the section element
-            const warehouseCarouselSection = document.getElementById('warehouse-ad-carousel');
-            if (warehouseCarouselSection) {
-                warehouseCarouselSection.addEventListener('mouseenter', function() {
-                    if (!isWarehousePaused) {
-                        clearInterval(warehouseCarouselInterval);
-                        isWarehousePaused = true;
-                    }
-                });
-                
-                warehouseCarouselSection.addEventListener('mouseleave', function() {
-                    if (isWarehousePaused) {
-                        warehouseCarouselInterval = setInterval(nextWarehouseSlide, 4000);
-                        isWarehousePaused = false;
-                    }
-                });
-            }
-        });
     </script>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<script src="assets/js/i18n-data.js" defer></script>
+<script src="assets/js/i18n.js" defer></script>
 </head>
 <body class="bg-white dark:bg-[#0a0f14] text-on-surface dark:text-white">
 <!-- Loading Screen -->
@@ -409,12 +339,12 @@
 <ul class="space-y-4">
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-trolleys-baskets.html">Trolleys & Baskets</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-forklifts-pallets.html">Forklifts & Pallets</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racking</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racks</a></li>
 </ul>
 </div>
 </div>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Packaging<br/><span class="block text-[11px]">Manufacturer</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
 </div>
 </div>
 <!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
@@ -434,7 +364,7 @@
 <button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center">
 <span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
 <span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
-<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
+<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">عربي</span>
 </button>
 <div class="relative group hidden md:block" id="download-btn-container">
 <button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
@@ -482,10 +412,10 @@
 <!-- Hero Section (Compressed) -->
 <section class="flex flex-col md:flex-row items-end justify-center gap-4 pt-10 md:pt-12 pb-4 shrink-0">
 <div class="max-w-2xl text-center">
-<span class="text-secondary font-label font-bold text-[10px] tracking-[0.2em] uppercase block mb-1">Precision Engineering</span>
 <h1 class="font-headline font-extrabold text-4xl md:text-5xl tracking-tighter leading-[0.85] uppercase text-primary dark:text-white">
                         Warehouse <span class="font-light">Equipment</span>
                     </h1>
+<p class="mt-5 font-headline font-extrabold text-xl md:text-2xl tracking-tighter text-primary dark:text-white" style="word-spacing: 0.3em;">STORE AND MOVE YOUR MERCHANDISE EFFICIENTLY.</p>
 </div>
 </section>
 <!-- 3D Showcase Section (Reduced Height) -->
@@ -522,7 +452,7 @@
 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 </div>
 <div class="absolute bottom-6 left-6 right-6 z-20">
-<h2 class="text-white font-headline font-extrabold text-2xl tracking-tighter uppercase mb-2">Heavy&nbsp;duty Racking</h2>
+<h2 class="text-white font-headline font-extrabold text-2xl tracking-tighter uppercase mb-2">Heavy Duty Racks</h2>
 <a href="warehouse-heavy-duty-racking.html"><button class="w-full py-2.5 bg-white text-primary font-headline font-bold text-[11px] tracking-[0.2em] uppercase rounded-sm hover:bg-secondary hover:text-white transition-all duration-300">Explore</button></a>
 </div>
 </div>
@@ -530,49 +460,7 @@
 </div>
 </div>
 </div>
-<!-- Section Heading -->
-<div id="warehouse-move-smarter-heading" class="w-[95%] mx-auto text-center mb-8 mt-8">
-    <h2 class="font-headline font-extrabold text-3xl md:text-4xl tracking-tighter uppercase text-primary dark:text-white" style="word-spacing: 0.3em;">MOVE SMARTER WITH US</h2>
-</div>
-<!-- Premium Advertisement Carousel Section -->
-<section id="warehouse-ad-carousel" class="relative w-[95%] mx-auto min-h-[5.625vh] bg-white dark:bg-[#0a0f14] px-4 pb-16 flex items-center overflow-hidden rounded-3xl mt-0">
-<div class="relative w-full h-[550px] overflow-hidden rounded-3xl group shadow-2xl">
-<!-- Slides Container -->
-<div class="relative h-full w-full">
-<!-- Slide 1: Advertisement 1 -->
-<div class="carousel-slide active absolute inset-0 z-10 bg-black">
-<img loading="lazy" class="absolute inset-0 w-full h-full object-contain" alt="Warehouse Advertisement 1" src="topcar/advwarehouse1.png"/>
-</div>
-<!-- Slide 2: Advertisement 2 -->
-<div class="carousel-slide absolute inset-0 z-0 bg-black">
-<img loading="lazy" class="absolute inset-0 w-full h-full object-contain" alt="Warehouse Advertisement 2" src="topcar/advwarehouse2.png"/>
-</div>
-<!-- Slide 3: Advertisement 3 -->
-<div class="carousel-slide absolute inset-0 z-0 bg-black">
-<img loading="lazy" class="absolute inset-0 w-full h-full object-contain" alt="Warehouse Advertisement 3" src="topcar/advwarehouse3.png"/>
-</div>
-</div>
-<!-- Left Arrow -->
-<button class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black border-2 border-black text-white rounded-full hover:bg-white hover:text-primary transition-all duration-300 z-20" id="warehousePrevSlide">
-<span class="material-symbols-outlined text-sm">arrow_back</span>
-</button>
-<!-- Right Arrow -->
-<button class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black border-2 border-black text-white rounded-full hover:bg-white hover:text-primary transition-all duration-300 z-20" id="warehouseNextSlide">
-<span class="material-symbols-outlined text-sm">arrow_forward</span>
-</button>
-<!-- Centered Controls -->
-<div class="absolute bottom-8 left-0 w-full flex flex-col items-center gap-6 z-20">
-<div class="flex gap-4">
-<button class="px-6 py-3 bg-white text-primary font-headline font-bold text-[12px] tracking-[0.2em] uppercase rounded-full hover:bg-secondary hover:text-white transition-all duration-300">View Products</button>
-</div>
-<div class="flex gap-3">
-<div class="warehouse-carousel-dot w-2 h-2 rounded-full bg-white transition-all duration-500 cursor-pointer scale-125"></div>
-<div class="warehouse-carousel-dot w-2 h-2 rounded-full bg-white/30 transition-all duration-500 cursor-pointer"></div>
-<div class="warehouse-carousel-dot w-2 h-2 rounded-full bg-white/30 transition-all duration-500 cursor-pointer"></div>
-</div>
-</div>
-</div>
-</section>
+<div class="h-16 md:h-24" aria-hidden="true"></div>
 <!-- Footer -->
 <footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -582,7 +470,7 @@
 <a href="home.html" class="flex items-center gap-2 mb-6">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
 </a>
-<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
 </div>
 <!-- Column 2 -->
 <div>
@@ -591,7 +479,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Customized Packaging</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Packaging Manufacturer</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li>
 </ul>
 </div>
@@ -602,7 +490,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="terms.html">Terms & Conditions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="home.html">Terms & Conditions</a></li>
 </ul>
 </div>
 <!-- Column 4 -->
@@ -620,15 +508,15 @@
 <ul class="space-y-4 text-sm">
 <li class="flex items-start gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">location_on</span>
-<span>Shuwaikh Industrial Area, Kuwait</span>
+<span></span>
 </li>
 <li class="flex items-start gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">mail</span>
-<span>info@al-nassim.com</span>
+<span></span>
 </li>
 <li class="flex items-start gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">call</span>
-<span>+965 609 000 59</span>
+<span></span>
 </li>
 </ul>
 </div>
@@ -1004,7 +892,7 @@
               '    <span class="flex items-center">' +
               '      <span class="text-[13px] font-bold tracking-widest text-gray-900 dark:text-white">EN</span>' +
               '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
-              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">AR</span>' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">عربي</span>' +
               '    </span>' +
               '  </button>' +
               '</div>' +

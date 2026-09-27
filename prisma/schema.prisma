@@ -21,6 +21,7 @@ enum UserRole {
 
 enum OrderStatus {
   PENDING
+  SEEN
   UNDER_REVIEW
   READY_FOR_CONFIRMATION
   CONFIRMED

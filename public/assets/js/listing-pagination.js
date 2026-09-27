@@ -149,3 +149,94 @@
     init();
   }
 })();
+
+/* ==========================================================================
+ * AR product-card bidi hardening (shared, all listing pages)
+ * ==========================================================================
+ * Product names mix Arabic with Latin tokens — brand + product codes such as
+ * "Al-nassim-ND-6724" — and prices are numeric ("0.750 KD"). Inside an RTL
+ * line the Unicode bidi algorithm keeps those runs readable, but the LINE
+ * BREAKER treats every hyphen/period as a break opportunity, so a code can
+ * wrap mid-token ("ND-" / "6724") and the isolated pieces then reorder
+ * visually per line. Fix: wrap each contiguous Latin/digit token (no spaces)
+ * in an isolation span. The span is styled ONLY under html.lang-ar
+ * (rtl-overrides.css): direction:ltr + unicode-bidi:isolate keeps the token
+ * as one readable LTR run and white-space:nowrap keeps it on one line. In
+ * English the class is inert — text and wrapping are byte-identical.
+ * Idempotent (marked spans are skipped), runs on every grid re-render via
+ * its own MutationObserver. No product data, ordering or filter logic is
+ * touched — this only decorates rendered text nodes.
+ * ========================================================================== */
+(function () {
+  "use strict";
+
+  var MARK = "nassim-bidi-l";
+  /* Latin/digit token: letters/digits plus intra-token punctuation
+     (hyphen, period, ampersand, slash, comma, apostrophe, °, %) —
+     deliberately NO spaces, so ordinary multi-word text still wraps. */
+  var TOKEN = /[A-Za-z0-9][A-Za-z0-9&.,\/''\u2019-]*[A-Za-z0-9%°]|[A-Za-z0-9]/g;
+
+  function hardenText(node) {
+    var v = node.nodeValue;
+    if (!v || !/[A-Za-z0-9]/.test(v)) return null;
+    TOKEN.lastIndex = 0;
+    if (!TOKEN.test(v)) return null;
+    TOKEN.lastIndex = 0;
+    var frag = document.createDocumentFragment();
+    var last = 0, m;
+    while ((m = TOKEN.exec(v))) {
+      if (m.index > last) frag.appendChild(document.createTextNode(v.slice(last, m.index)));
+      var span = document.createElement("span");
+      span.className = MARK;
+      span.textContent = m[0];
+      frag.appendChild(span);
+      last = m.index + m[0].length;
+    }
+    if (last < v.length) frag.appendChild(document.createTextNode(v.slice(last)));
+    return frag;
+  }
+
+  function hardenCard(card) {
+    if (card.__nassimBidiDone) return;
+    card.__nassimBidiDone = true;
+    var targets = card.querySelectorAll("h2, p");
+    targets.forEach(function (el) {
+      var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+      var nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(function (node) {
+        if (node.parentElement && node.parentElement.classList.contains(MARK)) return;
+        var frag = hardenText(node);
+        if (frag) node.parentNode.replaceChild(frag, node);
+      });
+    });
+  }
+
+  function hardenGrid() {
+    var grid = document.getElementById("product-grid");
+    if (!grid) return;
+    grid.querySelectorAll("article.group").forEach(hardenCard);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", hardenGrid);
+  } else {
+    hardenGrid();
+  }
+  window.addEventListener("load", hardenGrid);
+
+  var t = null;
+  var mo = new MutationObserver(function () {
+    clearTimeout(t);
+    t = setTimeout(hardenGrid, 200);
+  });
+  function arm() {
+    var grid = document.getElementById("product-grid");
+    if (grid) mo.observe(grid, { childList: true });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", arm);
+  } else {
+    arm();
+  }
+})();

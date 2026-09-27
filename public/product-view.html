@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
-<html class="light scroll-smooth" lang="en">
+<html class="light scroll-smooth" lang="en" translate="no">
 <head>
+<meta name="google" content="notranslate"/>
 <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
  document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
 <meta charset="utf-8"/>
@@ -61,7 +62,8 @@
             #thumbnail-gallery .thumbnail-item img { border-radius: 0.375rem !important; }
 
             /* ---- Product info: tighter typography hierarchy ---- */
-            #product-title { font-size: 1.5rem !important; line-height: 1.15 !important; margin-bottom: 0.25rem !important; }
+            /* the Latin product-code token (e.g. Al-nassim-ND-5096) stays one
+               unbreakable unit: the browser wraps BEFORE it, never inside it */
             #product-sku { font-size: 0.6875rem !important; margin-bottom: 0.75rem !important; }
             #product-price { font-size: 1.5rem !important; margin-bottom: 1rem !important; }
             #product-desc { font-size: 0.8125rem !important; line-height: 1.55 !important; margin-bottom: 1.25rem !important; }
@@ -115,6 +117,14 @@
                 scroll-snap-align: start;
             }
             #related-grid > a > div:first-child { margin-bottom: 0.75rem !important; border-radius: 0.75rem !important; }
+  across the full width; min gap so they never touch). EN = unchanged. ---- */
+  html.lang-ar .related-header > div:first-child { margin-left: 0 !important; }
+  .related-header { row-gap: 16px; }
+  /* AR only: the two arrow glyphs are mirrored for RTL reading —
+     the physically-LEFT button shows →, the physically-RIGHT button shows ←.
+     Scroll behavior is untouched (only the glyphs are mirrored). */
+  html.lang-ar .related-header button[onclick="scrollRelated(-1)"] .material-symbols-outlined,
+  html.lang-ar .related-header button[onclick="scrollRelated(1)"] .material-symbols-outlined { transform: scaleX(-1); }
             #related-grid > a h3 { font-size: 0.8125rem !important; margin-bottom: 0.25rem !important; }
             #related-grid > a p { font-size: 0.75rem !important; }
             /* Hide desktop arrow buttons on mobile (native swipe instead) */
@@ -123,12 +133,37 @@
             section.mt-20:last-of-type .flex.justify-between h2 { font-size: 1.25rem !important; }
         }
 
+            /* ---- Product-name rendering (product-view only): the complete
+               database value is ONE plain text node rendered with NORMAL
+               word-boundary wrapping — the browser alone decides where each
+               line breaks at the available column width, in EN and AR alike.
+               word-break:normal + overflow-wrap:normal guarantee breaks only
+               at natural word boundaries (never mid-token/mid-character), and
+               the model number (e.g. AL-NASSIM-ND-5160) always stays an
+               intact, readable LTR run inside RTL text via standard bidi.
+               No nowrap, no truncation, no <br>, no JS line-break logic, no
+               language detection. Font stays adaptively sized by name
+               length (existing tiers). */
+            #product-title {
+                font-size: 1.4162rem; /* default — adaptive JS may override inline (no !important so length-based sizing wins) */
+                line-height: 1.35 !important;
+                margin-bottom: 0.25rem !important;
+                max-width: 100%;
+                min-width: 0;
+                word-break: normal;
+                overflow-wrap: normal;
+                overflow: visible;
+                white-space: normal;
+                height: auto;
+            }
+
         /* MOBILE BREADCRUMB HIDE (≤767px) */
         @media (max-width: 767px) {
             #breadcrumb { display: none !important; margin: 0 !important; padding: 0 !important; height: 0 !important; }
         }
     </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
 </head>
 <body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased selection:bg-secondary-container selection:text-on-secondary-container">
 <div class="fixed top-28 left-1/2 -translate-x-1/2 z-[100] pointer-events-none" id="toast-container"></div>
@@ -141,9 +176,9 @@
 <div class="hidden md:flex gap-8">
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-cleaning-tools.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-kitchenware.html">Kitchenware</a></li></ul></div></div>
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-cooling-appliances.html">Cooling Appliances</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-shelves-stands.html">Shelves &amp; Stands</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-checkout-solutions.html">Counters and Scales</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-accessories.html">Accessories</a></li></ul></div></div>
-<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-forklifts-pallets.html">Forklifts &amp; Pallets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racking</a></li></ul></div></div>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-forklifts-pallets.html">Forklifts &amp; Pallets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racks</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Packaging<br/><span class="block text-[11px]">Manufacturer</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
 </div>
 </div>
 <!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
@@ -161,7 +196,7 @@
 <form class="hidden md:flex relative m-0 items-center" id="desktop-inline-search" role="search" autocomplete="off">
 <input id="desktop-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-44 lg:w-56 h-9 px-3 py-2 rounded-full bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 dark:border-white/20 outline-none focus:ring-2 focus:ring-primary/40 focus:w-64 transition-all duration-300"/>
 </form>
-<button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center"><span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span><span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span><span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span></button>
+<button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center"><span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span><span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span><span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">عربي</span></button>
 <div class="relative group hidden md:block" id="download-btn-container"><button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn"><span class="material-symbols-outlined dark:text-white" style="font-size: 30px;">download</span></button><div class="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-52 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 z-50" id="download-popup"><div class="bg-[#135bec] rounded-2xl shadow-2xl overflow-hidden"><div class="px-6 py-4 border-b border-white/20" style="background-color: #135bec;"><h3 class="text-white font-headline font-bold text-sm uppercase tracking-wider">DOWNLOAD OUR APP</h3><p class="text-white/80 text-xs mt-1 font-light">Upgrade Your Experience</p></div><div class="space-y-3 flex flex-col items-center bg-transparent"><a href="#" class="flex items-center justify-center rounded-lg overflow-hidden w-fit p-2" style="background-color: #135bec;"><img loading="lazy" src="topcar/aple.png" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg"/></a><a href="#" class="flex items-center justify-center rounded-lg overflow-hidden w-fit p-2" style="background-color: #135bec;"><img loading="lazy" src="topcar/ggle.png" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg"/></a></div></div></div></div>
 <button class="hidden md:block hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span></button>
 <a href="cart.html" class="hover:opacity-80 transition-all duration-300 active:scale-95 hidden md:flex relative items-center gap-1 text-secondary border-b-2 border-secondary pb-1" aria-label="View cart"><span class="material-symbols-outlined dark:text-white" style="font-size: 30px;">shopping_cart</span><span class="nassim-cart-badge absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full bg-secondary text-white text-[9px] font-bold items-center justify-center leading-none" style="display:none;">00</span></a>
@@ -190,14 +225,13 @@
 <img class="w-full h-full object-contain transition-all duration-700" id="main-product-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3C/svg%3E" alt="Product image" style="opacity:0;transition:opacity 0.4s ease;"/>
 <div class="absolute top-8 right-6 flex flex-col gap-3 z-40">
 <button class="bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md p-3 rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center justify-center" id="add-favorite-btn" onclick="toggleFavorite()"><span class="material-symbols-outlined text-lg transition-all duration-300" id="fav-icon">favorite</span></button>
-<button class="bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md p-3 rounded-full hover:bg-secondary hover:text-on-primary transition-all shadow-lg" id="share-product-btn" onclick="copyProductLink()"><span class="material-symbols-outlined text-lg">share</span></button>
 </div>
 </div>
 </div>
 <!-- Product Info & Actions -->
 <div class="lg:col-span-5 flex flex-col">
 <h1 class="font-display text-4xl md:text-5xl font-extrabold text-primary dark:text-white mb-2 leading-tight uppercase" id="product-title">Loading…</h1>
-<div class="flex items-center gap-4 mb-6 text-on-surface-variant/70 dark:text-white/70 text-xs"><span class="font-medium" id="product-sku">SKU: —</span></div>
+<div class="flex items-center gap-4 mb-6 text-on-surface-variant/70 dark:text-white/70 text-xs"><span class="font-medium" id="product-sku">CODE/MODEL: —</span></div>
 <!-- Admin-defined custom header fields (subcategory-specific). Populated by
      loadProduct() from product.customSections.header; stays hidden when the
      product has none, so the layout is unchanged. -->
@@ -239,7 +273,7 @@
 </section>
 <!-- Related Products (populated by JS) -->
 <section class="mt-20">
-<div class="flex justify-between items-end mb-10"><div><h2 class="font-display text-3xl font-extrabold uppercase tracking-widest text-primary dark:text-white">Related Products</h2></div><div class="flex gap-4"><button class="w-10 h-10 rounded-full border border-outline-variant/30 dark:border-outline-variant/50 flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" onclick="scrollRelated(-1)"><span class="material-symbols-outlined text-sm">chevron_left</span></button><button class="w-10 h-10 rounded-full border border-outline-variant/30 dark:border-outline-variant/50 flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" onclick="scrollRelated(1)"><span class="material-symbols-outlined text-sm">chevron_right</span></button></div></div>
+<div class="related-header flex justify-between items-end mb-10 gap-6 flex-wrap"><div><h2 class="font-display text-3xl font-extrabold uppercase tracking-widest text-primary dark:text-white">Related Products</h2></div><div class="related-arrows flex gap-4"><button class="w-10 h-10 rounded-full border border-outline-variant/30 dark:border-outline-variant/50 flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" onclick="scrollRelated(-1)"><span class="material-symbols-outlined text-sm">chevron_left</span></button><button class="w-10 h-10 rounded-full border border-outline-variant/30 dark:border-outline-variant/50 flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" onclick="scrollRelated(1)"><span class="material-symbols-outlined text-sm">chevron_right</span></button></div></div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" id="related-grid"></div>
 </section>
 </main>
@@ -248,11 +282,11 @@
 <footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
-<div class="col-span-1"><a href="home.html" class="flex items-center gap-2 mb-6"><img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high"></a><p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p></div>
-<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4><ul class="space-y-4 text-sm font-medium"><li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Customized Packaging</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li></ul></div>
-<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">General Information</h4><ul class="space-y-4 text-sm font-medium"><li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="terms.html">Terms &amp; Conditions</a></li></ul></div>
+<div class="col-span-1"><a href="home.html" class="flex items-center gap-2 mb-6"><img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high"></a><p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4><ul class="space-y-4 text-sm font-medium"><li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Packaging Manufacturer</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li></ul></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">General Information</h4><ul class="space-y-4 text-sm font-medium"><li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="home.html">Terms &amp; Conditions</a></li></ul></div>
 <div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Customer Service</h4><ul class="space-y-4 text-sm font-medium"><li><a class="text-slate-400 hover:text-primary transition-colors" href="returns-policy.html">Return and refund policy</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Shipping &amp; delivery</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Privacy and security</a></li></ul></div>
-<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact Us</h4><ul class="space-y-4 text-sm"><li class="flex items-start gap-3 text-slate-400"><span class="material-symbols-outlined text-primary text-xl">location_on</span><span>Shuwaikh Industrial Area, Kuwait</span></li><li class="flex items-center gap-3 text-slate-400"><span class="material-symbols-outlined text-primary text-xl">mail</span><span>info@al-nassim.com</span></li><li class="flex items-center gap-3 text-slate-400"><span class="material-symbols-outlined text-primary text-xl">call</span><span>+965 609 000 59</span></li></ul></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact Us</h4><ul class="space-y-4 text-sm"><li class="flex items-start gap-3 text-slate-400"><span class="material-symbols-outlined text-primary text-xl">location_on</span><span></span></li><li class="flex items-center gap-3 text-slate-400"><span class="material-symbols-outlined text-primary text-xl">mail</span><span></span></li><li class="flex items-center gap-3 text-slate-400"><span class="material-symbols-outlined text-primary text-xl">call</span><span></span></li></ul></div>
 </div>
 <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
 <p class="text-xs text-slate-500">© 2026 AL-Nassim Golden Group. All rights reserved.</p>
@@ -375,6 +409,8 @@
 <script src="assets/js/listing-pagination.js" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js" defer></script>
+<script src="assets/js/i18n-data.js" defer></script>
+<script src="assets/js/i18n.js" defer></script>
 
 <script>
     /* ===== Quantity / Favorite / Share / Toast ===== */
@@ -466,7 +502,6 @@
       modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
       document.body.appendChild(modal);
     }
-    function copyProductLink() { const text = window.location.href; navigator.clipboard.writeText(text).then(() => showToast("Link copied to clipboard")).catch(() => { const dummy = document.createElement('input'); document.body.appendChild(dummy); dummy.value = text; dummy.select(); document.execCommand('copy'); document.body.removeChild(dummy); showToast("Link copied to clipboard"); }); }
     function addToCart() {
       var product = window.NassimGetProduct ? window.NassimGetProduct(getQueryParam('id')) : null;
       if (!product) { showToast("Product not found"); return; }
@@ -525,6 +560,7 @@
        site language is Arabic (localStorage "nassim-lang", set by the shared
        EN|AR header toggle) AND an Arabic value exists — otherwise English. */
     function siteLang() { try { return localStorage.getItem('nassim-lang') === 'ar' ? 'ar' : 'en'; } catch (e) { return 'en'; } }
+    function ltr(v) { return '<span dir="ltr" style="unicode-bidi:isolate;">' + v + '</span>'; }
     function pickLang(en, ar) { return (siteLang() === 'ar' && ar && String(ar).trim() !== '') ? ar : (en || ''); }
 
     function loadProduct() {
@@ -548,8 +584,32 @@
       document.getElementById('bc-category').textContent = product.category;
       document.getElementById('bc-line').textContent = product.line;
       // Info
-      document.getElementById('product-title').textContent = product.name;
-      document.getElementById('product-sku').textContent = 'SKU: ' + product.sku;
+      /* Product name — the COMPLETE database value is inserted as ONE plain
+         text node. No splitting, no script/language detection, no manual
+         line breaks. One display-only character mapping: hyphens become
+         NON-BREAKING HYPHEN (U+2011 — same glyph) so a model code like
+         Al-nassim-ND-6597 can never split across lines at a hyphen (the
+         only wrapping logic the browser applies inside such a token).
+         Everything still wraps naturally at word boundaries. */
+      document.getElementById('product-title').textContent =
+        String(product.name == null ? '' : product.name).replace(/-/g, '\u2011');
+      /* Adaptive title size: tiers by NAME LENGTH ONLY (characters, same
+         measure for Arabic and Latin — no script/language detection, no
+         string manipulation). Short names get slightly larger, normal names
+         the default size, long names scale down within hard bounds so they
+         sit better in the info column. Wrapping stays natural. */
+      (function () {
+        var len = String(product.name || '').length;
+        var el = document.getElementById('product-title');
+        var size;
+        if (len <= 20) size = '1.6242rem';
+        else if (len <= 40) size = '1.4162rem';   /* default */
+        else if (len <= 70) size = '1.269rem';
+        else size = '1.2056rem';
+        el.style.fontSize = size;
+      })();
+      document.getElementById('product-sku').innerHTML = ltr((siteLang() === 'ar' ? '\u0627\u0644\u0643\u0648\u062f/\u0627\u0644\u0645\u0648\u062f\u064a\u0644 : ' : 'CODE/MODEL: ') + product.sku);
+      window.__osSkuProduct = product.sku;
       document.getElementById('product-price').innerHTML = product.price.toFixed(3) + ' <span class="text-sm font-bold tracking-widest align-top">' + (product.currency || 'KD') + '</span>';
       /* ===== Variant selector (customer-safe sibling options) =====
          Populated from product.variantOptions — an additive catalog field
@@ -1111,7 +1171,7 @@
               '    <span class="flex items-center">' +
               '      <span class="text-[13px] font-bold tracking-widest text-gray-900 dark:text-white">EN</span>' +
               '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
-              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">AR</span>' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">عربي</span>' +
               '    </span>' +
               '  </button>' +
               '</div>' +
@@ -1244,5 +1304,16 @@
   });
 })();
 </script>
-<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script></body>
+<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script><script>
+    window.addEventListener('nassim-langchange', function () {
+      try {
+        var sku = window.__osSkuProduct;
+        if (sku == null) return;
+        var ar = (localStorage.getItem('nassim-lang') === 'ar');
+        var el = document.getElementById('product-sku');
+        if (el) el.innerHTML = '<span dir="ltr" style="unicode-bidi:isolate;">' + (ar ? '\u0627\u0644\u0643\u0648\u062f/\u0627\u0644\u0645\u0648\u062f\u064a\u0644 : ' : 'CODE/MODEL: ') + sku + '</span>';
+      } catch (e) {}
+    });
+</script>
+</body>
 </html>

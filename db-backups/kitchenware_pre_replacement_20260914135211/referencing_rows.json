@@ -1,0 +1,158 @@
+{
+  "orderItems": [
+    {
+      "id": 15,
+      "orderId": 13,
+      "productId": 66,
+      "slug": "artisan-ceramic-pitcher",
+      "name": "Artisan Ceramic Pitcher",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDna_K-oI-QFFyUHl9GkaGf8GT2e83ayYWxeMJB814JJCmthfaqEGESnw5RM3_B8AytimDGc0vtbUvtaVZyb8pArK8ckZI0J-swZiIINW8QvrEFKsJfWPFLogAn6MbcfYybq_6r_QzE57m3RufVBlRhIJF06T4C8t3v1fEsve8qPFgYK7zW39SmBOhwhNl-NmzeSH_MSBI2poRpznl8VFKUGl6dWHWoNDYxGDKWtO6J5U5u_-7ZT3v5NlMvTjJRf7tH1stYVCl192c",
+      "price": "15",
+      "quantity": 2,
+      "itemStatus": "REMOVED_AFTER_CONFIRMATION"
+    },
+    {
+      "id": 17,
+      "orderId": 14,
+      "productId": 64,
+      "slug": "minimalist-table-spoon",
+      "name": "Minimalist Table Spoon",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuB272j1GxMqlKRV3lBWSJul3lWG3PjHVgdFzoha_GMcrogDSd5XfI16jJR-GpQLXtmWTPxSb8CSxz2zOjFfawVLSd9ZZ7BBdUx-ftodl2z6OT7YS4mAaFW_FtpSsneJGoFQGjYFccLGh9YrvRso_24eIsttcoDtynm7EwyrWqQrmiZU_3MbywqC-50OZ8I7zMvcnAi15G3d65hglLFNn6cmDhbNnQU0M-2_-niiBHlZ9KA9RCKxPtAHCpWH_B92jh6I5zr7zve_-cU",
+      "price": "4.5",
+      "quantity": 1,
+      "itemStatus": "REMOVED_AFTER_CONFIRMATION"
+    },
+    {
+      "id": 274,
+      "orderId": 245,
+      "productId": 64,
+      "slug": "minimalist-table-spoon",
+      "name": "Minimalist Table Spoon",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuB272j1GxMqlKRV3lBWSJul3lWG3PjHVgdFzoha_GMcrogDSd5XfI16jJR-GpQLXtmWTPxSb8CSxz2zOjFfawVLSd9ZZ7BBdUx-ftodl2z6OT7YS4mAaFW_FtpSsneJGoFQGjYFccLGh9YrvRso_24eIsttcoDtynm7EwyrWqQrmiZU_3MbywqC-50OZ8I7zMvcnAi15G3d65hglLFNn6cmDhbNnQU0M-2_-niiBHlZ9KA9RCKxPtAHCpWH_B92jh6I5zr7zve_-cU",
+      "price": "4.5",
+      "quantity": 1,
+      "itemStatus": "PENDING"
+    },
+    {
+      "id": 270,
+      "orderId": 243,
+      "productId": 15,
+      "slug": "gourmet-cookware-set",
+      "name": "Gourmet Cookware Set",
+      "image": "topcar/products_houseware/cookware2.png",
+      "price": "89",
+      "quantity": 1,
+      "itemStatus": "PENDING"
+    },
+    {
+      "id": 284,
+      "orderId": 255,
+      "productId": 15,
+      "slug": "gourmet-cookware-set",
+      "name": "Gourmet Cookware Set",
+      "image": "topcar/products_houseware/cookware2.png",
+      "price": "89",
+      "quantity": 2,
+      "itemStatus": "PENDING"
+    }
+  ],
+  "cartItems": [
+    {
+      "id": 114,
+      "userId": 23,
+      "productId": 15,
+      "quantity": 1,
+      "updatedAt": "2026-08-18T06:36:35.306Z"
+    },
+    {
+      "id": 150,
+      "userId": 12,
+      "productId": 82,
+      "quantity": 2,
+      "updatedAt": "2026-09-02T13:46:36.334Z"
+    },
+    {
+      "id": 152,
+      "userId": 12,
+      "productId": 84,
+      "quantity": 1,
+      "updatedAt": "2026-09-02T13:51:54.389Z"
+    }
+  ],
+  "relatedProducts": [
+    {
+      "id": 8,
+      "productId": 81,
+      "relatedId": 82,
+      "displayOrder": 0
+    },
+    {
+      "id": 9,
+      "productId": 81,
+      "relatedId": 83,
+      "displayOrder": 1
+    },
+    {
+      "id": 10,
+      "productId": 81,
+      "relatedId": 84,
+      "displayOrder": 2
+    },
+    {
+      "id": 11,
+      "productId": 82,
+      "relatedId": 81,
+      "displayOrder": 0
+    },
+    {
+      "id": 12,
+      "productId": 82,
+      "relatedId": 83,
+      "displayOrder": 1
+    },
+    {
+      "id": 13,
+      "productId": 82,
+      "relatedId": 84,
+      "displayOrder": 2
+    },
+    {
+      "id": 14,
+      "productId": 83,
+      "relatedId": 81,
+      "displayOrder": 0
+    },
+    {
+      "id": 15,
+      "productId": 83,
+      "relatedId": 82,
+      "displayOrder": 1
+    },
+    {
+      "id": 16,
+      "productId": 83,
+      "relatedId": 84,
+      "displayOrder": 2
+    },
+    {
+      "id": 17,
+      "productId": 84,
+      "relatedId": 81,
+      "displayOrder": 0
+    },
+    {
+      "id": 18,
+      "productId": 84,
+      "relatedId": 82,
+      "displayOrder": 1
+    },
+    {
+      "id": 19,
+      "productId": 84,
+      "relatedId": 83,
+      "displayOrder": 2
+    }
+  ],
+  "wishlistItems": [],
+  "stockMovements": []
+}

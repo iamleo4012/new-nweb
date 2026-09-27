@@ -102,6 +102,22 @@ const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 };
 
 /**
+ * Store-page display state: "SEEN" marks that staff opened the order's
+ * View Order sheet. It sits OUTSIDE the core OrderStatus workflow on
+ * purpose — it never appears in admin dashboards, filters, or analytics.
+ * Allowed moves: PENDING → SEEN (order opened), SEEN → UNDER_REVIEW
+ * (Order Received) or SEEN → CANCELLED_BY_STAFF.
+ */
+const SEEN_TRANSITIONS: Record<string, OrderStatus[]> = {
+  PENDING: ["SEEN"],
+  SEEN: ["UNDER_REVIEW", "CANCELLED_BY_STAFF"],
+};
+
+function allowedTransitions(from: OrderStatus): OrderStatus[] {
+  return (TRANSITIONS[from] || []).concat(SEEN_TRANSITIONS[from] || []);
+}
+
+/**
  * Human-readable labels for the UI.
  */
 export const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -148,14 +164,14 @@ export const STATUS_COLORS: Record<OrderStatus, string> = {
 /* ------------------------------------------------------------------ */
 
 export function isValidTransition(from: OrderStatus, to: OrderStatus): boolean {
-  const allowed = TRANSITIONS[from];
+  const allowed = allowedTransitions(from);
   return allowed ? allowed.includes(to) : false;
 }
 
 export function validateTransition(from: OrderStatus, to: OrderStatus): void {
   if (!isValidTransition(from, to)) {
     throw new TransitionError(
-      `Invalid status transition: ${from} → ${to}. Allowed: ${TRANSITIONS[from].join(", ") || "(terminal)"}`
+      `Invalid status transition: ${from} → ${to}. Allowed: ${allowedTransitions(from).join(", ") || "(terminal)"}`
     );
   }
 }
@@ -168,11 +184,11 @@ export class TransitionError extends Error {
 }
 
 export function isTerminal(status: OrderStatus): boolean {
-  return TRANSITIONS[status].length === 0;
+  return allowedTransitions(status).length === 0;
 }
 
 export function nextStatuses(status: OrderStatus): OrderStatus[] {
-  return TRANSITIONS[status];
+  return allowedTransitions(status);
 }
 
 /* ------------------------------------------------------------------ */

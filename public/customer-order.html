@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta name="google" content="notranslate"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Your Order | AL-NASSIM</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0.1&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<style>
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+.glass-nav { background: rgba(247, 249, 255, 0.7); backdrop-filter: blur(20px); }
+.dark .glass-nav { background: rgba(10, 15, 20, 0.9); }
+/* Top-nav dropdowns — same treatment as all storefront pages: menus are
+   hidden until nav-submenu.js opens them, and use the shared glass look. */
+.dropdown-menu { opacity: 0; visibility: hidden; transform: translateY(10px); }
+.dark-glass-dropdown {
+    background: rgba(247, 249, 255, 0.96);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 3, 8, 0.1);
+    border-radius: 1rem;
+}
+.dark .dark-glass-dropdown { background: rgba(255, 255, 255, 0.98); }
+.dark .dark-glass-dropdown a { color: #111d27 !important; }
+.dark .dark-glass-dropdown a:hover { color: #825335 !important; }
+</style>
+<style>
+  /* ---- scoped design (this page only) ---- */
+  #os-wrap { background: #FFFFFF; }
+  #os-wrap .os-container { max-width: 1200px; margin: 0 auto; padding: 130px 24px 80px; }
+  #os-wrap .os-eyebrow { display: flex; align-items: center; gap: 10px; }
+  #os-wrap .os-check { width: 26px; height: 26px; border-radius: 50%; background: #16a34a; color: #fff; display: flex; align-items: center; justify-content: center; }
+  #os-wrap .os-check .material-symbols-outlined { font-size: 18px; }
+  #os-wrap .os-label { font-size: 13px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: #64748b; }
+  #os-wrap .os-title { font-size: 36px; font-weight: 800; color: #0f172a; margin: 14px 0 0; }
+  #os-wrap .os-meta-row { margin-top: 16px; font-size: 18px; color: #0f172a; text-align: center; }
+  #os-wrap .os-meta-row .material-symbols-outlined { font-size: 18px; vertical-align: -4px; color: #64748b; margin-right: 6px; }
+  #os-wrap .os-meta-row b { font-weight: 800; color: #0f172a; letter-spacing: 0.02em; }
+  #os-wrap .os-date { margin-top: 20px; font-size: 16px; color: #475569; text-align: right; }
+  #os-wrap .os-date .material-symbols-outlined { font-size: 18px; vertical-align: -4px; color: #64748b; margin-right: 6px; }
+  #os-wrap .os-msg { margin-top: 14px; font-size: 16px; line-height: 1.6; color: #475569; max-width: 640px; }
+  #os-wrap .os-msg-red { margin-top: 18px; font-size: 24px; line-height: 1.65; text-align: justify; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 16px 20px; color: #7f1d1d; }
+  #os-wrap .os-section { font-size: 20px; font-weight: 800; color: #0f172a; margin: 40px 0 0; }
+  /* Order Items container: flat sibling cards, stacked from the left */
+  #os-wrap #os-items { display: flex; flex-direction: column; gap: 24px; align-items: stretch; margin-top: 20px; }
+  #os-wrap .os-card2 { background: #FFFFFF; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px 16px; min-height: 100px; display: flex; align-items: center; gap: 16px; }
+  /* card inner: image | info (name, Code/MODEL, Quantity) | price column (right) */
+  #os-wrap .os-card2 .os-inner { display: flex; flex-wrap: nowrap; gap: 20px; align-items: center; }
+  #os-wrap .os-img { width: 96px; height: 96px; flex: 0 0 auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  #os-wrap .os-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  #os-wrap .os-img .material-symbols-outlined { color: #cbd5e1; }
+  #os-wrap .os-info { flex: 1 1 auto; min-width: 0; }
+  #os-wrap .os-pname { font-size: 22px; font-weight: 700; color: #111827; line-height: 1.3; margin: 0 0 6px; }
+  #os-wrap .os-pcode { font-size: 13px; color: #334155; margin: 0; }
+  #os-wrap .os-meta-qty { font-size: 13px; color: #334155; margin: 0; }
+  /* price column: line total bold, unit price under it */
+  #os-wrap .os-meta { margin-left: auto; flex: 0 0 auto; text-align: right; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
+  #os-wrap .os-meta .os-total-top { font-size: 20px; font-weight: 800; color: #111827; margin: 0; font-variant-numeric: tabular-nums; }
+  #os-wrap .os-meta .os-unit-piece { font-size: 12px; color: #94a3b8; margin: 0; }
+  #os-wrap .os-notice { margin-top: 48px; background: #eff6ff; border: 1px solid #dbeafe; border-radius: 12px; padding: 20px 24px; font-size: 16px; line-height: 1.65; color: #334155; }
+  #os-wrap .os-notice p { margin: 0 0 6px; } #os-wrap .os-notice p:last-child { margin-bottom: 0; }
+  #os-wrap .os-back { text-align: center; margin-top: 40px; }
+  #os-wrap .os-btn { display: inline-block; background: #0f172a; color: #fff; padding: 12px 22px; border-radius: 8px; font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; }
+  /* bottom sections: Delivery Address card + totals box */
+  #os-wrap .os-bottom { display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; flex-wrap: wrap; margin-top: 40px; }
+  #os-wrap .os-bottom .os-card-blue { margin: 0; flex: 1 1 420px; max-width: 520px; }
+  #os-wrap .os-bottom .os-totals { margin: 0; flex: 0 0 420px; max-width: 520px; }
+  #os-wrap .os-card-blue { margin-top: 48px; max-width: 520px; background: #eff6ff; border: 1px solid #dbeafe; border-radius: 12px; padding: 22px 24px; }
+  #os-wrap .os-card-blue h2 { font-size: 20px; font-weight: 900; color: #0f172a; margin: 0 0 14px; }
+  #os-wrap .os-card-blue .os-line { display: flex; align-items: flex-start; gap: 8px; font-size: 16px; color: #111827; padding: 6px 0; }
+  #os-wrap .os-card-blue .os-line .material-symbols-outlined { font-size: 18px; color: #64748b; margin-top: 1px; }
+  #os-wrap .os-totals { width: 100%; max-width: 520px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px 28px; }
+  #os-wrap .os-trow { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; font-size: 17px; color: #111827; }
+  #os-wrap .os-trow + .os-trow { border-top: 1px solid #e2e8f0; }
+  #os-wrap .os-trow .os-tlabel { font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; font-size: 14px; color: #111827; }
+  #os-wrap .os-trow .os-tval { font-weight: 800; color: #0f172a; font-variant-numeric: tabular-nums; }
+  #os-wrap .os-btn:hover { background: #1e293b; }
+  /* Delivery Address rows — Arabic RTL mirroring (this card only).
+     direction:rtl on the flex row mirrors its geometry: the icon sits at
+     the RIGHT edge, and the text block (label + separator + value, still
+     separate elements) fills the remaining width and right-aligns its
+     content — so the RIGHT EDGE of every complete row lands on the same
+     boundary. overflow-wrap lets a long address value wrap naturally
+     within its box without breaking the label/value relationship.
+     Customer values keep their own LTR isolation (see the ltr() wrapper).
+     Inert in English — rules exist only under html.lang-ar, so the LTR
+     layout is untouched and the toggle is live. */
+  html.lang-ar #os-wrap .os-delivery .os-line { direction: rtl; justify-content: flex-start; }
+  html.lang-ar #os-wrap .os-delivery .os-line > span:last-of-type { flex: 1 1 auto; text-align: right; overflow-wrap: break-word; }
+  html.lang-ar #os-wrap .os-delivery h2 { text-align: right; }
+
+  /* Structured address rows (Governorate/Area/…) — Arabic RTL mirroring.
+     Same right-aligned physical presentation as the other card rows;
+     customer values stay LTR-isolated (see order-address.js). */
+  html.lang-ar #os-wrap .os-addr-row { direction: rtl; text-align: right; overflow-wrap: break-word; }
+  #os-wrap .os-addr-row { overflow-wrap: break-word; }
+  /* Order items rows — mirrored in AR exactly like the Staff View Order
+     (internal-orders2.html, where #os-items inherits direction:rtl from the
+     runtime's group marks): image RIGHT, product info middle, price/total
+     block LEFT. Values inside keep their own bidi; inert in English. */
+  html.lang-ar #os-wrap #os-items { direction: rtl; }
+</style>
+<style>
+/* ===== Printed document sheet — customer WhatsApp order page =========
+   EXACT staff View Order sheet (internal-orders2.html): same os-wrap
+   content, same ONE white document sheet, same "THIS IS NOT AN INVOICE"
+   watermark reused verbatim. Only the container padding differs: the
+   customer page HAS the fixed website header, so the sheet clears it. */
+  #os-wrap .os-container { padding: 40px 44px 48px; } /* staff sheet inner padding (same as internal-orders2 View Order) */
+  .doc-stage { padding: 6px 0 40px; }
+  .doc-paper {
+    position: relative; background: #ffffff; color: #111827;
+    max-width: 1240px; margin: 0 auto;
+    border: 1px solid #d7dce3; border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, .10);
+    overflow: hidden;
+  }
+  /* NOTE: the "THIS IS NOT AN INVOICE" tiled watermark is intentionally NOT
+     rendered on this customer-facing WhatsApp order page. The staff View
+     Order sheet (internal-orders2.html) keeps its own watermark. */
+  .doc-paper > * { position: relative; z-index: 2; }
+  @media print {
+    .no-print { display: none !important; }
+    body { background: #fff; }
+    main { margin: 0; max-width: none; padding: 0; }
+    .doc-stage { padding: 0; }
+    .doc-paper { border: none; box-shadow: none; max-width: 100%; margin: 0; border-radius: 0; }
+    body > nav, #mobile-bottom-nav { display: none !important; }
+  }
+</style>
+</head>
+<body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
+<!-- ===== Shared Header (same as all storefront pages) ===== -->
+<nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
+<div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-12">
+<a href="home.html" class="flex items-center gap-2 group cursor-pointer shrink-0"><img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/></a>
+<div class="hidden md:flex gap-8">
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-cleaning-tools.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-kitchenware.html">Kitchenware</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-cooling-appliances.html">Cooling Appliances</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-shelves-stands.html">Shelves &amp; Stands</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-accessories.html">Accessories</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a>
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<ul class="space-y-4">
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-trolleys-baskets.html">Trolleys & Baskets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-forklifts-pallets.html">Forklifts &amp; Pallets</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Rack</a></li>
+</ul>
+</div>
+</div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Packaging<br/><span class="block text-[11px]">Manufacturer</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
+</div>
+</div>
+<!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
+     direct flex child of the header row so all three elements share the same
+     vertical centre via the parent items-center. The search icon lives inside a
+     <label> so search.js bindTriggers() skips it. -->
+<form class="flex-1 mx-2 md:hidden relative m-0" id="mobile-inline-search" role="search" autocomplete="off">
+<label class="absolute inset-y-0 left-2 flex items-center pointer-events-none" for="mobile-inline-search-input">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-white/60" style="font-size:20px;">search</span>
+</label>
+<input id="mobile-inline-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-full h-9 pl-8 pr-3 rounded-lg bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 outline-none focus:ring-2 focus:ring-primary/40 transition"/>
+</form>
+<div class="flex items-center gap-2 md:gap-6 shrink-0">
+<!-- Desktop inline search bar -->
+<form class="hidden md:flex relative m-0 items-center" id="desktop-inline-search" role="search" autocomplete="off">
+<input id="desktop-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-44 lg:w-56 h-9 px-3 py-2 rounded-full bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 dark:border-white/20 outline-none focus:ring-2 focus:ring-primary/40 focus:w-64 transition-all duration-300"/>
+</form>
+<button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center"><span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span><span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span><span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">عربي</span></button>
+<button class="hidden md:block hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span></button>
+<a href="cart.html" class="hover:opacity-80 transition-all duration-300 active:scale-95 hidden md:flex relative items-center gap-1 text-secondary border-b-2 border-secondary pb-1" aria-label="View cart"><span class="material-symbols-outlined dark:text-white" style="font-size: 30px;">shopping_cart</span><span class="nassim-cart-badge absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full bg-secondary text-white text-[9px] font-bold items-center justify-center leading-none" style="display:none;">00</span></a>
+<button class="hover:opacity-80 transition-all duration-300 active:scale-95 hidden md:flex" id="account-btn"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">person</span></button>
+<button id="hamburger-slot" class="md:hidden hover:opacity-80 transition-all duration-300 active:scale-95 flex items-center justify-center p-0" aria-label="Open menu"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">menu</span></button>
+</div>
+</div>
+</nav>
+
+<main class="pt-36 pb-20 px-4 md:px-12 max-w-screen-2xl mx-auto" id="customer-order-root">
+<div class="doc-stage">
+<div class="doc-paper receipt-sheet" id="os-wrap">
+        <div class="os-container">
+          <div id="os-loading" style="padding:40px 0;text-align:center;color:#64748b;">Loading order…</div>
+          <div id="os-error" style="display:none;padding:40px 0;text-align:center;color:#dc2626;font-size:18px;font-weight:600;"></div>
+          <div id="os-main" style="display:none;">
+            <div class="os-eyebrow">
+              <span class="os-check"><span class="material-symbols-outlined">check</span></span>
+              <span class="os-label">Order Sent</span>
+            </div>
+            <h1 class="os-title">Your order has been received!</h1>
+            <p class="os-msg-red">Important Information: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store&rsquo;s point of sale and provided with your goods upon delivery.</p>
+            <div class="os-meta-row">
+              <span class="material-symbols-outlined">receipt_long</span>Order Number : <b id="os-number"></b>
+            </div>
+            <div class="os-date"><span class="material-symbols-outlined">calendar_month</span>Date: <span id="os-date"></span></div>
+            <h2 class="os-section" style="display:none">Order Items (<span id="os-count">0</span>)</h2>
+            <div id="os-items"></div>
+            <div class="os-bottom">
+              <div class="os-card-blue os-delivery">
+                <h2>Delivery Address</h2>
+                <div class="os-line"><span class="material-symbols-outlined">person</span><span>Name : <span id="os-name"></span></span></div>
+                <div class="os-line"><span class="material-symbols-outlined">call</span><span>Phone : <span id="os-phone"></span></span></div>
+                <div class="os-line"><span class="material-symbols-outlined">location_on</span><span><span id="os-address-label">Address : </span><span id="os-address"></span></span></div>
+                <div class="os-line" id="os-notes-line" style="display:none"><span class="material-symbols-outlined">sticky_note_2</span><span>Notes : <span id="os-notes"></span></span></div>
+              </div>
+              <div class="os-totals">
+                <div class="os-trow"><span class="os-tlabel">Delivery Fee</span><span class="os-tval" id="os-shipping">KWD 0.000</span></div>
+                <div class="os-trow"><span class="os-tlabel">Total</span><span class="os-tval" id="os-total">KWD 0.000</span></div>
+              </div>
+            </div>
+            <div class="os-notice">
+              <p>Note: The total may vary based on actually delivered items.</p>
+            </div>
+          </div>
+        </div>
+</div>
+</main>
+
+<!-- ===== Shared Footer ===== -->
+<footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
+<div class="col-span-1"><a href="home.html" class="flex items-center gap-2 mb-6"><img src="LOGO.png" alt="Logo" class="h-[3.9rem] w-auto" fetchpriority="high"></a><p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse</a></li></ul></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Information</h4><ul class="space-y-4 text-sm"><li><span class="text-slate-400">Help</span></li><li><span class="text-slate-400">About</span></li><li><span class="text-slate-400">FAQ</span></li></ul></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Customer Service</h4><ul class="space-y-4 text-sm"><li><span class="text-slate-400">Returns</span></li><li><span class="text-slate-400">Shipping</span></li><li><span class="text-slate-400">Privacy</span></li></ul></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact</h4><p class="text-sm text-slate-400"></p><p class="text-sm text-slate-400"></p><p class="text-sm text-slate-400"></p></div>
+</div>
+<div class="border-t border-white/10 pt-8 text-center"><p class="text-xs text-slate-500">&copy; 2026 AL-Nassim Golden Group. All rights reserved.</p></div>
+</div>
+</footer>
+
+<a aria-label="WhatsApp" class="fixed bottom-[5rem] right-4 md:bottom-6 md:right-6 z-[100] w-14 h-14 md:w-16 md:h-16 hover:scale-110 transition-all" href="https://wa.me/96560900059" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/whatsapp.png" alt="WhatsApp" class="w-full h-full object-contain"/></a>
+
+<!-- ==================== MOBILE BOTTOM NAVIGATION ====================
+     Reuses existing systems — no duplication:
+       Home -> home.html, Categories -> existing mobile drawer (mobile-nav.js),
+       Account -> window.NassimAccount.openPanel(), Cart -> cart.html.
+     Implemented as <div role="navigation"> (not <nav>) so the auto-wiring in
+     cart-nav.js / account.js / search.js is NOT re-triggered here. -->
+<style>
+    #mobile-bottom-nav-inner { padding-bottom: env(safe-area-inset-bottom); }
+    .mbnav-item { color: #44474b; }
+    .dark .mbnav-item { color: rgba(255,255,255,0.6); }
+    .mbnav-item:hover { color: #825335; }
+    .dark .mbnav-item:hover { color: #f7b994; }
+    .mbnav-item.mbnav-active { color: #825335; }
+    .dark .mbnav-item.mbnav-active { color: #f7b994; }
+    .mbnav-item.mbnav-active .material-symbols-outlined {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    @media (max-width: 767px) {
+        body { padding-bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
+    }
+</style>
+<div id="mobile-bottom-nav" role="navigation" aria-label="Mobile" class="mbnav-vv md:hidden fixed inset-x-0 bottom-0 z-[90] glass-nav dark:bg-[#0a0f14]/90 border-t border-outline-variant/30 shadow-[0_-20px_40px_rgba(0,3,8,0.04)]">
+    <div id="mobile-bottom-nav-inner" class="grid grid-cols-4 items-stretch max-w-screen-sm mx-auto">
+        <button type="button" data-mbnav="home" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">home</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Home</span>
+        </button>
+        <button type="button" data-mbnav="categories" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">grid_view</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Categories</span>
+        </button>
+        <button type="button" data-mbnav="account" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="material-symbols-outlined" style="font-size:24px;">person</span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Account</span>
+        </button>
+        <button type="button" data-mbnav="cart" class="mbnav-item relative flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
+            <span class="relative inline-flex">
+                <span class="material-symbols-outlined" style="font-size:24px;">shopping_cart</span>
+                <span id="header-cart-count" class="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 rounded-full bg-secondary text-white text-[9px] font-bold flex items-center justify-center leading-none" style="display:none;">00</span>
+            </span>
+            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Cart</span>
+        </button>
+    </div>
+</div>
+
+<script>/* keep the storefront i18n language in step before the runtime initialises */
+try { localStorage.setItem("nassim-lang", localStorage.getItem("nassim-lang") === "ar" ? "ar" : "en"); } catch (e) {}</script>
+<script src="assets/js/i18n-data.js" defer></script>
+<script type="module">
+  /* Page-local supplement for the Order Sent sheet: wording taken from
+     EXISTING approved entries (same as the staff document view). Scoped to
+     this page — the generated i18n-data.js is not modified. */
+  window.NASSIM_I18N = window.NASSIM_I18N || {};
+  window.NASSIM_I18N["total"] = window.NASSIM_I18N["total"] || "الإجمالي";
+  window.NASSIM_I18N["order items ("] = window.NASSIM_I18N["order items ("] || "عدد الأصناف (";
+</script>
+<script src="assets/js/i18n.js" defer></script>
+<script src="assets/js/nassim-locations-data.js" defer></script>
+<script src="assets/js/order-address.js" defer></script>
+<script src="assets/js/theme.js" defer></script>
+<script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/cart-nav.js" defer></script>
+<script src="assets/js/search.js" defer></script>
+<script src="assets/js/account.js" defer></script>
+<script src="assets/js/nav-submenu.js" defer></script>
+<script src="assets/js/mobile-nav.js" defer></script>
+<script>
+(function () {
+  "use strict";
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function ltr(v) { return '<span dir="ltr" style="unicode-bidi:isolate;">' + v + '</span>'; }
+  function fmt(n) { return Number(n).toFixed(3); }
+  function itemCode(name) {
+    var m = String(name || "").match(/al-nassim-([A-Za-z]+-\d+)/i);
+    if (m) return m[1];
+    var parts = String(name || "").split("-");
+    var tail = parts[parts.length - 1];
+    return /[A-Za-z]-?\d/.test(tail) ? tail.trim() : "\u2014";
+  }
+  function renderDocument(o) {
+    window.__lastOrderDoc = o;
+    document.getElementById("os-number").textContent = o.orderNumber || "";
+    var d = new Date(o.createdAt);
+    var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    var pad = function (x) { return String(x).padStart(2, "0"); };
+    document.getElementById("os-date").textContent = isNaN(d.getTime()) ? "" : pad(d.getDate()) + "/" + pad(d.getMonth() + 1) + "/" + d.getFullYear();
+    var items = o.items || [];
+    document.getElementById("os-count").textContent = items.length;
+    var html = "";
+    items.forEach(function (i) {
+      var lineTotal = Number(i.price) * Number(i.quantity);
+      html += '<div class="os-card2">' +
+        '<div class="os-img">' + (i.image ? '<img src="' + esc(i.image) + '" alt="' + esc(i.name) + '"/>' : '<span class="material-symbols-outlined">image</span>') + '</div>' +
+        '<div class="os-info">' +
+        '<h3 class="os-pname">' + esc(i.name) + '</h3>' +
+        '<p class="os-piece">KD ' + fmt(i.price) + '/<span>piece</span></p>' +
+        '<p class="os-pcode">Code/MODEL : ' + ltr(esc(itemCode(i.name))) + '</p>' +
+        '<p class="os-meta-qty">Quantity: ' + i.quantity + '</p>' +
+        '</div>' +
+        '<div class="os-meta">' +
+        '<p class="os-total-top">KD ' + fmt(lineTotal) + '</p>' +
+        '</div>' +
+        '</div>';
+    });
+    document.getElementById("os-items").innerHTML = html;
+    document.getElementById("os-shipping").textContent = "KWD " + fmt(o.shipping);
+    document.getElementById("os-total").textContent = "KWD " + fmt(o.total);
+    document.getElementById("os-name").textContent = o.customerName || "";
+    document.getElementById("os-phone").innerHTML = ltr(esc(o.customerPhone || ""));
+    /* Delivery address via the SHARED renderer (assets/js/order-address.js):
+       the stored Governorate/Area values appear as labeled rows at the top;
+       historical addresses without labels keep the exact previous display. */
+    var addrStructured = window.NassimOrderAddress && window.NassimOrderAddress.isStructured(o);
+    document.getElementById("os-address-label").style.display = addrStructured ? "none" : "";
+    document.getElementById("os-address").innerHTML = window.NassimOrderAddress
+      ? window.NassimOrderAddress.renderHtml(o)
+      : ltr(esc((o.address || "") + (o.city ? ", " + o.city : "")));
+    var notes = String(o.notes || "").trim();
+    var notesLine = document.getElementById("os-notes-line");
+    if (notesLine) notesLine.style.display = notes ? "" : "none";
+    var notesEl = document.getElementById("os-notes");
+    if (notesEl) notesEl.textContent = notes;
+    document.getElementById("os-loading").style.display = "none";
+    document.getElementById("os-error").style.display = "none";
+    document.getElementById("os-main").style.display = "block";
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    var payload = window.__NASSIM_ORDER__;
+    var o = payload && payload.success && payload.data && payload.data.order;
+    if (!o) {
+      document.getElementById("os-loading").style.display = "none";
+      var err = document.getElementById("os-error");
+      err.style.display = "block";
+      err.textContent = "Order unavailable. Please use the link from your WhatsApp message.";
+      return;
+    }
+    renderDocument(o);
+    /* Structured address rows carry their own labels, which the i18n
+       runtime cannot translate (no exact key match) — re-render the sheet
+       on language change so labels follow the active language. Values are
+       always the stored ones. */
+    window.addEventListener('nassim-langchange', function () {
+      setTimeout(function () {
+        if (window.__lastOrderDoc) renderDocument(window.__lastOrderDoc);
+      }, 150);
+    });
+  });
+})();
+</script>
+<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script>
+</body>
+</html>

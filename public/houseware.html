@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
-<html class="light" lang="en"><head>
+<html class="light" lang="en" translate="no"><head>
+<meta name="google" content="notranslate"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <link rel="icon" href="/LOGO.png" type="image/png"/>
@@ -8,6 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Signika&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<script src="assets/js/i18n-data.js" defer></script>
+<script src="assets/js/i18n.js" defer></script>
 </head><body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 
 <!-- Loading Screen -->
@@ -229,6 +233,18 @@
         @media (max-width: 767px) {
             section[class*="top-[72px]"] { display: none !important; margin: 0 !important; padding: 0 !important; height: 0 !important; }
         }
+        /* ARABIC ONLY — section text spacing (Kitchenware / Cleaning Tools):
+           Arabic glyphs carry descenders that reach below the eyebrow's line
+           box, and the eyebrow's mb-6 never applies to an inline span — so
+           the big heading crowds it. Make the eyebrow inline-block (its
+           mb-6 then applies) and give the body a small top margin so it
+           never overlaps the heading's descenders. English untouched. */
+        html.lang-ar .houseware-section .section-eyebrow { display: inline-block; }
+        html.lang-ar .houseware-section .section-body { margin-top: 0.5rem; }
+        /* EXPLORE KITCHENWARE/CLNING TOOLS link: pulled slightly back up so
+           it sits a little higher (the body's extra top margin had pushed it
+           down), while keeping enough clearance under the body text. */
+        html.lang-ar .houseware-section .section-explore { margin-top: -0.375rem !important; }
     </style>
 <style>
         /* Loading Screen Styles */
@@ -607,12 +623,12 @@
 <ul class="space-y-4">
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-trolleys-baskets.html">Trolleys & Baskets</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-forklifts-pallets.html">Forklifts & Pallets</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racking</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racks</a></li>
 </ul>
 </div>
 </div>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Packaging<br/><span class="block text-[11px]">Manufacturer</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
 </div>
 </div>
 <!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
@@ -632,7 +648,7 @@
 <button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center">
 <span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
 <span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
-<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
+<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">عربي</span>
 </button>
 <div class="relative group hidden md:block" id="download-btn-container">
 <button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
@@ -680,8 +696,7 @@
 <img loading="lazy" class="absolute inset-0 w-full h-full object-cover" src="topcar/house.png"/>
 </div>
 <div class="houseware-hero-text p-12 md:p-16 lg:p-20 flex flex-col justify-center text-on-primary">
-<span class="hero-eyebrow font-label text-[10px] tracking-[0.2em] uppercase text-secondary mb-4 block">Collection 2026</span>
-<h1 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tighter leading-tight mb-6">The Houseware Collective</h1>
+<h1 class="font-headline text-4xl md:text-5xl font-extrabold tracking-tighter leading-tight mb-6">The Houseware Collection</h1>
 <p class="hero-lines font-body text-base text-on-primary-container max-w-lg leading-relaxed mb-2 whitespace-nowrap">
                     HOME & OUTDOOR • KITCHENWARE • CLEANING TOOLS
                 </p>
@@ -719,11 +734,11 @@ CLEANING TOOLS
 <span class="section-eyebrow font-label text-base uppercase tracking-[0.3em] text-primary dark:text-white mb-6 block">Comfort Without Limits</span>
 <h2 class="font-headline text-5xl md:text-6xl tracking-tight leading-tight mb-8 dark:text-white">HOME & OUTDOOR</h2>
 <p class="section-body font-body text-on-surface-variant dark:text-white/70 leading-loose mb-10 text-lg">
-                    Discover products built for comfort, function, and lasting quality, whether at home or beyond your walls—featuring smart storage, laundry solutions, functional furniture, and outdoor essentials for every setting.
+                    Discover products built for comfort, function, and lasting quality, whether at home or beyond your walls, featuring smart storage, laundry solutions, and outdoor essentials for every setting.
                 </p>
 <a href="houseware-home-outdoor.html" class="section-explore inline-flex items-center gap-2 mt-3 font-label text-sm uppercase tracking-widest text-primary dark:text-white hover:text-secondary transition-colors duration-300 group font-bold">
                     EXPLORE HOME & OUTDOOR
-                    <span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
+                    <span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1 arrow-swap">arrow_forward</span>
                 </a>
 </div>
 </div>
@@ -734,7 +749,7 @@ CLEANING TOOLS
 <div class="roll-overlay">
 <span class="roll-overlay-text">
 View Products
-<span class="material-symbols-outlined" style="font-size: 20px;">arrow_forward</span>
+<span class="material-symbols-outlined arrow-swap" style="font-size: 20px;">arrow_forward</span>
 </span>
 </div>
 </div>
@@ -753,7 +768,7 @@ View Products
 <div class="roll-overlay">
 <span class="roll-overlay-text">
 View Product
-<span class="material-symbols-outlined" style="font-size: 20px;">arrow_forward</span>
+<span class="material-symbols-outlined arrow-swap" style="font-size: 20px;">arrow_forward</span>
 </span>
 </div>
 </div>
@@ -770,7 +785,7 @@ View Product
                     </p>
 <a href="houseware-kitchenware.html" class="section-explore inline-flex items-center gap-2 mt-3 font-label text-sm uppercase tracking-widest text-primary dark:text-white hover:text-secondary transition-colors duration-300 group font-bold">
                     EXPLORE KITCHENWARE
-                    <span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
+                    <span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1 arrow-swap">arrow_forward</span>
                 </a>
 </div>
 <div>
@@ -780,7 +795,7 @@ View Product
 <div class="roll-overlay">
 <span class="roll-overlay-text">
 View Product
-<span class="material-symbols-outlined" style="font-size: 20px;">arrow_forward</span>
+<span class="material-symbols-outlined arrow-swap" style="font-size: 20px;">arrow_forward</span>
 </span>
 </div>
 </div>
@@ -802,7 +817,7 @@ View Product
                     </p>
 <a href="houseware-cleaning-tools.html" class="section-explore inline-flex items-center gap-2 mt-3 font-label text-sm uppercase tracking-widest text-primary dark:text-white hover:text-secondary transition-colors duration-300 group font-bold">
                     EXPLORE CLEANING TOOLS
-                    <span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
+                    <span class="material-symbols-outlined transition-transform duration-300 group-hover:translate-x-1 arrow-swap">arrow_forward</span>
                 </a>
 </div>
 </div>
@@ -813,7 +828,7 @@ View Product
 <div class="roll-overlay">
 <span class="roll-overlay-text">
 View Products
-<span class="material-symbols-outlined" style="font-size: 20px;">arrow_forward</span>
+<span class="material-symbols-outlined arrow-swap" style="font-size: 20px;">arrow_forward</span>
 </span>
 </div>
 </div>
@@ -834,7 +849,7 @@ View Products
 <a href="home.html" class="flex items-center gap-2 mb-6">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
 </a>
-<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
 </div>
 <!-- Column 2 -->
 <div>
@@ -843,7 +858,7 @@ View Products
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Customized Packaging</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Packaging Manufacturer</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li>
 </ul>
 </div>
@@ -854,7 +869,7 @@ View Products
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="terms.html">Terms & Conditions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="home.html">Terms & Conditions</a></li>
 </ul>
 </div>
 <!-- Column 4 -->
@@ -872,15 +887,15 @@ View Products
 <ul class="space-y-4 text-sm">
 <li class="flex items-start gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">location_on</span>
-<span>Shuwaikh Industrial Area, Kuwait</span>
+<span></span>
 </li>
 <li class="flex items-center gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">mail</span>
-<span>info@al-nassim.com</span>
+<span></span>
 </li>
 <li class="flex items-center gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">call</span>
-<span>+965 609 000 59</span>
+<span></span>
 </li>
 </ul>
 </div>
@@ -1299,7 +1314,7 @@ View Products
               '    <span class="flex items-center">' +
               '      <span class="text-[13px] font-bold tracking-widest text-gray-900 dark:text-white">EN</span>' +
               '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
-              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">AR</span>' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">عربي</span>' +
               '    </span>' +
               '  </button>' +
               '</div>' +

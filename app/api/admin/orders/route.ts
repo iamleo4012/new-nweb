@@ -20,7 +20,12 @@ export const dynamic = "force-dynamic";
 
 const patchSchema = z.object({
   id: z.number().int().positive(),
-  status: z.enum(ORDER_STATUSES as unknown as [OrderStatus, ...OrderStatus[]]),
+  // "SEEN" is a store-page display state (order opened by staff). It is not
+  // part of ORDER_STATUSES (which drives admin dashboards/filters), so it is
+  // allowed here only — accepted as a valid status for the store workflow.
+  status: z.enum(
+    [...(ORDER_STATUSES as unknown as [OrderStatus, ...OrderStatus[]]), "SEEN"] as unknown as [OrderStatus, ...OrderStatus[]]
+  ),
   note: z.string().max(500).optional().default(""),
 });
 

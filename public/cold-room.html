@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 
-<html lang="en"><head>
+<html lang="en" translate="no"><head>
+<meta name="google" content="notranslate"/>
 <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
  document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
 <meta charset="utf-8"/>
@@ -204,30 +205,12 @@
         html body > main.relative .editorial-blur .flex.flex-col a {
             justify-content: flex-start !important;
         }
-        html body > main.relative .editorial-blur a[href^="tel:"] {
-            padding: 0.7rem 1.1rem !important;
-            font-size: 0.6875rem !important;
-            letter-spacing: 0.12em !important;
-            background-color: #ffffff !important;
-            color: #000308 !important;
-            border-radius: 0.5rem !important;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18) !important;
-        }
-        html body > main.relative .editorial-blur a[href^="tel:"] .material-symbols-outlined,
-        html body > main.relative .editorial-blur a[href^="tel:"] span {
-            color: #000308 !important;
-        }
-        html body > main.relative .editorial-blur a[href^="tel:"]:active {
-            background-color: #825335 !important;
-            color: #ffffff !important;
-        }
-        html body > main.relative .editorial-blur a[href^="tel:"]:active .material-symbols-outlined,
-        html body > main.relative .editorial-blur a[href^="tel:"]:active span {
-            color: #ffffff !important;
-        }
     }
 </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<script src="assets/js/i18n-data.js" defer></script>
+<script src="assets/js/i18n.js" defer></script>
 </head>
     <style>
     /* Navbar gap on mobile: the shared spacing system (dark-overrides.js/css)
@@ -284,12 +267,12 @@
 <ul class="space-y-4">
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-trolleys-baskets.html">Trolleys & Baskets</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-forklifts-pallets.html">Forklifts & Pallets</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racking</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racks</a></li>
 </ul>
 </div>
 </div>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Packaging<br/><span class="block text-[11px]">Manufacturer</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
 </div>
 </div>
 <!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
@@ -309,7 +292,7 @@
 <button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center">
 <span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
 <span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
-<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
+<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">عربي</span>
 </button>
 <div class="relative group hidden md:block" id="download-btn-container">
 <button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
@@ -364,24 +347,24 @@
     <div class="absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-primary/10 z-10"></div>
 </div>
 <!-- Central Hero Content -->
-<div class="relative z-20 w-full max-w-4xl px-6 text-center">
+<div class="relative z-20 w-full max-w-6xl px-6 text-center">
 <!-- Floating Glassmorphic Container -->
 <div class="bg-surface/10 editorial-blur rounded-lg shadow-[0_60px_120px_rgba(0,3,8,0.15)] border border-surface-variant/20 text-reveal px-10 py-5" data-stitch-orig-opacity="1" style="transition: opacity 1.5s, transform 0.5s ease-out; transform: rotateY(-3.44deg) rotateX(-8.94deg);">
 <!-- Category Label -->
-<span class="font-label text-[0.6875rem] uppercase tracking-[0.2em] text-white mb-6 block font-semibold">
+<span class="font-label text-[1.375rem] uppercase tracking-[0.2em] text-white mb-6 block font-semibold">
                     Architectural Integrity &amp; Thermal Precision
                 </span>
 <!-- Main Headline -->
 <h1 class="font-display text-5xl md:text-7xl font-bold text-white tracking-tighter leading-[0.9] mb-8">
-                    Cold Rooms Built for Your Business.
+                    Cold Rooms<br/><span class="whitespace-nowrap">Built to Your Specifications</span>
                 </h1>
-<!-- Subheadline -->
-<p class="font-body text-lg md:text-xl text-white max-w-2xl mx-auto leading-relaxed mb-12">
-                    Designed and built to match your storage requirements with reliable, professional cold room solutions that prioritize architectural integrity.
-                </p>
 <!-- Primary CTA -->
 <div class="flex flex-col md:flex-row items-center justify-center gap-6">
-<a class="group relative overflow-hidden inline-flex items-center justify-center px-10 py-5 bg-primary text-white font-headline text-sm font-bold tracking-widest uppercase transition-all duration-500 hover:bg-secondary hover:shadow-[0_20px_40px_rgba(130,83,53,0.3)]" href="tel:+96566235309"><span class="relative z-10 flex items-center"><span class="material-symbols-outlined mr-2 text-white">call</span>+965 66235309<span class="material-symbols-outlined ml-3 group-hover:translate-x-2 transition-transform duration-300">arrow_right_alt</span></span></a>
+<a class="group relative flex items-center gap-4 px-10 py-6 rounded-full transition-all duration-500 shadow-2xl overflow-hidden active:scale-95" style="background-color: #825335; color: #ffffff;" href="tel:00000000">
+<span class="relative z-10 font-headline font-bold text-sm uppercase tracking-widest">Contact Our Team: 00000000</span>
+<span class="material-symbols-outlined relative z-10 text-xl transition-transform duration-300 group-hover:translate-x-1 arrow-swap">arrow_forward</span>
+<div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+</a>
 </div>
 <!-- Subtle Trust Indicator -->
 </div>
@@ -419,7 +402,7 @@
 <a href="home.html" class="flex items-center gap-2 mb-6">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
 </a>
-<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
 </div>
 <!-- Column 2 -->
 <div>
@@ -428,7 +411,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Customized Packaging</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Packaging Manufacturer</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li>
 </ul>
 </div>
@@ -439,7 +422,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="terms.html">Terms & Conditions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="home.html">Terms & Conditions</a></li>
 </ul>
 </div>
 <!-- Column 4 -->
@@ -457,15 +440,15 @@
 <ul class="space-y-4 text-sm">
 <li class="flex items-start gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">location_on</span>
-<span>Shuwaikh Industrial Area, Kuwait</span>
+<span></span>
 </li>
 <li class="flex items-center gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">mail</span>
-<span>info@al-nassim.com</span>
+<span></span>
 </li>
 <li class="flex items-center gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">call</span>
-<span>+965 609 000 59</span>
+<span></span>
 </li>
 </ul>
 </div>
@@ -838,7 +821,7 @@
               '    <span class="flex items-center">' +
               '      <span class="text-[13px] font-bold tracking-widest text-gray-900 dark:text-white">EN</span>' +
               '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
-              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">AR</span>' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">عربي</span>' +
               '    </span>' +
               '  </button>' +
               '</div>' +

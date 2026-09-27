@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
-<html class="light" lang="en">
+<html class="light" lang="en" translate="no">
 <head>
+<meta name="google" content="notranslate"/>
 <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
  document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
 <meta charset="utf-8"/>
@@ -10,6 +11,9 @@
 <script></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<script src="assets/js/i18n-data.js" defer></script>
+<script src="assets/js/i18n.js" defer></script>
 
 <style>
 .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;}
@@ -24,6 +28,163 @@
 
 </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
+<style>
+/* ==================== CHECKOUT ORDER SUMMARY (scoped redesign) ====================
+   Visual-only restyle of the Order Summary markup rendered by
+   assets/js/checkout.js into #checkout-summary. All rules are scoped under
+   #checkout-summary with cs-* class names, so nothing else on the page is
+   affected. Colors reuse the site palette through the CSS variables that
+   assets/css/dark-overrides.css defines on :root and .dark (the var() fallbacks
+   are the light values), so light + dark follow the theme automatically; only
+   the translucent borders/dividers need explicit html.dark values. */
+#checkout-summary { font-family: 'Inter', sans-serif; }
+
+/* ---- top strip: [Edit Your Cart Items] | Total ---- */
+#checkout-summary .cs-top {
+  display: flex; align-items: stretch;
+  background: var(--color-surface-container-lowest, #ffffff);
+  border: 1px solid rgba(196,198,204,0.45);
+  border-radius: 0.5rem; overflow: hidden; margin-bottom: 0.25rem;
+}
+html.dark #checkout-summary .cs-top { background: #11161c; border-color: rgba(255,255,255,0.12); }
+#checkout-summary .cs-edit-btn {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+  padding: 0.6rem 0.7rem; border: none; cursor: pointer; background: transparent;
+  font-family: 'Manrope', sans-serif; font-size: 0.7rem; font-weight: 800;
+  letter-spacing: 0.01em; line-height: 1.3; text-align: center;
+  color: var(--color-on-surface, #111d27);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+#checkout-summary .cs-edit-btn .material-symbols-outlined {
+  font-size: 17px; flex-shrink: 0; color: var(--color-secondary, #825335);
+}
+#checkout-summary .cs-edit-btn:hover {
+  background: rgba(130,83,53,0.07); color: var(--color-secondary, #825335);
+}
+html.dark #checkout-summary .cs-edit-btn:hover { background: rgba(247,185,148,0.1); }
+#checkout-summary .cs-divider { flex: 0 0 1px; margin: 0.55rem 0; background: rgba(196,198,204,0.55); }
+html.dark #checkout-summary .cs-divider { background: rgba(255,255,255,0.14); }
+#checkout-summary .cs-total {
+  flex: 0 0 auto; min-width: 5.4rem;
+  display: flex; flex-direction: column; justify-content: center; align-items: flex-end;
+  padding: 0.5rem 0.85rem; text-align: right;
+}
+#checkout-summary .cs-total-label {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  line-height: 1.2; color: var(--color-on-surface-variant, #44474b);
+}
+#checkout-summary .cs-total-value {
+  font-family: 'Manrope', sans-serif; font-size: 1.25rem; font-weight: 800;
+  line-height: 1.15; margin-top: 0.1rem; white-space: nowrap;
+  color: var(--color-on-surface, #111d27);
+}
+
+/* ---- product lines: thumb | name / qty / unit price | line total ---- */
+#checkout-summary .cs-item {
+  display: flex; align-items: flex-start; gap: 0.7rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid rgba(196,198,204,0.28);
+}
+html.dark #checkout-summary .cs-item,
+html.dark #checkout-summary .cs-row { border-bottom-color: rgba(255,255,255,0.09); }
+#checkout-summary .cs-thumb {
+  width: 3.25rem; height: 3.25rem; flex-shrink: 0;
+  background: var(--color-surface-container, #e4efff);
+  border-radius: 0.5rem; overflow: hidden;
+}
+#checkout-summary .cs-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#checkout-summary .cs-info { flex: 1 1 auto; min-width: 0; }
+#checkout-summary .cs-name {
+  font-family: 'Manrope', sans-serif; font-size: 0.8rem; font-weight: 700;
+  line-height: 1.35; overflow-wrap: break-word;
+  color: var(--color-on-surface, #111d27);
+}
+#checkout-summary .cs-qty { font-size: 0.7rem; margin-top: 0.15rem; color: var(--color-on-surface-variant, #44474b); }
+#checkout-summary .cs-unit { font-size: 0.68rem; margin-top: 0.1rem; opacity: 0.8; color: var(--color-on-surface-variant, #44474b); }
+#checkout-summary .cs-line-total {
+  flex-shrink: 0; padding-top: 0.05rem; white-space: nowrap;
+  font-family: 'Manrope', sans-serif; font-size: 0.85rem; font-weight: 800;
+  color: var(--color-on-surface, #111d27);
+}
+
+/* ---- Delivery ---- */
+#checkout-summary .cs-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
+  padding: 0.8rem 0; font-size: 0.78rem;
+  color: var(--color-on-surface-variant, #44474b);
+  border-bottom: 1px solid rgba(196,198,204,0.28);
+}
+#checkout-summary .cs-row-value {
+  font-family: 'Manrope', sans-serif; font-size: 0.8rem; font-weight: 700;
+  color: var(--color-on-surface, #111d27);
+}
+
+/* ---- Payment method + POS note ---- */
+#checkout-summary .cs-payment { padding-top: 0.8rem; }
+#checkout-summary .cs-payment-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
+  font-size: 0.78rem;
+}
+#checkout-summary .cs-payment-label { color: var(--color-on-surface-variant, #44474b); }
+#checkout-summary .cs-payment-value {
+  display: inline-flex; align-items: center; gap: 0.35rem; text-align: right;
+  font-family: 'Manrope', sans-serif; font-size: 0.8rem; font-weight: 700;
+  color: var(--color-on-surface, #111d27);
+}
+#checkout-summary .cs-payment-value .material-symbols-outlined {
+  font-size: 16px; color: var(--color-secondary, #825335);
+}
+#checkout-summary .cs-pos-note {
+  margin-top: 0.7rem; font-size: 0.66rem; line-height: 1.5; opacity: 0.65;
+  color: var(--color-on-surface-variant, #44474b);
+}
+
+/* Narrow screens: the strip keeps button | total on one row — the button
+   label wraps instead of overflowing and the total block never shrinks. */
+@media (max-width: 400px) {
+  #checkout-summary .cs-total { min-width: 4.9rem; padding: 0.5rem 0.7rem; }
+  #checkout-summary .cs-total-value { font-size: 1.1rem; }
+  #checkout-summary .cs-edit-btn { font-size: 0.66rem; padding: 0.6rem 0.5rem; }
+}
+
+/* ---- Governorate / Area: one shared custom dropdown component ----
+   Both selects keep working natively underneath (validation, dependency,
+   payload); the custom UI always opens DOWNWARD and renders identically
+   for both fields. */
+.nassim-dd { position: relative; width: 100%; }
+.nassim-dd select.nassim-dd-native {
+  position: absolute; width: 1px; height: 1px; opacity: 0;
+  pointer-events: none; left: 0; top: 0;
+}
+.nassim-dd-toggle { text-align: start; cursor: pointer; }
+.nassim-dd-toggle.is-disabled { opacity: 0.6; cursor: not-allowed; }
+.nassim-dd-value.is-placeholder { opacity: 0.55; }
+.nassim-dd-arrow { font-size: 20px !important; flex-shrink: 0; }
+.nassim-dd.is-open .nassim-dd-arrow { transform: rotate(180deg); }
+.nassim-dd-panel {
+  display: none; position: absolute; top: 100%; left: 0; right: 0;
+  z-index: 50; margin-top: 4px; max-height: 15rem; overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.14);
+}
+.nassim-dd.is-open .nassim-dd-panel { display: block; }
+.nassim-dd-option {
+  display: block; width: 100%; text-align: start; padding: 0.65rem 1rem;
+  font-size: 0.875rem; background: transparent; border: 0; cursor: pointer;
+  color: inherit; line-height: 1.4;
+}
+.nassim-dd-option:hover { background: rgba(0, 0, 0, 0.05); }
+html.dark .nassim-dd-option:hover { background: rgba(255, 255, 255, 0.07); }
+.nassim-dd-option.is-selected { font-weight: 700; background: rgba(130, 83, 53, 0.08); }
+.nassim-dd-option.is-placeholder { opacity: 0.55; }
+/* Arabic: value on the right, arrow on the left, options right-aligned —
+   panel still opens DOWNWARD below the field */
+html.lang-ar .nassim-dd-toggle { flex-direction: row-reverse; }
+html.lang-ar .nassim-dd-toggle, html.lang-ar .nassim-dd-panel,
+html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
+
+</style>
 </head>
 <body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 <!-- Shared Header -->
@@ -34,8 +195,8 @@
 <div class="hidden md:flex gap-8">
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="houseware-cleaning-tools.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="houseware-home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="houseware-kitchenware.html">Kitchenware</a></li></ul></div></div>
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="supermarket-cooling-appliances.html">Cooling Appliances</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="supermarket-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="supermarket-shelves-stands.html">Shelves &amp; Stands</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="supermarket-checkout-solutions.html">Counters and Scales</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="supermarket-accessories.html">Accessories</a></li></ul></div></div>
-<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="warehouse-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="warehouse-forklifts-pallets.html">Forklifts &amp; Pallets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="warehouse-heavy-duty-racking.html">Heavy Duty Racking</a></li></ul></div></div>
-<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="warehouse-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="warehouse-forklifts-pallets.html">Forklifts &amp; Pallets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="warehouse-heavy-duty-racking.html">Heavy Duty Racks</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Packaging<br/><span class="block text-[11px]">Manufacturer</span></a></div>
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
 </div>
 </div>
@@ -54,7 +215,7 @@
 <form class="hidden md:flex relative m-0 items-center" id="desktop-inline-search" role="search" autocomplete="off">
 <input id="desktop-search-input" type="text" name="q" placeholder="Search products..." aria-label="Search products" class="w-44 lg:w-56 h-9 px-3 py-2 rounded-full bg-white dark:bg-white/10 text-sm text-on-surface dark:text-white placeholder:text-on-surface-variant/60 border border-black/20 dark:border-white/20 outline-none focus:ring-2 focus:ring-primary/40 focus:w-64 transition-all duration-300"/>
 </form>
-<button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center"><span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span><span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span><span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span></button>
+<button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center"><span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span><span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span><span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">عربي</span></button>
 <button class="hidden md:block hover:opacity-80 transition-all duration-300 active:scale-95" id="theme-toggle"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">dark_mode</span></button>
 <a href="cart.html" class="hover:opacity-80 transition-all duration-300 active:scale-95 hidden md:flex items-center gap-1 text-secondary border-b-2 border-secondary pb-1"><span class="material-symbols-outlined dark:text-white" style="font-size:30px;">shopping_cart</span></a>
 <button class="hover:opacity-80 transition-all duration-300 active:scale-95 hidden md:flex" id="account-btn"><span class="material-symbols-outlined text-primary dark:text-white w-[26px] h-[26px]">person</span></button>
@@ -63,7 +224,7 @@
 </div>
 </nav>
 
-<main class="pt-32 pb-20 px-6 max-w-7xl mx-auto min-h-screen">
+<main class="checkout-page pt-32 pb-20 px-6 max-w-7xl mx-auto min-h-screen">
 <h1 class="font-headline text-4xl font-extrabold tracking-tight text-primary dark:text-white mb-8">Checkout</h1>
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 <!-- Left: Form -->
@@ -89,26 +250,18 @@
 <div class="bg-surface-container-lowest dark:bg-surface-container p-6 rounded-xl space-y-4">
 <h2 class="font-headline text-lg font-bold text-primary dark:text-white mb-2">Delivery Address</h2>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Area *</label><input id="cust-area" type="text" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="e.g. Salmiya, Hawalli"/></div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Governorate *</label><select id="cust-governorate" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary"><option value="">-- Select Governorate --</option></select></div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Area *</label><select id="cust-area" required disabled class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary disabled:opacity-60"><option value="">-- Select Area --</option></select></div>
 <div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Block *</label><input id="cust-block" type="text" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="e.g. Block 5"/></div>
 <div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Street *</label><input id="cust-street" type="text" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="e.g. Salem Al Mubarak St"/></div>
 <div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Building</label><input id="cust-building" type="text" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Building no."/></div>
 <div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Floor</label><input id="cust-floor" type="text" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="e.g. 3rd floor"/></div>
 <div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Apartment</label><input id="cust-apartment" type="text" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Apt no."/></div>
-</div>
 <div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Landmark (optional)</label><input id="cust-landmark" type="text" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="e.g. Next to Al Hamra Tower"/></div>
 </div>
-
-<div class="bg-surface-container-lowest dark:bg-surface-container p-6 rounded-xl space-y-4">
-<h2 class="font-headline text-lg font-bold text-primary dark:text-white mb-2">Delivery Notes</h2>
-<div><textarea id="cust-notes" rows="3" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Any special delivery instructions (e.g. call before delivery, specific time)"></textarea></div>
-<div id="save-address-wrapper" class="hidden flex items-center gap-2">
-<input id="save-address" type="checkbox" class="rounded"/>
-<label for="save-address" class="text-xs text-on-surface-variant dark:text-white/70">Save this address to my account for future orders</label>
-</div>
 </div>
 
-<button type="submit" id="place-order-btn" class="w-full bg-primary text-on-primary py-5 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Place Order</button>
+<button type="submit" id="place-order-btn" class="w-full bg-primary text-on-primary py-5 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Submit your order</button>
 </form>
 </div>
 <!-- Right: Summary -->
@@ -122,16 +275,72 @@
 </main>
 
 <!-- Shared Footer -->
-<footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12">
+<footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
-<div class="col-span-1"><a href="home.html" class="flex items-center gap-2 mb-6"><img src="LOGO.png" alt="Logo" class="h-[3.9rem] w-auto" fetchpriority="high"></a><p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in Kuwait.</p></div>
-<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary" href="houseware.html">Houseware</a></li><li><a class="text-slate-400 hover:text-primary" href="supermarket.html">Supermarket</a></li><li><a class="text-slate-400 hover:text-primary" href="warehouse.html">Warehouse</a></li></ul></div>
-<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Information</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary" href="#">Help</a></li><li><a class="text-slate-400 hover:text-primary" href="#">About</a></li><li><a class="text-slate-400 hover:text-primary" href="#">FAQ</a></li></ul></div>
-<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Customer Service</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary" href="#">Returns</a></li><li><a class="text-slate-400 hover:text-primary" href="#">Shipping</a></li><li><a class="text-slate-400 hover:text-primary" href="#">Privacy</a></li></ul></div>
-<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact</h4><p class="text-sm text-slate-400">Shuwaikh Industrial Area, Kuwait</p><p class="text-sm text-slate-400">info@al-nassim.com</p><p class="text-sm text-slate-400">+965 609 000 59</p></div>
+<!-- Column 1 -->
+<div class="col-span-1">
+<a href="home.html" class="flex items-center gap-2 mb-6">
+<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
+</a>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
 </div>
-<div class="border-t border-white/10 pt-8 text-center"><p class="text-xs text-slate-500">© 2026 AL-Nassim Golden Group. All rights reserved.</p></div>
+<!-- Column 2 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Packaging Manufacturer</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li>
+</ul>
+</div>
+<!-- Column 3 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">General Information</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="home.html">Terms & Conditions</a></li>
+</ul>
+</div>
+<!-- Column 4 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Customer Service</h4>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="returns-policy.html">Return and refund policy</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Shipping & delivery</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Privacy and security</a></li>
+</ul>
+</div>
+<!-- Column 5 -->
+<div>
+<h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact Us</h4>
+<ul class="space-y-4 text-sm">
+<li class="flex items-start gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">location_on</span>
+<span></span>
+</li>
+<li class="flex items-center gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">mail</span>
+<span></span>
+</li>
+<li class="flex items-center gap-3 text-slate-400">
+<span class="material-symbols-outlined text-primary text-xl">call</span>
+<span></span>
+</li>
+</ul>
+</div>
+</div>
+<div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-xs text-slate-500">© 2026 AL-Nassim Golden Group. All rights reserved.</p>
+<div class="flex items-center gap-6">
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.facebook.com/Al.Nassim.Central.Market/" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/Facebook_icon.png" alt="Facebook" class="w-6 h-6 object-contain"/></a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/Instagram_icon.png" alt="Instagram" class="w-6 h-6 object-contain"/></a>
+</div>
+</div>
 </div>
 </footer>
 
@@ -235,6 +444,7 @@
 </script>
 <script src="assets/js/theme.js" defer></script>
 <script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/nassim-locations-data.js?v=1"></script>
 <script src="assets/js/checkout.js"></script>
 <script src="assets/js/cart-nav.js" defer></script>
 <script src="assets/js/search.js" defer></script>
@@ -496,7 +706,7 @@
               '    <span class="flex items-center">' +
               '      <span class="text-[13px] font-bold tracking-widest text-gray-900 dark:text-white">EN</span>' +
               '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
-              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">AR</span>' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">عربي</span>' +
               '    </span>' +
               '  </button>' +
               '</div>' +

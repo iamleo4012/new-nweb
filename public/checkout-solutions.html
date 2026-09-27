@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 
-<html lang="en"><head>
+<html lang="en" translate="no"><head>
+<meta name="google" content="notranslate"/>
 <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
  document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
 <meta charset="utf-8"/>
@@ -207,12 +208,12 @@
 <ul class="space-y-4">
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="trolleys-subcategory.html">Trolleys & Baskets</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="forklifts-subcategory.html">Forklifts & Pallets</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="heavy-duty-racking-subcategory.html">Heavy Duty Racking</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="heavy-duty-racking-subcategory.html">Heavy Duty Racks</a></li>
 </ul>
 </div>
 </div>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Packaging<br/><span class="block text-[11px]">Manufacturer</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
 </div>
 </div>
 <!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
@@ -232,7 +233,7 @@
 <button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center">
 <span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
 <span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
-<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
+<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">عربي</span>
 </button>
 <div class="relative group hidden md:block" id="download-btn-container">
 <button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
@@ -327,52 +328,32 @@
 <aside class="subcat-sidebar w-full lg:w-56 flex-shrink-0 lg:pr-12 mb-12 lg:mb-0 lg:sticky lg:top-[160px] lg:h-[calc(100vh-200px)] lg:overflow-y-auto hide-scrollbar">
 <div class="space-y-6">
 <div>
-<h2 class="text-[12px] font-bold tracking-[0.25em] uppercase text-primary dark:text-white mb-8 pb-4 border-b border-outline-variant/20 dark:border-white/20 text-center">FILTER By</h2>
+<h2 class="text-[12px] font-bold tracking-[0.25em] uppercase text-primary dark:text-white mb-8 pb-4 border-b border-outline-variant/20 dark:border-white/20 text-center">FILTER BY :</h2>
 <div class="space-y-4">
-<!-- Sorting Accordion -->
-<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
-<summary class="flex items-center justify-between cursor-pointer list-none">
-<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Sort By</h3>
-<span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
-</summary>
-<div class="pt-6 space-y-3">
-<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
-<input class="rounded-sm flex-shrink-0 filter-radio" name="sorting" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Price: Low to High</span>
-</label>
-<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
-<input class="rounded-sm flex-shrink-0 filter-radio" name="sorting" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Price: High to Low</span>
-</label>
+<!-- Sort By: moved above the product grid (shared sort-dropdown.js). These
+     hidden inputs are the sorting state the page filter logic already reads
+     ([0]=Price: Low to High, [1]=Price: High to Low). -->
+<div class="hidden" aria-hidden="true">
+<label class="hidden"><input class="rounded-sm flex-shrink-0 filter-radio" name="sorting" type="checkbox"/><span>Price: Low to High</span></label>
+<label class="hidden"><input class="rounded-sm flex-shrink-0 filter-radio" name="sorting" type="checkbox"/><span>Price: High to Low</span></label>
 </div>
-</details>
+
 <!-- Price Filter Accordion -->
-<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
+<details open class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
 <summary class="flex items-center justify-between cursor-pointer list-none">
-<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Price (KWD)</h3>
+<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Price Range</h3>
 <span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
 </summary>
 <div class="pt-6 space-y-6">
-<div class="space-y-3">
-<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
-<input class="rounded-sm flex-shrink-0 filter-checkbox" name="price-range" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">0-50 KWD</span>
-</label>
-<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
-<input class="rounded-sm flex-shrink-0 filter-checkbox" name="price-range" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">50-100 KWD</span>
-</label>
-<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
-<input class="rounded-sm flex-shrink-0 filter-checkbox" name="price-range" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">100-200 KWD</span>
-</label>
-</div>
-<div class="pt-2">
+
 <div class="flex gap-2 items-center mb-4">
 <input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-min" placeholder="Min" type="text"/>
 <span class="text-outline-variant dark:text-white/40">-</span>
 <input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-max" placeholder="Max" type="text"/>
 </div>
+<div class="nassim-price-slider" data-price-slider></div>
+<div class="pt-2">
+
 <div class="flex gap-2">
 <button class="flex-1 py-2 border border-outline-variant/30 dark:border-white/20 text-[9px] uppercase tracking-widest font-bold text-on-surface-variant dark:text-white/70 hover:border-primary dark:hover:border-white hover:text-primary dark:hover:text-white transition-all" id="clear-price">Clear</button>
 <button class="flex-1 py-2 bg-primary text-on-primary text-[9px] uppercase tracking-widest font-bold" id="apply-price">Apply</button>
@@ -381,7 +362,7 @@
 </div>
 </details>
 <!-- Usage Filter Accordion -->
-<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
+<details open class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
 <summary class="flex items-center justify-between cursor-pointer list-none">
 <h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Usage</h3>
 <span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
@@ -462,7 +443,7 @@
 <a href="home.html" class="flex items-center gap-2 mb-6">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
 </a>
-<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
 </div>
 <!-- Column 2 -->
 <div>
@@ -471,7 +452,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Customized Packaging</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Packaging Manufacturer</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li>
 </ul>
 </div>
@@ -482,7 +463,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="terms.html">Terms & Conditions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="home.html">Terms & Conditions</a></li>
 </ul>
 </div>
 <!-- Column 4 -->
@@ -500,15 +481,15 @@
 <ul class="space-y-4 text-sm">
 <li class="flex items-start gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">location_on</span>
-<span>Shuwaikh Industrial Area, Kuwait</span>
+<span></span>
 </li>
 <li class="flex items-center gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">mail</span>
-<span>info@al-nassim.com</span>
+<span></span>
 </li>
 <li class="flex items-center gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">call</span>
-<span>+965 609 000 59</span>
+<span></span>
 </li>
 </ul>
 </div>
@@ -535,7 +516,7 @@
     function loadProducts() {
         if (window.NASSIM_PRODUCTS) {
             allProducts = window.NASSIM_PRODUCTS.filter(function(p) {
-                return p.category === "Checkout Solutions";
+                window.NASSIM_CATEGORY = "Checkout Solutions"; return p.category === "Checkout Solutions";
             });
             applyFiltersAndSort();
         } else {
@@ -956,7 +937,7 @@
               '    <span class="flex items-center">' +
               '      <span class="text-[13px] font-bold tracking-widest text-gray-900 dark:text-white">EN</span>' +
               '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
-              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">AR</span>' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">عربي</span>' +
               '    </span>' +
               '  </button>' +
               '</div>' +
@@ -1633,4 +1614,7 @@ html.dark .subcat-tabs::after  { background: linear-gradient(to left, rgba(255,2
 })();
 </script>
 <script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script>
+<script src="assets/js/sort-dropdown.js?v=8" defer></script>
+<script src="assets/js/price-range-slider.js?v=12" defer></script>
+<script src="assets/js/filter-accordion-state.js?v=1" defer></script>
 </body></html>

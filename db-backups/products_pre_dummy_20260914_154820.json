@@ -1,0 +1,386 @@
+{
+  "backedUpAt": "2026-09-14T12:48:53.327Z",
+  "note": "Original name+price of every product before dummy/0.000 sanitization",
+  "products": [
+    {
+      "id": 1,
+      "name": "Commercial Refrigerator XG034",
+      "price": "1250"
+    },
+    {
+      "id": 2,
+      "name": "Display Cooler XG035",
+      "price": "980"
+    },
+    {
+      "id": 3,
+      "name": "Walk-in Freezer Unit",
+      "price": "2500"
+    },
+    {
+      "id": 4,
+      "name": "Reach-in Refrigerator XG011",
+      "price": "850"
+    },
+    {
+      "id": 5,
+      "name": "Ice Cream Freezer",
+      "price": "750"
+    },
+    {
+      "id": 6,
+      "name": "Beverage Cooler Station",
+      "price": "650"
+    },
+    {
+      "id": 7,
+      "name": "Shopping Trolley SY143",
+      "price": "62"
+    },
+    {
+      "id": 8,
+      "name": "Checkout Trolley SY236",
+      "price": "88"
+    },
+    {
+      "id": 9,
+      "name": "Shopping Basket SY115",
+      "price": "9.5"
+    },
+    {
+      "id": 10,
+      "name": "Junior Shopping Trolley",
+      "price": "34"
+    },
+    {
+      "id": 11,
+      "name": "Display Shelf YD1006",
+      "price": "47"
+    },
+    {
+      "id": 12,
+      "name": "Display Stand SY225",
+      "price": "54"
+    },
+    {
+      "id": 13,
+      "name": "Heavy Duty Forklift",
+      "price": "4950"
+    },
+    {
+      "id": 14,
+      "name": "Order Picker",
+      "price": "2780"
+    },
+    {
+      "id": 15,
+      "name": "Gourmet Cookware Set",
+      "price": "89"
+    },
+    {
+      "id": 16,
+      "name": "Damascus Series Chef's Knife",
+      "price": "45"
+    },
+    {
+      "id": 17,
+      "name": "Mopping Trolley",
+      "price": "58"
+    },
+    {
+      "id": 18,
+      "name": "Outdoor Pedal Bin",
+      "price": "27"
+    },
+    {
+      "id": 19,
+      "name": "Basket Trolley SY115",
+      "price": "95"
+    },
+    {
+      "id": 20,
+      "name": "Children Shopping Trolley",
+      "price": "120"
+    },
+    {
+      "id": 21,
+      "name": "Heavy Duty Basket",
+      "price": "65"
+    },
+    {
+      "id": 22,
+      "name": "Double Basket Trolley",
+      "price": "145"
+    },
+    {
+      "id": 23,
+      "name": "Compact Hand Basket",
+      "price": "35"
+    },
+    {
+      "id": 24,
+      "name": "Galvanized Steel Shelf",
+      "price": "280"
+    },
+    {
+      "id": 25,
+      "name": "Wooden Display Stand",
+      "price": "380"
+    },
+    {
+      "id": 26,
+      "name": "Hook Display Rack",
+      "price": "150"
+    },
+    {
+      "id": 27,
+      "name": "Basket Display Stand",
+      "price": "220"
+    },
+    {
+      "id": 28,
+      "name": "Checkout Counter SY236",
+      "price": "1850"
+    },
+    {
+      "id": 29,
+      "name": "Express Checkout Station",
+      "price": "1200"
+    },
+    {
+      "id": 30,
+      "name": "Self-Service Kiosk",
+      "price": "2200"
+    },
+    {
+      "id": 31,
+      "name": "Cashier Desk Unit",
+      "price": "950"
+    },
+    {
+      "id": 32,
+      "name": "Mobile POS Terminal",
+      "price": "680"
+    },
+    {
+      "id": 33,
+      "name": "Bagging Station Pro",
+      "price": "420"
+    },
+    {
+      "id": 34,
+      "name": "Price Tag Holder Set",
+      "price": "45"
+    },
+    {
+      "id": 35,
+      "name": "Basket Liner Pack",
+      "price": "28"
+    },
+    {
+      "id": 36,
+      "name": "Shelf Divider System",
+      "price": "65"
+    },
+    {
+      "id": 37,
+      "name": "Product Pusher Strip",
+      "price": "35"
+    },
+    {
+      "id": 38,
+      "name": "Security Tag Dispenser",
+      "price": "120"
+    },
+    {
+      "id": 39,
+      "name": "Promotional Sign Kit",
+      "price": "55"
+    },
+    {
+      "id": 40,
+      "name": "Electric Forklift 2000kg",
+      "price": "850"
+    },
+    {
+      "id": 41,
+      "name": "Diesel Forklift 3000kg",
+      "price": "1200"
+    },
+    {
+      "id": 42,
+      "name": "Plastic Pallet Standard",
+      "price": "45"
+    },
+    {
+      "id": 43,
+      "name": "Wooden Pallet Heavy Duty",
+      "price": "35"
+    },
+    {
+      "id": 44,
+      "name": "Compact Electric Forklift",
+      "price": "750"
+    },
+    {
+      "id": 45,
+      "name": "Industrial Plastic Pallet",
+      "price": "65"
+    },
+    {
+      "id": 46,
+      "name": "Reach Truck Forklift",
+      "price": "950"
+    },
+    {
+      "id": 47,
+      "name": "Export Wooden Pallet",
+      "price": "28"
+    },
+    {
+      "id": 48,
+      "name": "Heavy Duty Racking System",
+      "price": "450"
+    },
+    {
+      "id": 49,
+      "name": "Industrial Storage Rack",
+      "price": "380"
+    },
+    {
+      "id": 50,
+      "name": "Pallet Racking System",
+      "price": "520"
+    },
+    {
+      "id": 51,
+      "name": "Mobile Shelving Unit",
+      "price": "290"
+    },
+    {
+      "id": 52,
+      "name": "Cantilever Rack",
+      "price": "410"
+    },
+    {
+      "id": 53,
+      "name": "Drive-In Racking",
+      "price": "680"
+    },
+    {
+      "id": 54,
+      "name": "Mezzanine Floor System",
+      "price": "750"
+    },
+    {
+      "id": 55,
+      "name": "Selective Pallet Rack",
+      "price": "390"
+    },
+    {
+      "id": 56,
+      "name": "Heavy Duty Platform Trolley",
+      "price": "180"
+    },
+    {
+      "id": 57,
+      "name": "Wire Mesh Basket Trolley",
+      "price": "145"
+    },
+    {
+      "id": 58,
+      "name": "Foldable Hand Trolley",
+      "price": "95"
+    },
+    {
+      "id": 59,
+      "name": "Double Basket Shopping Trolley",
+      "price": "220"
+    },
+    {
+      "id": 60,
+      "name": "Industrial Cage Trolley",
+      "price": "275"
+    },
+    {
+      "id": 61,
+      "name": "Light Duty Service Trolley",
+      "price": "85"
+    },
+    {
+      "id": 62,
+      "name": "Stackable Basket Container",
+      "price": "65"
+    },
+    {
+      "id": 63,
+      "name": "Heavy Duty Wire Basket",
+      "price": "125"
+    },
+    {
+      "id": 64,
+      "name": "Minimalist Table Spoon",
+      "price": "4.5"
+    },
+    {
+      "id": 65,
+      "name": "Eco-Friendly Cleaning Tool Set",
+      "price": "18"
+    },
+    {
+      "id": 66,
+      "name": "Artisan Ceramic Pitcher",
+      "price": "15"
+    },
+    {
+      "id": 67,
+      "name": "Walnut Wood Coaster Set",
+      "price": "9.5"
+    },
+    {
+      "id": 70,
+      "name": "Pro Floor Squeegee Wiper",
+      "price": "14.5"
+    },
+    {
+      "id": 71,
+      "name": "Dual-Blade Glass Wiper",
+      "price": "9.75"
+    },
+    {
+      "id": 72,
+      "name": "Heavy-Duty Deck Scrub Brush",
+      "price": "11.25"
+    },
+    {
+      "id": 73,
+      "name": "Pro Dustpan & Broom Set",
+      "price": "18"
+    },
+    {
+      "id": 81,
+      "name": "Measuring Cups Set",
+      "price": "0.5"
+    },
+    {
+      "id": 82,
+      "name": "Dough Roller",
+      "price": "0.75"
+    },
+    {
+      "id": 83,
+      "name": "Pizza Slicer",
+      "price": "0.25"
+    },
+    {
+      "id": 84,
+      "name": "Pizza Server",
+      "price": "0.4"
+    },
+    {
+      "id": 152,
+      "name": "Precision Kitchen Scale KS-500",
+      "price": "19.999"
+    }
+  ]
+}

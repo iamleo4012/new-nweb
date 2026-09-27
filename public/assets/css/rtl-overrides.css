@@ -1,0 +1,363 @@
+/* ============================================================================
+   AL-NASSIM storefront — RTL text overrides (AR mode)
+   ============================================================================
+   Loaded on every page but inert in English: every rule is scoped under
+   html.lang-ar, applied only while AR is active.
+
+   ARCHITECTURE: the document direction is deliberately LEFT-TO-RIGHT in both
+   languages, so every physical composition (nav row, dropdown anchors,
+   category grids/cards, hero text/image composition, drawers) stays exactly
+   where English put it — nothing mirrors, nothing reorders.
+
+   Arabic RTL is applied at the TEXT level only, by the i18n runtime
+   (assets/js/i18n.js), which marks each element carrying translated Arabic:
+     .nassim-rtl      → direction: rtl + unicode-bidi: isolate
+                        (the Arabic run flows right-to-left; numbers, prices
+                        and Latin product codes inside it stay readable LTR
+                        runs; the element's own position never changes)
+     .nassim-rtl-ta   → additionally text-align: right, applied ONLY where
+                        the English design anchored that text left/start
+                        (centered/right-anchored designs keep their anchor)
+   Text runs that live beside icons/arrows or inside flex/grid containers
+   are isolated with inline <span dir="rtl"> wrappers (which cannot reorder
+   siblings) instead of a direction on the structural container.
+   ========================================================================== */
+
+html.lang-ar .nassim-rtl { direction: rtl; unicode-bidi: isolate; }
+html.lang-ar .nassim-rtl.nassim-rtl-ta { text-align: right; }
+/* isolation wrappers written by the runtime (dir attr already gives them
+   direction; the class makes the isolation explicit and future-proof) */
+html.lang-ar span[dir="rtl"].nassim-rtl { unicode-bidi: isolate; }
+
+/* ---------- content-group RTL (the CTA/button rule) ----------
+   Applied by the runtime to the shared container that groups translated
+   content (eyebrow + heading + paragraph + CTA row) inside a component.
+   The WHOLE group shares one alignment system in Arabic — a heading moving
+   right while its CTA stays at the English left anchor is impossible by
+   construction. Classes (AR-scoped, inert in English):
+     .nassim-rtl-ctx     text-align: right (centered designs stay centered)
+     .nassim-rtl-dir     direction: rtl — block / flex-column group containers
+                         only; NEVER flex rows (that would reorder children)
+     .nassim-rtl-anchor  margin-left: auto — content-sized groups (the flex
+                         item text column of a carousel/hero slide) hug the
+                         RIGHT side of their component
+     .nassim-rtl-fi-end  align-items: flex-end — flex-COLUMN groups whose
+                         children were left-anchored (horizontal cross axis)
+     .nassim-rtl-jc-end  justify-content: flex-end — flex-ROW groups (CTA
+                         button rows) whose children hugged left: the cluster
+                         moves right with the group, button ORDER preserved
+   Absolutely-positioned overlays anchored `left`-only are mirrored to
+   `right` inline by the runtime with ledgered originals. Component images,
+   cards, grids and slide compositions are never modified. */
+html.lang-ar .nassim-rtl-ctx { text-align: right !important; }
+html.lang-ar .nassim-rtl-dir { direction: rtl; }
+html.lang-ar .nassim-rtl-anchor { margin-left: auto !important; }
+html.lang-ar .nassim-rtl-fi-end { align-items: flex-end !important; }
+html.lang-ar .nassim-rtl-jc-end { justify-content: flex-end !important; }
+
+/* ---------- cart.html two-column layout (items / summary) ----------
+   The cart's items+summary columns must mirror in Arabic exactly like the
+   AR page load produces: cart items RIGHT, Order Summary LEFT. Applying
+   direction:rtl to the single lg:flex-row container here guarantees the
+   SAME layout on live language toggle and on AR page load (previously the
+   group-marking climb only caught this container when the item images were
+   not yet rendered, so a live toggle left the columns unmirrored).
+   Children, order and sizes are untouched; inert in English. */
+html.lang-ar #cart-main .lg\:flex-row { direction: rtl; }
+
+/* ---------- mobile drawer department labels — ONE line ----------
+   The runtime coalesces the drawer's Arabic word spans into ONE span
+   carrying the complete department phrase. This keeps that phrase on a
+   single line: short navigation labels never wrap (no break-all, no
+   anywhere-wrapping). Drawer width (320px) accommodates every label.
+   Inert in English — the class/scoping only exists under html.lang-ar. */
+html.lang-ar #mobile-nav-drawer .mobile-accordion-trigger span { white-space: nowrap; }
+
+/* ---------- tel: CTA button — phone number stays LTR ----------
+   The CALL button's inner row ([call icon][number]) keeps its English
+   order: the call icon stays on the LEFT. The row is bidi-isolated LTR so
+   the number is never reordered by the surrounding Arabic. Button size,
+   position, link and styling are untouched. Inert in English. */
+html.lang-ar a[href^="tel:"] > span { direction: ltr; unicode-bidi: isolate; }
+
+/* ---------- houseware.html — arrows point LEFT in Arabic ----------
+   The page's right-pointing arrows (arrow_forward glyphs, tagged
+   .arrow-swap in the page markup) are mirrored in Arabic so they point
+   LEFT; their hover slide is mirrored too (moves left instead of right).
+   Only font rendering is affected — position, size and link behavior are
+   untouched. Inert in English. */
+html.lang-ar .arrow-swap { transform: scaleX(-1); }
+html.lang-ar .group:hover .arrow-swap { transform: translateX(-0.25rem) scaleX(-1); }
+
+/* ---------- houseware.html roll-overlay labels — stay centered ----------
+   "View Product(s)" hover labels are centered by their .roll-overlay flex
+   parent in English. The generic group marks (justify-end + margin-left
+   auto) misplace them in Arabic; re-center the label inside the same
+   overlay. Nothing else changes; inert in English. */
+html.lang-ar .roll-overlay .roll-overlay-text { justify-content: center !important; margin-left: 0 !important; margin-right: 0 !important; }
+
+/* ---------- cart Remove label — 2× in AR only ----------
+   cart.html renders the Remove action label at 10px; Arabic إزالة is set to
+   exactly double that (20px). Only the font-size changes — color, weight,
+   spacing and the button come from the page's own classes. Inert in EN. */
+html.lang-ar .remove-btn .cart-action-label { font-size: 20px; }
+
+/* ---------- hero carousel (home) ----------
+   The image composition (product position, slide layout, fade direction,
+   prev/next controls) is IDENTICAL in both languages. The slide row is
+   pinned LTR defensively — inert while the document itself is LTR, and a
+   guard should a document-level RTL ever be reintroduced. The Arabic
+   heading/paragraph/CTA inside each slide flow RTL inside the SAME physical
+   text boxes via the runtime's text-level marks above. */
+html.lang-ar #featured-carousel .carousel-slide,
+html.lang-ar #featured-carousel .carousel-slide > div { direction: ltr; }
+/* The slide's TEXT BLOCK itself must also keep its English physical position
+   ([TEXT BLOCK] [PRODUCT IMAGE] in BOTH languages). The generic group marks
+   (.nassim-rtl-anchor / .nassim-rtl-jc-end) would push the content-sized text
+   block to the right side of the slide — that is a component move, which the
+   carousel forbids. Right-ALIGNMENT of the Arabic text is still delivered
+   INSIDE the block by the h2/p/CTA's own .nassim-rtl(-ta) marks above. */
+html.lang-ar #featured-carousel .nassim-rtl-anchor:not(.mx-auto) { margin-left: 0 !important; }
+html.lang-ar #featured-carousel .nassim-rtl-jc-end { justify-content: flex-start !important; }
+
+/* ---------- MAIN HEADER / NAVBAR — TRUE RTL LAYOUT (AR mode) ----------
+   Deliberate exception to the text-level architecture above: like a standard
+   Arabic website, the whole header reverses physically. direction:rtl on the
+   fixed navbar makes every flex row inside it lay out right-to-left, so:
+     RIGHT side: logo, then the main navigation (Houseware rightmost,
+                 Cold Rooms leftmost)
+     LEFT side:  the utility group (search, language, download, theme, cart —
+                 cart leftmost)
+   The icons, the logo and the search box are never mirrored — only their
+   position/order changes. Reverts automatically when html.lang-ar is removed. */
+
+html.lang-ar nav.glass-nav { direction: rtl; }
+/* Top-navbar department names read as ONE sentence on a single line:
+   the complete Arabic label never wraps into a second line. Scoped to the
+   desktop bar's department links only (mobile drawer keeps its own layout);
+   reverts automatically when html.lang-ar is removed. */
+html.lang-ar nav.glass-nav a.font-headline { white-space: nowrap; }
+html.lang-ar nav.glass-nav #desktop-inline-search,
+html.lang-ar nav.glass-nav #mobile-inline-search { direction: ltr; }
+html.lang-ar nav.glass-nav .dropdown-menu { left: auto; right: -6rem; }
+html.lang-ar nav.glass-nav .hw-subpanel { left: auto; right: 100%; }
+html.lang-ar nav.glass-nav .hw-menu.hw-expanded {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left-color: transparent;
+}
+html.lang-ar nav.glass-nav .hw-menu.hw-expanded .hw-subpanel {
+    border: 1px solid rgba(0, 3, 8, 0.1);
+    border-right: none;
+    border-radius: 1rem 0 0 1rem;
+}
+
+/* ==========================================================================
+   CATEGORY / PRODUCT LISTING PAGES — PAGE-LEVEL RTL LAYOUT (AR mode)
+   Shared listing architecture on every category page (.subcat-intro,
+   .subcat-browse, .subcat-sidebar, #product-grid, .subcat-pagination-row).
+   AR: sidebar RIGHT, product area LEFT, intro/sidebar/card text RTL and
+   right-aligned, first card top-RIGHT. Product images are never mirrored;
+   card design, data, filter identifiers and DOM order unchanged; everything
+   reverts automatically when html.lang-ar is removed.
+   ========================================================================== */
+html.lang-ar .subcat-intro { direction: rtl; text-align: right; }
+html.lang-ar .subcat-browse { direction: rtl; }
+html.lang-ar .subcat-sidebar { direction: rtl; padding-right: 0; padding-left: 1rem; }
+/* FILTER By heading joins the rest of the sidebar labels on the right.
+   The pages' own inline styles force text-align:left !important on this
+   heading (an English design choice that stays untouched in EN), so the AR
+   override needs matching specificity + !important to win in Arabic only. */
+html.lang-ar .subcat-sidebar h2,
+html.lang-ar .subcat-sidebar .space-y-6 > div > h2,
+html.lang-ar .subcat-sidebar .space-y-6 > div:first-child h2 { direction: rtl; text-align: right !important; }
+html.lang-ar .subcat-sidebar input[type="text"] { direction: ltr; text-align: right; }
+html.lang-ar #active-filters { direction: rtl; }
+html.lang-ar #product-grid { direction: rtl; }
+html.lang-ar #product-grid > article.group h2,
+html.lang-ar #product-grid > article.group p { direction: rtl; text-align: right; }
+html.lang-ar .subcat-listing-header { direction: rtl; text-align: right; }
+@media (min-width: 1024px) {
+    html.lang-ar .subcat-pagination-row {
+        padding-left: 0;
+        padding-right: calc(var(--subcat-sidebar-w) + var(--subcat-browse-gap));
+    }
+}
+html.lang-ar .subcat-pagination-row .material-symbols-outlined { transform: scaleX(-1); }
+
+/* Bidi isolation spans injected by listing-pagination.js around Latin/numeric
+   tokens (brand + ND product codes, prices) inside Arabic card text. Styled
+   ONLY in AR: one unbreakable readable LTR run inside the RTL line. In
+   English this class is inert — text and line wrapping are unchanged. */
+html.lang-ar .nassim-bidi-l { direction: ltr; unicode-bidi: isolate; white-space: nowrap; }
+
+/* ---------- FIRE hero (home) — AR: left-side block, RTL internal alignment ----------
+   The block's PHYSICAL position (left side of the hero, via the markup's
+   md:mr-[10%]) is untouched. In AR only the CONTENT inside the block becomes
+   RTL: text-align start = right, and the button row flows right-to-left so
+   both buttons anchor to the RIGHT edge of the left-side block. English is
+   untouched (rule is inert without html.lang-ar). */
+html.lang-ar .fire-hero-content { direction: rtl; text-align: right; }
+
+/* FIRE block must KEEP its English LEFT-side physical position in AR:
+   the runtime's generic left-anchor flip (nassim-rtl-anchor => margin-left
+   auto) must not move this specific block to the right half of the hero. */
+html.lang-ar .fire-hero-content.nassim-rtl-anchor { margin-left: 0 !important; }
+
+/* The hero's outer row keeps LTR block geometry so the capped-width content
+   block keeps its English LEFT-side position in AR (in an RTL container the
+   free space of a capped-width block is absorbed by margin-left, which would
+   shove the block to the right half). Internal RTL alignment of the content
+   itself is handled by .fire-hero-content above. */
+html.lang-ar .fire-hero-outer { direction: ltr; }
+
+/* ---------- carousel slide text wrappers — AR content boundary ----------
+   The slide text wrapper (max-w-xs / md:max-w-xl) is a shrink-to-fit flex
+   item. In English its width is capped by the design's own max-width, so the
+   content column ends at a fixed right boundary. In AR the narrower natural
+   width of the Arabic run shrank that fit-content width, pulling the right
+   alignment edge LEFT of the English boundary. Give the AR wrapper the same
+   widths the English design defines, so text-align:right puts its right edge
+   on exactly the English content boundary while the block stays at the row's
+   LEFT edge (the nassim-rtl-anchor flip is cancelled — margin-left:auto on a
+   flex item would push the block rightwards). English is untouched. */
+html.lang-ar .carousel-slide .max-w-xs {
+    width: 20rem;
+    max-width: 100%;
+    margin-left: 0 !important;
+}
+@media (min-width: 768px) {
+    html.lang-ar .carousel-slide .max-w-xs { width: 36rem; }
+}
+
+/* ---------- carousel slide text wrappers — MOBILE-ONLY safe width ----------
+   Desktop AR keeps the full md:max-w-xl content boundary (rule above). On
+   mobile the 20rem wrapper stretched the RTL text across the whole carousel
+   width, colliding with the image/product subject on the right. Cap the AR
+   wrapper to the design's OWN mobile text cap (the paragraph's existing
+   max-w-[200px]), responsive via min(), right-aligned within it — the
+   English mobile wrapper (shrink-to-fit, same 20rem max) is untouched. */
+@media (max-width: 767px) {
+    html.lang-ar .carousel-slide .max-w-xs { width: min(100%, 12.5rem); }
+}
+
+/* FIRE CTA row: the runtime's generic jc-end mark means LEFT inside an RTL
+   flex row, which strands the buttons on the left of the content column.
+   flex-start in RTL is the RIGHT edge — the same boundary the heading and
+   paragraph above are right-aligned to. The group moves as one unit;
+   button order, gap and styling are untouched. */
+html.lang-ar .fire-hero-content .flex.gap-3 { justify-content: flex-start !important; }
+
+/* ---------- Houseware category card overlay (home) — AR content group ----------
+   The card itself never moves. In AR only the overlay's CONTENT GROUP
+   (heading + paragraph + Explore CTA) becomes RTL/right-aligned as one unit:
+   direction on this flex column makes items-start = the RIGHT edge, and
+   text-align: right aligns every text line to that same boundary. The CTA
+   participates as a normal flex child, so it inherits the same edge.
+   English is untouched (rule is inert without html.lang-ar). */
+html.lang-ar .houseware-card-overlay { direction: rtl; text-align: right; }
+/* The runtime's marks split this group: fi-end (align-items:flex-end = LEFT in
+   RTL) on the overlay strands the heading/paragraph left, while the anchor
+   (margin-left:auto) pushes the CTA right. Force one shared edge: RTL
+   flex-start = the RIGHT edge for every child, with no auto margins. */
+html.lang-ar .houseware-card-overlay { align-items: flex-start !important; }
+html.lang-ar .houseware-card-overlay > * { margin-left: 0 !important; margin-right: 0 !important; }
+
+/* ---------- category card CTA arrows (home) — RTL direction ----------
+   In Arabic the card CTAs flow RTL, so their navigation arrow must point
+   LEFT. The `scale` property is used (not `transform`) so the Tailwind
+   hover translate effects on these icons keep working untouched. English
+   is unaffected (rule is inert without html.lang-ar); carousel edge
+   arrows are separate and not matched. */
+html.lang-ar #categories-grid a .material-symbols-outlined { scale: -1 1; }
+
+/* ---------- checkout.html — two-column layout (form / summary) ----------
+   In Arabic the columns mirror (like cart.html): main checkout form RIGHT,
+   Order Summary LEFT. Implemented with an `order` swap on the two grid
+   children of the lg:grid-cols-3 container, desktop width only (the mobile
+   single-column stacking keeps the English order: form first, summary last).
+   `order` only changes auto-placement — widths (lg:col-span-2/1), the form,
+   the summary internals and all spacing are untouched. The page title stays
+   a full-width block above the grid; in Arabic it is right-aligned so it
+   sits above the form column. English is unaffected (rules are inert
+   without html.lang-ar), and the toggle is live because the rules key off
+   the html.lang-ar class that the language switch flips instantly. */
+@media (min-width: 1024px) {
+  html.lang-ar main.checkout-page .lg\:grid-cols-3 > .lg\:col-span-2 { order: 2; }
+  html.lang-ar main.checkout-page .lg\:grid-cols-3 > .lg\:col-span-1 { order: 1; }
+}
+html.lang-ar main.checkout-page > h1 { text-align: right; }
+
+/* ---------- home.html — THE PIZZA COLLECTION product info rows ----------
+   In Arabic the name/price row under each card physically mirrors:
+   price LEFT, product name + subcategory RIGHT (the exact inverse of the
+   English arrangement). Implemented as a flex row-reverse on the info row
+   only — the images, card order, sizes and spacing above it are untouched.
+   The price span is bidi-isolated LTR so "0.500 KD" keeps its digit order
+   and KD text. Inert in English (rules exist only under html.lang-ar), and
+   the toggle is live because html.lang-ar flips instantly on language
+   switch. The .pizza-collection class on the section scopes this to the
+   four Pizza Collection cards and nothing else on the page. */
+html.lang-ar .pizza-collection .flex.justify-between.items-start { flex-direction: row-reverse; }
+html.lang-ar .pizza-collection .flex.justify-between.items-start > div { text-align: right; }
+html.lang-ar .pizza-collection .flex.justify-between.items-start > span { direction: ltr; unicode-bidi: isolate; }
+
+/* ---------- product-view.html — Related Products arrows ----------
+   In Arabic the two carousel arrows render as the physical RTL inverse of
+   the English arrangement: the LEFT button shows the RIGHT chevron and the
+   RIGHT button shows the LEFT chevron ([→] [←] instead of [←] [→]). Only
+   the two icon glyphs are mirrored (scaleX(-1)) — button positions, sizes,
+   the header, the carousel and the scrollRelated(-1)/(+1) handlers are all
+   untouched, so clicking still moves to the correct previous/next products.
+   Inert in English (rule exists only under html.lang-ar) and live on the
+   EN <-> AR toggle. The .related-arrows class on this one container scopes
+   the rule; no other arrows on the page are matched. */
+html.lang-ar .related-arrows .material-symbols-outlined { transform: scaleX(-1); }
+
+/* ---------- Dual-handle PRICE (KWD) range slider (Filter By) ----------
+   Shared widget rendered by assets/js/price-range-slider.js into
+   [data-price-slider]. Custom appearance: the two range inputs are
+   transparent overlays whose thumbs are the only interactive part; the
+   visible track + selected-range fill are separate divs positioned by the
+   script (direction-aware for RTL). */
+.nps { width: 100%; }
+.nps-values { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; font-size: 12px; color: #111827; }
+.dark .nps-values { color: #ffffff; }
+.nps-val { font-weight: 700; }
+.nps-track-wrap { position: relative; height: 18px; }
+.nps-track { position: absolute; left: 0; right: 0; top: 50%; height: 4px; transform: translateY(-50%); background: rgba(0,3,8,0.15); border-radius: 999px; pointer-events: none; }
+.dark .nps-track { background: rgba(255,255,255,0.25); }
+.nps-fill { position: absolute; top: 50%; height: 4px; transform: translateY(-50%); background: #825335; border-radius: 999px; pointer-events: none; }
+.nps-range { position: absolute; left: 0; width: 100%; top: 50%; transform: translateY(-50%); margin: 0; -webkit-appearance: none; appearance: none; background: transparent; pointer-events: none; height: 18px; outline: none; }
+.nps-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; pointer-events: auto; width: 16px; height: 16px; border-radius: 50%; background: #ffffff; border: 2px solid #825335; box-shadow: 0 1px 4px rgba(15,23,42,.35); cursor: pointer; }
+.nps-range::-moz-range-thumb { pointer-events: auto; width: 16px; height: 16px; border-radius: 50%; background: #ffffff; border: 2px solid #825335; box-shadow: 0 1px 4px rgba(15,23,42,.35); cursor: pointer; }
+.nps-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(130,83,53,.35); }
+
+/* ---------- Hero carousel Slide 1 & Slide 3 CTA — AR left alignment ----------
+   The Slide 1 (View Kitchenware <a>) and Slide 3 (View Product <button>) CTAs
+   carry the unique hook class .carousel-btn-left. Their content wrapper
+   (.carousel-slide .max-w-xs, rules above) is right-aligned in AR, so these
+   inline-block buttons hug the wrapper's right edge. Make them physically
+   left-aligned within the same wrapper: block + fit-content keeps the exact
+   shrink-to-fit size and every style; margin-right:auto pins the box to the
+   wrapper's LEFT edge. English is untouched (rule is html.lang-ar scoped);
+   no other slide's CTA carries the hook class. */
+html.lang-ar .carousel-btn-left {
+    display: block;
+    width: fit-content;
+    margin-right: auto;
+    margin-left: 0;
+}
+
+/* ---------- Sort By bar (nassim-sort-bar) — AR internal order ----------
+   In English the bar reads [Sort By label LEFT, select RIGHT]. In AR it must
+   read [select LEFT, label ترتيب حسب RIGHT]. DOM order is label-first, so a
+   plain direction:rtl proved unreliable on the rendered bar. Force the
+   physical swap instead: row-reverse puts the FIRST flex child (label) on
+   the RIGHT and the select on the LEFT, while direction:ltr keeps the bar's
+   base writing mode (and the select's native arrow padding) exactly as
+   English. Nothing else about the bar changes. */
+html.lang-ar .nassim-sort-bar {
+    direction: ltr;
+    flex-direction: row-reverse;
+}

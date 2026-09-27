@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
-<html class="light" lang="en">
+<html class="light" lang="en" translate="no">
 <head>
+<meta name="google" content="notranslate"/>
 <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
  document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
 <meta charset="utf-8"/>
@@ -104,88 +105,6 @@
                     nav with no gap (matches home.html / houseware.html). ---- */
             main { padding-top: 3.25rem !important; }
 
-            /* ---- Advertisement carousel: desktop uses object-contain inside a
-                    fixed h-[440px] container on a black background. The ad
-                    images are wide (aspect ~2.4), so contain letterboxes them
-                    and leaves large black bars above/below. On mobile we keep
-                    object-contain (full image visible, no crop/distortion) but
-                    SHRINK the container height to match the image's natural
-                    height at the mobile width, removing the empty black area.
-                    A small script below reads the first slide's image and sets
-                    the container height once, consistently for every slide. ---- */
-            #warehouse-ad-carousel .carousel-slide {
-                background-color: transparent !important;
-            }
-            /* ---- Hide the left/right carousel arrows on mobile. They overlap
-                    the now short container and touch is served by swipe. The
-                    dots and auto-rotation are separate elements/logic, so they
-                    keep working. display:none leaves no space behind. ---- */
-            #warehousePrevSlide,
-            #warehouseNextSlide {
-                display: none !important;
-            }
-
-            /* ---- PREMIUM CAROUSEL (mobile only) ----
-               Keeps the existing slides/images/JS untouched. Height is already
-               shrunk to the image by the ad-carousel fit script; here we refine
-               the chrome: rounded corners that clip the image, premium shadow,
-               consistent margins from the header and next section, and modern
-               pill indicators (active = wide pill, inactive = small dot) that
-               sit neatly inside the short container without dominating it. */
-            #warehouse-ad-carousel {
-                padding: 0 0 0.85rem !important;     /* even L/R margins (w-[95%]); tidy bottom */
-                margin-top: 1rem !important;          /* consistent spacing from previous section */
-                background: transparent !important;   /* no card chrome around the image */
-                box-shadow: none !important;
-            }
-            /* The image container: rounded corners + clip + soft premium shadow */
-            #warehouse-ad-carousel > div.relative {
-                border-radius: 1rem !important;
-                overflow: hidden !important;
-                box-shadow: 0 8px 30px rgba(0, 3, 8, 0.10) !important;
-            }
-            /* Slides: drop the hard black bars; use the page surface as fallback
-               so any letterboxing blends instead of showing pure black. */
-            #warehouse-ad-carousel .carousel-slide {
-                background-color: transparent !important;
-            }
-
-            /* ---- MODERN PILL INDICATORS (reuse the JS-toggled classes) ----
-               The carousel JS marks the active dot with .bg-white.scale-125 and
-               inactive with .bg-white/30. We restyle the base dot as a small
-               capsule and let the active state widen into a premium pill. The
-               dots wrapper (bottom-8) is repositioned for the short container. */
-            #warehouse-ad-carousel .absolute.bottom-8 {
-                bottom: 0.6rem !important;            /* sit just inside the rounded bottom edge */
-                gap: 0 !important;
-            }
-            #warehouse-ad-carousel .absolute.bottom-8 > .flex {
-                gap: 0.4rem !important;
-                padding: 0.35rem 0.55rem !important;
-                border-radius: 9999px !important;
-                background: rgba(0, 0, 0, 0.28) !important;  /* subtle pill backdrop for contrast over any ad */
-                backdrop-filter: blur(6px) !important;
-            }
-            html.dark #warehouse-ad-carousel .absolute.bottom-8 > .flex {
-                background: rgba(0, 0, 0, 0.35) !important;
-            }
-            /* Base (inactive) dot: small, semi-transparent capsule */
-            #warehouse-ad-carousel .warehouse-carousel-dot {
-                width: 5px !important; height: 5px !important;
-                border-radius: 9999px !important;
-                background-color: rgba(255, 255, 255, 0.55) !important;
-                box-shadow: none !important;
-                transition: width .35s cubic-bezier(0.4,0,0.2,1), background-color .35s ease, transform .2s ease !important;
-                cursor: pointer !important;
-            }
-            /* Active dot (JS adds .bg-white + .scale-125): widen into a premium pill */
-            #warehouse-ad-carousel .warehouse-carousel-dot.scale-125,
-            #warehouse-ad-carousel .warehouse-carousel-dot.bg-white {
-                width: 20px !important; height: 5px !important;
-                background-color: #ffffff !important;
-                transform: none !important;            /* override the scale so the pill keeps crisp edges */
-            }
-
             /* Stack the showcase vertically; remove the fixed desktop height */
             .column-hover-group.column-showcase {
                 flex-direction: column !important;
@@ -220,17 +139,6 @@
                 transform: none !important;   /* remove the group-hover translate */
             }
 
-            /* ---- Remove the "Complete Retail Solutions Under One Roof" heading and
-                    the entire promotional ad carousel on mobile. Desktop keeps them.
-                    The HTML/JS are NOT deleted — only display:none here so desktop
-                    functionality (carousel autoplay/swipe/dots) is fully preserved.
-                    The trailing spacer div is also collapsed so there is no gap. ---- */
-            #supermarket-retail-heading,
-            #warehouse-ad-carousel,
-            .supermarket-after-carousel-spacer {
-                display: none !important;
-            }
-        }
         /* Loading Screen Styles */
         #loading-screen {
             position: fixed;
@@ -280,16 +188,11 @@
                 opacity: 1;
             }
         }
-        /* Carousel Fade Transition */
-        .carousel-slide {
-            opacity: 0;
-            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .carousel-slide.active {
-            opacity: 1;
-        }
     </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<script src="assets/js/i18n-data.js" defer></script>
+<script src="assets/js/i18n.js" defer></script>
 </head>
 <body class="bg-white dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 <!-- Loading Screen -->
@@ -340,12 +243,12 @@
 <ul class="space-y-4">
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-trolleys-baskets.html">Trolleys & Baskets</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-forklifts-pallets.html">Forklifts & Pallets</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racking</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racks</a></li>
 </ul>
 </div>
 </div>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Packaging<br/><span class="block text-[11px]">Manufacturer</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
 </div>
 </div>
 <!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
@@ -365,7 +268,7 @@
 <button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center">
 <span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
 <span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
-<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
+<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">عربي</span>
 </button>
 <div class="relative group hidden md:block" id="download-btn-container">
 <button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
@@ -406,7 +309,7 @@
 </div>
 </div>
 </nav>
-<main class="pt-[72px]">
+<main class="pt-[72px] pb-16 md:pb-24">
 <!-- Professional Hero Header -->
 <section class="relative pt-10 md:pt-12 pb-6 md:pb-8 flex items-center justify-center bg-white dark:bg-[#0a0f14]">
 <!-- Content -->
@@ -415,8 +318,14 @@
 <h1 class="font-headline font-extrabold text-4xl md:text-5xl tracking-tighter leading-[0.85] uppercase text-primary dark:text-white">
                     Supermarket <span class="font-light">Equipment</span>
                 </h1>
+<!-- Tagline -->
+<div class="flex items-center justify-center gap-3 mt-6 md:mt-8">
+<div class="h-px w-20 bg-gradient-to-r from-transparent via-secondary to-transparent"></div>
+<span class="font-headline font-black text-2xl md:text-3xl uppercase tracking-[0.15em] text-primary dark:text-white">Complete Retail Solutions Under One Roof</span>
+<div class="h-px w-20 bg-gradient-to-r from-transparent via-secondary to-transparent"></div>
+</div>
 <!-- Subtitle -->
-<div class="flex items-center justify-center gap-3 mt-5">
+<div class="flex items-center justify-center gap-3 mt-3 md:mt-4">
 <div class="h-px w-12 bg-secondary/30 dark:bg-white/30"></div>
 <span class="font-label text-[14px] font-semibold uppercase tracking-[0.2em] text-secondary dark:text-white/80">Explore Our Collection</span>
 <div class="h-px w-12 bg-secondary/30 dark:bg-white/30"></div>
@@ -486,18 +395,18 @@
 </div>
 <!-- Column 4: Others -->
 <!-- Column: Checkout Counters -->
-<div class="column-item group relative h-full transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer overflow-hidden rounded-xl" data-href="checkout.html">
+<div class="column-item group relative h-full transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer overflow-hidden rounded-xl" data-href="supermarket-checkout-solutions.html">
 <img loading="lazy" class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105" data-alt="Modern minimalist supermarket checkout counter" src="topcar/checkoutSY236.png"/>
 <div class="absolute inset-0 bg-gradient-to-t from-primary/40 via-primary/5 to-transparent"></div>
 <div class="collapsed-title absolute bottom-0 left-0 right-0 flex items-end justify-center pb-6 pt-12 bg-gradient-to-t from-primary/80 via-primary/40 to-transparent transition-opacity duration-300">
-<h3 class="font-display font-semibold text-white text-sm uppercase tracking-[0.2em] drop-shadow-md text-center w-full">Checkout Solutions</h3>
+<h3 class="font-display font-semibold text-white text-sm uppercase tracking-[0.2em] drop-shadow-md text-center w-full">Counters and Scales</h3>
 </div>
 <!-- Expanded Content -->
 <div class="expanded-content absolute inset-0 flex p-10 bg-gradient-to-t from-primary/60 via-transparent to-transparent">
 <div class="w-full mt-auto transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100">
 <span class="font-label text-[10px] text-secondary-container uppercase tracking-widest mb-2 block"></span>
-<h2 class="font-display text-4xl font-bold text-white mb-6">Checkout Solutions</h2>
-<a href="checkout.html" class="inline-block">
+<h2 class="font-display text-4xl font-bold text-white mb-6">Counters and Scales</h2>
+<a href="supermarket-checkout-solutions.html" class="inline-block">
 <button class="text-white font-label text-[12px] uppercase tracking-widest px-6 py-2 rounded-full transition-all duration-300 transform hover:-translate-y-1" style="background: linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3), 0 12px 24px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.2), inset 0 -2px 4px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: none;">
         Explore Collection
 </button>
@@ -524,61 +433,6 @@
 </div>
 </div>
 </section>
-<!-- Premium Section Heading -->
-<section id="supermarket-retail-heading" class="w-[95%] mx-auto bg-white dark:bg-[#0a0f14] px-4 pt-8 pb-6 mt-8">
-<div class="text-center">
-<div class="inline-flex items-center gap-3 mb-6">
-<div class="h-px w-20 bg-gradient-to-r from-transparent via-secondary to-transparent"></div>
-<span class="font-headline font-black text-2xl md:text-3xl uppercase tracking-[0.15em] text-primary dark:text-white">Complete Retail Solutions Under One Roof</span>
-<div class="h-px w-20 bg-gradient-to-r from-transparent via-secondary to-transparent"></div>
-</div>
-
-</div>
-</section>
-<!-- Premium Advertisement Carousel Section -->
-<section id="warehouse-ad-carousel" class="relative w-[95%] mx-auto min-h-[5.625vh] bg-white dark:bg-[#0a0f14] px-4 pb-16 flex items-center overflow-hidden rounded-3xl mt-0">
-<div class="relative w-full h-[440px] overflow-hidden rounded-3xl group shadow-2xl shadow-black/20">
-<!-- Slides Container -->
-<div class="relative h-full w-full">
-<!-- Slide 1: Advertisement 1 -->
-<div class="carousel-slide active absolute inset-0 z-10 bg-black">
-<img loading="lazy" class="absolute inset-0 w-full h-full object-contain" alt="Cooling Advertisement" src="topcar/coolingadv.png"/>
-</div>
-
-<!-- Slide 2: Advertisement 2 -->
-<div class="carousel-slide absolute inset-0 z-0 bg-black">
-<img loading="lazy" class="absolute inset-0 w-full h-full object-contain" alt="Baskets Advertisement" src="topcar/basketsdv.png"/>
-</div>
-<!-- Slide 3: Advertisement 4 -->
-<div class="carousel-slide absolute inset-0 z-0 bg-black">
-<img loading="lazy" class="absolute inset-0 w-full h-full object-contain" alt="Stand Advertisement" src="topcar/standadv.png"/>
-</div>
-
-<!-- Slide 4: Advertisement 3 -->
-<div class="carousel-slide absolute inset-0 z-0 bg-black">
-<img loading="lazy" class="absolute inset-0 w-full h-full object-contain" alt="Trolly Advertisement" src="topcar/trollyadv.png"/>
-</div>
-</div>
-<!-- Left Arrow -->
-<button class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black border-2 border-black text-white rounded-full hover:bg-white hover:text-primary transition-all duration-300 z-20" id="warehousePrevSlide">
-<span class="material-symbols-outlined text-sm">arrow_back</span>
-</button>
-<!-- Right Arrow -->
-<button class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black border-2 border-black text-white rounded-full hover:bg-white hover:text-primary transition-all duration-300 z-20" id="warehouseNextSlide">
-<span class="material-symbols-outlined text-sm">arrow_forward</span>
-</button>
-<!-- Centered Controls -->
-<div class="absolute bottom-8 left-0 w-full flex flex-col items-center gap-6 z-20">
-<div class="flex gap-3">
-<div class="warehouse-carousel-dot w-2 h-2 rounded-full bg-white transition-all duration-500 cursor-pointer scale-125"></div>
-<div class="warehouse-carousel-dot w-2 h-2 rounded-full bg-white/30 transition-all duration-500 cursor-pointer"></div>
-<div class="warehouse-carousel-dot w-2 h-2 rounded-full bg-white/30 transition-all duration-500 cursor-pointer"></div>
-<div class="warehouse-carousel-dot w-2 h-2 rounded-full bg-white/30 transition-all duration-500 cursor-pointer"></div>
-</div>
-</div>
-</div>
-</section>
-<div class="mt-8 supermarket-after-carousel-spacer"></div>
 </main>
 <!-- Footer -->
 <footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
@@ -589,7 +443,7 @@
 <a href="home.html" class="flex items-center gap-2 mb-6">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
 </a>
-<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
 </div>
 <!-- Column 2 -->
 <div>
@@ -598,7 +452,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Customized Packaging</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Packaging Manufacturer</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li>
 </ul>
 </div>
@@ -609,7 +463,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="terms.html">Terms & Conditions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="home.html">Terms & Conditions</a></li>
 </ul>
 </div>
 <!-- Column 4 -->
@@ -627,15 +481,15 @@
 <ul class="space-y-4 text-sm">
 <li class="flex items-start gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">location_on</span>
-<span>Shuwaikh Industrial Area, Kuwait</span>
+<span></span>
 </li>
 <li class="flex items-center gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">mail</span>
-<span>info@al-nassim.com</span>
+<span></span>
 </li>
 <li class="flex items-center gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">call</span>
-<span>+965 609 000 59</span>
+<span></span>
 </li>
 </ul>
 </div>
@@ -763,67 +617,6 @@
         document.documentElement.classList.add('light');
     }
 
-    // Warehouse Advertisement Carousel Logic
-    document.addEventListener('DOMContentLoaded', () => {
-        const warehouseSlides = document.querySelectorAll('#warehouse-ad-carousel .carousel-slide');
-        const warehouseDots = document.querySelectorAll('.warehouse-carousel-dot');
-        const warehousePrevBtn = document.getElementById('warehousePrevSlide');
-        const warehouseNextBtn = document.getElementById('warehouseNextSlide');
-        let currentWarehouseSlide = 0;
-
-        const updateWarehouseCarousel = (index) => {
-            warehouseSlides.forEach(s => s.classList.remove('active', 'z-10'));
-            warehouseSlides.forEach(s => s.classList.add('z-0'));
-            warehouseDots.forEach(d => d.classList.remove('bg-white', 'scale-125'));
-            warehouseDots.forEach(d => d.classList.add('bg-white/30'));
-            
-            if(warehouseSlides[index]) {
-                warehouseSlides[index].classList.add('active', 'z-10');
-                warehouseSlides[index].classList.remove('z-0');
-            }
-            if(warehouseDots[index]) {
-                warehouseDots[index].classList.add('bg-white', 'scale-125');
-                warehouseDots[index].classList.remove('bg-white/30');
-            }
-            currentWarehouseSlide = index;
-        };
-
-        const nextWarehouseSlide = () => {
-            let next = (currentWarehouseSlide + 1) % warehouseSlides.length;
-            updateWarehouseCarousel(next);
-        };
-
-        const prevWarehouseSlide = () => {
-            let prev = (currentWarehouseSlide - 1 + warehouseSlides.length) % warehouseSlides.length;
-            updateWarehouseCarousel(prev);
-        };
-
-        if(warehouseNextBtn) warehouseNextBtn.addEventListener('click', nextWarehouseSlide);
-        if(warehousePrevBtn) warehousePrevBtn.addEventListener('click', prevWarehouseSlide);
-        warehouseDots.forEach((dot, i) => dot.addEventListener('click', () => updateWarehouseCarousel(i)));
-
-        // Auto-play with hover pause functionality
-        let warehouseCarouselInterval = setInterval(nextWarehouseSlide, 4000);
-        let isWarehousePaused = false;
-        
-        // Pause on hover - attach directly to the section element
-        const warehouseCarouselSection = document.getElementById('warehouse-ad-carousel');
-        if (warehouseCarouselSection) {
-            warehouseCarouselSection.addEventListener('mouseenter', function() {
-                if (!isWarehousePaused) {
-                    clearInterval(warehouseCarouselInterval);
-                    isWarehousePaused = true;
-                }
-            });
-            
-            warehouseCarouselSection.addEventListener('mouseleave', function() {
-                if (isWarehousePaused) {
-                    warehouseCarouselInterval = setInterval(nextWarehouseSlide, 4000);
-                    isWarehousePaused = false;
-                }
-            });
-        }
-    });
         </script>
 <script>
     // Make collection cards fully clickable
@@ -1069,74 +862,6 @@
         });
     })();
 </script>
-<!-- ==================== MOBILE AD CAROUSEL: SHRINK CONTAINER TO IMAGE ========
-     Desktop shows wide ad images with object-contain inside a tall fixed
-     h-[440px] black container, which leaves big black bars on mobile. We do
-     NOT crop the image (no object-fit: cover). Instead, on mobile only, we read
-     the FIRST slide image's natural aspect ratio and set the carousel
-     container height to exactly fit that image at the mobile width — so the
-     container wraps the image closely with no unused vertical space. Every
-     slide uses the same height (the first slide's). All overlays/arrows/dots
-     are positioned relative to the container, so they stay correct. Desktop is
-     untouched (the override only runs ≤767px). -->
-<script>
-    (function () {
-        var MQ = window.matchMedia('(max-width: 767px)');
-        var inner = null;  // the .relative.h-[440px] container
-        var slides = null;
-
-        function ready(fn) {
-            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
-            else fn();
-        }
-
-        function findEls() {
-            var section = document.getElementById('warehouse-ad-carousel');
-            if (!section) return false;
-            inner = section.querySelector('.relative.h-\\[440px\\]');
-            if (!inner) inner = section.querySelector(':scope > div.relative');
-            if (!inner) return false;
-            slides = section.querySelectorAll('.carousel-slide');
-            return true;
-        }
-
-        function applyFit() {
-            if (!MQ.matches || !inner) { // desktop: clear any inline override
-                if (inner) inner.style.height = '';
-                if (slides) slides.forEach(function (s) { s.style.height = ''; });
-                return;
-            }
-            var firstImg = inner.querySelector('.carousel-slide:first-child img') || inner.querySelector('.carousel-slide img');
-            if (!firstImg) return;
-            // Need the image's natural dimensions to know its aspect ratio.
-            var nw = firstImg.naturalWidth, nh = firstImg.naturalHeight;
-            if (!nw || !nh) {
-                // Not loaded yet — wait for load, then retry.
-                firstImg.addEventListener('load', applyFit, { once: true });
-                return;
-            }
-            var aspect = nw / nh;
-            var containerWidth = inner.getBoundingClientRect().width;
-            if (!containerWidth) return;
-            // Height that exactly fits the image at this width (no black bars).
-            var fitH = Math.round(containerWidth / aspect);
-            inner.style.height = fitH + 'px';
-            if (slides) slides.forEach(function (s) { s.style.height = fitH + 'px'; });
-        }
-
-        ready(function () {
-            if (!findEls()) return;
-            applyFit();
-            // Re-fit on resize / orientation change (debounced)
-            var t = null;
-            var onResize = function () { clearTimeout(t); t = setTimeout(applyFit, 150); };
-            window.addEventListener('resize', onResize);
-            window.addEventListener('orientationchange', onResize);
-            if (MQ.addEventListener) MQ.addEventListener('change', applyFit);
-            else if (MQ.addListener) MQ.addListener(applyFit);
-        });
-    })();
-</script>
 <!-- ==================== MOBILE DRAWER CONTENT SPLIT ====================
      Hamburger -> utilities ONLY (EN|AR, Download App, Dark/Light).
      Categories -> departments ONLY. Reuses mobile-nav.js's drawer/open/close
@@ -1168,7 +893,7 @@
               '    <span class="flex items-center">' +
               '      <span class="text-[13px] font-bold tracking-widest text-gray-900 dark:text-white">EN</span>' +
               '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
-              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">AR</span>' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">عربي</span>' +
               '    </span>' +
               '  </button>' +
               '</div>' +

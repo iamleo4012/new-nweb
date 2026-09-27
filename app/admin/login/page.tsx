@@ -4,10 +4,15 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 // Dedicated Store Orders Staff account (see scripts/create-store-orders-staff.mjs).
-// After sign-in this account goes straight to the dedicated Order Page instead
-// of the admin dashboard. Identity is matched by email only — the account's
-// role, and every other staff/admin account, behave exactly as before.
+// After sign-in this account — and every STAFF-role account — goes straight to
+// the printed order document view (/internal-orders2.html) instead of the admin
+// dashboard. Identity is matched by email for the dedicated account; the
+// account's role, and every other staff/admin account, behave exactly as
+// before. Admins keep their existing destination.
 const STORE_ORDERS_STAFF_EMAIL = "store.orders@alnassim.com";
+// The successful STAFF login destination (staff only — admins are unaffected).
+const STAFF_LOGIN_DESTINATION = "/internal-orders2.html";
+// The legacy staff orders page stays reachable directly at /internal-orders(.html).
 
 function AdminLoginForm() {
   const router = useRouter();
@@ -34,7 +39,7 @@ function AdminLoginForm() {
       .then((r) => r.json())
       .then((data) => {
         if (data?.data?.user && (data.data.user.role === "ADMIN" || data.data.user.role === "STAFF")) {
-          router.push(data.data.user.email === STORE_ORDERS_STAFF_EMAIL ? "/internal-orders.html" : redirect);
+          router.push(data.data.user.role === "STAFF" || data.data.user.email === STORE_ORDERS_STAFF_EMAIL ? STAFF_LOGIN_DESTINATION : redirect);
         }
       })
       .catch(() => {});
@@ -56,7 +61,7 @@ function AdminLoginForm() {
       if (data.success && data.data?.user) {
         const role = data.data.user.role;
         if (role === "ADMIN" || role === "STAFF") {
-          router.push(data.data.user.email === STORE_ORDERS_STAFF_EMAIL ? "/internal-orders.html" : redirect);
+          router.push(role === "STAFF" || data.data.user.email === STORE_ORDERS_STAFF_EMAIL ? STAFF_LOGIN_DESTINATION : redirect);
         } else {
           setError("This account does not have staff access.");
         }

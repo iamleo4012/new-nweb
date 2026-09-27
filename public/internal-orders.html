@@ -317,6 +317,7 @@
     "print": "🖨 طباعة الطلب",
     "orderReceived": "تم استلام الطلب",
     "viewOrder": "عرض الطلب",
+    "docView": "فتح عرض المستند",
     "sendWa": "إرسال رسالة واتساب",
     "orderSheetForStore": "كشف الطلب — للاستخدام الداخلي",
     "orderLbl": "الطلب:",
@@ -590,7 +591,7 @@
       '<td class="muted">' + esc(o.city || "") + '</td>' +
       '<td class="num">' + esc(fmtKd(o.total, o.currency)) + '</td>' +
       '<td><span class="badge" style="background:' + badge[0] + ';color:' + badge[1] + '">' + esc(storeStatusLabel(o)) + '</span></td>' +
-      '<td><button class="btn view-btn" type="button">' + t("View Order", "viewOrder") + '</button></td>';
+      '<td><button class="btn view-btn" type="button">' + t("View Order", "viewOrder") + '</button> <a class="btn doc-btn" href="internal-orders2.html?order=' + encodeURIComponent(o.orderNumber) + '" title="' + t("Open order document", "docView") + '" onclick="event.stopPropagation();">📄</a></td>';
     return tr.outerHTML;
   }
   function wireRows(root) {
@@ -710,9 +711,9 @@
 
   /* ===== Detail view — the customer "Order Sent" sheet =====================
      Staff "View Order" embeds the EXISTING customer Order Sent page
-     (public/order-detail.html) through the signed /o/{id}-{signature} short
-     link — the very same mechanism the WhatsApp button uses. Staff therefore
-     see the EXACT sheet the customer sees after checkout: identical design,
+     (public/order-send-modified2.html) by order number — the very same page
+     and content the customer received. Staff therefore see the EXACT sheet:
+     identical design,
      product images, stored names/codes/prices/quantities, delivery
      information, "final invoice" note and watermark. The sheet is never
      redesigned or duplicated here — this page only frames it.
@@ -751,7 +752,7 @@
   function dressFrame() {
     var f = document.getElementById("order-sheet-frame");
     var doc = frameDoc();
-    if (!f || !doc || !doc.body || !doc.getElementById("order-detail-root")) return;
+    if (!f || !doc || !doc.body || !doc.getElementById("os-wrap")) return;
     [
       "body > nav",               // storefront header
       "body > footer",            // storefront footer
@@ -759,12 +760,24 @@
       "a[aria-label='WhatsApp']", // floating WhatsApp button
       "#toast-container",         // customer toasts
       "main .bg-indigo-50",       // customer confirm/cancel banner
-      "main > .no-print"          // customer BACK TO HOME PAGE button
+      "main > .no-print",         // customer BACK TO HOME PAGE button
+      ".os-back",                 // Order Sent BACK TO HOME PAGE button
+      "#account-btn"              // customer account button
     ].forEach(function (sel) {
       Array.prototype.forEach.call(doc.querySelectorAll(sel), function (el) { el.style.display = "none"; });
     });
-    var m = doc.getElementById("order-detail-root");
-    if (m) { m.style.padding = "6px 0 12px"; m.style.minHeight = "0"; }
+    var c = doc.querySelector("#os-wrap .os-container");
+    if (c) { c.style.padding = "24px 28px 32px"; } /* staff frame: no fixed header to clear */
+    /* Security watermark — REUSED VERBATIM from the existing staff order
+       sheet (order-detail.html .receipt-sheet::before): injected into the
+       framed Order Sent page so this view carries the same watermark
+       (behind the content, clipped to the sheet, printed on paper). */
+    if (!doc.getElementById("staff-wm-style")) {
+      var st = doc.createElement("style");
+      st.id = "staff-wm-style";
+      st.textContent = "#os-wrap{position:relative;overflow:hidden}#os-wrap::before{content:\"\";position:absolute;top:50%;left:50%;width:300%;height:300%;transform:translate(-50%,-50%) rotate(-30deg);background-image:url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='340' height='190'><text x='170' y='105' font-family='Arial, sans-serif' font-size='20' font-weight='bold' letter-spacing='3' fill='%23dc2626' fill-opacity='0.16' text-anchor='middle'>THIS IS NOT AN INVOICE</text></svg>\");background-repeat:repeat;pointer-events:none;z-index:1;-webkit-print-color-adjust:exact;print-color-adjust:exact}#os-wrap > *{position:relative;z-index:2}";
+      doc.head.appendChild(st);
+    }
     doc.body.style.background = "transparent";
     doc.body.style.paddingBottom = "0";
     doc.documentElement.style.background = "transparent";
@@ -814,7 +827,11 @@
 
     var f = document.getElementById("order-sheet-frame");
     concealFrame(); // nothing of the customer page is ever painted
-    f.src = o.shortPath || "/order-detail.html?number=" + encodeURIComponent(o.orderNumber);
+    /* The View Order sheet IS the customer Order Sent page
+       (order-send-modified2.html) loaded by order number — the staff
+       session may fetch any order, so staff see the EXACT content/design
+       the customer received. */
+    f.src = "order-send-modified2.html?number=" + encodeURIComponent(o.orderNumber);
 
     document.getElementById("list-view").style.display = "none";
     document.getElementById("detail-view").style.display = "block";
@@ -836,7 +853,7 @@
     (function waitForFrame() {
       if (my !== frameToken) return; // a newer order was opened meanwhile
       var doc = frameDoc();
-      if (doc && doc !== prevDoc && doc.querySelector(".receipt-sheet")) { dressFrame(); sizeFrame(); revealFrame(); return; }
+      if (doc && doc !== prevDoc && doc.getElementById("os-main") && doc.getElementById("os-main").style.display === "block") { dressFrame(); sizeFrame(); revealFrame(); return; }
       if (++tries < 80) setTimeout(waitForFrame, 100);
       else revealFrame();
     })();
@@ -850,7 +867,7 @@
     // re-navigation).
     var f = document.getElementById("order-sheet-frame");
     var doc = frameDoc();
-    if (doc && doc !== f.__prevDoc && doc.querySelector(".receipt-sheet")) revealFrame();
+    if (doc && doc !== f.__prevDoc && doc.getElementById("os-main") && doc.getElementById("os-main").style.display === "block") revealFrame();
     // Images and fonts settle after load — re-measure a few more times.
     [200, 700, 1600].forEach(function (ms) { setTimeout(sizeFrame, ms); });
   });

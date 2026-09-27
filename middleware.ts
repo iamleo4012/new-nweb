@@ -195,13 +195,20 @@ export async function middleware(req: NextRequest) {
   //     viewing/printing customer orders. Same edge pattern as the /admin
   //     gate (defence-in-depth; the data itself is protected server-side by
   //     requireStaff() inside /api/admin/orders). Matches both with and
-  //     without the .html suffix.
-  if (pathname === "/internal-orders" || pathname === "/internal-orders.html") {
+  //     without the .html suffix. internal-orders2 (the printed document
+  //     view of the same orders) is gated identically.
+  if (
+    pathname === "/internal-orders" || pathname === "/internal-orders.html" ||
+    pathname === "/internal-orders2" || pathname === "/internal-orders2.html"
+  ) {
     const token = req.cookies.get(COOKIE_NAME)?.value;
     if (!(await isAdminToken(token))) {
       const loginUrl = req.nextUrl.clone();
       loginUrl.pathname = "/admin/login";
-      loginUrl.searchParams.set("redirect", "/internal-orders.html");
+      loginUrl.searchParams.set(
+        "redirect",
+        pathname.startsWith("/internal-orders2") ? "/internal-orders2.html" : "/internal-orders.html"
+      );
       return NextResponse.redirect(loginUrl);
     }
   }

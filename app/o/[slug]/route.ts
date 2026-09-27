@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  * GET /o/{id}-{signature} — signed short link to the customer Order Sent page.
  *
  * Resolves the order SERVER-SIDE (no token in any URL, nothing exposed in the
- * address bar) and serves the existing public/order-detail.html with the order
+ * address bar) and serves public/customer-order.html with the order
  * data injected as an inline global the page already understands. The page's
  * own fetch/API/token mechanism is untouched; regular tokenized links keep
  * working exactly as before.
@@ -75,12 +75,14 @@ export async function GET(
     },
     error: null,
   };
-  // Inject the payload BEFORE any page script runs; order-detail.html prefers
-  // this global over its URL/fetch flow, so no token is ever needed or shown.
+  // Inject the payload BEFORE any page script runs; customer-order.html
+  // renders it directly from this global (no token needed or shown). The
+  // page is the customer WhatsApp order page: website header + the EXACT
+  // staff View Order document sheet (same markup/design as internal-orders2).
   const safeJson = JSON.stringify(payload).replace(/<\//g, "<\/");
   let html: string;
   try {
-    html = readFileSync(join(process.cwd(), "public", "order-detail.html"), "utf8");
+    html = readFileSync(join(process.cwd(), "public", "customer-order.html"), "utf8");
   } catch {
     return new NextResponse("Order page unavailable.", { status: 500 });
   }

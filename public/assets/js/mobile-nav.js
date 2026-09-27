@@ -265,6 +265,31 @@
       '<div id="mobile-nav-departments"></div>';
     document.body.appendChild(drawer);
 
+    // --- Keep duplicate utility controls out of the drawer -------------------
+    // Language / Download App / Dark-Light mode now live permanently in the
+    // TOP NAVBAR (dark-overrides.js #nassim-mobile-utils row). Some pages
+    // inject a legacy #mobile-nav-utilities block (the same three controls)
+    // into this shared drawer and flip it into a "utilities-only" mode that
+    // hides the departments. Strip that block and keep the categories
+    // visible, wherever page scripts re-add or re-hide them. Only the
+    // duplicate UI entries are removed — the navbar controls and all drawer
+    // functionality (categories, subcategories, login/logout) are untouched.
+    function stripDuplicateUtilities() {
+      var util = document.getElementById("mobile-nav-utilities");
+      if (util) util.remove();
+      var dept = document.getElementById("mobile-nav-departments");
+      if (dept && dept.style.display === "none") dept.style.display = "";
+    }
+    stripDuplicateUtilities();
+    if (window.MutationObserver) {
+      new MutationObserver(stripDuplicateUtilities).observe(drawer, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["style"]
+      });
+    }
+
     // --- Event listeners ---
     hamburgerSlot.addEventListener("click", function () { isOpen ? closeMenu() : openMenu(); });
     overlay.addEventListener("click", closeMenu);

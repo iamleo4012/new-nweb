@@ -1,0 +1,538 @@
+[
+  {
+    "id": 1,
+    "name": "dummy",
+    "price": "0",
+    "slug": "commercial-refrigerator-xg034",
+    "sku": "XG-034-RFR",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 2,
+    "name": "dummy",
+    "price": "0",
+    "slug": "display-cooler-xg035",
+    "sku": "XG-035-CLR",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 3,
+    "name": "dummy",
+    "price": "0",
+    "slug": "walk-in-freezer-unit",
+    "sku": "WF-2500",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 4,
+    "name": "dummy",
+    "price": "0",
+    "slug": "reach-in-refrigerator",
+    "sku": "XG-011-RFR",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 5,
+    "name": "dummy",
+    "price": "0",
+    "slug": "ice-cream-freezer",
+    "sku": "IC-750",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 6,
+    "name": "dummy",
+    "price": "0",
+    "slug": "beverage-cooler-station",
+    "sku": "BC-650",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 7,
+    "name": "dummy",
+    "price": "0",
+    "slug": "shopping-trolley-sy143",
+    "sku": "SY-143-TRL",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 8,
+    "name": "dummy",
+    "price": "0",
+    "slug": "checkout-trolley-sy236",
+    "sku": "SY-236-CKO",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 9,
+    "name": "dummy",
+    "price": "0",
+    "slug": "shopping-basket-sy115",
+    "sku": "SY-115-BSK",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 10,
+    "name": "dummy",
+    "price": "0",
+    "slug": "junior-shopping-trolley",
+    "sku": "SY-JR-060",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 11,
+    "name": "dummy",
+    "price": "0",
+    "slug": "display-shelf-yd1006",
+    "sku": "YD-1006-SLF",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 12,
+    "name": "dummy",
+    "price": "0",
+    "slug": "display-stand-sy225",
+    "sku": "SY-225-STD",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 13,
+    "name": "dummy",
+    "price": "0",
+    "slug": "heavy-duty-forklift",
+    "sku": "FL-HD-5000",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 14,
+    "name": "dummy",
+    "price": "0",
+    "slug": "order-picker",
+    "sku": "FL-OP-220",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 17,
+    "name": "dummy",
+    "price": "0",
+    "slug": "mopping-trolley",
+    "sku": "CP-MOP-TRL",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 18,
+    "name": "dummy",
+    "price": "0",
+    "slug": "outdoor-pedal-bin",
+    "sku": "CP-PED-BIN",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 19,
+    "name": "dummy",
+    "price": "0",
+    "slug": "basket-trolley-sy115",
+    "sku": "BASKET-TROLLEY-SY115",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 20,
+    "name": "dummy",
+    "price": "0",
+    "slug": "children-shopping-trolley",
+    "sku": "CHILDREN-SHOPPING-TR",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 21,
+    "name": "dummy",
+    "price": "0",
+    "slug": "heavy-duty-basket",
+    "sku": "HEAVY-DUTY-BASKET",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 22,
+    "name": "dummy",
+    "price": "0",
+    "slug": "double-basket-trolley",
+    "sku": "DOUBLE-BASKET-TROLLE",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 23,
+    "name": "dummy",
+    "price": "0",
+    "slug": "compact-hand-basket",
+    "sku": "COMPACT-HAND-BASKET",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 24,
+    "name": "dummy",
+    "price": "0",
+    "slug": "galvanized-steel-shelf",
+    "sku": "GALVANIZED-STEEL-SHE",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 25,
+    "name": "dummy",
+    "price": "0",
+    "slug": "wooden-display-stand",
+    "sku": "WOODEN-DISPLAY-STAND",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 26,
+    "name": "dummy",
+    "price": "0",
+    "slug": "hook-display-rack",
+    "sku": "HOOK-DISPLAY-RACK",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 27,
+    "name": "dummy",
+    "price": "0",
+    "slug": "basket-display-stand",
+    "sku": "BASKET-DISPLAY-STAND",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 28,
+    "name": "dummy",
+    "price": "0",
+    "slug": "checkout-counter-sy236",
+    "sku": "CHECKOUT-COUNTER-SY2",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 29,
+    "name": "dummy",
+    "price": "0",
+    "slug": "express-checkout-station",
+    "sku": "EXPRESS-CHECKOUT-STA",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 30,
+    "name": "dummy",
+    "price": "0",
+    "slug": "self-service-kiosk",
+    "sku": "SELF-SERVICE-KIOSK",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 31,
+    "name": "dummy",
+    "price": "0",
+    "slug": "cashier-desk-unit",
+    "sku": "CASHIER-DESK-UNIT",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 32,
+    "name": "dummy",
+    "price": "0",
+    "slug": "mobile-pos-terminal",
+    "sku": "MOBILE-POS-TERMINAL",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 33,
+    "name": "dummy",
+    "price": "0",
+    "slug": "bagging-station-pro",
+    "sku": "BAGGING-STATION-PRO",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 34,
+    "name": "dummy",
+    "price": "0",
+    "slug": "price-tag-holder-set",
+    "sku": "PRICE-TAG-HOLDER-SET",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 35,
+    "name": "dummy",
+    "price": "0",
+    "slug": "basket-liner-pack",
+    "sku": "BASKET-LINER-PACK",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 36,
+    "name": "dummy",
+    "price": "0",
+    "slug": "shelf-divider-system",
+    "sku": "SHELF-DIVIDER-SYSTEM",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 37,
+    "name": "dummy",
+    "price": "0",
+    "slug": "product-pusher-strip",
+    "sku": "PRODUCT-PUSHER-STRIP",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 38,
+    "name": "dummy",
+    "price": "0",
+    "slug": "security-tag-dispenser",
+    "sku": "SECURITY-TAG-DISPENS",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 39,
+    "name": "dummy",
+    "price": "0",
+    "slug": "promotional-sign-kit",
+    "sku": "PROMOTIONAL-SIGN-KIT",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 40,
+    "name": "dummy",
+    "price": "0",
+    "slug": "electric-forklift-2000kg",
+    "sku": "ELECTRIC-FORKLIFT-20",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 41,
+    "name": "dummy",
+    "price": "0",
+    "slug": "diesel-forklift-3000kg",
+    "sku": "DIESEL-FORKLIFT-3000",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 42,
+    "name": "dummy",
+    "price": "0",
+    "slug": "plastic-pallet-standard",
+    "sku": "PLASTIC-PALLET-STAND",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 43,
+    "name": "dummy",
+    "price": "0",
+    "slug": "wooden-pallet-heavy-duty",
+    "sku": "WOODEN-PALLET-HEAVY-",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 44,
+    "name": "dummy",
+    "price": "0",
+    "slug": "compact-electric-forklift",
+    "sku": "COMPACT-ELECTRIC-FOR",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 45,
+    "name": "dummy",
+    "price": "0",
+    "slug": "industrial-plastic-pallet",
+    "sku": "INDUSTRIAL-PLASTIC-P",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 46,
+    "name": "dummy",
+    "price": "0",
+    "slug": "reach-truck-forklift",
+    "sku": "REACH-TRUCK-FORKLIFT",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 47,
+    "name": "dummy",
+    "price": "0",
+    "slug": "export-wooden-pallet",
+    "sku": "EXPORT-WOODEN-PALLET",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 48,
+    "name": "dummy",
+    "price": "0",
+    "slug": "heavy-duty-racking-system",
+    "sku": "HEAVY-DUTY-RACKING-S",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 49,
+    "name": "dummy",
+    "price": "0",
+    "slug": "industrial-storage-rack",
+    "sku": "INDUSTRIAL-STORAGE-R",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 50,
+    "name": "dummy",
+    "price": "0",
+    "slug": "pallet-racking-system",
+    "sku": "PALLET-RACKING-SYSTE",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 51,
+    "name": "dummy",
+    "price": "0",
+    "slug": "mobile-shelving-unit",
+    "sku": "MOBILE-SHELVING-UNIT",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 52,
+    "name": "dummy",
+    "price": "0",
+    "slug": "cantilever-rack",
+    "sku": "CANTILEVER-RACK",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 53,
+    "name": "dummy",
+    "price": "0",
+    "slug": "drive-in-racking",
+    "sku": "DRIVE-IN-RACKING",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 54,
+    "name": "dummy",
+    "price": "0",
+    "slug": "mezzanine-floor-system",
+    "sku": "MEZZANINE-FLOOR-SYST",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 55,
+    "name": "dummy",
+    "price": "0",
+    "slug": "selective-pallet-rack",
+    "sku": "SELECTIVE-PALLET-RAC",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 56,
+    "name": "dummy",
+    "price": "0",
+    "slug": "heavy-duty-platform-trolley",
+    "sku": "HEAVY-DUTY-PLATFORM-",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 57,
+    "name": "dummy",
+    "price": "0",
+    "slug": "wire-mesh-basket-trolley",
+    "sku": "WIRE-MESH-BASKET-TRO",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 58,
+    "name": "dummy",
+    "price": "0",
+    "slug": "foldable-hand-trolley",
+    "sku": "FOLDABLE-HAND-TROLLE",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 59,
+    "name": "dummy",
+    "price": "0",
+    "slug": "double-basket-shopping-trolley",
+    "sku": "DOUBLE-BASKET-SHOPPI",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 60,
+    "name": "dummy",
+    "price": "0",
+    "slug": "industrial-cage-trolley",
+    "sku": "INDUSTRIAL-CAGE-TROL",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 61,
+    "name": "dummy",
+    "price": "0",
+    "slug": "light-duty-service-trolley",
+    "sku": "LIGHT-DUTY-SERVICE-T",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 62,
+    "name": "dummy",
+    "price": "0",
+    "slug": "stackable-basket-container",
+    "sku": "STACKABLE-BASKET-CON",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 63,
+    "name": "dummy",
+    "price": "0",
+    "slug": "heavy-duty-wire-basket",
+    "sku": "HEAVY-DUTY-WIRE-BASK",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 65,
+    "name": "dummy",
+    "price": "0",
+    "slug": "eco-friendly-cleaning-tool-set",
+    "sku": "AN-HC-EC-12",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 67,
+    "name": "dummy",
+    "price": "0",
+    "slug": "walnut-wood-coaster-set",
+    "sku": "AN-AC-CS-09",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 70,
+    "name": "dummy",
+    "price": "0",
+    "slug": "pro-floor-squeegee-wiper",
+    "sku": "CP-SQG-18",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 71,
+    "name": "dummy",
+    "price": "0",
+    "slug": "dual-blade-glass-wiper",
+    "sku": "CP-GLS-WPR",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 72,
+    "name": "dummy",
+    "price": "0",
+    "slug": "heavy-duty-scrub-brush",
+    "sku": "CP-SRB-14",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  },
+  {
+    "id": 73,
+    "name": "dummy",
+    "price": "0",
+    "slug": "pro-dustpan-broom-set",
+    "sku": "CP-DP-SET",
+    "updatedAt": "2026-09-14T13:05:30.549Z"
+  }
+]

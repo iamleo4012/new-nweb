@@ -1,4 +1,5 @@
-<!DOCTYPE html><html class="" lang="en"><head>
+<!DOCTYPE html><html class="" lang="en" translate="no"><head>
+<meta name="google" content="notranslate"/>
 <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
  document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
 <meta charset="utf-8">
@@ -171,12 +172,6 @@
             .subcat-intro { display: none !important; }
             /* Browse wrapper: stack vertically on mobile (sidebar is display:none) */
             .subcat-browse { display: block !important; gap: 0 !important; }
-
-            /* Hide the desktop grid header (product count + sort) on mobile —
-               the compact .subcat-listing-header already shows the title +
-               count, and Sort lives inside the filter drawer. */
-            main > section > header,
-            .subcat-grid-header { display: none !important; }
 
             /* Filter & Sorting: hide the inline sidebar on mobile; open as drawer.
                Base rule also NEUTRALIZES the desktop-only Tailwind classes on the
@@ -491,22 +486,7 @@
                 }
             }
 
-            /* ================================================================
-               DESKTOP PRODUCT TOOLBAR — REMOVED.
-               The count + "Sort By Recommended" row that used to sit above
-               the product grid is hidden entirely: the cards now start
-               directly under the category intro / filter area with no
-               leftover gap. The header markup stays in the DOM (the JS
-               #catalog-count updates are null-guarded and mobile reads its
-               count from [data-lh-count] instead), so nothing functional
-               changes — desktop simply never displays it. Mobile already
-               hid this header via the max-width:767px block. */
-            .subcat-grid-header {
-                display: none !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                border: none !important;
-            }
+            
 
             /* ================================================================
                DESKTOP PRODUCT GRID — fluid columns + near-continuous rows.
@@ -1081,6 +1061,9 @@
         @media (min-width: 768px) { #sc-toast { bottom: 2rem; font-size: 0.75rem; } }
     </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<script src="assets/js/i18n-data.js" defer></script>
+<script src="assets/js/i18n.js" defer></script>
 </head>
 <body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased min-h-screen flex flex-col pt-[88px] transition-colors duration-300">
 <!-- TopAppBar Section (shared — from home.html) -->
@@ -1119,12 +1102,12 @@
 <ul class="space-y-4">
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-trolleys-baskets.html">Trolleys & Baskets</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-forklifts-pallets.html">Forklifts & Pallets</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racking</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racks</a></li>
 </ul>
 </div>
 </div>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Packaging<br/><span class="block text-[11px]">Manufacturer</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
 </div>
 </div>
 <!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
@@ -1144,7 +1127,7 @@
 <button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center">
 <span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
 <span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
-<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
+<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">عربي</span>
 </button>
 <div class="relative group hidden md:block" id="download-btn-container">
 <button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
@@ -1192,9 +1175,9 @@
      drawer's Category group can be cloned from it, exactly as cleaning-tools.html
      does with its .subcat-tabs .category-btn elements). -->
 <section class="subcat-tabs" style="display:none;" aria-hidden="true">
-<button type="button" class="category-btn">All</button>
-<button type="button" class="category-btn">Freezer</button>
-<button type="button" class="category-btn">Cooler &amp; Chiller</button>
+<button type="button" class="category-btn" data-slug="">All</button>
+<button type="button" class="category-btn" data-slug="freezer">Freezer</button>
+<button type="button" class="category-btn" data-slug="cooler-chiller">Cooler &amp; Chiller</button>
 </section>
 
 <!-- Mobile listing header: Page Title (left) + Filter & Sorting (right), then Product Count.
@@ -1223,7 +1206,7 @@
 <section class="subcat-intro" aria-label="Category introduction">
   <h1 class="subcat-intro-title">Cooling Appliances</h1>
   <p class="subcat-intro-sub">Professional Cooling Equipment</p>
-  <p class="subcat-intro-desc">Keep every product fresh with dependable professional cooling equipment built for commercial, retail and industrial use. From freezers to coolers and chillers, our collection combines reliable performance, energy efficiency and clean, efficient design.</p>
+  <p class="subcat-intro-desc">Cooling equipment built for supermarket retail use.</p>
 </section>
 
 <!-- DESKTOP BROWSING WRAPPER: sidebar + product grid in a flex row.
@@ -1249,52 +1232,32 @@
 </button>
 <div class="space-y-6">
 <div>
-<h2 class="text-[12px] font-bold tracking-[0.25em] uppercase text-primary dark:text-white mb-8 pb-4 border-b border-outline-variant/20 dark:border-white/20 text-center">FILTER By</h2>
+<h2 class="text-[12px] font-bold tracking-[0.25em] uppercase text-primary dark:text-white mb-8 pb-4 border-b border-outline-variant/20 dark:border-white/20 text-center">FILTER BY :</h2>
 <div class="space-y-4">
-<!-- Sorting Accordion -->
-<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
-<summary class="flex items-center justify-between cursor-pointer list-none">
-<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Sort By</h3>
-<span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
-</summary>
-<div class="pt-6 space-y-3">
-<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
-<input class="rounded-sm flex-shrink-0 filter-radio" name="sorting" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Price: Low to High</span>
-</label>
-<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
-<input class="rounded-sm flex-shrink-0 filter-radio" name="sorting" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Price: High to Low</span>
-</label>
+<!-- Sort By: moved above the product grid (shared sort-dropdown.js). These
+     hidden inputs are the sorting state the page filter logic already reads
+     ([0]=Price: Low to High, [1]=Price: High to Low). -->
+<div class="hidden" aria-hidden="true">
+<label class="hidden"><input class="rounded-sm flex-shrink-0 filter-radio" name="sorting" type="checkbox"/><span>Price: Low to High</span></label>
+<label class="hidden"><input class="rounded-sm flex-shrink-0 filter-radio" name="sorting" type="checkbox"/><span>Price: High to Low</span></label>
 </div>
-</details>
+
 <!-- Price Filter Accordion -->
-<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
+<details open class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
 <summary class="flex items-center justify-between cursor-pointer list-none">
-<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Price (KWD)</h3>
+<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Price Range</h3>
 <span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
 </summary>
 <div class="pt-6 space-y-6">
-<div class="space-y-3">
-<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
-<input class="rounded-sm flex-shrink-0 filter-checkbox" name="price-range" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">0-10 KWD</span>
-</label>
-<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
-<input class="rounded-sm flex-shrink-0 filter-checkbox" name="price-range" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">10-20 KWD</span>
-</label>
-<label class="flex items-center gap-3 cursor-pointer group/label pl-1">
-<input class="rounded-sm flex-shrink-0 filter-checkbox" name="price-range" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">20-30 KWD</span>
-</label>
-</div>
-<div class="pt-2">
+
 <div class="flex gap-2 items-center mb-4">
 <input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-min" placeholder="Min" type="text"/>
 <span class="text-outline-variant dark:text-white/40">-</span>
 <input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-max" placeholder="Max" type="text"/>
 </div>
+<div class="nassim-price-slider" data-price-slider></div>
+<div class="pt-2">
+
 <div class="flex gap-2">
 <button class="flex-1 py-2 border border-outline-variant/30 dark:border-white/20 text-[9px] uppercase tracking-widest font-bold text-on-surface-variant dark:text-white/70 hover:border-primary dark:hover:border-white hover:text-primary dark:hover:text-white transition-all" id="clear-price">Clear</button>
 <button class="flex-1 py-2 bg-primary text-on-primary text-[9px] uppercase tracking-widest font-bold" id="apply-price">Apply</button>
@@ -1303,7 +1266,7 @@
 </div>
 </details>
 <!-- Color Filter Accordion -->
-<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
+<details open class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
 <summary class="flex items-center justify-between cursor-pointer list-none">
 <h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Color</h3>
 <span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
@@ -1349,42 +1312,6 @@
 </div>
 </div>
 </details>
-<!-- Unit Components Filter Accordion -->
-<details class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
-<summary class="flex items-center justify-between cursor-pointer list-none">
-<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Unit Components</h3>
-<span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
-</summary>
-<div class="pt-6 space-y-6">
-<div class="relative">
-<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white pl-8 pr-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Search Components..." type="text"/>
-<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline dark:text-white/70 text-sm" data-icon="search">search</span>
-</div>
-<div class="space-y-3">
-<label class="flex items-center justify-between group/label cursor-pointer pl-1">
-<div class="flex items-center gap-3">
-<input class="rounded-sm flex-shrink-0 filter-checkbox" name="unit" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">1-Pc</span>
-</div>
-<span class="text-[10px] text-outline dark:text-white/70 opacity-60 unit-count" data-unit="1-Pc"></span>
-</label>
-<label class="flex items-center justify-between group/label cursor-pointer pl-1">
-<div class="flex items-center gap-3">
-<input class="rounded-sm flex-shrink-0 filter-checkbox" name="unit" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Set</span>
-</div>
-<span class="text-[10px] text-outline dark:text-white/70 opacity-60 unit-count" data-unit="Set"></span>
-</label>
-<label class="flex items-center justify-between group/label cursor-pointer pl-1">
-<div class="flex items-center gap-3">
-<input class="rounded-sm flex-shrink-0 filter-checkbox" name="unit" type="checkbox"/>
-<span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Pack</span>
-</div>
-<span class="text-[10px] text-outline dark:text-white/70 opacity-60 unit-count" data-unit="Pack"></span>
-</label>
-</div>
-</div>
-</details>
 </div>
 </div>
 </div>
@@ -1402,10 +1329,8 @@
 <div class="mt-4 md:mt-0 flex items-center space-x-3">
 <span class="text-sm font-semibold text-on-surface font-headline uppercase tracking-wider text-[11px]">Sort By</span>
 <select class="bg-surface-container-lowest border border-outline-variant/30 text-sm font-medium py-2 pl-4 pr-10 rounded-sm focus:ring-0 focus:border-secondary cursor-pointer hover:border-outline-variant transition-colors text-on-surface">
-<option>Recommended</option>
-<option>Price: High to Low</option>
 <option>Price: Low to High</option>
-<option>Newest Arrivals</option>
+<option>Price: High to Low</option>
 </select>
 </div>
 </header>
@@ -1447,7 +1372,7 @@
 <a href="home.html" class="flex items-center gap-2 mb-6">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
 </a>
-<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
 </div>
 <!-- Column 2 -->
 <div>
@@ -1456,7 +1381,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Customized Packaging</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Packaging Manufacturer</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li>
 </ul>
 </div>
@@ -1467,7 +1392,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="terms.html">Terms & Conditions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="home.html">Terms & Conditions</a></li>
 </ul>
 </div>
 <!-- Column 4 -->
@@ -1485,15 +1410,15 @@
 <ul class="space-y-4 text-sm">
 <li class="flex items-start gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">location_on</span>
-<span>Shuwaikh Industrial Area, Kuwait</span>
+<span></span>
 </li>
 <li class="flex items-center gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">mail</span>
-<span>info@al-nassim.com</span>
+<span></span>
 </li>
 <li class="flex items-center gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">call</span>
-<span>+965 609 000 59</span>
+<span></span>
 </li>
 </ul>
 </div>
@@ -1524,7 +1449,7 @@
 (function () {
   "use strict";
 
-  var CATEGORY = "Cooling Appliances";
+  var CATEGORY = "Cooling Appliances"; window.NASSIM_CATEGORY = "Cooling Appliances";
   var CART_KEY = "nassim_cart";
   var WISH_KEY = "nassim_wishlist";
   var grid = document.getElementById("product-grid");
@@ -1795,16 +1720,25 @@ var activeSubcategory = (function () {
       btn.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
-        var text = btn.textContent.replace(/check$/, "").trim();
-        if (/^All/i.test(text)) {
-          activeSubcategory = null;
+        /* INTERNAL filter value — the SAME subcategory slug the top
+           navigation passes as ?sub=<slug> (nav-submenu.js SUBCATS table).
+           It lives in data-slug, which the EN/AR label translation never
+           touches, so the value is identical in both languages. */
+        if (btn.hasAttribute("data-slug")) {
+          activeSubcategory = btn.getAttribute("data-slug") || null;
         } else {
-          activeSubcategory = subcatSlugFromName(text);
+          var text = btn.textContent.replace(/check$/, "").trim();
+          if (/^All/i.test(text)) {
+            activeSubcategory = null;
+          } else {
+            activeSubcategory = subcatSlugFromName(text);
+          }
         }
         // Update active state on all buttons
         btns.forEach(function (b) {
-          var t = b.textContent.replace(/check$/, "").trim();
-          var isAll = /^All/i.test(t);
+          var isAll = b.hasAttribute("data-slug")
+            ? b.getAttribute("data-slug") === ""
+            : /^All/i.test(b.textContent.replace(/check$/, "").trim());
           b.classList.toggle("is-active", activeSubcategory === null ? isAll : b === btn);
         });
         applyFiltersAndSort();
@@ -1840,7 +1774,7 @@ function applyFiltersAndSort() {
     var priceMin = priceMinEl ? priceMinEl.value.trim() : '';
     var priceMax = priceMaxEl ? priceMaxEl.value.trim() : '';
 
-    if (priceMin || priceMax) {
+    if ((priceMin || priceMax) && priceRangeActive()) {
       var min = priceMin ? parseFloat(priceMin) : 0;
       var max = priceMax ? parseFloat(priceMax) : Infinity;
       filteredProducts = filteredProducts.filter(function (p) {
@@ -1863,6 +1797,28 @@ function applyFiltersAndSort() {
     renderProducts(filteredProducts);
   }
 
+  
+  /* Price Range CONTROL vs ACTIVE PRICE FILTER — two different concepts:
+     the slider mirrors its full-range control values (0 → dynamic max)
+     into the hidden #price-min/#price-max inputs, and those values alone
+     do NOT mean a price filter is applied. A price filter is active ONLY
+     when the selected range differs from the current dynamic full range
+     (min > 0 or max < dynamic max). */
+  function priceRangeActive() {
+    var priceMinEl = document.getElementById('price-min');
+    var priceMaxEl = document.getElementById('price-max');
+    var minRaw = priceMinEl ? String(priceMinEl.value).trim() : '';
+    var maxRaw = priceMaxEl ? String(priceMaxEl.value).trim() : '';
+    if (minRaw === '' && maxRaw === '') return false;
+    var sliderState = window.NassimPriceSlider && window.NassimPriceSlider.state;
+    var dynMax = (sliderState && sliderState.ready && typeof sliderState.max === 'number' && sliderState.max > 0) ? sliderState.max : null;
+    var min = minRaw === '' ? 0 : parseFloat(minRaw);
+    var max = maxRaw === '' ? (dynMax != null ? dynMax : Infinity) : parseFloat(maxRaw);
+    if (isNaN(min)) min = 0;
+    if (isNaN(max)) max = dynMax != null ? dynMax : Infinity;
+    if (dynMax == null) return (minRaw !== '' && min > 0) || (maxRaw !== '' && isFinite(max));
+    return min > 0 || max < dynMax;
+  }
   /* ---- Active-filter tags + Clear All (ported from cleaning-tools.html) ---- */
   function updateFilterTags() {
     var activeFiltersContainer = document.getElementById('active-filters');
@@ -1878,7 +1834,7 @@ function applyFiltersAndSort() {
     var priceMaxEl = document.getElementById('price-max');
     var priceMin = priceMinEl ? priceMinEl.value.trim() : '';
     var priceMax = priceMaxEl ? priceMaxEl.value.trim() : '';
-    var hasPriceRange = priceMin !== '' || priceMax !== '';
+    var hasPriceRange = priceRangeActive();
 
     filterTagsContainer.innerHTML = '';
 
@@ -2126,8 +2082,9 @@ function applyFiltersAndSort() {
      otherwise the first chip ("All") — always matches the first render. */
   var preSlug = window.__nassimSubcatSlug || null;
   var slugifyName = function (s) { return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); };
-          chip.className = 'subcat-cat-chip category-btn' + ((preSlug ? slugifyName(b.textContent.trim()) === preSlug : i === 0) ? ' is-active' : '');
+          chip.className = 'subcat-cat-chip category-btn' + ((preSlug ? (b.dataset.slug || slugifyName(b.textContent.trim())) === preSlug : i === 0) ? ' is-active' : '');
           chip.setAttribute('data-cat-name', b.textContent.trim());
+          if (b.hasAttribute('data-slug')) chip.setAttribute('data-slug', b.getAttribute('data-slug'));
           var label = document.createElement('span'); label.textContent = b.textContent.trim();
           var tick = document.createElement('span'); tick.className = 'material-symbols-outlined subcat-cat-tick'; tick.textContent = 'check';
           chip.appendChild(label); chip.appendChild(tick);
@@ -2405,4 +2362,7 @@ function applyFiltersAndSort() {
 <!-- Dropdown hover show/hide (from home.html) -->
 <script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script>
 
+<script src="assets/js/sort-dropdown.js?v=8" defer></script>
+<script src="assets/js/price-range-slider.js?v=12" defer></script>
+<script src="assets/js/filter-accordion-state.js?v=1" defer></script>
 </body></html>

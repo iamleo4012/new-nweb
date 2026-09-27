@@ -1,0 +1,805 @@
+{
+  "backedUpAt": "2026-09-14T13:04:24.290Z",
+  "note": "Original image data for every product before dummy-image sanitization",
+  "products": [
+    {
+      "id": 1,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 1,
+      "image": "topcar/XG034 freezer.png",
+      "images": [
+        "topcar/XG034 freezer.png",
+        "topcar/cold1.png",
+        "topcar/cold2.png"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 1,
+      "image": "topcar/cooling appliances XG035.png",
+      "images": [
+        "topcar/cooling appliances XG035.png",
+        "topcar/cooling appliances XG0351.png",
+        "topcar/coolingadv.png"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 1,
+      "image": "topcar/cooling appliances XG0351.png",
+      "images": [
+        "topcar/cooling appliances XG0351.png",
+        "topcar/coldroom.png",
+        "topcar/cold1.png"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 1,
+      "image": "topcar/refrigerator XG011.png",
+      "images": [
+        "topcar/refrigerator XG011.png",
+        "topcar/fridge_advert.png",
+        "topcar/fridge_advert1.png"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 1,
+      "image": "topcar/coolingadv.png",
+      "images": [
+        "topcar/coolingadv.png",
+        "topcar/cold2.png",
+        "topcar/cold3.png"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 1,
+      "image": "topcar/coldroom.png",
+      "images": [
+        "topcar/coldroom.png",
+        "topcar/cold1.png",
+        "topcar/cold4.png"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 2,
+      "image": "topcar/trolly sy143.png",
+      "images": [
+        "topcar/trolly sy143.png",
+        "topcar/trolly1.png",
+        "topcar/trolly2.png"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 2,
+      "image": "topcar/checkoutSY236.png",
+      "images": [
+        "topcar/checkoutSY236.png",
+        "topcar/checkoutSY2362.png",
+        "topcar/trolly4.png"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 2,
+      "image": "topcar/basket SY115.png",
+      "images": [
+        "topcar/basket SY115.png",
+        "topcar/basket.png",
+        "topcar/trollies & basket.png"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 2,
+      "image": "topcar/childrentrolly_advert.png",
+      "images": [
+        "topcar/childrentrolly_advert.png",
+        "topcar/trolly2.png"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 3,
+      "image": "topcar/shelfYD1006.png",
+      "images": [
+        "topcar/shelfYD1006.png",
+        "topcar/shelfimg.png",
+        "topcar/shelf nd stand.png"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 3,
+      "image": "topcar/standSY225.png",
+      "images": [
+        "topcar/standSY225.png",
+        "topcar/stand1.png",
+        "topcar/stand2.png"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 60,
+      "image": "topcar/forklift.png",
+      "images": [
+        "topcar/forklift.png",
+        "topcar/forklift1.png",
+        "topcar/forklift_advert.png"
+      ]
+    },
+    {
+      "id": 14,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 60,
+      "image": "topcar/picker1.png",
+      "images": [
+        "topcar/picker1.png",
+        "topcar/picker2.png",
+        "topcar/heavylift.png"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "Gourmet Cookware Set",
+      "price": "89",
+      "categoryId": 5,
+      "image": "topcar/products_houseware/cookware2.png",
+      "images": [
+        "topcar/products_houseware/cookware2.png",
+        "topcar/cookware.png",
+        "topcar/kitchen.png"
+      ]
+    },
+    {
+      "id": 16,
+      "name": "Damascus Series Chef's Knife",
+      "price": "45",
+      "categoryId": 5,
+      "image": "topcar/products_houseware/knife1.png",
+      "images": [
+        "topcar/products_houseware/knife1.png",
+        "topcar/products_houseware/knife2.png",
+        "topcar/meat_knife.png"
+      ]
+    },
+    {
+      "id": 17,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 6,
+      "image": "topcar/products_houseware/clean_trolly.png",
+      "images": [
+        "topcar/products_houseware/clean_trolly.png",
+        "topcar/clean_advert.png"
+      ]
+    },
+    {
+      "id": 18,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 6,
+      "image": "topcar/products_houseware/dustbin.png",
+      "images": [
+        "topcar/products_houseware/dustbin.png",
+        "topcar/trashbin_advert.png"
+      ]
+    },
+    {
+      "id": 19,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 2,
+      "image": "topcar/basket SY115.png",
+      "images": [
+        "topcar/basket SY115.png"
+      ]
+    },
+    {
+      "id": 20,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 2,
+      "image": "advertisment/supermarket/childrentrolly.png",
+      "images": [
+        "advertisment/supermarket/childrentrolly.png"
+      ]
+    },
+    {
+      "id": 21,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 2,
+      "image": "topcar/basket.png",
+      "images": [
+        "topcar/basket.png"
+      ]
+    },
+    {
+      "id": 22,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 2,
+      "image": "topcar/basketsdv.png",
+      "images": [
+        "topcar/basketsdv.png"
+      ]
+    },
+    {
+      "id": 23,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 2,
+      "image": "topcar/bbg.png",
+      "images": [
+        "topcar/bbg.png"
+      ]
+    },
+    {
+      "id": 24,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 3,
+      "image": "topcar/galvanized.png",
+      "images": [
+        "topcar/galvanized.png"
+      ]
+    },
+    {
+      "id": 25,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 3,
+      "image": "topcar/wooden.png",
+      "images": [
+        "topcar/wooden.png"
+      ]
+    },
+    {
+      "id": 26,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 3,
+      "image": "topcar/hook.png",
+      "images": [
+        "topcar/hook.png"
+      ]
+    },
+    {
+      "id": 27,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 3,
+      "image": "topcar/basket SY115.png",
+      "images": [
+        "topcar/basket SY115.png"
+      ]
+    },
+    {
+      "id": 28,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 7,
+      "image": "topcar/checkoutSY236.png",
+      "images": [
+        "topcar/checkoutSY236.png"
+      ]
+    },
+    {
+      "id": 29,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 7,
+      "image": "topcar/checkoutSY2362.png",
+      "images": [
+        "topcar/checkoutSY2362.png"
+      ]
+    },
+    {
+      "id": 30,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 7,
+      "image": "topcar/standadv.png",
+      "images": [
+        "topcar/standadv.png"
+      ]
+    },
+    {
+      "id": 31,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 7,
+      "image": "topcar/stand.png",
+      "images": [
+        "topcar/stand.png"
+      ]
+    },
+    {
+      "id": 32,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 7,
+      "image": "topcar/stand1.png",
+      "images": [
+        "topcar/stand1.png"
+      ]
+    },
+    {
+      "id": 33,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 7,
+      "image": "topcar/stand2.png",
+      "images": [
+        "topcar/stand2.png"
+      ]
+    },
+    {
+      "id": 34,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 8,
+      "image": "topcar/hookimg.png",
+      "images": [
+        "topcar/hookimg.png"
+      ]
+    },
+    {
+      "id": 35,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 8,
+      "image": "topcar/basketsdv.png",
+      "images": [
+        "topcar/basketsdv.png"
+      ]
+    },
+    {
+      "id": 36,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 8,
+      "image": "topcar/frameimg.png",
+      "images": [
+        "topcar/frameimg.png"
+      ]
+    },
+    {
+      "id": 37,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 8,
+      "image": "topcar/beamimg.png",
+      "images": [
+        "topcar/beamimg.png"
+      ]
+    },
+    {
+      "id": 38,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 8,
+      "image": "topcar/shelfimg.png",
+      "images": [
+        "topcar/shelfimg.png"
+      ]
+    },
+    {
+      "id": 39,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 8,
+      "image": "topcar/rack1.png",
+      "images": [
+        "topcar/rack1.png"
+      ]
+    },
+    {
+      "id": 40,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 60,
+      "image": "advertisment/warehouse/forklift.png",
+      "images": [
+        "advertisment/warehouse/forklift.png"
+      ]
+    },
+    {
+      "id": 41,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 60,
+      "image": "advertisment/warehouse/forklift1.png",
+      "images": [
+        "advertisment/warehouse/forklift1.png"
+      ]
+    },
+    {
+      "id": 42,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 60,
+      "image": "advertisment/warehouse/trollywarhouse.png",
+      "images": [
+        "advertisment/warehouse/trollywarhouse.png"
+      ]
+    },
+    {
+      "id": 43,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 60,
+      "image": "advertisment/warehouse/trollywarhouse1.png",
+      "images": [
+        "advertisment/warehouse/trollywarhouse1.png"
+      ]
+    },
+    {
+      "id": 44,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 60,
+      "image": "advertisment/warehouse/forklift.png",
+      "images": [
+        "advertisment/warehouse/forklift.png"
+      ]
+    },
+    {
+      "id": 45,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 60,
+      "image": "advertisment/warehouse/trollywarhouse.png",
+      "images": [
+        "advertisment/warehouse/trollywarhouse.png"
+      ]
+    },
+    {
+      "id": 46,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 60,
+      "image": "advertisment/warehouse/forklift1.png",
+      "images": [
+        "advertisment/warehouse/forklift1.png"
+      ]
+    },
+    {
+      "id": 47,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 60,
+      "image": "advertisment/warehouse/trollywarhouse1.png",
+      "images": [
+        "advertisment/warehouse/trollywarhouse1.png"
+      ]
+    },
+    {
+      "id": 48,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 61,
+      "image": "advertisment/warehouse/heavyduty.png",
+      "images": [
+        "advertisment/warehouse/heavyduty.png"
+      ]
+    },
+    {
+      "id": 49,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 61,
+      "image": "advertisment/warehouse/heavyduty1.png",
+      "images": [
+        "advertisment/warehouse/heavyduty1.png"
+      ]
+    },
+    {
+      "id": 50,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 61,
+      "image": "advertisment/warehouse/forklift.png",
+      "images": [
+        "advertisment/warehouse/forklift.png"
+      ]
+    },
+    {
+      "id": 51,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 61,
+      "image": "advertisment/warehouse/heavyduty.png",
+      "images": [
+        "advertisment/warehouse/heavyduty.png"
+      ]
+    },
+    {
+      "id": 52,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 61,
+      "image": "advertisment/warehouse/heavyduty1.png",
+      "images": [
+        "advertisment/warehouse/heavyduty1.png"
+      ]
+    },
+    {
+      "id": 53,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 61,
+      "image": "advertisment/warehouse/forklift.png",
+      "images": [
+        "advertisment/warehouse/forklift.png"
+      ]
+    },
+    {
+      "id": 54,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 61,
+      "image": "advertisment/warehouse/heavyduty.png",
+      "images": [
+        "advertisment/warehouse/heavyduty.png"
+      ]
+    },
+    {
+      "id": 55,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 61,
+      "image": "advertisment/warehouse/heavyduty1.png",
+      "images": [
+        "advertisment/warehouse/heavyduty1.png"
+      ]
+    },
+    {
+      "id": 56,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 62,
+      "image": "topcar/trolly.png",
+      "images": [
+        "topcar/trolly.png"
+      ]
+    },
+    {
+      "id": 57,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 62,
+      "image": "topcar/trolly1.png",
+      "images": [
+        "topcar/trolly1.png"
+      ]
+    },
+    {
+      "id": 58,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 62,
+      "image": "topcar/trolly2.png",
+      "images": [
+        "topcar/trolly2.png"
+      ]
+    },
+    {
+      "id": 59,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 2,
+      "image": "topcar/trolly sy143.png",
+      "images": [
+        "topcar/trolly sy143.png"
+      ]
+    },
+    {
+      "id": 60,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 62,
+      "image": "topcar/trollies & basket.png",
+      "images": [
+        "topcar/trollies & basket.png"
+      ]
+    },
+    {
+      "id": 61,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 62,
+      "image": "topcar/trolly4.png",
+      "images": [
+        "topcar/trolly4.png"
+      ]
+    },
+    {
+      "id": 62,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 2,
+      "image": "topcar/basket.png",
+      "images": [
+        "topcar/basket.png"
+      ]
+    },
+    {
+      "id": 63,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 2,
+      "image": "topcar/basket SY115.png",
+      "images": [
+        "topcar/basket SY115.png"
+      ]
+    },
+    {
+      "id": 64,
+      "name": "Minimalist Table Spoon",
+      "price": "4.5",
+      "categoryId": 5,
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuB272j1GxMqlKRV3lBWSJul3lWG3PjHVgdFzoha_GMcrogDSd5XfI16jJR-GpQLXtmWTPxSb8CSxz2zOjFfawVLSd9ZZ7BBdUx-ftodl2z6OT7YS4mAaFW_FtpSsneJGoFQGjYFccLGh9YrvRso_24eIsttcoDtynm7EwyrWqQrmiZU_3MbywqC-50OZ8I7zMvcnAi15G3d65hglLFNn6cmDhbNnQU0M-2_-niiBHlZ9KA9RCKxPtAHCpWH_B92jh6I5zr7zve_-cU",
+      "images": [
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuB272j1GxMqlKRV3lBWSJul3lWG3PjHVgdFzoha_GMcrogDSd5XfI16jJR-GpQLXtmWTPxSb8CSxz2zOjFfawVLSd9ZZ7BBdUx-ftodl2z6OT7YS4mAaFW_FtpSsneJGoFQGjYFccLGh9YrvRso_24eIsttcoDtynm7EwyrWqQrmiZU_3MbywqC-50OZ8I7zMvcnAi15G3d65hglLFNn6cmDhbNnQU0M-2_-niiBHlZ9KA9RCKxPtAHCpWH_B92jh6I5zr7zve_-cU"
+      ]
+    },
+    {
+      "id": 65,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 59,
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuAWoLbrASmz7dRvcre37b1C0DkA6Ytl-9IX6t2KSaGwsXr_Wu-wq2Z1vIQXbk_SckFDU6T_vO1hDqjSfDP2XSOaL0RMk0M-8mSQM_Z8RYEhRnFJZDSIkKkdMVMG0pckzreB4wIPQQNkLrHwSuOv-feyIUiaxno5QPRiHTRcB75yQ8QeYF45qpxoS0MNpyNSoLRhnF6laHTiDWkMoqd17n2qgwicB_K8DvFbqaJDluqzkukEXpg1FZzZWUqaLZnx5cpmkhRr9hFR2Co",
+      "images": [
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuAWoLbrASmz7dRvcre37b1C0DkA6Ytl-9IX6t2KSaGwsXr_Wu-wq2Z1vIQXbk_SckFDU6T_vO1hDqjSfDP2XSOaL0RMk0M-8mSQM_Z8RYEhRnFJZDSIkKkdMVMG0pckzreB4wIPQQNkLrHwSuOv-feyIUiaxno5QPRiHTRcB75yQ8QeYF45qpxoS0MNpyNSoLRhnF6laHTiDWkMoqd17n2qgwicB_K8DvFbqaJDluqzkukEXpg1FZzZWUqaLZnx5cpmkhRr9hFR2Co"
+      ]
+    },
+    {
+      "id": 66,
+      "name": "Artisan Ceramic Pitcher",
+      "price": "15",
+      "categoryId": 5,
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDna_K-oI-QFFyUHl9GkaGf8GT2e83ayYWxeMJB814JJCmthfaqEGESnw5RM3_B8AytimDGc0vtbUvtaVZyb8pArK8ckZI0J-swZiIINW8QvrEFKsJfWPFLogAn6MbcfYybq_6r_QzE57m3RufVBlRhIJF06T4C8t3v1fEsve8qPFgYK7zW39SmBOhwhNl-NmzeSH_MSBI2poRpznl8VFKUGl6dWHWoNDYxGDKWtO6J5U5u_-7ZT3v5NlMvTjJRf7tH1stYVCl192c",
+      "images": [
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuDna_K-oI-QFFyUHl9GkaGf8GT2e83ayYWxeMJB814JJCmthfaqEGESnw5RM3_B8AytimDGc0vtbUvtaVZyb8pArK8ckZI0J-swZiIINW8QvrEFKsJfWPFLogAn6MbcfYybq_6r_QzE57m3RufVBlRhIJF06T4C8t3v1fEsve8qPFgYK7zW39SmBOhwhNl-NmzeSH_MSBI2poRpznl8VFKUGl6dWHWoNDYxGDKWtO6J5U5u_-7ZT3v5NlMvTjJRf7tH1stYVCl192c"
+      ]
+    },
+    {
+      "id": 67,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 8,
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDvfbahE1Cai5MY8naLoez05xOlvcG9z8Sn3Debz0sScxOiWPdMIVOjKx9a3MnEdkkIsGlX7F87ScUipOVunbW3pZ4w187YYLuDw6rDK91qW-fQqOzZVo9vwXNBbrqhQqloWtoMHorCDhf6d5mQVBR_yU07m2qlLPjoPRJa0l6NtmPxYH13EyJcJqIzUtOkgge2s9bI9iRCX_cEw9xdr89N4fbc4LV58tghZ_hynnIU7E_aUbY7t_P8uMHx44essafT1Av1M6_GurA",
+      "images": [
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuDvfbahE1Cai5MY8naLoez05xOlvcG9z8Sn3Debz0sScxOiWPdMIVOjKx9a3MnEdkkIsGlX7F87ScUipOVunbW3pZ4w187YYLuDw6rDK91qW-fQqOzZVo9vwXNBbrqhQqloWtoMHorCDhf6d5mQVBR_yU07m2qlLPjoPRJa0l6NtmPxYH13EyJcJqIzUtOkgge2s9bI9iRCX_cEw9xdr89N4fbc4LV58tghZ_hynnIU7E_aUbY7t_P8uMHx44essafT1Av1M6_GurA"
+      ]
+    },
+    {
+      "id": 70,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 6,
+      "image": "topcar/products_houseware/wiper1.png",
+      "images": [
+        "topcar/products_houseware/wiper1.png",
+        "topcar/products_houseware/wiper1_flip.png"
+      ]
+    },
+    {
+      "id": 71,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 6,
+      "image": "topcar/products_houseware/wiper2.png",
+      "images": [
+        "topcar/products_houseware/wiper2.png"
+      ]
+    },
+    {
+      "id": 72,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 6,
+      "image": "topcar/products_houseware/wiper1_flip.png",
+      "images": [
+        "topcar/products_houseware/wiper1_flip.png"
+      ]
+    },
+    {
+      "id": 73,
+      "name": "dummy",
+      "price": "0",
+      "categoryId": 6,
+      "image": "topcar/products_houseware/clean_trolly.png",
+      "images": [
+        "topcar/products_houseware/clean_trolly.png",
+        "topcar/clean_advert.png"
+      ]
+    },
+    {
+      "id": 81,
+      "name": "Measuring Cups Set",
+      "price": "0.5",
+      "categoryId": 5,
+      "image": "topcar/measuring1.png",
+      "images": [
+        "topcar/measuring1.png",
+        "topcar/measuring2.png"
+      ]
+    },
+    {
+      "id": 82,
+      "name": "Dough Roller",
+      "price": "0.75",
+      "categoryId": 5,
+      "image": "topcar/roll1.png",
+      "images": [
+        "topcar/roll1.png",
+        "topcar/roll2.png"
+      ]
+    },
+    {
+      "id": 83,
+      "name": "Pizza Slicer",
+      "price": "0.25",
+      "categoryId": 5,
+      "image": "topcar/slice1.png",
+      "images": [
+        "topcar/slice1.png",
+        "topcar/slice2.png"
+      ]
+    },
+    {
+      "id": 84,
+      "name": "Pizza Server",
+      "price": "0.4",
+      "categoryId": 5,
+      "image": "topcar/picker1.png",
+      "images": [
+        "topcar/picker1.png",
+        "topcar/picker2.png"
+      ]
+    },
+    {
+      "id": 152,
+      "name": "Precision Kitchen Scale KS-500",
+      "price": "19.999",
+      "categoryId": 5,
+      "image": "topcar/kitchen.png",
+      "images": [
+        "topcar/kitchen.png"
+      ]
+    }
+  ]
+}

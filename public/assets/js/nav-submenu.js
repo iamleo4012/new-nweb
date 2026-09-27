@@ -42,7 +42,7 @@
   var SUBCATS = {
     "houseware-cleaning-tools.html": [
       { name: "Surface Cleaning", slug: "surface-cleaning" },
-      { name: "Toilet & Drain", slug: "toilet-drain" }
+      { name: "Toilet supplies", slug: "toilet-drain" }
     ],
     "houseware-home-outdoor.html": [
       { name: "Laundry Essentials", slug: "laundry-essentials" },

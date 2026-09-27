@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
-<html class="light" lang="en"><head>
+<html class="light" lang="en" translate="no"><head>
+<meta name="google" content="notranslate"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <link rel="icon" href="/LOGO.png" type="image/png"/>
@@ -8,6 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Signika&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<script src="assets/js/i18n-data.js" defer></script>
+<script src="assets/js/i18n.js" defer></script>
 </head><body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 
     <!-- Theme must be resolved BEFORE the splash first paints so its solid
@@ -36,6 +40,12 @@
     </div>
 </div>
 <style>
+        /* Featured-carousel CTA buttons: font size increased by 12%
+           (8px→8.96px, 9px→10.08px, 10px→11.2px). These utility classes are
+           unique to the carousel buttons; breakpoints mirror sm/md. */
+        .text-\[8\.96px\] { font-size: 8.96px; }
+        @media (min-width: 640px) { .sm\:text-\[10\.08px\] { font-size: 10.08px; } }
+        @media (min-width: 768px) { .md\:text-\[11\.2px\] { font-size: 11.2px; } }
         /* Loading Screen Styles — logo + dots until FULL page load, then a
            smooth logo-zoom reveal (mobile + desktop, home.html only).
            Backgrounds are SOLID (not rgba + backdrop-filter): nothing under
@@ -575,8 +585,27 @@
                 updateCarousel(prev);
             };
 
-            if(nextBtn) nextBtn.addEventListener('click', nextSlide);
-            if(prevBtn) prevBtn.addEventListener('click', prevSlide);
+            /* Edge-zone routing: the zones are intentionally large, so where
+               one covers an in-slide CTA/link/button, that element wins (its
+               click is forwarded); everywhere else the zone falls through to
+               prev/next. Programmatic clicks (the AR swipe remap calls
+               prevBtn/nextBtn.click(), keyboard Enter/Space) carry no
+               coordinates and navigate directly. The swipe handler above is
+               untouched — real swipes never produce a button click (movement
+               far exceeds the native tap slop), so the two never double-fire. */
+            const edgeNavigate = (e, go) => {
+                if (e.detail === 0 && e.clientX === 0 && e.clientY === 0) { go(); return; }
+                const zone = e.currentTarget;
+                const prevPe = zone.style.pointerEvents;
+                zone.style.pointerEvents = 'none';
+                const under = document.elementFromPoint(e.clientX, e.clientY);
+                zone.style.pointerEvents = prevPe;
+                const actionable = under && under.closest('#featured-carousel a, #featured-carousel button');
+                if (actionable) { actionable.click(); return; }
+                go();
+            };
+            if(nextBtn) nextBtn.addEventListener('click', function (e) { edgeNavigate(e, nextSlide); });
+            if(prevBtn) prevBtn.addEventListener('click', function (e) { edgeNavigate(e, prevSlide); });
             dots.forEach((dot, i) => dot.addEventListener('click', () => updateCarousel(i)));
 
             // Auto-play with hover pause functionality
@@ -667,12 +696,12 @@
 <ul class="space-y-4">
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-trolleys-baskets.html">Trolleys & Baskets</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-forklifts-pallets.html">Forklifts & Pallets</a></li>
-<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racking</a></li>
+<li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-heavy-duty-racking.html">Heavy Duty Racks</a></li>
 </ul>
 </div>
 </div>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Customized<br/><span class="block text-[11px]">Packaging</span></a>
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Packaging<br/><span class="block text-[11px]">Manufacturer</span></a></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="cold-room.html">Cold<br/><span class="block text-[11px]">Rooms</span></a></div>
 </div>
 </div>
 <!-- Mobile inline search bar (md:hidden). Sits between logo and hamburger as a
@@ -692,7 +721,7 @@
 <button class="hidden md:flex hover:opacity-80 transition-all duration-300 active:scale-95 items-center">
 <span class="text-[13px] font-label font-bold tracking-widest text-primary dark:text-white">EN</span>
 <span class="mx-1 text-primary/30 dark:text-white/30 font-light text-[13px]">|</span>
-<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">AR</span>
+<span class="text-[13px] font-label font-bold tracking-widest text-primary/50 dark:text-white/50 hover:text-primary dark:hover:text-white transition-colors">عربي</span>
 </button>
 <div class="relative group hidden md:block" id="download-btn-container">
 <button class="hover:opacity-80 transition-all duration-300 active:scale-95" id="download-btn">
@@ -758,7 +787,7 @@
 
 <p class="text-white/90 text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Designed for seamless cooking and perfect results.</p>
 
-<a href="houseware-kitchenware.html" class="bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl inline-block" data-product-wired="1">View Kitchenware</a>
+<a href="houseware-kitchenware.html" class="carousel-btn-left bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl inline-block" data-product-wired="1">View Kitchenware</a>
 
 </div>
 
@@ -774,7 +803,7 @@
 <span class="font-label text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-secondary mb-2 md:mb-4 block"></span>
 <h2 class="font-headline text-[1.6rem] sm:text-3xl md:text-6xl font-extrabold text-primary tracking-tighter mb-2 md:mb-6 leading-[1.1]">MOPPING<br/>TROLLEY.</h2>
 <p class="text-on-surface-variant text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Efficiency in every swipe. The ultimate solution for a spotless environment.</p>
-<a href="houseware-cleaning-tools.html" class="bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl inline-block" data-product-wired="1">View Cleaning Products</a>
+<a href="houseware-cleaning-tools.html" class="bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl inline-block" data-product-wired="1">View Cleaning Products</a>
 </div>
 </div>
 </div>
@@ -787,7 +816,7 @@
 <span class="font-label text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-secondary mb-2 md:mb-4 block"></span>
 <h2 class="font-headline text-[1.6rem] sm:text-3xl md:text-6xl font-extrabold text-primary tracking-tighter mb-2 md:mb-6 leading-[1.1]">COLLAPSIBLE BASKET.</h2>
 <p class="text-on-surface-variant text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Push it down to fold flat or pull it up to fill it.</p>
-<button class="bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl" data-product-id="shopping-basket-sy115">View Product</button>
+<button class="carousel-btn-left bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl" data-product-id="shopping-basket-sy115">View Product</button>
 </div>
 </div>
 </div>
@@ -800,7 +829,7 @@
 <span class="font-label text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-secondary mb-2 md:mb-4 block"></span>
 <h2 class="font-headline text-[1.6rem] sm:text-3xl md:text-6xl font-extrabold text-white tracking-tighter mb-2 md:mb-6 leading-[1.1]">GLASS<br/>FREEZER.</h2>
 <p class="text-white/90 text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Keep it frozen with powerful cooling. Maximum visibility for your best-selling products.</p>
-<a href="supermarket-cooling-appliances.html" class="bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl inline-block" data-product-wired="1">View Freezer</a>
+<a href="supermarket-cooling-appliances.html" class="bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl inline-block" data-product-wired="1">View Freezer</a>
 </div>
 </div>
 </div>
@@ -813,7 +842,7 @@
 <span class="font-label text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-secondary mb-2 md:mb-4 block"></span>
 <h2 class="font-headline text-[1.6rem] sm:text-3xl md:text-6xl font-extrabold text-primary tracking-tighter mb-2 md:mb-6 leading-[1.1]">JUNIOR<br/>SHOPPING TROLLEY.</h2>
 <p class="text-on-surface-variant text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Engaging the next generation. Small-scale design for big-time family fun.</p>
-<a href="supermarket-trolleys-baskets.html" class="bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl inline-block" data-product-wired="1">View Trollies</a>
+<a href="supermarket-trolleys-baskets.html" class="bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl inline-block" data-product-wired="1">View Trollies</a>
 </div>
 </div>
 </div>
@@ -826,21 +855,28 @@
 <span class="font-label text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-secondary mb-2 md:mb-4 block"></span>
 <h2 class="font-headline text-[1.6rem] sm:text-3xl md:text-6xl font-extrabold text-primary tracking-tighter mb-2 md:mb-6 leading-[1.1]">OUTDOOR<br/>PEDAL BIN.</h2>
 <p class="text-on-surface-variant text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Hands-free, rugged and durable for a clean environment.</p>
-<button class="bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl" data-product-id="outdoor-pedal-bin">View Product</button>
+<button class="bg-primary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl" data-product-id="outdoor-pedal-bin">View Product</button>
 </div>
 </div>
 </div>
 </div>
+<!-- Edge Navigation Zones (DESKTOP ONLY — hidden on mobile, which navigates by
+     swipe + dots): the BUTTON is the full-height hit area (not just the arrow
+     glyph) — click anywhere on the extreme left edge = previous slide, extreme
+     right edge = next slide. The buttons are pinned to the PHYSICAL left/right
+     sides in every language and the slides/imagery are never mirrored (see the
+     carousel-edge styles + the AR glyph note below). Same #prevSlide/#nextSlide
+     ids → the existing handlers are reused; no second carousel implementation.
+     Mobile keeps the handlers available programmatically (autoplay, swipe, AR
+     swipe remap) while the controls themselves are display:none. -->
+<button type="button" id="prevSlide" aria-label="Previous slide" class="carousel-edge carousel-edge-prev">
+<span class="material-symbols-outlined carousel-edge-icon" aria-hidden="true">arrow_back</span>
+</button>
+<button type="button" id="nextSlide" aria-label="Next slide" class="carousel-edge carousel-edge-next">
+<span class="material-symbols-outlined carousel-edge-icon" aria-hidden="true">arrow_forward</span>
+</button>
 <!-- Centered Controls -->
 <div class="absolute bottom-4 md:bottom-8 left-0 w-full flex flex-col items-center gap-3 md:gap-6 z-20">
-<div class="hidden md:flex gap-3 md:gap-4">
-<button class="w-9 h-9 md:w-12 md:h-12 flex items-center justify-center border border-primary/20 text-primary rounded-full hover:bg-primary hover:text-white transition-all duration-300" id="prevSlide">
-<span class="material-symbols-outlined text-xs md:text-sm">arrow_back</span>
-</button>
-<button class="w-9 h-9 md:w-12 md:h-12 flex items-center justify-center border border-primary/20 text-primary rounded-full hover:bg-primary hover:text-white transition-all duration-300" id="nextSlide">
-<span class="material-symbols-outlined text-xs md:text-sm">arrow_forward</span>
-</button>
-</div>
 <div class="hidden md:flex gap-2 md:gap-3">
 <div class="carousel-dot w-2 h-2 rounded-full bg-primary transition-all duration-500 cursor-pointer scale-125"></div>
 <div class="carousel-dot w-2 h-2 rounded-full bg-primary/30 transition-all duration-500 cursor-pointer"></div>
@@ -904,6 +940,76 @@
     border-color: rgba(0, 3, 8, 0.2) !important;
   }
 </style>
+<style>
+/* ==================== HERO CAROUSEL EDGE NAVIGATION ====================
+   Desktop (≥768px) only: full-height tap/click zones on the extreme left/right
+   edges of the hero carousel. The BUTTON is the hit area (the glyph chip
+   inside has pointer-events:none), so the customer never has to target the
+   arrow icon. Physical left = previous, physical right = next in EVERY
+   language: the buttons are pinned with physical left/right offsets and the
+   slides/imagery are never mirrored. The old bottom-center pair sat in a flex
+   row (positions auto-flipped in AR) and rtl-overrides.css mirrored its glyphs
+   to match; these zones are pinned instead, so that mirroring is neutralized
+   below — the left arrow keeps pointing at the physical left edge in AR too.
+
+   MOBILE (<768px): the arrows and edge zones are fully disabled (display:none,
+   no reserved hit areas) — the mobile carousel is navigated by swipe and the
+   dots only, exactly as before. The underlying prevSlide/nextSlide logic,
+   autoplay, swipe handling and the AR swipe remap all keep working because
+   they call the functions/buttons programmatically, not through the visible
+   zones. */
+#featured-carousel .carousel-edge {
+    display: none;                      /* mobile: swipe/dots only — no arrows, no edge zones */
+}
+@media (min-width: 768px) {
+    #featured-carousel .carousel-edge {
+        display: flex;
+        position: absolute;
+        top: 0; bottom: 0;              /* full height → arrow stays vertically centred at any carousel height */
+        width: 72px;                    /* generous desktop hit zone */
+        align-items: center;            /* vertical centring of the glyph chip */
+        z-index: 30;                    /* above slides (z-10) and the dots strip (z-20) */
+        background: transparent;
+        border: none;
+        margin: 0;
+        padding: 0;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;     /* taps stay instant; swipes still pan/scroll natively */
+        user-select: none;
+        -webkit-user-select: none;
+    }
+    #featured-carousel .carousel-edge-prev { left: 0;  justify-content: flex-start; padding-left: 12px; }
+    #featured-carousel .carousel-edge-next { right: 0; justify-content: flex-end;   padding-right: 12px; }
+}
+#featured-carousel .carousel-edge-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 9999px;
+    font-size: 22px;
+    background: rgba(255, 255, 255, 0.85);
+    color: #000308;
+    box-shadow: 0 2px 12px rgba(0, 3, 8, 0.22);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    pointer-events: none;               /* the button owns the hit area */
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+@media (min-width: 768px) {
+    #featured-carousel .carousel-edge:hover .carousel-edge-icon { background: #000308; color: #ffffff; }
+    #featured-carousel .carousel-edge:active .carousel-edge-icon { background: #825335; color: #ffffff; }
+    #featured-carousel .carousel-edge:focus-visible { outline: 2px solid #825335; outline-offset: -6px; }
+}
+html.dark #featured-carousel .carousel-edge-icon { background: rgba(17, 22, 28, 0.72); color: #ffffff; }
+html.dark #featured-carousel .carousel-edge:hover .carousel-edge-icon { background: #ffffff; color: #000308; }
+/* AR: keep the glyphs pointing at the physical edges (beats the
+   html.lang-ar #prevSlide/#nextSlide glyph mirror in rtl-overrides.css,
+   which assumed the old flex-row layout). */
+html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { transform: none; }
+</style>
 <section id="categories-grid" class="pt-6 pb-12 md:py-12 bg-white dark:bg-[#0a0f14] overflow-hidden">
 <div class="max-w-screen-2xl mx-auto px-8">
 <div class="mb-10 reveal-on-scroll text-center">
@@ -932,8 +1038,8 @@
 <div class="absolute inset-y-3 left-3 p-3 bg-black/60 backdrop-blur-md border border-white/5 rounded-lg max-w-[160px] flex flex-col justify-center transform -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 delay-75 hidden">
 <h3 class="font-headline text-[15px] font-extrabold text-white tracking-tighter uppercase mb-1 leading-tight">Supermarket<br/><span class="block text-[11px]">Equipment</span></h3>
 <p class="text-white/50 font-headline text-[9px] tracking-[0.2em] uppercase mb-2 leading-loose">Everything for a smart store</p>
-<a class="flex items-center gap-1 font-headline text-[9px] text-white uppercase tracking-[0.2em] hover:text-secondary transition-colors" href="supermarket.html">
-<span>Explore</span>
+<a class="flex items-center gap-1 font-headline text-[9px] text-white uppercase tracking-[0.2em] hover:text-secondary transition-colors group/link" href="supermarket.html">
+<span class="group-hover/link:text-secondary transition-colors">Explore</span>
 <span class="material-symbols-outlined text-[10px]">arrow_forward</span>
 </a>
 </div>
@@ -944,8 +1050,8 @@
 <div class="absolute inset-y-3 left-3 p-3 bg-black/60 backdrop-blur-md border border-white/5 rounded-lg max-w-[160px] flex flex-col justify-center transform -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 delay-75 hidden">
 <h3 class="font-headline text-[15px] font-extrabold text-white tracking-tighter uppercase mb-1 leading-tight">Warehouse<br/><span class="block text-[11px]">Equipment</span></h3>
 <p class="text-white/50 font-headline text-[9px] tracking-[0.2em] uppercase mb-2 leading-loose">Heavy Storage &amp; Logistics</p>
-<a class="flex items-center gap-1 font-headline text-[9px] text-white uppercase tracking-[0.2em] hover:text-secondary transition-colors" href="warehouse.html">
-<span>Explore</span>
+<a class="flex items-center gap-1 font-headline text-[9px] text-white uppercase tracking-[0.2em] hover:text-secondary transition-colors group/link" href="warehouse.html">
+<span class="group-hover/link:text-secondary transition-colors">Explore</span>
 <span class="material-symbols-outlined text-[10px]">arrow_forward</span>
 </a>
 </div>
@@ -955,10 +1061,10 @@
 <img loading="lazy" alt="Packaging" class="absolute inset-0 w-full h-full object-cover grayscale transition-transform duration-[2s] group-hover:scale-110 group-hover:grayscale-0" src="topcar/grid/packing.png"/>
 <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-10 transition-opacity duration-500 hidden"></div>
 <div class="absolute inset-x-3 bottom-3 p-3 bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out max-w-[160px] hidden">
-<h3 class="font-headline text-[13px] font-extrabold text-white tracking-tighter uppercase mb-1 leading-tight">Customized<br/>Packaging</h3>
+<h3 class="font-headline text-[13px] font-extrabold text-white tracking-tighter uppercase mb-1 leading-tight">Packaging Manufacturer</h3>
 <p class="text-white/50 font-headline text-[8px] tracking-[0.2em] uppercase mb-3 leading-relaxed">Tailored packaging solutions</p>
-<a class="flex items-center gap-1 text-white font-headline text-[9px] uppercase tracking-[0.2em] hover:text-secondary transition-colors" href="customized-packaging.html">
-<span>Explore</span>
+<a class="flex items-center gap-1 text-white font-headline text-[9px] uppercase tracking-[0.2em] hover:text-secondary transition-colors group/link" href="customized-packaging.html">
+<span class="group-hover/link:text-secondary transition-colors">Explore</span>
 <span class="material-symbols-outlined text-[10px]">arrow_forward</span>
 </a>
 </div>
@@ -970,8 +1076,8 @@
 <div class="absolute inset-x-3 bottom-3 p-3 bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out max-w-[160px] hidden">
 <h3 class="font-headline text-[13px] font-extrabold text-white tracking-tighter uppercase mb-1 leading-tight">Cold Rooms</h3>
 <p class="text-white/50 font-headline text-[8px] tracking-[0.2em] uppercase mb-3 leading-relaxed">Built to your requirements</p>
-<a class="flex items-center gap-1 text-white font-headline text-[9px] uppercase tracking-[0.2em] hover:text-secondary transition-colors" href="cold-room.html">
-<span>Explore</span>
+<a class="flex items-center gap-1 text-white font-headline text-[9px] uppercase tracking-[0.2em] hover:text-secondary transition-colors group/link" href="cold-room.html">
+<span class="group-hover/link:text-secondary transition-colors">Explore</span>
 <span class="material-symbols-outlined text-[10px]">arrow_forward</span>
 </a>
 </div>
@@ -985,7 +1091,7 @@
 <img loading="lazy" alt="Houseware" class="absolute inset-0 w-full h-full object-cover grayscale transition-transform duration-[2s] group-hover:scale-110 group-hover:grayscale-0" src="topcar/homeware.png"/>
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80"></div>
 <!-- Overlays -->
-<div class="absolute inset-x-6 bottom-6 md:inset-x-12 md:bottom-12 p-10 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out flex flex-col items-start">
+<div class="houseware-card-overlay absolute inset-x-6 bottom-6 md:inset-x-12 md:bottom-12 p-10 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out flex flex-col items-start">
 <h3 class="font-headline text-4xl font-extrabold text-white tracking-tighter uppercase mb-4 leading-none">Houseware</h3>
 <p class="font-headline text-[16px] text-white/60 font-light max-w-xs mb-10 leading-relaxed uppercase tracking-[0.25em]">Simple tools to make everyday home tasks easier</p>
 <a class="flex items-center gap-4 font-headline text-[13px] text-white uppercase tracking-[0.3em] group/link" href="houseware.html">
@@ -1004,8 +1110,8 @@
 <div class="absolute inset-y-14 left-10 p-5 bg-black/60 backdrop-blur-md border border-white/5 rounded-lg max-w-[300px] flex flex-col justify-center transform -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 delay-75">
 <h3 class="font-headline text-[27px] font-extrabold text-white tracking-tighter uppercase mb-3">Supermarket<br/><span class="block text-[18px]">Equipment</span></h3>
 <p class="text-white/50 font-headline text-[15px] tracking-[0.3em] uppercase mb-5 leading-loose">Everything needed to run a smart store</p>
-<a class="flex items-center gap-3 font-headline text-[13px] text-white uppercase tracking-[0.3em] hover:text-secondary transition-colors" href="supermarket.html">
-<span>Explore Items</span>
+<a class="flex items-center gap-3 font-headline text-[13px] text-white uppercase tracking-[0.3em] hover:text-secondary transition-colors group/link" href="supermarket.html">
+<span class="group-hover/link:text-secondary transition-colors">Explore Items</span>
 <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
 </a>
 </div>
@@ -1018,9 +1124,8 @@
 <img loading="lazy" alt="Warehouse" class="absolute inset-0 w-full h-full object-cover grayscale transition-transform duration-[2s] group-hover:scale-110 group-hover:grayscale-0" src="topcar/warehouse.png"/>
 <div class="absolute inset-y-14 left-10 p-5 bg-black/60 backdrop-blur-md border border-white/5 rounded-lg max-w-[300px] flex flex-col justify-center transform -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 delay-75">
 <h3 class="font-headline text-[27px] font-extrabold text-white tracking-tighter uppercase mb-3">Warehouse<br/><span class="block text-[18px]">Equipment</span></h3>
-<p class="text-white/50 font-headline text-[13px] tracking-[0.3em] uppercase mb-5 leading-loose">Structural Logistics &amp; Heavy Storage</p>
-<a class="flex items-center gap-3 font-headline text-[13px] text-white uppercase tracking-[0.3em] hover:text-secondary transition-colors" href="warehouse.html">
-<span>Explore Items</span>
+<a class="flex items-center gap-3 font-headline text-[13px] text-white uppercase tracking-[0.3em] hover:text-secondary transition-colors group/link" href="warehouse.html">
+<span class="group-hover/link:text-secondary transition-colors">Explore Items</span>
 <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
 </a>
 </div>
@@ -1033,10 +1138,10 @@
 <img loading="lazy" alt="Packaging" class="absolute inset-0 w-full h-full object-cover grayscale transition-transform duration-[2s] group-hover:scale-110 group-hover:grayscale-0" src="topcar/packaging.png"/>
 <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
 <div class="absolute inset-x-8 bottom-8 p-8 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out max-w-sm">
-<h3 class="font-headline text-2xl font-extrabold text-white tracking-tighter uppercase mb-3">Customized Packaging</h3>
-<p class="text-white/50 font-headline text-[13px] tracking-[0.4em] uppercase mb-6 leading-relaxed">Custom packaging solutions tailored to your requirements.</p>
-<a class="flex items-center gap-2 text-white font-headline text-[13px] uppercase tracking-[0.4em] hover:text-secondary transition-colors" href="customized-packaging.html">
-<span>Explore</span>
+<h3 class="font-headline text-2xl font-extrabold text-white tracking-tighter uppercase mb-3">Packaging Manufacturer</h3>
+<p class="text-white/50 font-headline text-[13px] tracking-[0.4em] uppercase mb-6 leading-relaxed"></p>
+<a class="flex items-center gap-2 text-white font-headline text-[13px] uppercase tracking-[0.4em] hover:text-secondary transition-colors group/link" href="customized-packaging.html">
+<span class="group-hover/link:text-secondary transition-colors">Explore</span>
 <span class="material-symbols-outlined text-sm">arrow_forward</span>
 </a>
 </div>
@@ -1044,7 +1149,7 @@
      opacity-0 but still covered the Solutions link and swallowed clicks —
      opacity alone never removes an element from hit-testing. -->
 <div class="absolute inset-0 flex items-center justify-center group-hover:opacity-0 group-hover:pointer-events-none transition-opacity duration-300">
-<h4 class="font-headline text-lg font-bold text-white tracking-widest uppercase">Customized Packaging</h4>
+<h4 class="font-headline text-lg font-bold text-white tracking-widest uppercase">Packaging Manufacturer</h4>
 </div>
 </div>
 <!-- Cooling Rooms: Integrated Wide Card Aligned with Houseware -->
@@ -1053,9 +1158,9 @@
 <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
 <div class="absolute inset-x-8 bottom-8 p-8 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out max-w-sm">
 <h3 class="font-headline text-2xl font-extrabold text-white tracking-tighter uppercase mb-3">Cold Rooms</h3>
-<p class="text-white/50 font-headline text-[13px] tracking-[0.4em] uppercase mb-6 leading-relaxed">Cold room solutions built according to your requirements.</p>
-<a class="flex items-center gap-2 text-white font-headline text-[13px] uppercase tracking-[0.4em] hover:text-secondary transition-colors" href="cold-room.html">
-<span>Explore</span>
+<p class="text-white/50 font-headline text-[13px] tracking-[0.4em] uppercase mb-6 leading-relaxed"></p>
+<a class="flex items-center gap-2 text-white font-headline text-[13px] uppercase tracking-[0.4em] hover:text-secondary transition-colors group/link" href="cold-room.html">
+<span class="group-hover/link:text-secondary transition-colors">Explore</span>
 <span class="material-symbols-outlined text-sm">arrow_forward</span>
 </a>
 </div>
@@ -1084,15 +1189,15 @@
 <img loading="lazy" alt="Luxury interior" class="w-full h-full object-cover md:object-cover" src="topcar/grillday.png"/>
 <div class="absolute inset-0 bg-primary/20"></div>
 </div>
-<div class="relative z-10 max-w-screen-2xl mx-auto px-6 md:px-8 w-full">
-<div class="max-w-lg p-4 md:p-8 reveal-on-scroll md:mt-[40%] md:mr-[10%]">
+<div class="fire-hero-outer relative z-10 max-w-screen-2xl mx-auto px-6 md:px-8 w-full">
+<div class="fire-hero-content max-w-lg p-4 md:p-8 reveal-on-scroll md:mt-[40%] md:mr-[10%]">
 <span class="font-label text-[0.35rem] sm:text-[0.45rem] uppercase tracking-[0.2em] text-secondary dark:text-white/70 mb-2 md:mb-3 block">WEEKEND</span>
 <h1 class="font-headline text-[1.6rem] sm:text-[2rem] md:text-[2.36rem] leading-none font-extrabold text-white mb-2 md:mb-4 tracking-tighter">FIRE.</h1>
 <p class="font-body text-white text-xs sm:text-sm mb-4 md:mb-8 max-w-[200px] sm:max-w-sm leading-relaxed">
                         Built for outdoor moments that matter. From grilling to gathering — everything you need to cook, serve, and enjoy.
                     </p>
 <div class="flex gap-3 md:gap-4">
-<button class="bg-primary text-on-primary px-5 py-2 md:px-7 md:py-2.5 font-label uppercase text-[10px] sm:text-xs tracking-widest rounded-sm hover:bg-secondary transition-all duration-300">Explore Collection</button>
+<button class="bg-primary text-on-primary px-5 py-2 md:px-7 md:py-2.5 font-label uppercase text-[10px] sm:text-xs tracking-widest rounded-sm hover:bg-secondary transition-all duration-300">EXPLORE THE COLLECTION</button>
 <button class="border border-outline-variant/30 text-white px-5 py-2 md:px-7 md:py-2.5 font-label uppercase text-[10px] sm:text-xs tracking-widest rounded-sm hover:bg-secondary transition-all duration-300">Outdoor Essentials</button>
 </div>
 </div>
@@ -1128,148 +1233,8 @@
 </a>
 </div>
 </section>
-<!-- The 1 KD Capsule: Reimagined Module -->
-<section class="max-w-[1600px] mx-auto mb-0">
-    <div class="editorial-shadow overflow-hidden relative md:flex md:items-center md:px-12 md:min-h-[480px] md:py-2 p-2" style="background-color: #ff0000;">
-
-        <!-- Ambient Glow (shared) -->
-        <div class="absolute left-[40%] w-[500px] h-[500px] bg-red-400/30 rounded-full blur-[120px] z-10 top-[0%] md:block hidden"></div>
-        <div class="absolute right-[15%] w-[450px] h-[450px] bg-yellow-500/25 rounded-full blur-[100px] z-10 bottom-[5%] md:block hidden"></div>
-
-        <!-- ==================== MOBILE LAYOUT ==================== -->
-        <!-- 3 image cards on top → text+button center → 3 image cards bottom -->
-        <div class="flex flex-col items-center gap-4 py-4 px-[5%] md:hidden relative z-20 w-full">
-
-            <!-- Top row: 3 equal image cards -->
-            <div class="grid grid-cols-3 gap-2 w-full">
-                <!-- BBQ -->
-                <div class="aspect-square animate-float-fast">
-                    <div class="group relative w-full h-full cursor-pointer">
-                        <img src="topcar/bbqq.png" class="w-full h-full object-cover rounded-2xl shadow-lg transition-opacity duration-500 group-hover:opacity-0">
-                        <img src="topcar/5.png" class="w-full h-full object-cover rounded-2xl shadow-lg absolute inset-0 opacity-0 group-hover:opacity-100">
-                    </div>
-                </div>
-                <!-- Bowl -->
-                <div class="aspect-square animate-float-medium">
-                    <div class="group relative w-full h-full cursor-pointer">
-                        <img src="topcar/bowl.png" class="w-full h-full object-cover rounded-2xl shadow-lg transition-opacity duration-500 group-hover:opacity-0">
-                        <img src="topcar/4.png" class="w-full h-full object-cover rounded-2xl shadow-lg absolute inset-0 opacity-0 group-hover:opacity-100">
-                    </div>
-                </div>
-                <!-- Broom Pan -->
-                <div class="aspect-square animate-float-slow">
-                    <img src="topcar/broompan.png" class="w-full h-full object-cover rounded-2xl shadow-lg">
-                </div>
-            </div>
-
-            <!-- Center: text + button -->
-            <div class="text-center py-1">
-                <h2 class="font-headline text-[44px] sm:text-5xl font-black leading-[1.05] drop-shadow-sm mb-2 flex flex-col items-center" style="color: #ffbf01;">
-                    <span class="whitespace-nowrap mb-[6px]" style="color: #ffbf01;">Smart Shopping</span>
-                    <span class="text-[22px] sm:text-3xl whitespace-nowrap mb-[4px]" style="color: #ffbf01;">Products at</span>
-                    <span class="whitespace-nowrap animate-zoom-slow" style="color: white;">1 KD & Under</span>
-                </h2>
-                <a class="inline-flex items-center group/cta font-label text-[12px] uppercase tracking-[0.2em] py-3 px-6 rounded-full transition-all duration-500 hover:bg-white hover:scale-105 active:scale-95 shadow-xl shadow-red-950/20 mt-1"
-                   href="#"
-                   style="background-color: white; color: #000; border: 2px solid white;">
-                    <span class="mr-4 font-bold">Explore All</span>
-                    <span class="material-symbols-outlined text-base group-hover/cta:translate-x-1 transition-transform">arrow_right_alt</span>
-                </a>
-            </div>
-
-            <!-- Bottom row: 3 equal image cards -->
-            <div class="grid grid-cols-3 gap-2 w-full">
-                <!-- Fruit -->
-                <div class="aspect-square animate-float-fast">
-                    <img src="topcar/fruit.png" class="w-full h-full object-cover rounded-2xl shadow-lg">
-                </div>
-                <!-- Wooden -->
-                <div class="aspect-square animate-float-medium">
-                    <img src="topcar/wooden.png" class="w-full h-full object-cover rounded-2xl shadow-lg opacity-90">
-                </div>
-                <!-- Potato -->
-                <div class="aspect-square animate-float-fast">
-                    <img src="topcar/potato.png" class="w-full h-full object-cover rounded-2xl shadow-lg">
-                </div>
-            </div>
-
-        </div>
-
-        <!-- ==================== DESKTOP LAYOUT (md+) ==================== -->
-        <!-- Left Column -->
-        <div class="relative z-30 max-w-md pointer-events-none md:ml-0 hidden md:block">
-            <div class="pointer-events-auto p-8">
-                <h2 class="font-headline text-5xl lg:text-7xl font-black leading-[0.9] drop-shadow-sm mb-2 flex flex-col items-start" style="color: #ffbf01;">
-                    <span class="text-5xl lg:text-6xl whitespace-nowrap" style="color: #ffbf01;">Smart Shopping</span>
-                    <span class="text-3xl lg:text-4xl whitespace-nowrap" style="color: #ffbf01;">Products at</span>
-                    <span class="whitespace-nowrap animate-zoom-slow" style="color: white;">1 KD & Under</span>
-                </h2>
-
-                <a class="inline-flex items-center group/cta font-label text-[12px] uppercase tracking-[0.2em] py-3.5 px-8 rounded-full transition-all duration-500 hover:bg-white hover:scale-105 active:scale-95 shadow-xl shadow-red-950/20"
-                   href="#"
-                   style="background-color: white; color: #000; border: 2px solid white;">
-                    <span class="mr-4 font-bold">Explore All</span>
-                    <span class="material-symbols-outlined text-base group-hover/cta:translate-x-1 transition-transform">
-                        arrow_right_alt
-                    </span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Product Collage (desktop only) -->
-        <div class="absolute inset-0 z-10 pointer-events-none hidden md:block">
-
-            <!-- Floating Images -->
-
-            <!-- BBQ -->
-            <div class="absolute left-[50%] top-[2%] w-28 md:w-36 z-20 rotate-[10deg] animate-float-fast">
-                <div class="group relative w-full h-full cursor-pointer pointer-events-auto">
-                    <img src="topcar/bbqq.png" class="w-full h-auto rounded-xl shadow-lg transition-opacity duration-500 group-hover:opacity-0">
-                    <img src="topcar/5.png" class="w-full h-auto rounded-xl shadow-lg absolute inset-0 opacity-0 group-hover:opacity-100">
-                </div>
-            </div>
-
-            <!-- Broom Pan -->
-            <div class="absolute left-[65%] top-[4%] w-32 md:w-40 z-15 -rotate-[8deg] animate-float-slow">
-                <img src="topcar/broompan.png" class="w-full h-auto rounded-2xl shadow-lg">
-            </div>
-
-            <!-- Bowl -->
-            <div class="absolute right-[5%] top-[3%] w-40 md:w-52 z-20 rotate-[12deg] animate-float-medium">
-                <div class="group relative w-full h-full cursor-pointer pointer-events-auto">
-                    <img src="topcar/bowl.png" class="w-full h-auto rounded-2xl shadow-2xl transition-opacity duration-500 group-hover:opacity-0">
-                    <img src="topcar/4.png" class="w-full h-auto rounded-2xl shadow-2xl absolute inset-0 opacity-0 group-hover:opacity-100">
-                </div>
-            </div>
-
-            <!-- Fruit -->
-            <div class="absolute right-[18%] top-[55%] w-44 md:w-56 z-30 rotate-[6deg] animate-float-fast">
-                <img src="topcar/fruit.png" class="w-full h-auto rounded-3xl shadow-2xl">
-            </div>
-
-            <!-- Potato -->
-            <div class="absolute left-[50%] bottom-[5%] w-32 md:w-44 z-25 -rotate-[5deg] animate-float-fast">
-                <img src="topcar/potato.png" class="w-full h-auto rounded-3xl shadow-2xl">
-            </div>
-
-            <!-- Steel -->
-            <div class="absolute right-[4%] bottom-[6%] w-32 md:w-44 z-15 rotate-[4deg] animate-float-medium">
-                <div class="group relative w-full h-full cursor-pointer pointer-events-auto">
-                    <img src="topcar/steel.png" class="w-full h-auto rounded-3xl shadow-xl transition-opacity duration-500 group-hover:opacity-0">
-                    <img src="topcar/6.png" class="w-full h-auto rounded-3xl shadow-xl absolute inset-0 opacity-0 group-hover:opacity-100">
-                </div>
-            </div>
-
-            <!-- Wooden -->
-            <div class="absolute left-[42%] top-[30%] w-20 md:w-28 z-10 rotate-[20deg] animate-float-fast">
-                <img src="topcar/wooden.png" class="w-full h-auto rounded-xl shadow-md opacity-80">
-            </div>
-
-        </div>
-    </div>
-</section>
 <!-- Seasonal Highlights Section -->
-<section class="py-10 md:py-20 bg-surface dark:bg-[#0a0f14]">
+<section class="pizza-collection py-10 md:py-20 bg-surface dark:bg-[#0a0f14]">
 <div class="max-w-screen-2xl mx-auto px-8">
 <div class="text-center mb-10 md:mb-20">
 <span class="font-label text-[22px] md:text-[31px] uppercase tracking-[0.22em] md:tracking-[0.4em] text-primary dark:text-white">THE PIZZA COLLECTION</span>
@@ -1346,7 +1311,7 @@
 <a href="home.html" class="flex items-center gap-2 mb-6">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
 </a>
-<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional industrial and retail equipment in the heart of Kuwait.</p>
+<p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
 </div>
 <!-- Column 2 -->
 <div>
@@ -1355,7 +1320,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Customized Packaging</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Packaging Manufacturer</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="cold-room.html">Cold Rooms</a></li>
 </ul>
 </div>
@@ -1366,7 +1331,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="terms.html">Terms & Conditions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="home.html">Terms & Conditions</a></li>
 </ul>
 </div>
 <!-- Column 4 -->
@@ -1384,15 +1349,15 @@
 <ul class="space-y-4 text-sm">
 <li class="flex items-start gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">location_on</span>
-<span>Shuwaikh Industrial Area, Kuwait</span>
+<span></span>
 </li>
 <li class="flex items-center gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">mail</span>
-<span>info@al-nassim.com</span>
+<span></span>
 </li>
 <li class="flex items-center gap-3 text-slate-400">
 <span class="material-symbols-outlined text-primary text-xl">call</span>
-<span>+965 609 000 59</span>
+<span></span>
 </li>
 </ul>
 </div>
@@ -1912,7 +1877,7 @@
               '    <span class="flex items-center">' +
               '      <span class="text-[13px] font-bold tracking-widest text-gray-900 dark:text-white">EN</span>' +
               '      <span class="mx-1 text-gray-400 font-light text-[13px]">|</span>' +
-              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">AR</span>' +
+              '      <span class="text-[13px] font-bold tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">عربي</span>' +
               '    </span>' +
               '  </button>' +
               '</div>' +
@@ -2080,7 +2045,15 @@
   });
 })();
 </script>
-<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script></body></html>
+<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script><style>
+    /* Brown hover for category card CTA labels (same effect as the Houseware
+       card's group-hover/link:border-secondary). The group-hover/link:text-secondary
+       utility is not in the precompiled tailwind.css build, so the equivalent
+       selector is declared here directly. */
+    .group\/link:hover .group-hover\/link\:text-secondary { color: #825335; }
+    .dark .group\/link:hover .group-hover\/link\:text-secondary { color: #f7b994; }
+</style>
+</body></html>
 
 
 

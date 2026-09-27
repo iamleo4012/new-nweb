@@ -40,7 +40,7 @@
     // badge (#header-cart-count) are kept in sync together; visibility is
     // driven here so the desktop badge needs no per-page wiring.
     var badges = document.querySelectorAll(".nassim-cart-badge, #header-cart-count");
-    var text = String(count).padStart(2, "0");
+    var text = String(count);
     badges.forEach(function (el) {
       el.textContent = text;
       el.style.display = count > 0 ? "flex" : "none";

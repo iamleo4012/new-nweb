@@ -102,7 +102,7 @@ window.addEventListener("pageshow", function () {
     lang.innerHTML =
       '<span class="nassim-mu-opt" data-lang="en">EN</span>' +
       '<span class="nassim-mu-sep">|</span>' +
-      '<span class="nassim-mu-opt" data-lang="ar">AR</span>';
+      '<span class="nassim-mu-opt" data-lang="ar">عربي</span>';
     row.appendChild(lang);
 
     // --- Theme toggle (reuses theme.js via id="theme-toggle") ---
@@ -219,17 +219,19 @@ window.addEventListener("pageshow", function () {
       btn.querySelectorAll("span").forEach(function (s) {
         var t = (s.textContent || "").trim();
         if (t === "EN" && !en) en = s;
-        if (t === "AR" && !ar) ar = s;
+        if ((t === "AR" || t === "عربي") && !ar) ar = s;
       });
       if (!en || !ar) return;
       // Guard: only compact EN|AR switches, not unrelated buttons that
       // happen to contain both strings. The label may include a leading icon
-      // ligature + word (e.g. "language Language EN | AR" in the drawer), so
+      // ligature + word (e.g. "language Language EN | عربي" in the drawer), so
       // allow some prefix and require EN to precede AR.
       var label = (btn.textContent || "").replace(/\s+/g, " ").trim();
       if (label.length > 40) return;
-      if (label.indexOf("EN") === -1 || label.indexOf("AR") === -1) return;
-      if (label.indexOf("EN") > label.indexOf("AR")) return;
+      if (label.indexOf("EN") === -1) return;
+      var iAr = label.indexOf("AR"), iArB = label.indexOf("عربي");
+      if (iAr === -1 && iArB === -1) return;
+      if (label.indexOf("EN") > (iArB !== -1 ? iArB : iAr)) return;
       found.push({ btn: btn, en: en, ar: ar });
     });
     return found;
@@ -250,7 +252,16 @@ window.addEventListener("pageshow", function () {
         try { window.dispatchEvent(new CustomEvent("nassim-langchange", { detail: { lang: v } })); } catch (e) {}
       }
     },
-    toggle: function () { this.set(this.get() === "ar" ? "en" : "ar"); },
+    toggle: function () {
+      /* LANGUAGE TOGGLE = SAVE + FULL RELOAD: the newly selected language is
+         saved with the existing "nassim-lang" localStorage key, then the
+         current page is reloaded so page initialization applies the complete
+         translation and all RTL/LTR layout from scratch — no live DOM
+         translation, no partially updated page. */
+      var v = this.get() === "ar" ? "en" : "ar";
+      try { localStorage.setItem("nassim-lang", v); } catch (e) {}
+      location.reload();
+    },
     // Reflect the stored language on every wired control. Pure presentation.
     sync: function () {
       var active = this.get();
@@ -271,11 +282,10 @@ window.addEventListener("pageshow", function () {
         pair.btn.style.display = ""; // clear any legacy inline hide
         pair.en.setAttribute("data-lang", "en");
         pair.ar.setAttribute("data-lang", "ar");
-        pair.btn.addEventListener("click", function (e) {
-          var hit = e.target && e.target.closest ? e.target.closest("[data-lang]") : null;
-          if (hit === pair.en) window.NassimLang.set("en");
-          else if (hit === pair.ar) window.NassimLang.set("ar");
-          else window.NassimLang.toggle(); // tapped the button body/separator
+        // ONE toggle: the entire control is a single click/tap target —
+        // EN, |, عربي and the padded area all toggle the language.
+        pair.btn.addEventListener("click", function () {
+          window.NassimLang.toggle();
         });
       });
       this.sync();
