@@ -28,6 +28,10 @@
        sends the control to the sidebar side — mirror it back here. Scoped
        to the desktop row layout only; mobile column layout is untouched. */
     + "html.lang-ar .subcat-grid-header { direction: ltr; }"
+    /* AR: inside the sort group the LABEL sits on the RIGHT and the dropdown
+       on the LEFT (select first physically). Mirrors the group's internal
+       flow only — group position, size and styling untouched. */
+    + "html.lang-ar .subcat-grid-header > div:last-child { direction: rtl; }"
     + "@media (min-width: 768px) {"
     + "  html.lang-ar .subcat-grid-header { flex-direction: row-reverse; }"
     + "  html.lang-ar .subcat-grid-header > div:last-child { margin-left: 0 !important; }"
@@ -35,7 +39,7 @@
     /* Arabic mode is class-based (html.lang-ar); rtl-overrides.css already
        applies direction:rtl to .subcat-grid-header, which mirrors it — only
        the select's physical padding needs a fix for the left-side arrow. */
-    + "html.lang-ar .nassim-sort-bar { justify-content: flex-start; }"
+    + "html.lang-ar .nassim-sort-bar { direction: rtl; justify-content: space-between; }"
     + "@media (max-width: 767px) {"
     + "  .subcat-grid-header > div:first-child { display: none !important; }"
     + "  .subcat-grid-header select { max-width: 60vw; }"
@@ -103,5 +107,8 @@
       '</select>';
     grid.parentNode.insertBefore(bar, grid);
     wireSelect(bar.querySelector("select"));
+    /* the bar was added after the i18n runtime's initial pass — let the
+       EXISTING runtime translate its label for the current language */
+    window.dispatchEvent(new Event("nassim-langchange"));
   });
 })();

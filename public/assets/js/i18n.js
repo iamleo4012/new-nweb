@@ -358,6 +358,24 @@
   var CURRENCY_TOKEN = /\b(?:KWD|KD)\b/g;
   var CURRENCY_AR = '\u062F.\u0643';
 
+  /* SHARED EMPTY-STATE PATTERN: "No [Category] products found." is never a
+     per-category mapping key. It is composed from the shared pieces in
+     NASSIM_I18N ("no" -> "لم يتم العثور على", "products found." -> "منتجات.")
+     plus the EXISTING approved Arabic category translation, placed in
+     grammatically correct Arabic word order:
+       لم يتم العثور على منتجات [Category].
+     A category with no approved mapping stays English — nothing is invented
+     here. With no category at all ("No products found.") the result is
+     simply "لم يتم العثور على منتجات.". */
+  var EMPTY_STATE_RE = /^no\s+(.*?)\s*products\s+found\.?$/i;
+  function emptyStateAr(v) {
+    var m = EMPTY_STATE_RE.exec(String(v).replace(/\s+/g, ' ').trim());
+    if (!m) return null;
+    var catAr = m[1] ? lookup[norm(m[1])] : '';
+    if (catAr == null) return null;
+    return 'لم يتم العثور على منتجات' + (catAr ? ' ' + catAr : '') + '.';
+  }
+
   function translateTextNode(node) {
     if (node.nodeType !== 3) return;
     var v = node.nodeValue;
@@ -370,6 +388,19 @@
     // it would replace the icon with Arabic text — never touch them.
     if (parentEl && isIconEl(parentEl)) return;
     var ar = lookup[norm(v)];
+    if (ar == null) ar = emptyStateAr(v); // shared "No [Category] products found." composition
+    /* TRAILING-COLON FALLBACK: sidebar headings render as "FILTER BY :" while
+       the approved key is "filter by". On an exact miss, retry the text
+       without its trailing " :" and append the colon to the approved Arabic
+       ("تصفية حسب :"). Fires only after a full-text miss, so every mapping
+       that already matches is untouched. */
+    if (ar == null) {
+      var mColon = /^(.*\S)\s*:$/.exec(v.trim());
+      if (mColon) {
+        var base = lookup[norm(mColon[1])];
+        if (base != null) ar = base + ' :';
+      }
+    }
     var out = ar != null ? ar : v;
     out = out.replace(CURRENCY_TOKEN, CURRENCY_AR);
     if (out === v) return; // no mapping and no currency token — nothing to change

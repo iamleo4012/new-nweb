@@ -24,6 +24,13 @@ window.NASSIM_I18N = {
  "forklifts & pallets": "الرافعات الشوكية ومنصات التحميل",
  "customized packaging": "تغليف حسب الطلب",
  "cold rooms": "الغرف الباردة",
+ /* shared empty-state components for "No [Category] products found." —
+    composed at runtime by i18n.js with the EXISTING category translation
+    above, in Arabic word order: لم يتم العثور على منتجات [Category]. */
+ "no": "لم يتم العثور على",
+ "products found.": "منتجات.",
+ /* reuses the approved "heavy duty racks" Arabic — no new terminology */
+ "heavy duty racking": "ارفف شديدة التحمل",
  "gourmet cookware.": "أواني الطبخ الفاخرة.",
  "designed for seamless cooking and perfect results.": "مصممة لطهي سلس ونتائج مثالية.",
  "view kitchenware": "تصفح أدوات المطبخ",
@@ -111,6 +118,9 @@ window.NASSIM_I18N = {
  "toilet supplies": "مستلزمات الحمام",
  "filter by": "تصفية حسب",
  "sort by": "ترتيب حسب",
+ "price range": "نطاق السعر",
+ "back to home page": "العودة إلى الصفحة الرئيسية",
+ "products": "منتجاً",
  "price: low to high": "السعر: من الأقل إلى الأعلى",
  "price: high to low": "السعر: من الأعلى إلى الأقل",
  "price (kwd)": "السعر (د.ك)",
@@ -582,6 +592,15 @@ window.NASSIM_I18N_REVERSE = {
  ],
  "تصفية حسب": [
   "FILTER BY"
+ ],
+ "نطاق السعر": [
+  "Price Range"
+ ],
+ "العودة إلى الصفحة الرئيسية": [
+  "Back to Home Page"
+ ],
+ "منتجاً": [
+  "products"
  ],
  "ترتيب حسب": [
   "Sort By"

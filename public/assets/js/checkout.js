@@ -1,22 +1,16 @@
-/* ---- AR-only visual order for the address fields ----
-   Arabic checkout: Governorate and Area each take their OWN full-width row
-   (Governorate first, then Area) so the dependency reads top-down; the
-   remaining fields keep their existing side-by-side rows. Visual only —
-   DOM/tab order, the Governorate→Area dependency, validation and the order
-   payload are unchanged. English is unaffected (html.lang-ar scoped). */
+/* ---- AR-only RTL mirroring of the address grid ----
+   Arabic checkout: the existing two-column grid is mirrored with direction:
+   rtl, so Governorate (DOM-first) sits on the physical RIGHT and Area on the
+   physical LEFT, side-by-side — the same two-column row structure as English.
+   Visual only — DOM/tab order, the Governorate→Area dependency, validation
+   and the order payload are unchanged. English is unaffected (html.lang-ar
+   scoped, desktop only; mobile keeps the grid's single-column layout). */
 (function () {
   var style = document.createElement("style");
   style.id = "nassim-checkout-rtl-order";
   style.textContent =
     "@media (min-width: 768px) {" +
-    "  html.lang-ar div:has(> .nassim-dd #cust-governorate) { grid-column: 1 / -1; order: 1; direction: rtl; }" +
-    "  html.lang-ar div:has(> .nassim-dd #cust-area) { grid-column: 1 / -1; order: 2; direction: rtl; }" +
-    "  html.lang-ar div:has(> .nassim-dd #cust-block) { order: 3; }" +
-    "  html.lang-ar div:has(> .nassim-dd #cust-street) { order: 4; }" +
-    "  html.lang-ar div:has(> .nassim-dd #cust-building) { order: 5; }" +
-    "  html.lang-ar div:has(> .nassim-dd #cust-floor) { order: 6; }" +
-    "  html.lang-ar div:has(> .nassim-dd #cust-apartment) { order: 7; }" +
-    "  html.lang-ar div:has(> .nassim-dd #cust-landmark) { order: 8; }" +
+    "  html.lang-ar div.grid:has(> div .nassim-dd #cust-governorate) { direction: rtl; }" +
     "}";
   function mount() { document.head.appendChild(style); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
@@ -384,6 +378,18 @@
     // Governorate → Area dependent dropdowns
     initLocationSelects();
 
+    // Mobile input holds only the 8 local digits (+965 is a fixed, non-editable
+    // prefix in the UI). Keep it digits-only, max 8, and if the customer pastes
+    // a full +965-prefixed number, strip the country code instead of duplicating.
+    (function () {
+      var phoneEl = document.getElementById("cust-phone");
+      if (!phoneEl) return;
+      phoneEl.addEventListener("input", function () {
+        var digits = phoneEl.value.replace(/\D/g, "").replace(/^(?:965)+/, "").slice(0, 8);
+        if (digits !== phoneEl.value) phoneEl.value = digits;
+      });
+    })();
+
     // Auto-populate form if logged in
     fetch("/api/auth/me", { credentials: "same-origin" })
       .then(function (r) { return r.json(); })
@@ -393,7 +399,7 @@
           var banner = document.getElementById("logged-in-banner");
           if (banner) banner.classList.remove("hidden");
           var nameEl = document.getElementById("cust-name"); if (nameEl && !nameEl.value) nameEl.value = u.name || "";
-          var phoneEl = document.getElementById("cust-phone"); if (phoneEl && !phoneEl.value) phoneEl.value = u.phone || "";
+          var phoneEl = document.getElementById("cust-phone"); if (phoneEl && !phoneEl.value) phoneEl.value = (u.phone || "").replace(/\D/g, "").replace(/^(?:965)+/, "").slice(0, 8);
           var emailEl = document.getElementById("cust-email"); if (emailEl && !emailEl.value) emailEl.value = u.email || "";
           // Try to load default address
           fetch("/api/addresses", { credentials: "same-origin" })
@@ -430,14 +436,15 @@
         var street = (document.getElementById("cust-street") || {}).value || "";
 
         var email = (((document.getElementById("cust-email") || {}).value || "").trim());
-        // Kuwait phone numbers are 8 local digits, optionally +965/965 prefixed.
-        var phoneDigits = phone.replace(/[\s\-()]/g, "");
-        var phoneOk = /^(\+?965)?\d{8}$/.test(phoneDigits);
-        var phoneNormalized = /^965\d{8}$/.test(phoneDigits) ? "+" + phoneDigits : phoneDigits;
+        // Field holds only the 8 local digits (+965 is a fixed prefix in the UI).
+        // If the customer pastes a full number, strip the country code first.
+        var phoneDigits = phone.replace(/\D/g, "").replace(/^(?:965)+/, "");
+        var phoneOk = /^\d{8}$/.test(phoneDigits);
+        var phoneNormalized = "+965" + phoneDigits;
         var emailOk = !email || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 
         if (name.trim().length < 2) { showError("Please enter your full name.", document.getElementById("cust-name")); resetBtn(); return; }
-        if (!phoneOk) { showError("Please enter a valid Kuwaiti phone number — 8 digits, e.g. 5512 3456, or +965 5512 3456.", document.getElementById("cust-phone")); resetBtn(); return; }
+        if (!phoneOk) { showError("Please enter a valid Kuwaiti mobile number — exactly 8 digits after +965, e.g. 5512 3456.", document.getElementById("cust-phone")); resetBtn(); return; }
         if (!emailOk) { showError("Please enter a valid email address, or leave it empty.", document.getElementById("cust-email")); resetBtn(); return; }
         if (!governorate) { showError("Please select your Governorate.", document.getElementById("cust-governorate")); resetBtn(); return; }
         if (!area) { showError("Please select your Area.", document.getElementById("cust-area")); resetBtn(); return; }
@@ -453,7 +460,10 @@
           customerEmail: (document.getElementById("cust-email") || {}).value || "",
           customerPhone: phoneNormalized,
           address: address,
-          city: area || "Kuwait",
+          // `area` is the dropdown's numeric ID (e.g. "2"); the server schema
+          // requires city to be at least 2 characters, so send the Area's
+          // display name instead of the raw ID.
+          city: locationDisplayName("area", area) || area || "Kuwait",
           notes: "",
           items: items.map(function (i) { return { slug: i.id || i.slug, name: i.name, image: (i.image || ""), price: i.price, qty: i.quantity || 1 }; }),
           currency: "KD",

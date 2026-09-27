@@ -36,6 +36,11 @@
   table.orders tbody tr:hover { background:#f8fafc; cursor:pointer; }
   table.orders .num { font-weight:700; white-space:nowrap; }
   table.orders .muted { color:var(--muted); }
+  /* AR only: the i18n runtime right-aligns translated headers
+     (.nassim-rtl.nassim-rtl-ta) while body cells keep text-align:left, so
+     each header lands on the opposite edge of its column. Align body cells
+     to the same edge in Arabic; English is untouched. */
+  html.lang-ar table.orders td { text-align: right; }
   .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; }
   .section-title { font-size:18px; font-weight:800; margin:0 0 14px; letter-spacing:.02em; }
   .view-btn { white-space:nowrap; }
@@ -269,7 +274,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   #os-wrap .os-card-blue h2 { font-size: 20px; font-weight: 900; color: #0f172a; margin: 0 0 14px; }
   #os-wrap .os-card-blue .os-line { display: flex; align-items: flex-start; gap: 8px; font-size: 16px; color: #111827; padding: 6px 0; }
   #os-wrap .os-card-blue .os-line .material-symbols-outlined { font-size: 18px; color: #64748b; margin-top: 1px; }
-  #os-wrap .os-totals { width: 100%; max-width: 520px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px 28px; }
+  #os-wrap .os-totals { width: 100%; max-width: 520px; background: #FFFFFF; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px 28px; }
   #os-wrap .os-trow { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; font-size: 17px; color: #111827; }
   #os-wrap .os-trow + .os-trow { border-top: 1px solid #e2e8f0; }
   #os-wrap .os-trow .os-tlabel { font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; font-size: 14px; color: #111827; }
