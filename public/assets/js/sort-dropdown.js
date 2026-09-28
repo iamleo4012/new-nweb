@@ -52,6 +52,32 @@
     + "html.dark .nassim-sort-bar .nsb-select { background-color: #1a1f2e; color: #fff; border-color: rgba(255,255,255,0.2); }"
     + ".nassim-sort-bar.nsb-mobile-only { display: flex; }"
     + "@media (min-width: 768px) { .nassim-sort-bar.nsb-mobile-only { display: none !important; } }"
+    /* ---- Sort By dropdown VISUAL POLISH (styling only) ----
+       Applies to BOTH variants: the pre-existing grid-header <select> and the
+       JS-built .nsb-select. Rounded corners, subtle shadow, comfortable
+       height/padding, bronze hover + focus states (site secondary #825335).
+       Dark mode uses the site's dark palette. Layout, RTL positioning,
+       options and sorting logic are untouched. */
+    + ".subcat-grid-header select, .nsb-select {"
+    + "  border-radius: 10px;"
+    + "  box-shadow: 0 2px 8px rgba(13,27,42,0.06) !important;"
+    + "  transition: border-color 0.15s ease, box-shadow 0.15s ease;"
+    + "}"
+    + ".nassim-sort-bar .nsb-select { min-height: 42px; }"
+    + ".subcat-grid-header select:hover, .nassim-sort-bar .nsb-select:hover { border-color: #825335; }"
+    + ".subcat-grid-header select:focus, .nassim-sort-bar .nsb-select:focus {"
+    + "  outline: none;"
+    + "  border-color: #825335;"
+    + "  box-shadow: 0 0 0 3px rgba(130,83,53,0.18) !important;"
+    + "}"
+    + "html.dark .subcat-grid-header select, html.dark .nassim-sort-bar .nsb-select { box-shadow: 0 2px 10px rgba(0,0,0,0.35) !important; }"
+    + "html.dark .subcat-grid-header select:hover, html.dark .nassim-sort-bar .nsb-select:hover,"
+    + "html.dark .subcat-grid-header select:focus, html.dark .nassim-sort-bar .nsb-select:focus {"
+    + "  border-color: var(--color-secondary, #f7b994);"
+    + "}"
+    + "html.dark .subcat-grid-header select:focus, html.dark .nassim-sort-bar .nsb-select:focus {"
+    + "  box-shadow: 0 0 0 3px rgba(247,185,148,0.2);"
+    + "}"
     + "</style>";
 
   function ready(fn) {

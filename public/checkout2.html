@@ -63,6 +63,136 @@ html.dark .nassim-dd-option:hover { background: rgba(255, 255, 255, 0.07); }
 html.lang-ar .nassim-dd-toggle { flex-direction: row-reverse; }
 html.lang-ar .nassim-dd-toggle, html.lang-ar .nassim-dd-panel,
 html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
+
+/* ==================== checkout2 VISUAL POLISH (theme-aware) ====================
+   Purely cosmetic. All rules are scoped under html.light / html.dark so the
+   site's EXISTING theme system (the .dark class + color-theme localStorage,
+   same as every other customer page) fully controls the appearance. Dark
+   values below reuse the exact palette dark-overrides.css defines on .dark
+   (--color-background #0a0f14, cards #11161c/#13181f, text #e8f1ff,
+   borders #3a424c). No behaviour, fields or handlers are changed. */
+
+/* ---- page background ---- */
+html.light body { background: #f6f8fb; }
+html.dark body { background: var(--color-background, #0a0f14); }
+
+/* ---- heading / labels ---- */
+html.light main.checkout-page h1 { color: #0d1b2a; }
+html.dark main.checkout-page h1 { color: var(--color-on-surface, #e8f1ff); }
+main.checkout-page h1 { letter-spacing: -0.02em; }
+html.light #checkout-form h2 { color: #0d1b2a; }
+html.dark #checkout-form h2 { color: var(--color-on-surface, #e8f1ff); }
+#checkout-form h2 { letter-spacing: -0.01em; }
+html.light #checkout-form label { color: #3f4a56; }
+html.dark #checkout-form label { color: var(--color-on-surface-variant, #bcc8d7); }
+
+/* ---- cards ---- */
+#checkout-form > div {
+  border-radius: 14px;
+  padding: 1.75rem;
+}
+html.light #checkout-form > div {
+  background: #ffffff;
+  border: 1px solid #e6e9ef;
+  box-shadow: 0 6px 24px rgba(13, 27, 42, 0.05);
+}
+html.dark #checkout-form > div {
+  background: var(--color-surface-container-lowest, #11161c);
+  border: 1px solid var(--color-outline-variant, #3a424c);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* ---- form controls: consistent height/radius, blue focus, theme-aware ---- */
+#checkout-form input,
+#checkout-form select,
+#checkout-form .nassim-dd-toggle {
+  border-radius: 9px;
+  min-height: 46px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+html.light #checkout-form input,
+html.light #checkout-form select,
+html.light #checkout-form .nassim-dd-toggle {
+  background: #ffffff !important;
+  border: 1px solid #d7dce3 !important;
+  color: #111d27 !important;
+}
+html.dark #checkout-form input,
+html.dark #checkout-form select,
+html.dark #checkout-form .nassim-dd-toggle {
+  background: var(--color-surface-container-low, #13181f) !important;
+  border: 1px solid var(--color-outline-variant, #3a424c) !important;
+  color: var(--color-on-surface, #e8f1ff) !important;
+}
+html.light #checkout-form input::placeholder { color: #9aa1ab; }
+html.dark #checkout-form input::placeholder { color: #8a929c; }
+#checkout-form input:focus,
+#checkout-form select:focus,
+#checkout-form .nassim-dd-toggle:focus,
+#checkout-form .nassim-dd.is-open .nassim-dd-toggle {
+  outline: none;
+  border-color: #135bec !important;
+  box-shadow: 0 0 0 3px rgba(19, 91, 236, 0.25);
+}
+/* +965 prefix chip */
+html.light #checkout-form .flex.items-stretch > span {
+  background: #f2f4f8;
+  border-right: 1px solid #d7dce3;
+  color: #5b6570;
+}
+html.dark #checkout-form .flex.items-stretch > span {
+  background: var(--color-surface-container, #171d25);
+  border-right: 1px solid var(--color-outline-variant, #3a424c);
+  color: var(--color-on-surface-variant, #bcc8d7);
+}
+#checkout-form .flex.items-stretch > span {
+  border-radius: 9px 0 0 9px;
+}
+/* custom Governorate/Area dropdown panel matches the fields */
+#checkout-form .nassim-dd-panel {
+  border-radius: 10px;
+  overflow-x: hidden;
+  overflow-y: auto; /* scrollable options list (wheel / trackpad / touch) */
+  box-shadow: 0 10px 25px rgba(13, 27, 42, 0.12);
+}
+html.light #checkout-form .nassim-dd-panel {
+  background: #ffffff;
+  border-color: #d7dce3;
+}
+html.dark #checkout-form .nassim-dd-panel {
+  background: var(--color-surface-container-high, #1b222b);
+  border-color: var(--color-outline-variant, #3a424c);
+}
+html.light #checkout-form .nassim-dd-option:hover { background: #f2f6ff; }
+html.dark #checkout-form .nassim-dd-option:hover { background: rgba(232, 241, 255, 0.08); }
+html.light #checkout-form .nassim-dd-option.is-selected { background: rgba(19, 91, 236, 0.08); }
+html.dark #checkout-form .nassim-dd-option.is-selected { background: rgba(19, 91, 236, 0.25); }
+#checkout-form .nassim-dd-value { color: inherit; }
+html.dark #checkout-form .nassim-dd-arrow,
+html.dark #checkout-form .nassim-dd-value { color: var(--color-on-surface, #e8f1ff); }
+
+/* ---- submit button: same primary as the site's "Contact Our Team" CTA ----
+   customized-packaging.html's Contact Our Team button uses the exact inline
+   color #825335 (site secondary bronze) with white text — reused verbatim so
+   both primary CTAs match in light AND dark mode. */
+#place-order-btn {
+  background: #825335 !important; /* beats .bg-primary / .dark .bg-primary utilities */
+  color: #ffffff !important;
+  border-radius: 12px;
+  padding-top: 1.15rem;
+  padding-bottom: 1.15rem;
+  font-size: 13px;
+  box-shadow: 0 8px 20px rgba(130, 83, 53, 0.28);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+html #place-order-btn:hover {
+  background: #6b432a !important;
+  box-shadow: 0 6px 16px rgba(130, 83, 53, 0.35);
+}
+#place-order-btn:active { transform: translateY(1px); }
+@media (max-width: 640px) {
+  #checkout-form > div { padding: 1.25rem; }
+}
 </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
 </head>

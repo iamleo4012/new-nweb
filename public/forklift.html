@@ -158,6 +158,7 @@
         }
     </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
 </head>
 <body class="bg-background text-on-surface dark:bg-[#0a0f14] dark:text-white">
 <!-- Loading Screen -->
@@ -1041,6 +1042,8 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <script src="assets/js/theme.js" defer></script>
 <script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/i18n-data.js" defer></script>
+<script src="assets/js/i18n.js" defer></script>
 <script src="assets/js/cart-nav.js" defer></script>
 <script src="assets/js/product-nav.js" defer></script>
 <script src="assets/js/search.js" defer></script>
@@ -1886,7 +1889,7 @@ html.dark .subcat-tabs::after  { background: linear-gradient(to left, rgba(255,2
       var n = grid.querySelectorAll('article.group').length;
       // If the page paginates/limits, prefer the catalogue-driven count when present
       if (window.currentFilteredProducts && typeof window.currentFilteredProducts.length === 'number') n = window.currentFilteredProducts.length;
-      countEl.textContent = n + (n === 1 ? ' product' : ' products');
+      countEl.textContent = 'number of items: ' + n;
     }
 
     /* Re-apply wishlist heart state to ALL already-rendered .sc-wish buttons.

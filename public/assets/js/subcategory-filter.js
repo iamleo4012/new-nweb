@@ -96,7 +96,7 @@
     // Update the product count display
     var countEl = document.getElementById("catalog-count") || document.querySelector("[data-lh-count]");
     if (countEl) {
-      countEl.textContent = visible + (visible === 1 ? " product" : " products");
+      countEl.textContent = "number of items: " + visible;
     }
     // Show a friendly empty state if the filter yields zero results
     var existing = grid.querySelector(".subcat-empty-state");

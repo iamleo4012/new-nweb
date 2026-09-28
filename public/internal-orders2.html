@@ -59,6 +59,8 @@
   .day-tab:last-child { border-inline-end:0; }
   .day-tab .tab-title { display:block; font-size:12.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
   .day-tab .tab-date { display:block; font-size:11px; color:var(--muted); margin-top:2px; }
+  /* Numeric date/time values must stay LTR even in Arabic RTL layout */
+  .day-tab .tab-date, td.dt, #os-date { direction: ltr; unicode-bidi: isolate; }
   .day-tab.active { background:#e5e7eb; }
   .day-tab.active .tab-title, .day-tab.active .tab-date { color:#111827; }
   .day-list-box { background:#fff; border:1px solid var(--line); border-radius:10px; padding:6px 10px; box-shadow:0 1px 3px rgba(15,23,42,.08); }
@@ -223,7 +225,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   window.NASSIM_I18N["dear"] = window.NASSIM_I18N["dear"] || "عزيزي";
   window.NASSIM_I18N["thank you for your order with al-nassim golden group."] = window.NASSIM_I18N["thank you for your order with al-nassim golden group."] || "نشكرك على طلبك من مجموعة النسيم الذهبية.";
   window.NASSIM_I18N["your order has been received."] = window.NASSIM_I18N["your order has been received."] || "تم استلام طلبكم.";
-  window.NASSIM_I18N["please click the link below to view your order and review the important information about how your order will be processed and finalized."] = window.NASSIM_I18N["please click the link below to view your order and review the important information about how your order will be processed and finalized."] || "يرجى النقر على الرابط أدناه لعرض طلبك ومراجعة المعلومات المهمة حول كيفية معالجة طلبك وإتمامه.";
+  window.NASSIM_I18N["please click the link below to view your order and carefully read the important notice, which explain how your order will be processed and finalized."] = window.NASSIM_I18N["please click the link below to view your order and carefully read the important notice, which explain how your order will be processed and finalized."] || "يرجى النقر على الرابط أدناه لرؤية طلبك وقراءة الإشعار المهم بعناية، والذي يشرح كيفية معالجة طلبك وإتمامه.";
   window.NASSIM_I18N["view your order"] = window.NASSIM_I18N["view your order"] || "عرض طلبك";
 </script>
 <script src="assets/js/i18n.js" defer></script>
@@ -378,7 +380,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
 
   <!-- ===== List view ===== -->
   <section id="list-view">
-    <h1 class="section-title">Orders</h1>
+    <h1 class="section-title" data-i18n="orders">Orders</h1>
     <div class="controls no-print">
       <input type="search" id="search-box" placeholder="Search order number or customer name…" data-i18n-ph="searchPh" aria-label="Search orders"/>
       <button class="btn" id="search-btn" type="button" data-i18n="search">Search</button>
@@ -418,7 +420,9 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     <div class="detail-actions no-print">
       <button class="btn" id="back-btn" type="button" data-i18n="back">← Back to Orders</button>
       <button class="btn primary" id="print-btn" type="button" data-i18n="print">🖨 Print Order</button>
-      <button class="btn primary" id="order-received-btn" type="button" style="display:none;" data-i18n="orderReceived">Order Received</button>
+      <!-- "Order Received" button removed: viewing is now automatic — opening
+           an order marks it VIEWED (persisted PENDING → SEEN via the existing
+           staff PATCH /api/admin/orders). No separate acknowledge action. -->
       <button class="btn wa-btn" id="detail-wa-btn" type="button" style="display:none;" aria-label="Send WhatsApp Message">
         <img src="/topcar/whatsapp.png" alt="">
         <span class="wa-label">Send WhatsApp Message</span>
@@ -440,12 +444,11 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
               <span class="os-label">Order Sent</span>
             </div>
             <h1 class="os-title">Your order has been received!</h1>
-            <p class="os-msg-red">Important Information: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store&rsquo;s point of sale and provided with your goods upon delivery.</p>
+            <p class="os-msg-red">Important Notice: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store&rsquo;s point of sale and provided with your goods upon delivery.</p>
+            <div class="os-date"><span class="material-symbols-outlined">calendar_month</span>Date: <span id="os-date"></span></div>
             <div class="os-meta-row">
               <span class="material-symbols-outlined">receipt_long</span>Order Number : <b id="os-number"></b>
-            </div>
-            <div class="os-date"><span class="material-symbols-outlined">calendar_month</span>Date: <span id="os-date"></span></div>
-            <h2 class="os-section" style="display:none">Order Items (<span id="os-count">0</span>)</h2>
+            </div>            <h2 class="os-section" style="display:none">Order Items (<span id="os-count">0</span>)</h2>
             <div id="os-items"></div>
             <div class="os-bottom">
               <div class="os-card-blue os-delivery">
@@ -504,6 +507,8 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     "print": "🖨 طباعة الطلب",
     "orderReceived": "تم استلام الطلب",
     "viewOrder": "عرض الطلب",
+    "notViewed": "لم تتم مشاهدته",
+    "viewedStatus": "تم الاطلاع",
     "sendWa": "إرسال رسالة واتساب",
     "orderSheetForStore": "كشف الطلب — للاستخدام الداخلي",
     "orderLbl": "الطلب:",
@@ -570,6 +575,8 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     "notifyOn": "🔔 الإشعارات والصوت — تشغيل",
     "notifyOff": "🔕 الإشعارات والصوت — إيقاف",
     "notifyEnable": "تفعيل الإشعارات والصوت",
+    "orders": "الطلبات",
+    "page": "صفحة",
     "notifyLblOn": "Notifications & Sound — ON",
     "notifyLblOff": "Notifications & Sound — OFF",
     "pushEnable": "تفعيل الإشعارات الفورية (Push)",
@@ -629,11 +636,14 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function fmtKd(v, c) { return (c || "KD") + " " + Number(v || 0).toFixed(3); }
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  /* Fixed numeric format for both languages: DD-MM-YYYY, HH:MM (24h).
+     Locale-based output would yield Arabic month names / RTL-reordered text. */
   function fmtDate(iso) {
     var d = new Date(iso);
     if (isNaN(d.getTime())) return "";
-    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) +
-      ", " + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+    return pad2(d.getDate()) + "-" + pad2(d.getMonth() + 1) + "-" + d.getFullYear() +
+      ", " + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
   }
   var STATUS_BADGES = {
     PENDING: ["#fef9c3", "#854d0e"], SEEN: ["#dcfce7", "#166534"], UNDER_REVIEW: ["#dbeafe", "#1e40af"],
@@ -651,6 +661,19 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   // "Order Received" here (the store has taken/acknowledged the order).
   var UNDER_REVIEW_LABEL_EN = "Order Received";
   function storeStatusLabel(o) { if (LANG === "ar") return STATUS_AR[o.status] || o.statusLabel || o.status; return o.status === "UNDER_REVIEW" ? UNDER_REVIEW_LABEL_EN : (o.statusLabel || o.status); }
+
+  /* ---------- STATUS column = staff VIEWING state only ----------
+     PENDING → NOT VIEWED (staff has not opened the order yet);
+     anything else (SEEN / UNDER_REVIEW / later lifecycle states) →
+     VIEWED (the order has been opened at least once). This is a
+     display-only mapping for the orders list: the underlying order
+     lifecycle status in the database is NOT changed by it. Opening an
+     order still persists PENDING → SEEN through the existing staff
+     PATCH /api/admin/orders, so the state survives refreshes. */
+  function viewBadge(o) {
+    if (o.status === "PENDING") return { label: t("NOT VIEWED", "notViewed"), bg: "#fef9c3", fg: "#854d0e" };
+    return { label: t("VIEWED", "viewedStatus"), bg: "#dcfce7", fg: "#166534" };
+  }
 
   function showError(msg) {
     var el = document.getElementById("error-box");
@@ -698,12 +721,12 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     var dear = M["dear"] || "عزيزي";
     var thanks = M["thank you for your order with al-nassim golden group."] || "نشكرك على طلبك من مجموعة النسيم الذهبية.";
     var received = M["your order has been received."] || "تم استلام طلبكم.";
-    var linkInfo = M["please click the link below to view your order and review the important information about how your order will be processed and finalized."] || "يرجى النقر على الرابط أدناه لعرض طلبك ومراجعة المعلومات المهمة حول كيفية معالجة طلبك وإتمامه.";
+    var linkInfo = M["please click the link below to view your order and carefully read the important notice, which explain how your order will be processed and finalized."] || "يرجى النقر على الرابط أدناه لرؤية طلبك وقراءة الإشعار المهم بعناية، والذي يشرح كيفية معالجة طلبك وإتمامه.";
     var link = M["link"] || "الرابط";
     return "Dear " + o.customerName + ",\n\n"
       + "Thank you for your order with Al-Nassim Golden Group.\n\n"
       + "YOUR ORDER HAS BEEN RECEIVED.\n\n"
-      + "Please click the link below to view your order and review the important information about how your order will be processed and finalized.\n"
+      + "Please click the link below to view your order and carefully read the important notice, which explain how your order will be processed and finalized.\n"
       + "\n\n"
       + dear + " " + o.customerName + "،\n\n"
       + thanks + "\n\n"
@@ -778,17 +801,23 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   }
 
   function rowHtml(o) {
-    var badge = STATUS_BADGES[o.status] || ["#e5e7eb", "#374151"];
+    var vb = viewBadge(o);
+    var badge = [vb.bg, vb.fg];
     var tr = document.createElement("tr");
     tr.setAttribute("data-order", JSON.stringify(o));
     tr.innerHTML =
       '<td class="num">' + esc(o.orderNumber) + '</td>' +
-      '<td class="muted">' + esc(fmtDate(o.createdAt)) + '</td>' +
+      '<td class="muted dt">' + esc(fmtDate(o.createdAt)) + '</td>' +
       '<td>' + esc(o.customerName) + '</td>' +
-      '<td>' + esc(o.customerPhone) + '</td>' +
-      '<td class="muted">' + esc(o.city || "") + '</td>' +
+      /* Phone renders as an isolated LTR run: in AR the RTL table would
+         otherwise push the stored "+965..." plus sign to the RIGHT edge.
+         dir="ltr" + unicode-bidi:isolate keeps "+965XXXXXXXX" reading
+         left-to-right without touching the stored value or the table's
+         RTL direction. */
+      '<td><span dir="ltr" style="unicode-bidi:isolate;">' + esc(o.customerPhone) + '</span></td>' +
+      '<td class="muted">' + esc(window.NassimOrderAddress && window.NassimOrderAddress.resolveLocation ? window.NassimOrderAddress.resolveLocation(o.city) : (o.city || "")) + '</td>' +
       '<td class="num">' + esc(fmtKd(o.total, o.currency)) + '</td>' +
-      '<td><span class="badge" style="background:' + badge[0] + ';color:' + badge[1] + '">' + esc(storeStatusLabel(o)) + '</span></td>' +
+      '<td><span class="badge" style="background:' + badge[0] + ';color:' + badge[1] + '">' + esc(vb.label) + '</span></td>' +
       '<td><button class="btn view-btn" type="button">' + t("View Order", "viewOrder") + '</button></td>';
     return tr.outerHTML;
   }
@@ -801,8 +830,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   }
   function dayKey(d) { return d.toDateString(); }
   function longDate(d) {
-    try { return d.toLocaleDateString(LANG === "ar" ? "ar" : "en-GB", { day: "numeric", month: "long", year: "numeric" }); }
-    catch (e) { return d.toLocaleDateString(); }
+    return pad2(d.getDate()) + "-" + pad2(d.getMonth() + 1) + "-" + d.getFullYear();
   }
   /* Default view: exactly THREE day sheets — Today, Yesterday, Day Before
      Yesterday (Kuwait/local calendar, via the browser’s local timezone).
@@ -812,12 +840,10 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   var lastSheetOrders = [];
   function dayKey(d) { return d.toDateString(); }
   function longDate(d) {
-    try { return d.toLocaleDateString(LANG === "ar" ? "ar" : "en-GB", { day: "numeric", month: "long", year: "numeric" }); }
-    catch (e) { return d.toLocaleDateString(); }
+    return pad2(d.getDate()) + "-" + pad2(d.getMonth() + 1) + "-" + d.getFullYear();
   }
   function shortDate(d) {
-    try { return d.toLocaleDateString(LANG === "ar" ? "ar" : "en-GB", { day: "numeric", month: "short" }); }
-    catch (e) { return d.toLocaleDateString(); }
+    return pad2(d.getDate()) + "-" + pad2(d.getMonth() + 1) + "-" + d.getFullYear();
   }
   /* Three HORIZONTAL day tabs + ONE list container. Only the selected
      day’s orders are ever visible. Grouping uses the local (Kuwait)
@@ -884,13 +910,13 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     document.getElementById("day-list").style.display = isSheets ? "" : "none";
     document.getElementById("range-wrap").style.display = isSheets ? "none" : "";
     document.getElementById("page-info").textContent =
-      "Page " + pagination.page + " of " + pagination.totalPages + " — " + pagination.total + " " + t("order(s)", "ordersCount");
+      t("Page", "page") + " " + pagination.page + " of " + pagination.totalPages + " — " + pagination.total + " " + t("order(s)", "ordersCount");
     if (isSheets) {
       renderSheets(orders);
       return;
     }
     document.getElementById("page-info").textContent =
-      "Page " + pagination.page + " of " + pagination.totalPages + " — " + pagination.total + " " + t("order(s)", "ordersCount");
+      t("Page", "page") + " " + pagination.page + " of " + pagination.totalPages + " — " + pagination.total + " " + t("order(s)", "ordersCount");
     var body = document.getElementById("orders-body");
     var has = orders.length > 0;
     document.getElementById("empty-msg").style.display = has ? "none" : "block";
@@ -946,7 +972,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     var d = new Date(o.createdAt);
     var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     var pad = function (x) { return String(x).padStart(2, "0"); };
-    document.getElementById("os-date").textContent = isNaN(d.getTime()) ? "" : pad(d.getDate()) + "/" + pad(d.getMonth() + 1) + "/" + d.getFullYear();
+    document.getElementById("os-date").textContent = isNaN(d.getTime()) ? "" : pad(d.getDate()) + "-" + pad(d.getMonth() + 1) + "-" + d.getFullYear();
     var items = o.items || [];
     document.getElementById("os-count").textContent = items.length;
     var html = "";
@@ -1002,15 +1028,12 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     waBtn.setAttribute("data-wa-number", o.orderNumber || "");
     waBtn.setAttribute("data-wa-path", o.shortPath || "");
     waBtn.style.display = "inline-block";
-    var ackBtn = document.getElementById("order-received-btn");
-    if (o.status === "PENDING" || o.status === "SEEN") { ackBtn.style.display = "inline-block"; ackBtn.disabled = false; }
-    else { ackBtn.style.display = "none"; }
     renderDocument(o);
-    /* Opening a PENDING order marks it SEEN immediately: the Status badge in
-       the orders list flips to a green SEEN and the change is persisted
-       through the existing staff PATCH /api/admin/orders. The Order Received
-       button stays available and continues to work exactly as before
-       (PENDING/SEEN → UNDER_REVIEW via the same API). */
+    /* Opening a PENDING order marks it VIEWED immediately: the STATUS badge
+       flips to VIEWED (see viewBadge) and the state is persisted through the
+       existing staff PATCH /api/admin/orders (PENDING → SEEN, the designated
+       staff read-state) so it survives refreshes and other staff sessions.
+       Persistence failure never blocks or delays opening the order. */
     if (o.status === "PENDING") markOrderSeen(o);
     document.getElementById("list-view").style.display = "none";
     document.getElementById("detail-view").style.display = "block";
@@ -1026,11 +1049,11 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       if (!o || o.id !== orderId) continue;
       rows[i].setAttribute("data-order", JSON.stringify(Object.assign(o, { status: status, statusLabel: status })));
       var badge = rows[i].querySelector(".badge");
-      var colors = STATUS_BADGES[status] || ["#e5e7eb", "#374151"];
+      var vb = viewBadge({ status: status });
       if (badge) {
-        badge.style.background = colors[0];
-        badge.style.color = colors[1];
-        badge.textContent = status;
+        badge.style.background = vb.bg;
+        badge.style.color = vb.fg;
+        badge.textContent = vb.label;
       }
       return true;
     }
@@ -1073,41 +1096,11 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     loadOrders();
   }
 
-  /* ===== Status acknowledgment (Pending → Order Received) =====
-     ONE button. Uses the EXISTING workflow state UNDER_REVIEW via the
-     existing staff-gated PATCH /api/admin/orders — a transition staff could
-     already make. No new status value, no schema change. */
-  var savingStatus = false;
-  document.getElementById("order-received-btn").addEventListener("click", function () {
-    var btn = this;
-    // SEEN orders remain actionable: Order Received still moves them to
-    // UNDER_REVIEW via the same API (existing behavior preserved).
-    if (savingStatus || !state.current || (state.current.status !== "PENDING" && state.current.status !== "SEEN")) return;
-    savingStatus = true;
-    btn.disabled = true;
-    btn.textContent = t("Saving…", "saving");
-    fetch("/api/admin/orders", {
-      method: "PATCH",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: state.current.id, status: "UNDER_REVIEW", note: "Order received by store (Store Orders Page)" })
-    })
-      .then(function (r) {
-        if (r.status === 401 || r.status === 403) { window.location.href = "/admin/login?redirect=/internal-orders.html"; return null; }
-        return r.json().then(function (j) { return { ok: r.ok, j: j }; });
-      })
-      .then(function (r) {
-        if (!r) return;
-        if (!r.ok || !r.j || !r.j.success) { showError((r.j && r.j.error) || t("Could not update status.", "statusUpdateFail")); return; }
-        showError("");
-        state.current.status = "UNDER_REVIEW";
-        state.current.statusLabel = "Under Review";
-        openOrder(state.current); // sheet now shows "Order Received"; button hidden
-        loadOrders();             // refresh the list badge
-      })
-      .catch(function () { showError(t("Network error — could not update status.", "netErrStatus")); })
-      .then(function () { savingStatus = false; btn.disabled = false; btn.textContent = t("Order Received", "orderReceived"); });
-  });
+  /* ===== "Order Received" acknowledgment removed =====
+     The separate Pending → Order Received staff action is gone. The viewed
+     state is now driven purely by opening the order: openOrder() persists
+     PENDING → SEEN via the existing staff PATCH /api/admin/orders, and the
+     STATUS column renders NOT VIEWED / VIEWED (see viewBadge). */
 
   /* ===== Wiring ===== */
   document.getElementById("search-btn").addEventListener("click", function () {
@@ -1258,7 +1251,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       // Before first setup the button reads Enable Notifications & Sound;
       // afterwards it becomes the ON/OFF toggle.
       btn.innerHTML = prefNotSet()
-        ? '<span class="notify-ico">🔔</span><span class="notify-txt">Enable Notifications & Sound</span>'
+        ? '<span class="notify-ico">🔔</span><span class="notify-txt">' + t8("Enable Notifications & Sound", "notifyEnable") + '</span>'
         : '<span class="notify-ico">' + ico + '</span><span class="notify-txt">' + label + '</span>';
       btn.style.display = "";
     }

@@ -2,7 +2,7 @@
    ONLY approved, conflict-free English->Arabic mappings. Regenerate with:
    node run-all.cjs  (after replacing input-leo-transila.xlsx) */
 /* MERGE ADDENDA: checkout (leo transila checkout.xlsx), order detail (mew
-   order detail.xlsx) and the order-send "Important Information:" prefix
+   order detail.xlsx) and the order-send "Important Notice:" prefix
    merged on top of the validated base set. Manual translations preserved. */
 window.NASSIM_I18N = {
  "2": "2",
@@ -116,11 +116,15 @@ window.NASSIM_I18N = {
  "all": "الكل",
  "surface cleaning": "تنظيف الأسطح",
  "toilet supplies": "مستلزمات الحمام",
- "filter by": "تصفية حسب",
+ "filter by": "تصنيف حسب",
  "sort by": "ترتيب حسب",
+ "clear all": "مسح الكل",
+ "filtered by": "مُصنَّفٌ حسب",
+ "number of items": "عدد العناصر",
  "price range": "نطاق السعر",
  "back to home page": "العودة إلى الصفحة الرئيسية",
- "products": "منتجاً",
+ "products": "منتجات",
+ "no products found.": "لم يتم العثور على أي منتجات.",
  "price: low to high": "السعر: من الأقل إلى الأعلى",
  "price: high to low": "السعر: من الأعلى إلى الأقل",
  "price (kwd)": "السعر (د.ك)",
@@ -138,6 +142,14 @@ window.NASSIM_I18N = {
  "white": "أبيض",
  "blue": "أزرق",
  "green": "أخضر",
+ "black": "أسود",
+ "grey": "رمادي",
+ "red": "أحمر",
+ "yellow": "أصفر",
+ "brown": "بني",
+ "orange": "برتقالي",
+ "pink": "وردي",
+ "purple": "بنفسجي",
  "unit": " الوحدة",
  "search by unit...": "ابحث عن مكونات...",
  "set": "طقم",
@@ -248,6 +260,9 @@ window.NASSIM_I18N = {
  "area *": "المنطقة *",
  "governorate *": "المحافظة *",
  "governorate": "المحافظة",
+ "your cart is empty": "عربة التسوق الخاصة بك فارغة.",
+ "looks like you haven't added anything to your collection yet. start exploring our houseware.": "يبدو أنك لم تضف أي شيء إلى مجموعتك بعد. ابدأ باستكشاف مستلزماتنا المنزلية.",
+ "continue shopping": "متابعة التسوق",
  "e.g. salmiya, hawalli": "مثال: السالمية، حولي",
  "block *": "القطعة *",
  "e.g. block 5": "مثال: قطعة 5",
@@ -270,7 +285,7 @@ window.NASSIM_I18N = {
  "thank you for your order with al-nassim golden group.": "نشكرك على طلبك من مجموعة النسيم الذهبية.",
  "your order has been received.": "تم استلام طلبكم.",
  "your order has been received!": "تم استلام طلبك!",
- "please click the link below to view your order and review the important information about how your order will be processed and finalized.": "يرجى النقر على الرابط أدناه لعرض طلبك ومراجعة المعلومات المهمة حول كيفية معالجة طلبك وإتمامه.",
+ "please click the link below to view your order and carefully read the important notice, which explain how your order will be processed and finalized.": "يرجى النقر على الرابط أدناه لرؤية طلبك وقراءة الإشعار المهم بعناية، والذي يشرح كيفية معالجة طلبك وإتمامه.",
  "view your order": "عرض طلبك",
  "quantity": "الكمية",
  "payment method": "طريقة الدفع:",
@@ -286,8 +301,8 @@ window.NASSIM_I18N = {
  "piece": "قطعة",
  "delivery fee": "رسوم التوصيل",
  "unit price": "سعر الوحدة",
- "important information: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store’s point of sale and provided with your goods upon delivery.": "معلومات هامة: سيتصل بك فريق المتجر لدينا لتأكيد توفر المنتجات وأي تغييرات مطلوبة في الطلب قبل إتمام طلبك، وبعد ذلك سيتم إصدار الفاتورة في نقطة البيع بالمتجر وتقديمها مع بضائعك عند التسليم.",
- "important information:": "معلومات هامة:",
+ "important notice: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store’s point of sale and provided with your goods upon delivery.": "معلومات هامة: سيتصل بك فريق المتجر لدينا لتأكيد توفر المنتجات وأي تغييرات مطلوبة في الطلب قبل إتمام طلبك، وبعد ذلك سيتم إصدار الفاتورة في نقطة البيع بالمتجر وتقديمها مع بضائعك عند التسليم.",
+ "important notice:": "معلومات هامة:",
  "Contact Our Team: 00000000": "للتواصل مع فريقنا: 00000000",
  "Custom Packaging Manufacturing & Printing.": "تصنيع التغليف حسب الطلب والطباعة عليه",
  "We transform your ideas into high-quality packaging and precision printing solutions, from initial design to final delivery.": "نحن نحول أفكارك إلى حلول تغليف عالية الجودة وحلول طباعة دقيقة، بدءًا من التصميم الأولي وحتى التسليم النهائي."
@@ -590,17 +605,65 @@ window.NASSIM_I18N_REVERSE = {
  "مستلزمات الحمام": [
   "Toilet supplies"
  ],
- "تصفية حسب": [
+ "تصنيف حسب": [
   "FILTER BY"
  ],
  "نطاق السعر": [
   "Price Range"
  ],
+ "أبيض": [
+  "White"
+ ],
+ "أسود": [
+  "Black"
+ ],
+ "رمادي": [
+  "Grey"
+ ],
+ "أزرق": [
+  "Blue"
+ ],
+ "أخضر": [
+  "Green"
+ ],
+ "أحمر": [
+  "Red"
+ ],
+ "أصفر": [
+  "Yellow"
+ ],
+ "بني": [
+  "Brown"
+ ],
+ "برتقالي": [
+  "Orange"
+ ],
+ "وردي": [
+  "Pink"
+ ],
+ "بنفسجي": [
+  "Purple"
+ ],
+ "متعدد الألوان": [
+  "Multicolour"
+ ],
  "العودة إلى الصفحة الرئيسية": [
   "Back to Home Page"
  ],
- "منتجاً": [
+ "منتجات": [
   "products"
+ ],
+ "لم يتم العثور على أي منتجات.": [
+  "No products found."
+ ],
+ "عدد العناصر": [
+  "number of items"
+ ],
+ "مُصنَّفٌ حسب": [
+  "Filtered By"
+ ],
+ "مسح الكل": [
+  "Clear All"
  ],
  "ترتيب حسب": [
   "Sort By"
@@ -899,6 +962,15 @@ window.NASSIM_I18N_REVERSE = {
  "المحافظة *": [
   "Governorate *"
  ],
+ "عربة التسوق الخاصة بك فارغة.": [
+  "Your cart is empty"
+ ],
+ "يبدو أنك لم تضف أي شيء إلى مجموعتك بعد. ابدأ باستكشاف مستلزماتنا المنزلية.": [
+  "Looks like you haven't added anything to your collection yet. Start exploring our houseware."
+ ],
+ "متابعة التسوق": [
+  "Continue Shopping"
+ ],
  "المحافظة": [
   "Governorate"
  ],
@@ -960,9 +1032,9 @@ window.NASSIM_I18N_REVERSE = {
   "Final invoice is generated by our POS system. Total may vary based on actual delivered items."
  ],
  "معلومات هامة: سيتصل بك فريق المتجر لدينا لتأكيد توفر المنتجات وأي تغييرات مطلوبة في الطلب قبل إتمام طلبك، وبعد ذلك سيتم إصدار الفاتورة في نقطة البيع بالمتجر وتقديمها مع بضائعك عند التسليم.": [
-  "Important Information: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store’s point of sale and provided with your goods upon delivery."
+  "Important Notice: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store’s point of sale and provided with your goods upon delivery."
  ],
  "معلومات هامة:": [
-  "Important Information:"
+  "Important Notice:"
  ]
 };

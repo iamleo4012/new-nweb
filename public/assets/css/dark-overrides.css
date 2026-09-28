@@ -46,7 +46,13 @@
   --color-surface-container-highest: #202832;
   --color-outline: #8a929c;
   --color-outline-variant: #3a424c;
-  --color-primary: #000308;
+  /* Primary in dark mode = the EXACT color of checkout2.html's "Submit Your
+     Order" button (#825335, hardcoded there as `background: #825335
+     !important`). Was #000308 (near-black); primary buttons now match the
+     checkout CTA instead of turning black. White on-primary text stays
+     readable on this bronze, matching checkout2. Light mode (:root above)
+     keeps #000308 — light-mode buttons are unchanged. */
+  --color-primary: #825335;
   --color-on-primary: #ffffff;
   --color-secondary: #f7b994;
   --color-on-secondary: #0a0f14;
@@ -132,6 +138,10 @@ html.dark #page-numbers button.text-primary:not(.bg-primary) {
 .dark .border-primary { border-color: var(--color-on-surface) !important; }
 
 .dark .bg-primary { background-color: var(--color-primary) !important; }
+/* Tailwind's generated `.hover\:bg-primary:hover` hard-codes rgb(0 3 8) — that
+   would flash buttons back to black on hover in dark mode. Point it at the
+   same dark primary (#825335, checkout2 "Submit Your Order" color). */
+.dark .hover\:bg-primary:hover { background-color: var(--color-primary) !important; }
 .dark .text-on-primary { color: var(--color-on-primary) !important; }
 .dark .bg-secondary { background-color: var(--color-secondary) !important; }
 .dark .text-on-secondary { color: var(--color-on-secondary) !important; }

@@ -1279,7 +1279,6 @@
 <div class="w-3 h-3 rounded-full border border-outline-variant/30 dark:border-white/30 bg-gradient-to-tr from-rose-400 via-emerald-400 to-indigo-400"></div>
 <span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Multicolour</span>
 </div>
-<span class="text-[10px] text-outline dark:text-white/70 opacity-60">156</span>
 </label>
 <label class="flex items-center justify-between group/label cursor-pointer pl-1">
 <div class="flex items-center gap-3">
@@ -1287,7 +1286,6 @@
 <div class="w-3 h-3 rounded-full border border-outline-variant/30 dark:border-white/30 bg-white"></div>
 <span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">White</span>
 </div>
-<span class="text-[10px] text-outline dark:text-white/70 opacity-60">89</span>
 </label>
 <label class="flex items-center justify-between group/label cursor-pointer pl-1">
 <div class="flex items-center gap-3">
@@ -1295,7 +1293,6 @@
 <div class="w-3 h-3 rounded-full border border-outline-variant/30 dark:border-white/30 bg-blue-600"></div>
 <span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Blue</span>
 </div>
-<span class="text-[10px] text-outline dark:text-white/70 opacity-60">42</span>
 </label>
 <label class="flex items-center justify-between group/label cursor-pointer pl-1">
 <div class="flex items-center gap-3">
@@ -1303,7 +1300,6 @@
 <div class="w-3 h-3 rounded-full border border-outline-variant/30 dark:border-white/30 bg-green-600"></div>
 <span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Green</span>
 </div>
-<span class="text-[10px] text-outline dark:text-white/70 opacity-60">28</span>
 </label>
 </div>
 </div>
@@ -1593,9 +1589,9 @@
     if (!list.length) {
       grid.innerHTML =
         '<div class="col-span-full text-center py-20">' +
-        '<p class="text-lg text-on-surface-variant">No Accessories products found.</p>' +
+        '<p class="text-lg text-on-surface-variant">No products found.</p>' +
         "</div>";
-      if (countEl) countEl.textContent = "0 products";
+      if (countEl) countEl.textContent = "number of items: 0";
       return;
     }
     grid.innerHTML = list.map(function (p) {
@@ -1622,7 +1618,7 @@
     }).join("");
 
     if (countEl) {
-      countEl.textContent = list.length + (list.length === 1 ? " product" : " products");
+      countEl.textContent = "number of items: " + list.length;
     }
     wireCards();
     syncHearts();
@@ -1780,6 +1776,11 @@ function applyFiltersAndSort() {
       });
     }
 
+    /* Color filter — shared implementation (assets/js/color-filter.js):
+       selected options must match one of the product's OWN color
+       assignments (p.colors from /api/catalog). Products with no color
+       assignments match nothing while a color filter is active. */
+    if (window.NassimColorFilter) filteredProducts = filteredProducts.filter(window.NassimColorFilter.matchProduct);
     renderProducts(filteredProducts);
   }
 
@@ -1806,6 +1807,15 @@ function applyFiltersAndSort() {
     return min > 0 || max < dynMax;
   }
   /* ---- Active-filter tags + Clear All (ported from cleaning-tools.html) ---- */
+  /* Color filter hook (assets/js/color-filter.js): expose this page's existing
+     chip+filter pipeline so dynamically rendered color rows and the color
+     search reuse it. updateFilterTags is closure-scoped, so the hook is
+     installed here where it is in scope. */
+  window.NassimColorFilterHooks = { update: function () { updateFilterTags(); }, apply: function () { applyFiltersAndSort(); } };
+  /* applyFiltersAndSort lives in a different script block and references
+     priceRangeActive as a bare identifier; expose the closure's function
+     globally so the shared filter pipeline (color + price + sort) can run. */
+  if (typeof priceRangeActive !== "undefined" && !window.priceRangeActive) window.priceRangeActive = priceRangeActive;
   function updateFilterTags() {
     var activeFiltersContainer = document.getElementById('active-filters');
     var filterTagsContainer = document.getElementById('filter-tags');
@@ -2097,7 +2107,7 @@ function applyFiltersAndSort() {
     function syncCount(){
       if (!countEl || !grid) return;
       var n = grid.querySelectorAll('article.group').length;
-      countEl.textContent = n + (n === 1 ? ' product' : ' products');
+      countEl.textContent = 'number of items: ' + n;
     }
 
     /* ---- 3. Mobile card augmentation: make the ATC always-visible on touch ----
@@ -2336,6 +2346,7 @@ function applyFiltersAndSort() {
 <script src="assets/js/dark-overrides.js" defer></script>
 <script src="assets/js/cart-nav.js" defer></script>
 <script src="assets/js/product-nav.js" defer></script>
+<script src="assets/js/color-filter.js" defer></script>
 <script src="assets/js/listing-pagination.js" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js" defer></script>

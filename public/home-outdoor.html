@@ -158,6 +158,7 @@
         }
     </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
 </head>
 <body class="bg-background text-on-surface dark:bg-[#0a0f14] dark:text-white">
 <!-- Loading Screen -->
@@ -380,7 +381,6 @@
 <div class="w-3 h-3 rounded-full border border-outline-variant/30 dark:border-white/30 bg-gradient-to-tr from-rose-400 via-emerald-400 to-indigo-400"></div>
 <span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Multicolour</span>
 </div>
-<span class="text-[10px] text-outline dark:text-white/70 opacity-60">224</span>
 </label>
 <label class="flex items-center justify-between group/label cursor-pointer pl-1">
 <div class="flex items-center gap-3">
@@ -388,7 +388,6 @@
 <div class="w-3 h-3 rounded-full border border-outline-variant/30 dark:border-white/30 bg-white"></div>
 <span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">White</span>
 </div>
-<span class="text-[10px] text-outline dark:text-white/70 opacity-60">130</span>
 </label>
 <label class="flex items-center justify-between group/label cursor-pointer pl-1">
 <div class="flex items-center gap-3">
@@ -396,7 +395,6 @@
 <div class="w-3 h-3 rounded-full border border-outline-variant/30 dark:border-white/30 bg-blue-600"></div>
 <span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Blue</span>
 </div>
-<span class="text-[10px] text-outline dark:text-white/70 opacity-60">66</span>
 </label>
 <label class="flex items-center justify-between group/label cursor-pointer pl-1">
 <div class="flex items-center gap-3">
@@ -404,7 +402,6 @@
 <div class="w-3 h-3 rounded-full border border-outline-variant/30 dark:border-white/30 bg-slate-100/50"></div>
 <span class="text-xs text-on-surface-variant dark:text-white/70 group-hover/label:text-primary dark:group-hover/label:text-white transition-colors">Clear</span>
 </div>
-<span class="text-[10px] text-outline dark:text-white/70 opacity-60">26</span>
 </label>
 </div>
 </div>
@@ -641,6 +638,11 @@
             );
         }
         
+        /* Color filter — shared implementation (assets/js/color-filter.js):
+           selected options must match one of the product's OWN color
+           assignments (p.colors from /api/catalog). Products with no color
+           assignments match nothing while a color filter is active. */
+        if (window.NassimColorFilter) filteredProducts = filteredProducts.filter(window.NassimColorFilter.matchProduct);
         // Render filtered products
         renderProducts(filteredProducts);
     }
@@ -739,6 +741,15 @@
     if (dynMax == null) return (minRaw !== '' && min > 0) || (maxRaw !== '' && isFinite(max));
     return min > 0 || max < dynMax;
   }
+  /* Color filter hook (assets/js/color-filter.js): expose this page's existing
+     chip+filter pipeline so dynamically rendered color rows and the color
+     search reuse it. updateFilterTags is closure-scoped, so the hook is
+     installed here where it is in scope. */
+  window.NassimColorFilterHooks = { update: function () { updateFilterTags(); }, apply: function () { applyFiltersAndSort(); } };
+  /* applyFiltersAndSort lives in a different script block and references
+     priceRangeActive as a bare identifier; expose the closure's function
+     globally so the shared filter pipeline (color + price + sort) can run. */
+  if (typeof priceRangeActive !== "undefined" && !window.priceRangeActive) window.priceRangeActive = priceRangeActive;
   function updateFilterTags() {
             const activeFiltersContainer = document.getElementById('active-filters');
             const filterTagsContainer = document.getElementById('filter-tags');
@@ -1065,8 +1076,11 @@
 </script>
 <script src="assets/js/theme.js" defer></script>
 <script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/i18n-data.js" defer></script>
+<script src="assets/js/i18n.js" defer></script>
 <script src="assets/js/cart-nav.js" defer></script>
 <script src="assets/js/product-nav.js" defer></script>
+<script src="assets/js/color-filter.js" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js" defer></script>
 <script src="assets/js/nav-submenu.js" defer></script>
@@ -1910,7 +1924,7 @@ html.dark .subcat-tabs::after  { background: linear-gradient(to left, rgba(255,2
       var n = grid.querySelectorAll('article.group').length;
       // If the page paginates/limits, prefer the catalogue-driven count when present
       if (window.currentFilteredProducts && typeof window.currentFilteredProducts.length === 'number') n = window.currentFilteredProducts.length;
-      countEl.textContent = n + (n === 1 ? ' product' : ' products');
+      countEl.textContent = 'number of items: ' + n;
     }
 
     /* Re-apply wishlist heart state to ALL already-rendered .sc-wish buttons.

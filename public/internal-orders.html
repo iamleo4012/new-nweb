@@ -226,7 +226,7 @@
 
   <!-- ===== List view ===== -->
   <section id="list-view">
-    <h1 class="section-title">Orders</h1>
+    <h1 class="section-title" data-i18n="orders">Orders</h1>
     <div class="controls no-print">
       <input type="search" id="search-box" placeholder="Search order number or customer name…" data-i18n-ph="searchPh" aria-label="Search orders"/>
       <button class="btn" id="search-btn" type="button" data-i18n="search">Search</button>
@@ -384,6 +384,8 @@
     "notifyOn": "🔔 الإشعارات والصوت — تشغيل",
     "notifyOff": "🔕 الإشعارات والصوت — إيقاف",
     "notifyEnable": "تفعيل الإشعارات والصوت",
+    "orders": "طلبات",
+    "page": "صفحة",
     "notifyLblOn": "Notifications & Sound — ON",
     "notifyLblOff": "Notifications & Sound — OFF",
     "pushEnable": "تفعيل الإشعارات الفورية (Push)",
@@ -686,13 +688,13 @@
     document.getElementById("day-list").style.display = isSheets ? "" : "none";
     document.getElementById("range-wrap").style.display = isSheets ? "none" : "";
     document.getElementById("page-info").textContent =
-      "Page " + pagination.page + " of " + pagination.totalPages + " — " + pagination.total + " " + t("order(s)", "ordersCount");
+      t("Page", "page") + " " + pagination.page + " of " + pagination.totalPages + " — " + pagination.total + " " + t("order(s)", "ordersCount");
     if (isSheets) {
       renderSheets(orders);
       return;
     }
     document.getElementById("page-info").textContent =
-      "Page " + pagination.page + " of " + pagination.totalPages + " — " + pagination.total + " " + t("order(s)", "ordersCount");
+      t("Page", "page") + " " + pagination.page + " of " + pagination.totalPages + " — " + pagination.total + " " + t("order(s)", "ordersCount");
     var body = document.getElementById("orders-body");
     var has = orders.length > 0;
     document.getElementById("empty-msg").style.display = has ? "none" : "block";
@@ -1062,7 +1064,7 @@
       // Before first setup the button reads Enable Notifications & Sound;
       // afterwards it becomes the ON/OFF toggle.
       btn.innerHTML = prefNotSet()
-        ? '<span class="notify-ico">🔔</span><span class="notify-txt">Enable Notifications & Sound</span>'
+        ? '<span class="notify-ico">🔔</span><span class="notify-txt">' + t8("Enable Notifications & Sound", "notifyEnable") + '</span>'
         : '<span class="notify-ico">' + ico + '</span><span class="notify-txt">' + label + '</span>';
       btn.style.display = "";
     }

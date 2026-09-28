@@ -358,22 +358,47 @@
   var CURRENCY_TOKEN = /\b(?:KWD|KD)\b/g;
   var CURRENCY_AR = '\u062F.\u0643';
 
-  /* SHARED EMPTY-STATE PATTERN: "No [Category] products found." is never a
-     per-category mapping key. It is composed from the shared pieces in
-     NASSIM_I18N ("no" -> "لم يتم العثور على", "products found." -> "منتجات.")
-     plus the EXISTING approved Arabic category translation, placed in
-     grammatically correct Arabic word order:
-       لم يتم العثور على منتجات [Category].
-     A category with no approved mapping stays English — nothing is invented
-     here. With no category at all ("No products found.") the result is
-     simply "لم يتم العثور على منتجات.". */
-  var EMPTY_STATE_RE = /^no\s+(.*?)\s*products\s+found\.?$/i;
+  /* SHARED EMPTY-STATE PATTERN: the empty state is the SAME message on every
+     listing page — English "No products found." (the exact key in
+     NASSIM_I18N) and Arabic "لم يتم العثور على أي منتجات.". Any residual
+     category-form string ("No Kitchenware products found.", e.g. from an
+     older cached script) resolves to the SAME approved Arabic — the category
+     name is deliberately dropped; no per-category keys exist. */
+  var EMPTY_STATE_RE = /^no\s+(?:.*?)\s*products\s+found\.?$/i;
+  var EMPTY_STATE_AR = 'لم يتم العثور على أي منتجات.';
   function emptyStateAr(v) {
-    var m = EMPTY_STATE_RE.exec(String(v).replace(/\s+/g, ' ').trim());
+    return EMPTY_STATE_RE.exec(String(v).replace(/\s+/g, ' ').trim()) ? EMPTY_STATE_AR : null;
+  }
+
+  /* PRODUCTS COUNT PATTERN: the listing header count renders as one composed
+     text node ("12 products"), which can never exact-match the approved
+     "products" key. Compose from the number + the approved NASSIM_I18N
+     mapping ("products" -> "منتجات"); no count logic is touched — this only
+     re-words the rendered label in AR. Singular "1 product" has no approved
+     mapping and stays English. */
+  var PRODUCTS_COUNT_RE = /^(\d[\d,]*)\s+products$/i;
+  function productsCountAr(v) {
+    var m = PRODUCTS_COUNT_RE.exec(String(v).replace(/\s+/g, ' ').trim());
     if (!m) return null;
-    var catAr = m[1] ? lookup[norm(m[1])] : '';
-    if (catAr == null) return null;
-    return 'لم يتم العثور على منتجات' + (catAr ? ' ' + catAr : '') + '.';
+    var ar = lookup['products'];
+    if (ar == null) return null;
+    return m[1] + ' ' + ar;
+  }
+
+  /* LISTING COUNT PATTERN: the listing header count renders as one composed
+     text node ("number of items: 12"), which can never exact-match the
+     approved "number of items" key. Compose from the approved mapping
+     ("number of items" -> "عدد العناصر") + the live number. The logical
+     string "عدد العناصر: 12" inside the RTL-isolated count element renders
+     visually as "12 :عدد العناصر" — number stays an LTR run, exactly as
+     approved. */
+  var ITEMS_COUNT_RE = /^number of items:\s*(\d[\d,]*)$/i;
+  function itemsCountAr(v) {
+    var m = ITEMS_COUNT_RE.exec(String(v).replace(/\s+/g, ' ').trim());
+    if (!m) return null;
+    var ar = lookup['number of items'];
+    if (ar == null) return null;
+    return ar + ': ' + m[1];
   }
 
   function translateTextNode(node) {
@@ -389,6 +414,8 @@
     if (parentEl && isIconEl(parentEl)) return;
     var ar = lookup[norm(v)];
     if (ar == null) ar = emptyStateAr(v); // shared "No [Category] products found." composition
+    if (ar == null) ar = productsCountAr(v); // composed "N products" count label
+    if (ar == null) ar = itemsCountAr(v); // composed "number of items: N" listing count
     /* TRAILING-COLON FALLBACK: sidebar headings render as "FILTER BY :" while
        the approved key is "filter by". On an exact miss, retry the text
        without its trailing " :" and append the colon to the approved Arabic

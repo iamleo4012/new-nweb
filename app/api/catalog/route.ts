@@ -54,6 +54,11 @@ export async function GET() {
     // NOT the physical-store ERP inventory). Additive field: consumers that
     // ignore it keep working unchanged.
     stock: p.stock,
+    // Additive: this product's OWN color assignments, read from the existing
+    // Product→Color relation (same data the admin assigns). Empty array =
+    // no colors assigned. Consumed by the storefront Color filter
+    // (assets/js/color-filter.js); consumers that ignore it are unchanged.
+    colors: p.colors.map((c) => ({ name: c.color.name })),
     // Additive: customer-safe sibling options for the variant selector.
     // Each entry carries the sibling product's public slug + a short label —
     // NEVER the internal classCode. Empty array = independent product.

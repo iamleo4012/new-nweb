@@ -173,6 +173,22 @@ html.lang-ar .subcat-sidebar .space-y-6 > div > h2,
 html.lang-ar .subcat-sidebar .space-y-6 > div:first-child h2 { direction: rtl; text-align: right !important; }
 html.lang-ar .subcat-sidebar input[type="text"] { direction: ltr; text-align: right; }
 html.lang-ar #active-filters { direction: rtl; }
+/* AR Filtered By bar: keep heading, active-filter chips and Clear All
+   GROUPED at the inline start (the RIGHT edge in RTL). EN keeps its
+   justify-between spread untouched — these rules only exist under
+   html.lang-ar. Natural flex flow, no absolute positioning or offsets;
+   multiple chips stay in the same right-side row. */
+html.lang-ar #active-filters > div:first-child { justify-content: flex-start; column-gap: 1.5rem; }
+html.lang-ar #active-filters #filter-tags { justify-content: flex-start; align-items: center; }
+/* The i18n runtime marks each translated, content-sized element with
+   .nassim-rtl-anchor (margin-left:auto). Inside the flex-row #filter-tags
+   that auto margin eats free space PER CHIP, so with 2+ chips the row's
+   free space is split between the auto margins and the middle chip lands
+   at page center. Cancel the runtime anchor/jc-end marks inside the whole
+   Filtered By section — the chips stay grouped at the inline start (the
+   RIGHT edge in RTL) via direction:rtl + justify-content:flex-start. */
+html.lang-ar #active-filters .nassim-rtl-anchor { margin-left: 0 !important; }
+html.lang-ar #active-filters .nassim-rtl-jc-end { justify-content: flex-start !important; }
 html.lang-ar #product-grid { direction: rtl; }
 html.lang-ar #product-grid > article.group h2,
 html.lang-ar #product-grid > article.group p { direction: rtl; text-align: right; }

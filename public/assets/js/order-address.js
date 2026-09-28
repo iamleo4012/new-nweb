@@ -161,6 +161,18 @@
 
   window.NassimOrderAddress = {
     renderHtml: renderHtml,
+    /* Resolve ONE stored Governorate/Area value through the existing checkout
+       location data into the ACTIVE language (en when document lang is en,
+       ar when ar). Values with no exact dataset match come back untouched —
+       same guarantee as renderHtml. Used by the staff orders LIST (the
+       Area/Location column), whose stored city is the checkout display name. */
+    resolveLocation: function (value) {
+      var v = String(value == null ? '' : value);
+      if (!v) return v;
+      var entry = locationIndex('Area').get(norm(v));
+      if (!entry) return v;
+      return (document.documentElement.lang === 'ar') ? (entry.ar || v) : (entry.en || v);
+    },
     /* True when the order carries structured (labeled) address fields —
        callers use this to hide the static "Address :" prefix. */
     isStructured: function (order) { return !!parse((order || {}).address); }
