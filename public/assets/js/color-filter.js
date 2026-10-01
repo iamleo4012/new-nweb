@@ -37,7 +37,7 @@
   var COLORS = [
     { name: 'White',       css: '#ffffff', initial: true },
     { name: 'Black',       css: '#111111', initial: true },
-    { name: 'Grey',        css: '#9ca3af', initial: true },
+    { name: 'Silver',       css: '#c0c0c0', initial: true },
     { name: 'Blue',        css: '#2563eb' },
     { name: 'Green',       css: '#16a34a' },
     { name: 'Red',         css: '#dc2626' },

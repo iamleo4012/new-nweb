@@ -11,7 +11,7 @@
 <script></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
 <script src="assets/js/i18n-data.js" defer></script>
 <script src="assets/js/i18n.js" defer></script>
 <script src="assets/js/nassim-locations-data.js" defer></script>
@@ -284,6 +284,7 @@
 }
 </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="assets/css/dark-overrides.css">
 </head>
 <body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white overflow-x-hidden antialiased">
 
@@ -334,6 +335,8 @@
   #os-wrap .os-container { max-width: 1200px; margin: 0 auto; padding: 130px 24px 80px; }
   #os-wrap .os-eyebrow { display: flex; align-items: center; gap: 10px; }
   #os-wrap .os-check { width: 26px; height: 26px; border-radius: 50%; background: #16a34a; color: #fff; display: flex; align-items: center; justify-content: center; }
+  /* the check circle sits INLINE beside the title text (same line) */
+  #os-wrap .os-title .os-check { display: inline-flex; vertical-align: middle; margin-inline-end: 12px; }
   #os-wrap .os-check .material-symbols-outlined { font-size: 18px; }
   #os-wrap .os-label { font-size: 13px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: #64748b; }
   #os-wrap .os-title { font-size: 36px; font-weight: 800; color: #0f172a; margin: 14px 0 0; }
@@ -410,12 +413,7 @@
 <div id="os-loading" style="padding:40px 0;text-align:center;color:#64748b;">Loading order…</div>
 <div id="os-error" style="display:none;padding:40px 0;text-align:center;color:#dc2626;font-size:18px;font-weight:600;"></div>
 <div id="os-main" style="display:none;">
-  <div class="os-eyebrow">
-    <span class="os-check"><span class="material-symbols-outlined">check</span></span>
-    <span class="os-label">Order Sent</span>
-  </div>
-  <h1 class="os-title">Your order has been received!</h1>
-  <p class="os-msg-red">Important Notice: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store&rsquo;s point of sale and provided with your goods upon delivery.</p>
+  <h1 class="os-title"><span class="os-check"><span class="material-symbols-outlined">check</span></span>YOUR ORDER HAS BEEN RECEIVED.</h1>
   <div class="os-date"><span class="material-symbols-outlined">calendar_month</span>Date: <span id="os-date"></span></div>
   <div class="os-meta-row">
     <span class="material-symbols-outlined">receipt_long</span>Order Number : <b id="os-number"></b>
@@ -436,9 +434,6 @@
     </div>
   </div>
 
-  <div class="os-notice">
-    <p>Note: The total may vary based on actually delivered items.</p>
-  </div>
 
   <div class="os-back"><a href="home.html" class="os-btn">Back to Home Page</a></div>
 </div>

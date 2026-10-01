@@ -130,6 +130,15 @@
             section[class*="top-[72px]"] { display: none !important; margin: 0 !important; padding: 0 !important; height: 0 !important; }
         }
 
+        /* MOBILE hero title centering: the hero wrapper is a shrink-to-fit
+           flex item (items-end). With the shorter Arabic heading it hugs the
+           right edge, so text-align:center no longer reads as centered.
+           Full width on mobile makes the existing text-align:center genuinely
+           center the title at any viewport width. Desktop is untouched. */
+        @media (max-width: 767px) {
+            section.flex.flex-col > div.max-w-2xl { width: 100% !important; }
+        }
+
         /* =====================================================================
            MOBILE CATEGORY CARDS — premium storefront redesign (≤767px only)
            ------------------------------------------------------------------------
@@ -286,7 +295,8 @@
         
     </script>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<link rel="stylesheet" href="assets/css/dark-overrides.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
 <script src="assets/js/i18n-data.js" defer></script>
 <script src="assets/js/i18n.js" defer></script>
 </head>

@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0.1&amp;display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
 <style>
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
 .glass-nav { background: rgba(247, 249, 255, 0.7); backdrop-filter: blur(20px); }
@@ -120,6 +120,16 @@
   /* NOTE: the "THIS IS NOT AN INVOICE" tiled watermark is intentionally NOT
      rendered on this customer-facing WhatsApp order page. The staff View
      Order sheet (internal-orders2.html) keeps its own watermark. */
+  /* Delivery Address rows — Arabic RTL mirroring (this card only), identical
+     to internal-orders.html: the icon sits at the RIGHT edge and the text
+     block right-aligns; customer values keep their own LTR isolation. Inert
+     in English. Structured address rows (Governorate/Area/…) get the same
+     overflow-wrap + AR mirroring the staff sheet gives .os-addr-row. */
+  html.lang-ar #os-wrap .os-delivery .os-line { direction: rtl; justify-content: flex-start; }
+  html.lang-ar #os-wrap .os-delivery .os-line > span:last-of-type { flex: 1 1 auto; text-align: right; overflow-wrap: break-word; }
+  html.lang-ar #os-wrap .os-delivery h2 { text-align: right; }
+  html.lang-ar #os-wrap .os-addr-row { direction: rtl; text-align: right; overflow-wrap: break-word; }
+  #os-wrap .os-addr-row { overflow-wrap: break-word; }
   .doc-paper > * { position: relative; z-index: 2; }
   @media print {
     .no-print { display: none !important; }
@@ -189,8 +199,7 @@
               <span class="os-label">Order Sent</span>
             </div>
             <h1 class="os-title">Your order has been received!</h1>
-            <p class="os-msg-red">Important Information: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store&rsquo;s point of sale and provided with your goods upon delivery.</p>
-            <div class="os-date"><span class="material-symbols-outlined">calendar_month</span>Date: <span id="os-date"></span></div>
+                        <div class="os-date"><span class="material-symbols-outlined">calendar_month</span>Date: <span id="os-date"></span></div>
             <div class="os-meta-row">
               <span class="material-symbols-outlined">receipt_long</span>Order Number : <b id="os-number"></b>
             </div>            <h2 class="os-section" style="display:none">Order Items (<span id="os-count">0</span>)</h2>
@@ -207,9 +216,6 @@
                 <div class="os-trow"><span class="os-tlabel">Delivery Fee</span><span class="os-tval" id="os-shipping">KWD 0.000</span></div>
                 <div class="os-trow"><span class="os-tlabel">Total</span><span class="os-tval" id="os-total">KWD 0.000</span></div>
               </div>
-            </div>
-            <div class="os-notice">
-              <p>Note: The total may vary based on actually delivered items.</p>
             </div>
           </div>
         </div>
@@ -317,7 +323,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassim-lang") ==
     var d = new Date(o.createdAt);
     var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     var pad = function (x) { return String(x).padStart(2, "0"); };
-    document.getElementById("os-date").textContent = isNaN(d.getTime()) ? "" : pad(d.getDate()) + "/" + pad(d.getMonth() + 1) + "/" + d.getFullYear();
+    document.getElementById("os-date").textContent = isNaN(d.getTime()) ? "" : pad(d.getDate()) + "-" + pad(d.getMonth() + 1) + "-" + d.getFullYear();
     var items = o.items || [];
     document.getElementById("os-count").textContent = items.length;
     var html = "";
@@ -337,8 +343,12 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassim-lang") ==
         '</div>';
     });
     document.getElementById("os-items").innerHTML = html;
-    document.getElementById("os-shipping").textContent = "KWD " + fmt(o.shipping);
-    document.getElementById("os-total").textContent = "KWD " + fmt(o.total);
+    /* Totals EXACTLY as internal-orders.html renders them: Delivery
+       Fee KWD 0.000 and Total = the sum of the item line totals. */
+    var runningTotal = 0;
+    items.forEach(function (i) { runningTotal += Number(i.price) * Number(i.quantity); });
+    document.getElementById("os-total").textContent = "KWD " + fmt(runningTotal);
+    document.getElementById("os-shipping").textContent = "KWD 0.000";
     document.getElementById("os-name").textContent = o.customerName || "";
     document.getElementById("os-phone").innerHTML = ltr(esc(o.customerPhone || ""));
     /* Delivery address via the SHARED renderer (assets/js/order-address.js):

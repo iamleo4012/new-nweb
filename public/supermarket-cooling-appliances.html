@@ -125,6 +125,8 @@
                card Add-to-Cart + wishlist, large square images, bottom-pinned ATC
            All classes/IDs match what the mobile wiring JS expects. */
         .subcat-listing-header { display: none; }
+        /* Mobile split-row count label/value — desktop never shows these. */
+        .subcat-mcount-label, .subcat-mcount-value { display: none; }
         #subcat-drawer-backdrop {
             position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 94;
             opacity: 0; visibility: hidden; transition: opacity .3s;
@@ -250,41 +252,139 @@
                 margin: 0 !important;
                 background: transparent !important;
                 border-top: 0 !important;
-                border-bottom: 1px solid rgba(196,198,204,0.35) !important;
-                cursor: pointer;
+                /* the control row's border-top below is the ONE divider */
+                border-bottom: 0 !important;
                 -webkit-tap-highlight-color: transparent;
                 box-sizing: border-box !important;
             }
-            html.dark .subcat-listing-header { border-bottom-color: rgba(255,255,255,0.08) !important; }
+            html.dark .subcat-listing-header { border-bottom-color: transparent !important; }
+            /* Row 1 = filter button, Row 2 = category intro. Column layout keeps
+               the trigger independent; direction:rtl (html.lang-ar rule in
+               rtl-overrides.css) mirrors both rows naturally for Arabic. */
+            /* ONE ROW: title LEFT, filter button RIGHT (LTR). DOM order is
+               [button, intro], so row-reverse puts the intro on the left and
+               the trigger on the right; space-between pins them to opposite
+               edges — no positioning hacks. */
             .subcat-lh-top {
                 display: flex !important;
+                flex-direction: row-reverse !important;
                 align-items: flex-start !important;
                 justify-content: space-between !important;
                 gap: 0.75rem !important;
             }
-            .subcat-lh-top > div:first-child { min-width: 0; flex: 1; }
+            /* Arabic mirror: i18n.js puts direction:rtl on this row, so the
+               same row-reverse flips the trigger to the LEFT edge and the
+               title to the RIGHT — no extra override needed. */
+            .subcat-lh-intro { min-width: 0; flex: 1 1 auto; }
             .subcat-lh-title {
-                font-family: 'Manrope', sans-serif; font-size: 1.35rem; font-weight: 800;
+                font-family: 'Manrope', sans-serif; font-size: 1.2rem; font-weight: 800;
                 letter-spacing: -0.02em; text-transform: none; color: #111d27;
                 line-height: 1.1; display: block;
                 white-space: normal !important; overflow: visible !important;
                 text-overflow: clip !important; word-break: break-word !important;
             }
             html.dark .subcat-lh-title { color: #fff; }
-            .subcat-lh-count {
-                margin-top: 0.2rem;
+            /* Arabic glyphs read smaller at the same size — bump slightly so the
+               Arabic title carries the same weight as the English one. */
+            html.lang-ar .subcat-lh-title { font-size: 1.3rem; }
+            /* CONTROL ROW (Number of items + Sort By): the existing desktop
+               .subcat-grid-header doubles as the mobile control row. Count on
+               one side, Sort By on the other, separated from the description
+               by a top divider. In Arabic the shared sort-dropdown rule
+               (html.lang-ar .subcat-grid-header { direction: ltr; }) keeps the
+               count physically LEFT and Sort By RIGHT — the same correct
+               rendering desktop Arabic already has; the number never reverses. */
+            /* SPLIT ROW: "Number of items" section and "Sort By" section as
+               two halves of one row, separated by a subtle vertical divider
+               (logical border-inline-end so RTL mirrors without hacks). */
+            html body .subcat-grid-header > div:first-child {
+                display: block !important;
+                flex: 0 0 auto; min-width: 0;
+                border-inline-end: 1px solid rgba(196,198,204,0.35);
+                padding-inline-end: 0.9rem;
+            }
+            html.dark body .subcat-grid-header > div:first-child { border-inline-end-color: rgba(255,255,255,0.1); }
+            /* Arabic: mirror the row — Number of items RIGHT, Sort By LEFT. */
+            html.lang-ar body .subcat-grid-header { direction: rtl !important; }
+            /* Mobile-only count label + dynamic value (i18n translates the
+               label via the approved "number of items" key). */
+            .subcat-mcount-label {
+                display: block;
+                font-size: 0.62rem; font-weight: 700;
+                letter-spacing: 0.14em; text-transform: uppercase;
+                color: rgba(17,29,39,0.6); line-height: 1.3;
+            }
+            html.dark .subcat-mcount-label { color: rgba(255,255,255,0.6); }
+            .subcat-mcount-value {
+                display: block;
+                margin-top: 0.15rem;
+                font-family: 'Manrope', sans-serif;
+                font-size: 1.05rem; font-weight: 800;
+                color: #111d27; line-height: 1.2;
+            }
+            html.dark .subcat-mcount-value { color: #fff; }
+            /* The desktop combined count string stays desktop-only. */
+            #catalog-count { display: none !important; }
+            .subcat-grid-header {
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 0.75rem !important;
+                margin-top: 0.9rem !important;
+                padding-top: 0.9rem !important;
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+                border-top: 1px solid rgba(196,198,204,0.35) !important;
+            }
+            html.dark .subcat-grid-header { border-top-color: rgba(255,255,255,0.08) !important; }
+            /* Sort By section: label above a full-width rounded dropdown. */
+            .subcat-grid-header > div:last-child {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.35rem !important;
+                margin-top: 0 !important;
+                flex: 1 1 0; min-width: 0;
+                padding-inline-start: 0.9rem;
+            }
+            .subcat-grid-header > div:last-child > span { white-space: normal !important; line-height: 1.3; }
+            .subcat-grid-header select { width: 100% !important; max-width: 100% !important; min-height: 42px; font-size: 0.8rem; padding-left: 0.6rem; padding-right: 1.7rem; }
+            html.lang-ar body .subcat-grid-header select { padding-left: 1.7rem !important; padding-right: 0.6rem !important; }
+            #catalog-count {
+                flex-shrink: 0;
                 font-size: 0.7rem; font-weight: 600; letter-spacing: 0.03em;
                 color: #44474b; line-height: 1.2;
             }
-            html.dark .subcat-lh-count { color: rgba(255,255,255,0.6); }
+            html.dark #catalog-count { color: rgba(255,255,255,0.6); }
+
+            .subcat-lh-sub {
+                display: block;
+                margin-top: 0.28rem;   /* small, natural title/subtitle gap */
+                font-family: 'Manrope', sans-serif; font-size: 0.72rem; font-weight: 700;
+                letter-spacing: 0.06em; color: #44474b; line-height: 1.35;
+            }
+            html.dark .subcat-lh-sub { color: rgba(255,255,255,0.65); }
+            .subcat-lh-desc {
+                display: block;
+                margin-top: 0.3rem;
+                font-size: 0.72rem; font-weight: 500; color: #55585c; line-height: 1.45;
+            }
+            html.dark .subcat-lh-desc { color: rgba(255,255,255,0.65); }
             .subcat-lh-filter {
                 display: inline-flex !important; align-items: center !important; justify-content: center !important;
                 flex-shrink: 0; width: 38px; height: 38px; border-radius: 9999px;
                 background: rgba(0,3,8,0.04); gap: 0 !important; margin-top: 0.1rem;
+                border: 0; padding: 0; cursor: pointer; font: inherit;
             }
             html.dark .subcat-lh-filter { background: rgba(255,255,255,0.08); }
             .subcat-lh-icon { font-size: 21px; color: #825335; }
             .subcat-lh-ftext { display: none !important; }
+
+            /* Filtered By / Clear All + chips: comfortable screen-edge
+               padding (same 1rem gutters as the grid); the markup's pl-5
+               indent is zeroed so nothing sits unevenly or touches edges. */
+            #active-filters { padding-left: 1rem !important; padding-right: 1rem !important; }
+            #active-filters > div:first-child { margin-top: 0 !important; padding-left: 0 !important; }
+            #filter-tags { padding-left: 0 !important; }
 
             /* Product grid: 2-column, tight gutters, edge margins */
             #product-grid {
@@ -1059,9 +1159,15 @@
         #sc-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         #sc-toast .material-symbols-outlined { font-size: 16px; }
         @media (min-width: 768px) { #sc-toast { bottom: 2rem; font-size: 0.75rem; } }
+        /* Desktop only: manual Min/Max entry is removed (the dual-handle slider
+           writes its values into these hidden inputs, and price filtering still
+           reads them). Mobile keeps the boxes visible. */
+        @media (min-width: 768px) { .js-price-manual { display: none !important; } }
     </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<link rel="stylesheet" href="assets/css/dark-overrides.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
+<script src="assets/js/listing-search-filter.js"></script>
 <script src="assets/js/i18n-data.js" defer></script>
 <script src="assets/js/i18n.js" defer></script>
 </head>
@@ -1183,16 +1289,25 @@
 <!-- Mobile listing header: Page Title (left) + Filter & Sorting (right), then Product Count.
      Lives INSIDE <main> (like cleaning-tools.html) so main's padding-top clears
      the fixed nav. Desktop/tablet: hidden via CSS. -->
-<div class="subcat-listing-header" id="subcat-filter-trigger" role="button" tabindex="0" aria-label="Open filters and sorting">
+<!-- Mobile listing header (mobile-only element; desktop untouched).
+     Row 1: the dedicated FILTER button — the ONLY element that opens the
+     filter drawer (title/subtitle/description/count/sort never open it).
+     Row 2: category title / subtitle / description, synced from the desktop
+     hero (.subcat-intro) by the page script below, so the desktop content
+     stays the single source of truth (EN + AR).
+     Number of items + Sort By live in the control row (.subcat-grid-header)
+     right below, styled by the mobile CSS block. -->
+<div class="subcat-listing-header">
   <div class="subcat-lh-top">
-    <div>
-      <span class="subcat-lh-title" data-lh-title>PROFESSIONAL COOLING EQUIPMENT</span>
-      <div class="subcat-lh-count" data-lh-count></div>
-    </div>
-    <span class="subcat-lh-filter">
+    <button type="button" id="subcat-filter-trigger" class="subcat-lh-filter" role="button" tabindex="0" aria-label="Open filters and sorting">
       <span class="material-symbols-outlined subcat-lh-icon">tune</span>
       <span class="subcat-lh-ftext">Filter &amp; Sorting</span>
-    </span>
+    </button>
+    <div class="subcat-lh-intro">
+      <span class="subcat-lh-title" data-lh-title></span>
+      <span class="subcat-lh-sub" data-lh-sub></span>
+      <p class="subcat-lh-desc" data-lh-desc></p>
+    </div>
   </div>
 </div>
 <div id="subcat-drawer-backdrop"></div>
@@ -1245,23 +1360,18 @@
 <!-- Price Filter Accordion -->
 <details open class="group border-b border-outline-variant/10 dark:border-white/10 pb-6">
 <summary class="flex items-center justify-between cursor-pointer list-none">
-<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Price Range</h3>
+<h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Price Range (KD)</h3>
 <span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
 </summary>
-<div class="pt-6 space-y-6">
+<div class="pt-4 space-y-2">
 
-<div class="flex gap-2 items-center mb-4">
-<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-min" placeholder="Min" type="text"/>
-<span class="text-outline-variant dark:text-white/40">-</span>
-<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-max" placeholder="Max" type="text"/>
-</div>
 <div class="nassim-price-slider" data-price-slider></div>
-<div class="pt-2">
-
-<div class="flex gap-2">
-<button class="flex-1 py-2 border border-outline-variant/30 dark:border-white/20 text-[9px] uppercase tracking-widest font-bold text-on-surface-variant dark:text-white/70 hover:border-primary dark:hover:border-white hover:text-primary dark:hover:text-white transition-all" id="clear-price">Clear</button>
-<button class="flex-1 py-2 bg-primary text-on-primary text-[9px] uppercase tracking-widest font-bold" id="apply-price">Apply</button>
+<div class="flex gap-2 items-center mb-2 js-price-manual">
+<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-2 py-1 text-[11px] rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-min" placeholder="Min" type="text"/>
+<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-2 py-1 text-[11px] rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-max" placeholder="Max" type="text"/>
 </div>
+<div class="pt-2">
+<div class="flex gap-2" hidden style="display:none"><button class="flex-1 py-2 border border-outline-variant/30 dark:border-white/20 text-[9px] uppercase tracking-widest font-bold text-on-surface-variant dark:text-white/70 hover:border-primary dark:hover:border-white hover:text-primary dark:hover:text-white transition-all" id="clear-price">Clear</button><button class="flex-1 py-2 bg-primary text-on-primary text-[9px] uppercase tracking-widest font-bold" id="apply-price">Apply</button></div>
 </div>
 </div>
 </details>
@@ -1320,11 +1430,14 @@
      already shows the title + count above the mobile grid). -->
 <header class="subcat-grid-header flex flex-col md:flex-row justify-between items-start md:items-end mb-6 pb-4 border-b border-surface-container-high/50">
 <div>
+<span class="subcat-mcount-label">Number of items</span>
+<span class="subcat-mcount-value" data-lh-count>0</span>
 <p class="text-sm text-on-surface-variant font-body font-medium" id="catalog-count">Loading products…</p>
 </div>
 <div class="mt-4 md:mt-0 flex items-center space-x-3">
 <span class="text-sm font-semibold text-on-surface font-headline uppercase tracking-wider text-[11px]">Sort By</span>
 <select class="bg-surface-container-lowest border border-outline-variant/30 text-sm font-medium py-2 pl-4 pr-10 rounded-sm focus:ring-0 focus:border-secondary cursor-pointer hover:border-outline-variant transition-colors text-on-surface">
+<option value="" selected hidden>Select</option>
 <option>Price: Low to High</option>
 <option>Price: High to Low</option>
 </select>
@@ -1595,7 +1708,7 @@
         '<div class="col-span-full text-center py-20">' +
         '<p class="text-lg text-on-surface-variant">No products found.</p>' +
         "</div>";
-      if (countEl) countEl.textContent = "number of items: 0";
+      if (countEl) countEl.textContent = "Number of items: 0";
       return;
     }
     grid.innerHTML = list.map(function (p) {
@@ -1622,7 +1735,7 @@
     }).join("");
 
     if (countEl) {
-      countEl.textContent = "number of items: " + list.length;
+      countEl.textContent = "Number of items: " + list.length;
     }
     wireCards();
     syncHearts();
@@ -1744,6 +1857,30 @@ var activeSubcategory = (function () {
 
 function applyFiltersAndSort() {
     var filteredProducts = allProducts.slice();
+
+    /* --- Top-nav search-term filter (?search= from search suggestions): the
+           destination half of the term suggestions in assets/js/search.js —
+           only products whose searchable info contains the term survive. --- */
+    if (window.NASSIM_LISTING_SEARCH_TERM) {
+      var _term = window.NASSIM_LISTING_SEARCH_TERM.toLowerCase();
+      filteredProducts = filteredProducts.filter(function (p) {
+        /* Name-only matching: the ?search= term must qualify a product by
+           its NAME alone — never by line/SKU/description or category, so a
+           generic word like a colour in the description cannot pull in
+           unrelated products. */
+        var hay = String(p.name || '');
+        /* Combination priority + fallback (shared logic from
+           assets/js/search.js): ALL terms must match first; only if NO
+           product on this page contains all of them, fall back to the
+           FIRST term alone. */
+        var _q = (window.NassimSearch && window.NassimSearch.effectiveQuery)
+          ? window.NassimSearch.effectiveQuery(_term, filteredProducts)
+          : _term;
+        return (window.NassimSearch && window.NassimSearch.matchName)
+          ? window.NassimSearch.matchName(hay, _q)
+          : hay.toLowerCase().indexOf(String(_q || '').toLowerCase()) !== -1;
+      });
+    }
 
     /* --- Subcategory filter (before sort/price/pagination) --- */
     if (activeSubcategory) {
@@ -2113,19 +2250,32 @@ function applyFiltersAndSort() {
       }
     }
 
-    /* ---- 2. Title + count sync ----
-       Title matches cleaning-tools.html's catalog heading
-       ("PROFESSIONAL COOLING EQUIPMENT"), not the desktop <h1>. */
+    /* ---- 2. Title + subtitle + description sync ----
+       The mobile listing header mirrors the desktop hero (.subcat-intro)
+       EXACTLY: the hero DOM is the single content source. Reading its live
+       text keeps mobile EN/AR identical to desktop EN/AR — i18n.js
+       translates the copied nodes with the same approved keys. */
     var titleEl = document.querySelector('[data-lh-title]');
     if (titleEl) {
-      titleEl.textContent = 'PROFESSIONAL COOLING EQUIPMENT';
+      var heroTitle = document.querySelector('.subcat-intro-title');
+      titleEl.textContent = heroTitle ? heroTitle.textContent.replace(/\s+/g, ' ').trim() : '';
+    }
+    var subEl = document.querySelector('[data-lh-sub]');
+    if (subEl) {
+      var heroSub = document.querySelector('.subcat-intro-sub');
+      subEl.textContent = heroSub ? heroSub.textContent.replace(/\s+/g, ' ').trim() : '';
+    }
+    var descEl = document.querySelector('[data-lh-desc]');
+    if (descEl) {
+      var heroDesc = document.querySelector('.subcat-intro-desc');
+      descEl.textContent = heroDesc ? heroDesc.textContent.replace(/\s+/g, ' ').trim() : '';
     }
     var grid = document.getElementById('product-grid');
     var countEl = document.querySelector('[data-lh-count]');
     function syncCount(){
       if (!countEl || !grid) return;
       var n = grid.querySelectorAll('article.group').length;
-      countEl.textContent = 'number of items: ' + n;
+      countEl.textContent = String(n);
     }
 
     /* ---- 3. Mobile card augmentation: make the ATC always-visible on touch ----
@@ -2233,7 +2383,9 @@ function applyFiltersAndSort() {
                 if (!q) { closeMobileResults(); return; }
                 var terms = q.split(/\s+/);
                 var filtered = list.filter(function (p) {
-                    var hay = (p.name + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
+                    /* Name-only: the top-nav search qualifies products by
+                       name alone — description/SKU/line must never match. */
+                    var hay = String(p.name || '').toLowerCase();
                     return terms.every(function (t) { return hay.indexOf(t) !== -1; });
                 });
                 renderMobileResults(filtered);
@@ -2357,6 +2509,114 @@ function applyFiltersAndSort() {
 <a id="whatsapp-fab" aria-label="Chat on WhatsApp" class="fixed bottom-[5rem] right-4 md:bottom-6 md:right-6 z-[100] flex items-center justify-center w-14 h-14 text-white rounded-full hover:scale-110 transition-all duration-300 md:w-16 md:h-16 group" href="https://wa.me/96560900059" rel="noopener noreferrer" target="_blank">
 <img loading="lazy" src="topcar/whatsapp.png" alt="Chat on WhatsApp" class="w-full h-full object-contain"/>
 </a>
+<!-- ==================== MOBILE CATEGORIES DRAWER: NAME = LINK, ARROW = TOGGLE ======
+     Splits the department header so the NAME navigates and the ARROW only
+     expands/collapses. Reuses mobile-nav.js's existing toggle listener and the
+     desktop nav's existing hrefs — no new links, no duplicated JS. -->
+<script>
+    (function () {
+        function ready(fn) {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        }
+
+        function buildDeptHrefMap() {
+            var map = {};
+            var triggers = document.querySelectorAll('.dropdown-trigger');
+            triggers.forEach(function (t) {
+                var link = t.querySelector('a');
+                if (!link) return;
+                var name = '';
+                for (var i = 0; i < link.childNodes.length; i++) {
+                    var n = link.childNodes[i];
+                    if (n.nodeType === 3 || n.nodeType === 1) {
+                        var txt = n.textContent.trim();
+                        if (txt) name += (name ? ' ' : '') + txt;
+                    }
+                }
+                if (name && link.href) map[name.toLowerCase()] = link.getAttribute('href');
+            });
+            if (triggers.length > 0) {
+                var sib = triggers[triggers.length - 1].nextElementSibling;
+                while (sib) {
+                    if (sib.tagName === 'A' && !sib.classList.contains('dropdown-trigger')) {
+                        var parts = [];
+                        for (var j = 0; j < sib.childNodes.length; j++) {
+                            var nn = sib.childNodes[j];
+                            if (nn.nodeType === 3 || nn.nodeType === 1) {
+                                var tt = nn.textContent.trim();
+                                if (tt) parts.push(tt);
+                            }
+                        }
+                        var nm = parts.join(' ');
+                        if (nm && sib.getAttribute('href')) map[nm.toLowerCase()] = sib.getAttribute('href');
+                    }
+                    sib = sib.nextElementSibling;
+                }
+            }
+            return map;
+        }
+
+        var hrefMap = {};
+
+        function hrefForName(rawName) {
+            if (!rawName) return null;
+            var norm = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            var keys = Object.keys(hrefMap);
+            for (var i = 0; i < keys.length; i++) {
+                if (keys[i].replace(/[^a-z0-9]/g, '') === norm) return hrefMap[keys[i]];
+            }
+            var firstWord = rawName.toLowerCase().trim().split(/\s+/)[0];
+            for (var j = 0; j < keys.length; j++) {
+                if (keys[j].replace(/[^a-z0-9]/g, '') === firstWord.replace(/[^a-z0-9]/g, '')) return hrefMap[keys[j]];
+            }
+            return null;
+        }
+
+        function transformItems() {
+            var dept = document.getElementById('mobile-nav-departments');
+            if (!dept) return;
+            var triggers = dept.querySelectorAll('.mobile-accordion-trigger');
+            triggers.forEach(function (trigger) {
+                if (trigger.getAttribute('data-name-linked') === '1') return;
+                var nameSpan = trigger.querySelector('span.flex.flex-col');
+                if (!nameSpan) { trigger.setAttribute('data-name-linked', '1'); return; }
+                var deptName = nameSpan.textContent.replace(/\s+/g, ' ').trim();
+                var href = hrefForName(deptName);
+                if (!href) { trigger.setAttribute('data-name-linked', '1'); return; }
+                var a = document.createElement('a');
+                a.href = href;
+                a.className = nameSpan.className;
+                a.innerHTML = nameSpan.innerHTML;
+                a.addEventListener('click', function (e) { e.stopPropagation(); }, true);
+                nameSpan.parentNode.replaceChild(a, nameSpan);
+                trigger.setAttribute('data-name-linked', '1');
+            });
+        }
+
+        function setupObserver() {
+            var dept = document.getElementById('mobile-nav-departments');
+            if (!dept) return false;
+            transformItems();
+            if (window.MutationObserver && !dept.dataset.splitObs) {
+                dept.dataset.splitObs = '1';
+                new MutationObserver(function () { transformItems(); })
+                    .observe(dept, { childList: true, subtree: true });
+            }
+            return true;
+        }
+
+        ready(function () {
+            hrefMap = buildDeptHrefMap();
+            var tries = 0;
+            (function poll() {
+                if (setupObserver()) return;
+                if (++tries > 60) return;
+                setTimeout(poll, 50);
+            })();
+        });
+    })();
+</script>
 <!-- Shared functional scripts (the same stack as home.html). These expose
      window.NASSIM_PRODUCTS, NassimGetProduct, NassimCartBadge, NassimAccount,
      NassimSearch, and the theme + mobile-nav systems used by the header/footer. -->

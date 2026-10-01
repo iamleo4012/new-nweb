@@ -158,7 +158,7 @@
         }
     </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
 </head>
 <body class="bg-background text-on-surface dark:bg-[#0a0f14] dark:text-white">
 <!-- Loading Screen -->
@@ -347,20 +347,15 @@
 <h3 class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/60 dark:text-white/60">Price Range</h3>
 <span class="material-symbols-outlined text-outline dark:text-white/70 text-lg transition-transform duration-300 arrow-icon" data-icon="expand_more">expand_more</span>
 </summary>
-<div class="pt-6 space-y-6">
+<div class="pt-4 space-y-2">
 
-<div class="flex gap-2 items-center mb-4">
-<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-min" placeholder="Min" type="text"/>
-<span class="text-outline-variant dark:text-white/40">-</span>
-<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-3 py-2 rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-max" placeholder="Max" type="text"/>
-</div>
 <div class="nassim-price-slider" data-price-slider></div>
-<div class="pt-2">
-
-<div class="flex gap-2">
-<button class="flex-1 py-2 border border-outline-variant/30 dark:border-white/20 text-[9px] uppercase tracking-widest font-bold text-on-surface-variant dark:text-white/70 hover:border-primary dark:hover:border-white hover:text-primary dark:hover:text-white transition-all" id="clear-price">Clear</button>
-<button class="flex-1 py-2 bg-primary text-on-primary text-[9px] uppercase tracking-widest font-bold" id="apply-price">Apply</button>
+<div class="flex gap-2 items-center mb-2">
+<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-2 py-1 text-[11px] rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-min" placeholder="Min" type="text"/>
+<input class="w-full bg-surface-container-low dark:bg-[#1a1f2e] border border-outline-variant/30 dark:border-white/20 text-xs dark:text-white px-2 py-1 text-[11px] rounded-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" id="price-max" placeholder="Max" type="text"/>
 </div>
+<div class="pt-2">
+<div class="flex gap-2" hidden style="display:none"><button class="flex-1 py-2 border border-outline-variant/30 dark:border-white/20 text-[9px] uppercase tracking-widest font-bold text-on-surface-variant dark:text-white/70 hover:border-primary dark:hover:border-white hover:text-primary dark:hover:text-white transition-all" id="clear-price">Clear</button><button class="flex-1 py-2 bg-primary text-on-primary text-[9px] uppercase tracking-widest font-bold" id="apply-price">Apply</button></div>
 </div>
 </div>
 </details>
@@ -1528,7 +1523,7 @@ html.dark .subcat-tabs::after  { background: linear-gradient(to left, rgba(255,2
       var n = grid.querySelectorAll('article.group').length;
       // If the page paginates/limits, prefer the catalogue-driven count when present
       if (window.currentFilteredProducts && typeof window.currentFilteredProducts.length === 'number') n = window.currentFilteredProducts.length;
-      countEl.textContent = 'number of items: ' + n;
+      countEl.textContent = 'Number of items: ' + n;
     }
 
     /* Re-apply wishlist heart state to ALL already-rendered .sc-wish buttons.

@@ -189,8 +189,61 @@
             }
         }
     </style>
+<style>
+    /* ======================================================================
+       MOBILE-ONLY hero typography/spacing refinement (department hero).
+       Desktop (md+) is untouched — every rule lives under max-width: 767px.
+       Hierarchy: title largest/tightest → tagline medium, letter-spaced,
+       controlled wrap width → section label smaller, letter-spaced. Natural
+       wrapping only — no <br>, no icons, no absolute positioning.
+       ====================================================================== */
+    @media (max-width: 767px) {
+        /* --- 1. main title: one cohesive two-line heading --- */
+        main > section:first-of-type h1 {
+            font-size: 2.5rem;          /* dominant, still fits "SUPERMARKET" */
+            line-height: 1.02;          /* tight: the two lines read as one heading */
+            letter-spacing: -0.02em;
+            margin-bottom: 1.25rem;
+        }
+        /* --- 2. tagline: medium, centered, ~3 balanced lines --- */
+        main > section:first-of-type .relative.z-10 > div:nth-child(2) {
+            margin-top: 0.25rem;        /* + h1 margin = comfortable gap */
+        }
+        main > section:first-of-type .relative.z-10 > div:nth-child(2) .h-px {
+            width: 2rem;                /* slimmer rules: give the text room to wrap */
+            flex: 0 0 auto;
+        }
+        main > section:first-of-type .relative.z-10 > div:nth-child(2) span.font-headline {
+            font-size: 1.25rem;
+            line-height: 1.5;           /* comfortable, clearly separated lines */
+            letter-spacing: 0.12em;     /* elegant, not excessive */
+            max-width: 13.5rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        /* --- 3. section label: smaller, two balanced lines, clear gap --- */
+        main > section:first-of-type .relative.z-10 > div:nth-child(3) {
+            margin-top: 1.25rem;
+        }
+        main > section:first-of-type .relative.z-10 > div:nth-child(3) .h-px {
+            width: 1.5rem;
+            flex: 0 0 auto;
+        }
+        main > section:first-of-type .relative.z-10 > div:nth-child(3) span.font-label {
+            font-size: 0.8rem;
+            line-height: 1.5;
+            letter-spacing: 0.18em;
+            max-width: 8rem;            /* wraps to EXPLORE OUR / COLLECTION */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        /* --- overall: balanced whitespace before the first card --- */
+        main > section:first-of-type { padding-bottom: 2rem; }
+    }
+</style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<link rel="stylesheet" href="assets/css/dark-overrides.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
 <script src="assets/js/i18n-data.js" defer></script>
 <script src="assets/js/i18n.js" defer></script>
 </head>

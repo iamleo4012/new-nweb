@@ -78,6 +78,17 @@
     + "html.dark .subcat-grid-header select:focus, html.dark .nassim-sort-bar .nsb-select:focus {"
     + "  box-shadow: 0 0 0 3px rgba(247,185,148,0.2);"
     + "}"
+    /* "Select" placeholder state: muted while no sort is chosen, normal
+       color as soon as a real option is picked. */
+    + "select:has(option[value='']:checked) { color: rgba(13,27,42,0.45); }"
+    + "html.dark select:has(option[value='']:checked) { color: rgba(255,255,255,0.5); }"
+    /* Dropdown list items (Price: Low to High / High to Low) must be BLACK
+       and fully visible when the list opens — they inherit the select's
+       muted placeholder color on some platforms. The hidden "Select"
+       placeholder never shows in the list, so this only affects the two
+       real sort options. Dark mode keeps them readable (white on dark). */
+    + ".subcat-grid-header select option, .nassim-sort-bar .nsb-select option { color: #000000; background-color: #ffffff; }"
+    + "html.dark .subcat-grid-header select option, html.dark .nassim-sort-bar .nsb-select option { color: #ffffff; background-color: #141a22; }"
     + "</style>";
 
   function ready(fn) {
@@ -103,14 +114,33 @@
     if (!select || select.dataset.nassimSortWired === "1") return;
     select.dataset.nassimSortWired = "1";
     select.addEventListener("change", function () {
-      /* every select this script owns has exactly two options in canonical
-         order [Low→High, High→Low]; mapping by index is translation-proof */
-      applySort(select.selectedIndex === 1 ? "high" : "low");
+      /* index 0 = the "Select" placeholder → back to DEFAULT (products in
+         natural order, no sorting). 1 = Low→High, 2 = High→Low (canonical
+         order, translation-proof). The dropdown LIST shows only the two sort
+         options — the placeholder stays the closed control's label via its
+         `hidden` attribute. */
+      if (select.selectedIndex === 0) return applySort("none");
+      applySort(select.selectedIndex === 2 ? "high" : "low");
     });
   }
 
   ready(function () {
     document.head.insertAdjacentHTML("beforeend", CSS);
+
+    /* Keep the visible select in step with the hidden sorting radios: when a
+       sort chip is removed from Filtered By (its × button) or Clear All runs,
+       the radios clear — the select must then return to the "Select"
+       placeholder (default, natural order). Cheap poll; idempotent. */
+    setInterval(function () {
+      var select = document.querySelector(".subcat-grid-header select") ||
+                   document.querySelector(".nsb-select");
+      if (!select) return;
+      var anyChecked = Array.prototype.some.call(
+        document.querySelectorAll('.filter-radio[name="sorting"]'),
+        function (r) { return r.checked; }
+      );
+      if (!anyChecked && select.selectedIndex !== 0) select.selectedIndex = 0;
+    }, 400);
 
     /* 1. Pages that already have a sort select above the grid: wire it. */
     var headerSelect = document.querySelector(".subcat-grid-header select");
@@ -128,6 +158,7 @@
     bar.innerHTML =
       '<span class="nsb-label">Sort By</span>' +
       '<select class="nsb-select" aria-label="Sort products">' +
+        '<option value="" selected hidden>Select</option>' +
         '<option value="low">Price: Low to High</option>' +
         '<option value="high">Price: High to Low</option>' +
       '</select>';

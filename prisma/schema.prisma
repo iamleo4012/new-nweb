@@ -501,6 +501,9 @@ model Order {
   status        OrderStatus @default(PENDING)
   staffNotes    String      @default("")
   posStatus     PosStatus   @default(NOT_CREATED)
+  // WhatsApp send-state: set when staff sends the WhatsApp message for this
+  // order. Separate from the order status state machine.
+  whatsappSent  Boolean     @default(false)
   subtotal      Decimal     @db.Decimal(10, 3)
   shipping      Decimal     @db.Decimal(10, 3) @default(2.5)
   total         Decimal     @db.Decimal(10, 3)

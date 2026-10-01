@@ -43,7 +43,18 @@
   html.lang-ar table.orders td { text-align: right; }
   .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; }
   .section-title { font-size:18px; font-weight:800; margin:0 0 14px; letter-spacing:.02em; }
-  .view-btn { white-space:nowrap; }
+  /* Rows are fully clickable (open order) — pointer cursor on the whole row */
+  table.orders tbody tr[data-order] { cursor: pointer; }
+  table.orders tbody tr[data-order]:hover { background: #f8fafc; }
+  html.dark table.orders tbody tr[data-order]:hover { background: rgba(255,255,255,0.04); }
+  /* VIEWED vs NOT VIEWED font weight (INVERTED): the six order-information
+     cells (Order #, Date, Customer, Phone, Location, Total — everything
+     except the trailing STATUS cell) render REGULAR once the order has been
+     viewed and BOLD while it is still PENDING (Not Viewed). Driven by the
+     row class that rowHtml/updateRowBadge set from the order's ACTUAL
+     status — no separate state. */
+  table.orders tr.row-viewed td:not(:last-child) { font-weight: 400; }
+  table.orders tr.row-notviewed td:not(:last-child) { font-weight: 700; }
   .pager { display:flex; align-items:center; gap:10px; margin-top:14px; font-size:13px; color:var(--muted); }
   .empty { padding:40px; text-align:center; color:var(--muted); background:#fff; border-radius:10px; }
   .detail-actions { display:flex; gap:8px; margin-bottom:14px; }
@@ -53,6 +64,34 @@
   .wa-btn { display:inline-block; margin-inline-start:8px; padding:3px 10px; background:#25d366; color:#fff; border:0; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap; vertical-align:middle; font-family:inherit; }
   .wa-btn:hover { background:#1fb857; }
   @media (max-width:640px) { .wa-btn { margin-top:4px; } }
+  /* ===== Schedule Delivery dropdown (WhatsApp prerequisite) ==============
+     Custom-styled <select> matching the toolbar buttons: same height,
+     radius and font; native appearance removed; chevron drawn with an
+     inline SVG background (no icon library). RTL mirrors padding and
+     chevron side via html[dir="rtl"]. */
+  .wa-schedule select {
+    appearance:none; -webkit-appearance:none; -moz-appearance:none;
+    height:40px; min-width:160px; max-width:100%;
+    padding:0 38px 0 14px;
+    border:1px solid #cbd5e1; border-radius:8px;
+    background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1.4.6 6 5.2 10.6.6 11.4 1.4 6 6.8.6 1.4z' fill='%23475569'/></svg>") no-repeat right 14px center;
+    font-family:inherit; font-size:14px; font-weight:600; color:#111827;
+    cursor:pointer; outline:none;
+  }
+  .wa-schedule select:hover { border-color:#94a3b8; background-color:#f8fafc; }
+  .wa-schedule select:focus { border-color:#0f766e; box-shadow:0 0 0 3px rgba(15,118,110,0.15); }
+  /* AR physical order: [WA] [Schedule] [Print] [Back] - RTL places the
+     FIRST item at the RIGHT, so WA gets the highest order to end up
+     LEFTMOST, matching the required [WA][Schedule] physical layout. */
+  html[dir="rtl"] .detail-actions > .wa-btn { order: 4; }
+  html[dir="rtl"] .detail-actions > .wa-schedule { order: 3; }
+  html[dir="rtl"] .detail-actions > .btn.primary { order: 2; }
+  html[dir="rtl"] .detail-actions > #back-btn { order: 1; }
+  html[dir="rtl"] .wa-schedule select {
+    padding:0 14px 0 38px;
+    background-position:left 14px center;
+    text-align:right;
+  }
   /* ===== Horizontal day tabs + single list container ====================== */
   .day-tabs { display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:#fff; margin-bottom:14px; }
   .day-tab { flex:1 1 0; min-width:0; padding:10px 8px; text-align:center; background:#f8fafc; border:0; border-inline-end:1px solid var(--line); cursor:pointer; font-family:inherit; }
@@ -133,7 +172,7 @@
     .notify-ico { font-size:18px; }
     .controls { flex-wrap:wrap; gap:8px; }
     .range-group { flex-wrap:wrap; margin-inline-start:0; width:100%; }
-    /* compact mobile order rows: Order Number | Status | View Order */
+    /* compact mobile order rows: Order Number | Status (row click = view) */
     table.orders th:nth-child(2), table.orders td:nth-child(2),
     table.orders th:nth-child(3), table.orders td:nth-child(3),
     table.orders th:nth-child(4), table.orders td:nth-child(4),
@@ -206,28 +245,11 @@
   }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
 <style>.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }</style>
 <script>/* keep the storefront i18n language in step with the staff toggle before the runtime initialises */
 try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang") === "ar" ? "ar" : "en"); } catch (e) {}</script>
-<script src="assets/js/i18n-data.js" defer></script>
-<script type="module">
-  /* Page-local supplement for the Order Sent sheet: wording taken from
-     EXISTING approved entries (total kd → الإجمالي د.ك, no.of items →
-     عدد الأصناف). Scoped to this page — the generated i18n-data.js is
-     not modified. Runs after i18n-data.js, before the i18n runtime. */
-  window.NASSIM_I18N = window.NASSIM_I18N || {};
-  window.NASSIM_I18N["total"] = window.NASSIM_I18N["total"] || "الإجمالي";
-  window.NASSIM_I18N["order items ("] = window.NASSIM_I18N["order items ("] || "عدد الأصناف (";
-  /* WhatsApp customer message wording — approved bilingual lines used by
-     waMessage(). The identical keys/values also live in i18n-data.js; these
-     fallbacks keep the message exact even if the generated map changes. */
-  window.NASSIM_I18N["dear"] = window.NASSIM_I18N["dear"] || "عزيزي";
-  window.NASSIM_I18N["thank you for your order with al-nassim golden group."] = window.NASSIM_I18N["thank you for your order with al-nassim golden group."] || "نشكرك على طلبك من مجموعة النسيم الذهبية.";
-  window.NASSIM_I18N["your order has been received."] = window.NASSIM_I18N["your order has been received."] || "تم استلام طلبكم.";
-  window.NASSIM_I18N["please click the link below to view your order and carefully read the important notice, which explain how your order will be processed and finalized."] = window.NASSIM_I18N["please click the link below to view your order and carefully read the important notice, which explain how your order will be processed and finalized."] || "يرجى النقر على الرابط أدناه لرؤية طلبك وقراءة الإشعار المهم بعناية، والذي يشرح كيفية معالجة طلبك وإتمامه.";
-  window.NASSIM_I18N["view your order"] = window.NASSIM_I18N["view your order"] || "عرض طلبك";
-</script>
+<script src="assets/js/i18n-data.js?v=3" defer></script>
 <script src="assets/js/i18n.js" defer></script>
 <script src="assets/js/nassim-locations-data.js" defer></script>
 <script src="assets/js/order-address.js" defer></script>
@@ -237,6 +259,8 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   #os-wrap .os-container { max-width: 1200px; margin: 0 auto; padding: 130px 24px 80px; }
   #os-wrap .os-eyebrow { display: flex; align-items: center; gap: 10px; }
   #os-wrap .os-check { width: 26px; height: 26px; border-radius: 50%; background: #16a34a; color: #fff; display: flex; align-items: center; justify-content: center; }
+  /* the check circle sits INLINE beside the title text (same line), as in order-send-modified2 */
+  #os-wrap .os-title .os-check { display: inline-flex; vertical-align: middle; margin-inline-end: 12px; }
   #os-wrap .os-check .material-symbols-outlined { font-size: 18px; }
   #os-wrap .os-label { font-size: 13px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: #64748b; }
   #os-wrap .os-title { font-size: 36px; font-weight: 800; color: #0f172a; margin: 14px 0 0; }
@@ -321,28 +345,19 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     box-shadow: 0 10px 30px rgba(15, 23, 42, .10);
     overflow: hidden;
   }
-.receipt-sheet::before {
-            content: "";
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            /* REPEATED watermark wallpaper: one small horizontal tile
-               (no rotation) repeated left→right AND top→bottom for the
-               sheet's full width/height — row/column count follows the
-               sheet's real size, so longer orders get more rows. Arabic
-               mode swaps in the approved Arabic sentence tile (natural
-               RTL glyph shaping by the SVG text engine — no reversal). */
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='460' height='150' viewBox='0 0 460 150'><text x='230' y='82' font-family='Arial, sans-serif' font-size='26' font-weight='bold' letter-spacing='3' fill='%23dc2626' fill-opacity='0.12' text-anchor='middle'>THIS%20IS%20NOT%20AN%20INVOICE</text></svg>");
-            background-repeat: repeat;
-            background-position: center center;
-            background-size: auto;
-            pointer-events: none; z-index: 1;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
-        html.lang-ar .receipt-sheet::before {
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='460' height='150' viewBox='0 0 460 150'><text x='230' y='82' font-family='Arial, Tahoma, sans-serif' font-size='26' font-weight='bold' fill='%23dc2626' fill-opacity='0.12' text-anchor='middle'>%D9%87%D8%B0%D9%87%20%D9%84%D9%8A%D8%B3%D8%AA%20%D9%81%D8%A7%D8%AA%D9%88%D8%B1%D8%A9</text></svg>");
-        }
   /* content above the watermark, exactly like the customer receipt */
   .doc-paper > * { position: relative; z-index: 2; }
+  /* Staff NOTE card: red instructions below the order sheet. Same width
+     alignment as the sheet; red text on a light red-tinted background. */
+  .staff-note {
+    max-width: 1240px; margin: 0 auto 40px;
+    background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;
+    padding: 18px 24px; color: #b91c1c;
+  }
+  .staff-note p { margin: 0 0 8px; font-size: 15px; line-height: 1.65; font-weight: 600; color: #b91c1c; }
+  .staff-note p:last-child { margin-bottom: 0; }
+  .staff-note .staff-note-title { font-weight: 700; letter-spacing: 0.02em; }
+  html.lang-ar .staff-note { direction: rtl; text-align: right; }
   @media print {
     .no-print { display: none !important; }
     body { background: #fff; }
@@ -382,7 +397,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   <section id="list-view">
     <h1 class="section-title" data-i18n="orders">Orders</h1>
     <div class="controls no-print">
-      <input type="search" id="search-box" placeholder="Search order number or customer name…" data-i18n-ph="searchPh" aria-label="Search orders"/>
+      <input type="search" id="search-box" placeholder="Search order number or customer name…" aria-label="Search orders"/>
       <button class="btn" id="search-btn" type="button" data-i18n="search">Search</button>
       <span class="range-group" id="range-group">
         <label class="range-field"><span data-i18n="from">From</span> <input type="date" id="from-date"/></label>
@@ -398,14 +413,18 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
         <thead>
           <tr>
             <th data-i18n="thOrderNo">Order #</th><th data-i18n="thDate">Date &amp; Time</th><th data-i18n="thCustomer">Customer</th><th data-i18n="thPhone">Phone</th>
-            <th data-i18n="thLocation">Location</th><th class="r" data-i18n="thTotal">Total</th><th data-i18n="thStatus">Status</th><th></th>
+            <th data-i18n="thLocation">Location</th><th class="r" data-i18n="thTotal">Total</th><th data-i18n="thStatus">Status</th><th>WhatsApp Status</th>
           </tr>
         </thead>
         <tbody id="orders-body"></tbody>
       </table>
       <div class="empty" id="empty-msg" style="display:none" data-i18n="rangeEmpty">No orders found for this range.</div>
     </div>
-    <div class="pager no-print">
+    <!-- Pagination row HIDDEN (Prev / page-info / Next). The markup and the
+         pagination JS stay intact — server-side paging still works; only the
+         visible controls are removed. Elements are kept in the DOM (not
+         commented out) because renderList()/listeners write to them. -->
+    <div class="pager no-print" style="display:none;">
       <button class="btn" id="prev-btn" type="button" data-i18n="prev">← Prev</button>
       <span id="page-info"></span>
       <button class="btn" id="next-btn" type="button" data-i18n="next">Next →</button>
@@ -423,6 +442,22 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       <!-- "Order Received" button removed: viewing is now automatic — opening
            an order marks it VIEWED (persisted PENDING → SEEN via the existing
            staff PATCH /api/admin/orders). No separate acknowledge action. -->
+      <!-- Schedule Delivery: must be chosen BEFORE the WhatsApp message can
+           be sent for this order (validated in the .wa-btn click handler). -->
+      <div class="wa-schedule no-print">
+        <select id="wa-schedule-select" aria-label="Schedule Delivery">
+          <option value="">Schedule Delivery</option>
+          <option value="today">Today</option>
+          <option value="tomorrow">Tomorrow</option>
+          <option value="dayAfter">Day After Tomorrow</option>
+        </select>
+      </div>
+      <!-- WhatsApp button RESTORED: sits above the Order Sent sheet. The full
+           implementation already exists (openOrder() wires data-wa-* attributes
+           + display; the delegated .wa-btn click handler builds the signed
+           /o/{id}-{signature} link and wa.me message exactly as
+           internal-orders.html does). openOrder()/backToList() null-guard
+           #detail-wa-btn. -->
       <button class="btn wa-btn" id="detail-wa-btn" type="button" style="display:none;" aria-label="Send WhatsApp Message">
         <img src="/topcar/whatsapp.png" alt="">
         <span class="wa-label">Send WhatsApp Message</span>
@@ -439,13 +474,8 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
           <div id="os-loading" style="padding:40px 0;text-align:center;color:#64748b;">Loading order…</div>
           <div id="os-error" style="display:none;padding:40px 0;text-align:center;color:#dc2626;font-size:18px;font-weight:600;"></div>
           <div id="os-main" style="display:none;">
-            <div class="os-eyebrow">
-              <span class="os-check"><span class="material-symbols-outlined">check</span></span>
-              <span class="os-label">Order Sent</span>
-            </div>
-            <h1 class="os-title">Your order has been received!</h1>
-            <p class="os-msg-red">Important Notice: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store&rsquo;s point of sale and provided with your goods upon delivery.</p>
-            <div class="os-date"><span class="material-symbols-outlined">calendar_month</span>Date: <span id="os-date"></span></div>
+            <h1 class="os-title"><span class="os-check"><span class="material-symbols-outlined">check</span></span>YOUR ORDER HAS BEEN RECEIVED.</h1>
+                        <div class="os-date"><span class="material-symbols-outlined">calendar_month</span>Date: <span id="os-date"></span></div>
             <div class="os-meta-row">
               <span class="material-symbols-outlined">receipt_long</span>Order Number : <b id="os-number"></b>
             </div>            <h2 class="os-section" style="display:none">Order Items (<span id="os-count">0</span>)</h2>
@@ -456,19 +486,20 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
                 <div class="os-line"><span class="material-symbols-outlined">person</span><span>Name : <span id="os-name"></span></span></div>
                 <div class="os-line"><span class="material-symbols-outlined">call</span><span>Phone : <span id="os-phone"></span></span></div>
                 <div class="os-line"><span class="material-symbols-outlined">location_on</span><span><span id="os-address-label">Address : </span><span id="os-address"></span></span></div>
-                <div class="os-line" id="os-notes-line" style="display:none"><span class="material-symbols-outlined">sticky_note_2</span><span>Notes : <span id="os-notes"></span></span></div>
               </div>
               <div class="os-totals">
                 <div class="os-trow"><span class="os-tlabel">Delivery Fee</span><span class="os-tval" id="os-shipping">KWD 0.000</span></div>
                 <div class="os-trow"><span class="os-tlabel">Total</span><span class="os-tval" id="os-total">KWD 0.000</span></div>
               </div>
             </div>
-            <div class="os-notice">
-              <p>Note: The total may vary based on actually delivered items.</p>
-            </div>
           </div>
         </div>
       </div>
+    </div>
+    <div class="staff-note no-print">
+      <p class="staff-note-title">NOTE:</p>
+      <p>Click “Send WhatsApp Message” to notify the customer that their order has been received.</p>
+      <p>After preparing the order, issue the invoice through the POS system and hand it to the customer along with their purchases.</p>
     </div>
   </section>
 </main>
@@ -480,115 +511,17 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
 
   var state = { q: "", page: 1, limit: 100, total: 0, totalPages: 1, current: null, from: "", to: "" };
 
+  /* TEMPORARY FEATURE FLAG: the Schedule Delivery control + validation +
+     message sentence are disabled. Set to true to restore all of it
+     (dropdown, gate popup, WhatsApp schedule lines). */
+  var ENABLE_DELIVERY_SCHEDULE = false;
+
   /* ===== Staff interface language (EN | العربية) ==========================
      UI-only: translates the Staff Orders INTERFACE. Customer-entered order
      data (names, phones, addresses, product names, codes, prices) is always
      rendered exactly as stored. Preference persists per staff device. */
   var LANG = "en";
   try { LANG = localStorage.getItem("nassimStaffLang") === "ar" ? "ar" : "en"; } catch (e) {}
-  var T = {
-    "brand": "مستندات الطلبات",
-    "sub": "صفحة موظف الطلبات",
-    "refresh": "تحديث",
-    "signout": "تسجيل الخروج",
-    "search": "بحث",
-    "searchPh": "ابحث برقم الطلب أو اسم العميل…",
-    "thOrderNo": "رقم الطلب",
-    "thDate": "التاريخ والوقت",
-    "thCustomer": "العميل",
-    "thPhone": "الهاتف",
-    "thLocation": "المنطقة",
-    "thTotal": "الإجمالي",
-    "thStatus": "الحالة",
-    "empty": "لا توجد طلبات.",
-    "prev": "السابق ←",
-    "next": "التالي →",
-    "back": "عودة للطلبات ←",
-    "print": "🖨 طباعة الطلب",
-    "orderReceived": "تم استلام الطلب",
-    "viewOrder": "عرض الطلب",
-    "notViewed": "لم تتم مشاهدته",
-    "viewedStatus": "تم الاطلاع",
-    "sendWa": "إرسال رسالة واتساب",
-    "orderSheetForStore": "كشف الطلب — للاستخدام الداخلي",
-    "orderLbl": "الطلب:",
-    "dateLbl": "التاريخ:",
-    "statusLbl": "الحالة:",
-    "customerBlock": "العميل",
-    "name": "الاسم",
-    "phone": "الهاتف",
-    "email": "البريد",
-    "location": "المنطقة",
-    "address": "العنوان",
-    "notes": "ملاحظات",
-    "products": "المنتجات",
-    "pcs": "قطعة",
-    "product": "المنتج",
-    "qty": "الكمية",
-    "unitPrice": "سعر الوحدة",
-    "lineTotal": "إجمالي السطر",
-    "totals": "الإجماليات",
-    "subtotal": "المجموع الفرعي",
-    "grandTotal": "الإجمالي الكلي",
-    "loadFail": "تعذر تحميل الطلبات.",
-    "netErrLoad": "خطأ في الشبكة — تعذر تحميل الطلبات.",
-    "saving": "جارٍ الحفظ…",
-    "statusUpdateFail": "تعذر تحديث الحالة.",
-    "netErrStatus": "خطأ في الشبكة — تعذر تحديث الحالة.",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    " ": " ",
-    "code": "الكود:",
-    "today": "اليوم",
-    "yesterday": "أمس",
-    "dayBefore": "أول أمس",
-    "from": "من",
-    "to": "إلى",
-    "apply": "تطبيق",
-    "clearRange": "مسح",
-    "rangeEmpty": "لا توجد طلبات في هذا النطاق.",
-    "status": "الحالة",
-    "orderNo": "رقم الطلب",
-    "orderSent": "تم إرسال الطلب",
-    "notFoundTitle": "الطلب غير موجود",
-    "notFoundSub": "يرجى استخدام رابط تأكيد الطلب أو التواصل مع المتجر.",
-    "notifyNew": "تم استلام طلب جديد —",
-    "notifyOn": "🔔 الإشعارات والصوت — تشغيل",
-    "notifyOff": "🔕 الإشعارات والصوت — إيقاف",
-    "notifyEnable": "تفعيل الإشعارات والصوت",
-    "orders": "الطلبات",
-    "page": "صفحة",
-    "notifyLblOn": "Notifications & Sound — ON",
-    "notifyLblOff": "Notifications & Sound — OFF",
-    "pushEnable": "تفعيل الإشعارات الفورية (Push)",
-    "pushEnabling": "جارٍ التفعيل…",
-    "pushToggleOn": "🔔 الإشعارات الفورية — تشغيل",
-    "pushToggleOff": "🔕 الإشعارات الفورية — إيقاف",
-    "pushBlocked": "الإشعارات الفورية محظورة من المتصفح — يرجى السماح بالإشعارات من إعدادات المتصفح.",
-    "pushInsecure": "🔕 الإشعارات الفورية: غير متوفرة",
-    "preparing": "جارٍ التحضير…",
-    "waPrepFail": "تعذر تجهيز رابط واتساب.",
-    "waNetErr": "خطأ في الشبكة — تعذر تجهيز رابط واتساب."
-  };
   var STATUS_AR = {
     "PENDING": "قيد الانتظار",
     "UNDER_REVIEW": "تم استلام الطلب",
@@ -608,26 +541,39 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     "REMOVED_AFTER_CONFIRMATION": "محذوف",
     "DELIVERED": "تم التسليم"
   };
-  function t(en, arKey) { return LANG === "ar" ? (T[arKey] || en) : en; }
+  /* Staff labels resolve through the CENTRAL translation map
+     (window.NASSIM_I18N from assets/js/i18n-data.js) — no local dictionary.
+     Same normalization as the i18n runtime; the legacy second argument is
+     ignored (call sites kept unchanged). */
+  var _staffLookup = null;
+  function t(en) {
+    if (LANG !== "ar") return en;
+    if (!_staffLookup) {
+      _staffLookup = {};
+      var m = window.NASSIM_I18N || {};
+      Object.keys(m).forEach(function (k) {
+        _staffLookup[String(k).normalize("NFC").replace(/s+/g, " ").trim().toLowerCase()] = m[k];
+      });
+    }
+    var v = _staffLookup[String(en == null ? "" : en).normalize("NFC").replace(/s+/g, " ").trim().toLowerCase()];
+    return v != null ? v : en;
+  }
   window.__staffT = t;
   window.__staffLang = function () { return LANG; };
   function applyLang() {
     var isAr = LANG === "ar";
     document.documentElement.setAttribute("dir", isAr ? "rtl" : "ltr");
     document.documentElement.setAttribute("lang", isAr ? "ar" : "en");
-    Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function (el) {
-      var k = el.getAttribute("data-i18n");
-      if (!el.getAttribute("data-orig")) el.setAttribute("data-orig", el.textContent);
-      el.textContent = isAr ? (T[k] || el.getAttribute("data-orig")) : el.getAttribute("data-orig"); // EN mode keeps the original English markup
-    });
-    var sb = document.getElementById("search-box");
-    if (sb) { if (!sb.getAttribute("data-orig-ph")) sb.setAttribute("data-orig-ph", sb.placeholder); sb.placeholder = isAr ? t("Search order number or customer name…", "searchPh") : sb.getAttribute("data-orig-ph"); }
+    /* Static text + placeholders are translated by the SHARED i18n runtime
+       (assets/js/i18n.js from assets/js/i18n-data.js), triggered below via the
+       nassim-langchange event — no local dictionary is consulted. */
     var langBtn = document.getElementById("lang-btn");
     if (langBtn) {
       langBtn.querySelector(".lang-en").classList.toggle("on", !isAr);
       langBtn.querySelector(".lang-ar").classList.toggle("on", isAr);
     }
     if (typeof loadOrders === "function") loadOrders();
+    if (typeof applyScheduleOptionLabels === "function") applyScheduleOptionLabels();
     if (state.current) openOrder(state.current);
     if (window.__staffUpdateStatus) window.__staffUpdateStatus();
     if (window.__staffUpdatePushStatus) window.__staffUpdatePushStatus(); // push pill follows the language toggle too
@@ -670,6 +616,12 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
      lifecycle status in the database is NOT changed by it. Opening an
      order still persists PENDING → SEEN through the existing staff
      PATCH /api/admin/orders, so the state survives refreshes. */
+  /* WhatsApp send-state badge - same visual style as VIEWED / NOT VIEWED. */
+  function waBadge(o) {
+    if (o.whatsappSent) return { label: t("SENT", "waSent"), bg: "#dcfce7", fg: "#166534" };
+    return { label: t("NOT SENT", "waNotSent"), bg: "#fef9c3", fg: "#854d0e" };
+  }
+
   function viewBadge(o) {
     if (o.status === "PENDING") return { label: t("NOT VIEWED", "notViewed"), bg: "#fef9c3", fg: "#854d0e" };
     return { label: t("VIEWED", "viewedStatus"), bg: "#dcfce7", fg: "#166534" };
@@ -721,18 +673,31 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     var dear = M["dear"] || "عزيزي";
     var thanks = M["thank you for your order with al-nassim golden group."] || "نشكرك على طلبك من مجموعة النسيم الذهبية.";
     var received = M["your order has been received."] || "تم استلام طلبكم.";
-    var linkInfo = M["please click the link below to view your order and carefully read the important notice, which explain how your order will be processed and finalized."] || "يرجى النقر على الرابط أدناه لرؤية طلبك وقراءة الإشعار المهم بعناية، والذي يشرح كيفية معالجة طلبك وإتمامه.";
+    var linkInfo = M["please click the link below to view your order."] || "يرجى النقر على الرابط أدناه لرؤية طلبك.";
     var link = M["link"] || "الرابط";
+    var deliveryEn = "Your order will be delivered within the next 2 days.";
+    var deliveryAr = M["your order will be delivered within the next 2 days."] || "سيتم توصيل طلبك خلال اليومين القادمين.";
+    /* Scheduled delivery line — from the staff Schedule Delivery dropdown
+       (required before sending). Exact approved wording per selection. */
+    var scheduleLines = {
+      today:     { en: "Your order is scheduled for delivery today.", ar: "طلبك مجدول للتوصيل اليوم." },
+      tomorrow:  { en: "Your order is scheduled for delivery tomorrow.", ar: "طلبك مجدول للتوصيل غداً." },
+      dayAfter:  { en: "Your order is scheduled for delivery the day after tomorrow.", ar: "طلبك مجدول للتوصيل بعد غد." }
+    };
+    var schedSel = document.getElementById("wa-schedule-select");
+    var sched = schedSel ? scheduleLines[schedSel.value] : null;
     return "Dear " + o.customerName + ",\n\n"
       + "Thank you for your order with Al-Nassim Golden Group.\n\n"
       + "YOUR ORDER HAS BEEN RECEIVED.\n\n"
-      + "Please click the link below to view your order and carefully read the important notice, which explain how your order will be processed and finalized.\n"
-      + "\n\n"
+      + (ENABLE_DELIVERY_SCHEDULE && sched ? sched.en + "\n\n" : "")
+      + deliveryEn + "\n\n"
+      + "Please click the link below to view your order.\n\n"
       + dear + " " + o.customerName + "،\n\n"
       + thanks + "\n\n"
       + received + "\n\n"
-      + linkInfo + "\n"
-      + "\n\n"
+      + deliveryAr + "\n\n"
+      + (ENABLE_DELIVERY_SCHEDULE && sched ? sched.ar + "\n\n" : "")
+      + linkInfo + "\n\n"
       + "Link | " + link + " :\n"
       + url;
   }
@@ -751,12 +716,32 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     if (!btn) return;
     e.preventDefault();
     e.stopPropagation();
+    /* Schedule Delivery gate: only active while the feature flag is on. */
+    if (ENABLE_DELIVERY_SCHEDULE) {
+      var schedSel = document.getElementById("wa-schedule-select");
+      if (schedSel && !schedSel.value) {
+        showWaSchedulePopup();
+        return;
+      }
+    }
     var waTarget = waUrl({
       customerPhone: btn.getAttribute("data-wa-phone"),
       customerName: btn.getAttribute("data-wa-name"),
       orderNumber: btn.getAttribute("data-wa-number"),
       shortPath: btn.getAttribute("data-wa-path") || ""
     });
+    /* Persist WhatsApp send-state for THIS order (independent of the order
+       status state machine). keepalive survives the same-tab wa.me
+       navigation on mobile. Idempotent - repeated clicks stay SENT. */
+    var waOrderId = btn.getAttribute("data-wa-id");
+    fetch("/api/admin/orders", {
+      method: "PATCH",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: Number(waOrderId), whatsappSent: true }),
+      keepalive: true
+    }).catch(function () { /* best-effort - reload shows the true state */ });
+    markWaSent(Number(waOrderId));
     if (window.matchMedia("(max-width: 767px)").matches) {
       window.location.href = waTarget; // mobile: same tab, straight to WhatsApp
     } else {
@@ -764,15 +749,81 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     }
   });
 
+  /* ===== Schedule Delivery (WhatsApp prerequisite) =====
+     Popup shown when staff tries to send without choosing a day.
+     Option labels follow the staff language via the central i18n map. */
+  function scheduleOptionLabels() {
+    return {
+      placeholder: t("Schedule Delivery", "scheduleDelivery"),
+      today: t("Today", "today"),
+      tomorrow: t("Tomorrow", "tomorrow"),
+      dayAfter: t("Day After Tomorrow", "dayAfterTomorrow")
+    };
+  }
+  function applyScheduleOptionLabels() {
+    var sel = document.getElementById("wa-schedule-select");
+    if (!sel) return;
+    /* flag off: keep the markup/JS in the DOM but take the control out of
+       the toolbar layout so no empty gap is reserved */
+    sel.closest(".wa-schedule").style.display = ENABLE_DELIVERY_SCHEDULE ? "" : "none";
+    var L = scheduleOptionLabels();
+    sel.options[0].textContent = L.placeholder;
+    sel.options[1].textContent = L.today;
+    sel.options[2].textContent = L.tomorrow;
+    sel.options[3].textContent = L.dayAfter;
+  }
+  function showWaSchedulePopup() {
+    var existing = document.getElementById("wa-schedule-popup");
+    if (existing) existing.remove();
+    var overlay = document.createElement("div");
+    overlay.id = "wa-schedule-popup";
+    overlay.style.cssText = "position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:16px;";
+    var box = document.createElement("div");
+    box.style.cssText = "background:#fff;color:#111827;width:100%;max-width:420px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:24px;text-align:center;font-family:inherit;";
+    if (LANG === "ar") box.style.direction = "rtl";
+    var msg = document.createElement("p");
+    msg.style.cssText = "margin:0 0 18px;font-size:15px;line-height:1.6;font-weight:600;";
+    msg.textContent = t("Please choose a scheduled delivery day.", "schedulePopup");
+    var ok = document.createElement("button");
+    ok.type = "button";
+    ok.className = "btn primary";
+    ok.style.cssText = "min-width:120px;";
+    ok.textContent = "OK";
+    ok.addEventListener("click", function () { overlay.remove(); });
+    box.appendChild(msg);
+    box.appendChild(ok);
+    overlay.appendChild(box);
+    overlay.addEventListener("click", function (e) { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  }
+
+  /* Live-update ONE order row WhatsApp badge after the send (no reload).
+     Also keeps state.current in step for the open detail view. */
+  function markWaSent(orderId) {
+    var rows = document.querySelectorAll("tr[data-order]");
+    for (var i = 0; i < rows.length; i++) {
+      var o;
+      try { o = JSON.parse(rows[i].getAttribute("data-order")); } catch (e) { continue; }
+      if (!o || String(o.id) !== String(orderId)) continue;
+      o.whatsappSent = true;
+      rows[i].setAttribute("data-order", JSON.stringify(o));
+      var cell = rows[i].querySelector(".wa-cell");
+      if (cell) {
+        var wb = waBadge(o);
+        cell.innerHTML = '<span class="badge" style="background:' + wb.bg + ';color:' + wb.fg + '">' + esc(wb.label) + '</span>';
+      }
+    }
+    if (state.current && String(state.current.id) === String(orderId)) state.current.whatsappSent = true;
+  }
+
   /* ===== List ===== */
   var refreshing = false;
   function loadOrders() {
     if (refreshing) return; // one request at a time
     refreshing = true;
     var rb = document.getElementById("refresh-btn");
-    var rbText = rb.textContent;
     rb.disabled = true;
-    rb.textContent = "Refreshing…";
+    rb.textContent = t("Refreshing…");
     showError("");
     // Always fetched fresh from the server with the current page/search —
     // never from data already in memory. Default view = the last three days
@@ -796,14 +847,18 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       .then(function () {
         refreshing = false;
         rb.disabled = false;
-        rb.textContent = rbText;
+        rb.textContent = t("Refresh");
       });
   }
 
   function rowHtml(o) {
     var vb = viewBadge(o);
+    var wvbadge = waBadge(o);
     var badge = [vb.bg, vb.fg];
     var tr = document.createElement("tr");
+    /* Row font weight follows the ACTUAL viewed state (INVERTED): PENDING
+       (Not Viewed) → the six information cells bold; viewed → regular. */
+    tr.className = o.status === "PENDING" ? "row-notviewed" : "row-viewed";
     tr.setAttribute("data-order", JSON.stringify(o));
     tr.innerHTML =
       '<td class="num">' + esc(o.orderNumber) + '</td>' +
@@ -818,7 +873,11 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       '<td class="muted">' + esc(window.NassimOrderAddress && window.NassimOrderAddress.resolveLocation ? window.NassimOrderAddress.resolveLocation(o.city) : (o.city || "")) + '</td>' +
       '<td class="num">' + esc(fmtKd(o.total, o.currency)) + '</td>' +
       '<td><span class="badge" style="background:' + badge[0] + ';color:' + badge[1] + '">' + esc(vb.label) + '</span></td>' +
-      '<td><button class="btn view-btn" type="button">' + t("View Order", "viewOrder") + '</button></td>';
+      '<td class="wa-cell"><span class="badge" style="background:' + wvbadge.bg + ';color:' + wvbadge.fg + '">' + esc(wvbadge.label) + '</span></td>';
+      /* The dedicated "View Order" button was removed: the WHOLE row is the
+         click target (wireRows attaches openOrder to every tr[data-order]),
+         so staff click anywhere on a row to view it — the same openOrder()
+         path that persists PENDING → SEEN. */
     return tr.outerHTML;
   }
   function wireRows(root) {
@@ -862,12 +921,17 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       else if (key === dayKey(y0)) buckets.yesterday.push(o);
       else if (key === dayKey(db0)) buckets.dayBefore.push(o);
     });
+    /* DATE-GROUP ORDER: ascending oldest -> newest in English (Day Before
+       Yesterday, Yesterday, Today). Arabic mirrors the strip via dir=rtl,
+       which visually reverses the same DOM order (Today, Yesterday, Day
+       Before Yesterday) — the natural RTL direction, no re-sorting. */
     var tabs = [
-      { key: "today", title: t("Today", "today"), date: longDate(t0) },
+      { key: "dayBefore", title: t("Day Before Yesterday", "dayBefore"), date: longDate(db0), bucket: buckets.dayBefore },
       { key: "yesterday", title: t("Yesterday", "yesterday"), date: longDate(y0), bucket: buckets.yesterday },
-      { key: "dayBefore", title: t("Day Before Yesterday", "dayBefore"), date: longDate(db0), bucket: buckets.dayBefore }
+      { key: "today", title: t("Today", "today"), date: longDate(t0) }
     ];
     var strip = document.getElementById("day-tabs");
+    strip.setAttribute("dir", LANG === "ar" ? "rtl" : "ltr");
     strip.innerHTML = tabs.map(function (tb, i) {
       var active = (selectedDay === tb.key) ? ' active' : '';
       var count = buckets[tb.key].length;
@@ -898,7 +962,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       + '<th>' + t("Location", "thLocation") + '</th>'
       + '<th class="r">' + t("Total", "thTotal") + '</th>'
       + '<th>' + t("Status", "thStatus") + '</th>'
-      + '<th></th>'
+      + '<th>' + t("WhatsApp Status", "thWhatsappStatus") + '</th>'
       + '</tr></thead><tbody>' + list.map(rowHtml).join("") + '</tbody></table>';
     wireRows(box);
   }
@@ -972,7 +1036,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     var d = new Date(o.createdAt);
     var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     var pad = function (x) { return String(x).padStart(2, "0"); };
-    document.getElementById("os-date").textContent = isNaN(d.getTime()) ? "" : pad(d.getDate()) + "-" + pad(d.getMonth() + 1) + "-" + d.getFullYear();
+    document.getElementById("os-date").textContent = isNaN(d.getTime()) ? "" : pad(d.getDate()) + "/" + pad(d.getMonth() + 1) + "/" + d.getFullYear();
     var items = o.items || [];
     document.getElementById("os-count").textContent = items.length;
     var html = "";
@@ -1009,8 +1073,6 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       ? window.NassimOrderAddress.renderHtml(o)
       : ltr(esc((o.address || "") + (o.city ? ", " + o.city : "")));
     var notes = String(o.notes || "").trim();
-    document.getElementById("os-notes-line").style.display = notes ? "" : "none";
-    document.getElementById("os-notes").textContent = notes;
     document.getElementById("os-loading").style.display = "none";
     document.getElementById("os-error").style.display = "none";
     document.getElementById("os-main").style.display = "block";
@@ -1023,11 +1085,18 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
        order and customer data always renders exactly as stored. */
     try { localStorage.setItem("nassim-lang", LANG === "ar" ? "ar" : "en"); } catch (e) {}
     var waBtn = document.getElementById("detail-wa-btn");
-    waBtn.setAttribute("data-wa-phone", o.customerPhone || "");
-    waBtn.setAttribute("data-wa-name", o.customerName || "");
-    waBtn.setAttribute("data-wa-number", o.orderNumber || "");
-    waBtn.setAttribute("data-wa-path", o.shortPath || "");
-    waBtn.style.display = "inline-block";
+    /* Button markup is commented out (hidden) — the WhatsApp implementation
+       stays fully intact. Guard keeps openOrder working while it is hidden;
+       restoring the markup re-enables everything unchanged. */
+    if (waBtn) {
+      waBtn.setAttribute("data-wa-phone", o.customerPhone || "");
+      waBtn.setAttribute("data-wa-name", o.customerName || "");
+      waBtn.setAttribute("data-wa-number", o.orderNumber || "");
+      waBtn.setAttribute("data-wa-path", o.shortPath || "");
+      waBtn.setAttribute("data-wa-id", String(o.id || ""));
+      waBtn.setAttribute("data-wa-sent", o.whatsappSent ? "1" : "0");
+      waBtn.style.display = "inline-block";
+    }
     renderDocument(o);
     /* Opening a PENDING order marks it VIEWED immediately: the STATUS badge
        flips to VIEWED (see viewBadge) and the state is persisted through the
@@ -1050,6 +1119,9 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       rows[i].setAttribute("data-order", JSON.stringify(Object.assign(o, { status: status, statusLabel: status })));
       var badge = rows[i].querySelector(".badge");
       var vb = viewBadge({ status: status });
+      /* keep the row font-weight in step with the new status */
+      rows[i].classList.toggle("row-viewed", status !== "PENDING");
+      rows[i].classList.toggle("row-notviewed", status === "PENDING");
       if (badge) {
         badge.style.background = vb.bg;
         badge.style.color = vb.fg;
@@ -1189,6 +1261,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   }
 
   applyLang();
+  applyScheduleOptionLabels();
   loadOrders();
 })();
 </script>

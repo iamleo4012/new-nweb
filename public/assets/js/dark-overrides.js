@@ -5,6 +5,12 @@
  * Include before other nav scripts: <script src="assets/js/dark-overrides.js"></script>
  */
 (function () {
+  /* Skip injection when the stylesheet is already linked in <head> as a
+     render-blocking <link> (preferred loading path) — never load it twice. */
+  var existing = document.querySelector(
+    'link[rel="stylesheet"][href$="dark-overrides.css"]'
+  );
+  if (existing) return;
   var link = document.createElement("link");
   link.rel = "stylesheet";
   link.href = "assets/css/dark-overrides.css";

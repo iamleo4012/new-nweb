@@ -23,10 +23,13 @@ const patchSchema = z.object({
   // "SEEN" is a store-page display state (order opened by staff). It is not
   // part of ORDER_STATUSES (which drives admin dashboards/filters), so it is
   // allowed here only — accepted as a valid status for the store workflow.
+  // Optional: a whatsappSent-only PATCH carries no status.
   status: z.enum(
     [...(ORDER_STATUSES as unknown as [OrderStatus, ...OrderStatus[]]), "SEEN"] as unknown as [OrderStatus, ...OrderStatus[]]
-  ),
+  ).optional(),
   note: z.string().max(500).optional().default(""),
+  // WhatsApp send-state: recorded independently of the status state machine.
+  whatsappSent: z.boolean().optional(),
 });
 
 function forbidden() {
@@ -44,6 +47,7 @@ function serializeOrder(o: {
   notes: string;
   staffNotes: string;
   posStatus: string;
+  whatsappSent: boolean;
   status: string;
   subtotal: unknown;
   shipping: unknown;
@@ -72,6 +76,7 @@ function serializeOrder(o: {
     notes: o.notes,
     staffNotes: o.staffNotes,
     posStatus: o.posStatus,
+    whatsappSent: o.whatsappSent,
     status: o.status,
     statusLabel: STATUS_LABELS[o.status as OrderStatus] ?? o.status,
     ...calculateBillableTotals(
@@ -166,6 +171,17 @@ export async function PATCH(req: NextRequest) {
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ success: false, data: null, error: "Invalid input" }, { status: 400 });
+  }
+
+  // WhatsApp send-state: a pure flag update, recorded independently of the
+  // status state machine (no transition validation, no status ledger).
+  if (parsed.data.whatsappSent !== undefined && parsed.data.status === undefined) {
+    const updated = await prisma.order.update({
+      where: { id: parsed.data.id },
+      data: { whatsappSent: parsed.data.whatsappSent },
+      include: { items: true },
+    });
+    return NextResponse.json({ success: true, data: { order: serializeOrder(updated) }, error: null });
   }
 
   const existing = await prisma.order.findUnique({

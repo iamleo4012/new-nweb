@@ -8,7 +8,7 @@ export async function GET() {
   const products = await prisma.product.findMany({
     where: { isActive: true },
     include: {
-      category: { include: { department: { select: { slug: true } } } },
+      category: { include: { department: { select: { slug: true, name: true } } } },
       subcategory: { select: { slug: true, name: true } },
       colors: { include: { color: { select: { name: true } } } },
       ...customFieldsInclude,
@@ -48,6 +48,11 @@ export async function GET() {
     // fields keep working unchanged.
     categorySlug: p.category.slug,
     departmentSlug: p.category.department.slug,
+    // Additive: display name of the owning department ("Supermarket",
+    // "Warehouse", …). Consumed by the top-nav search suggestions to
+    // disambiguate identical product names across departments; consumers
+    // that ignore it keep working unchanged.
+    departmentName: p.category.department.name,
     sku: p.sku,
     specs: p.specs,
     // Online-store quantity (manually allocated by the store admin — this is

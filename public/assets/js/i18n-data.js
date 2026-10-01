@@ -56,8 +56,8 @@ window.NASSIM_I18N = {
  "custom packaging solutions tailored to your requirements.": "حلول تغليف وفق متطلباتكم.",
  "explore": "استكشف",
  "cold room solutions built according to your requirements.": "حلول لغرف باردة مُنفذة وفق متطلباتكم.",
- "outdoor moments": "الاوقات في الخارج",
- "elevate your outdoors": "ارتقِ بادواتك لخارج المنزل",
+ "camping supplies": "مستلزمات البر",
+ "upgrade your outdoor gear": "ارتقِ بمستوى ادواتك لخارج المنزل",
  "for the stories told around the fire and the moments that linger.": "للحكايات التي تُروى حول النار واللحظات التي تبقى.",
  "weekend": "عطلة نهاية الأسبوع",
  "fire.": "النار.",
@@ -121,8 +121,21 @@ window.NASSIM_I18N = {
  "clear all": "مسح الكل",
  "filtered by": "مُصنَّفٌ حسب",
  "number of items": "عدد العناصر",
+ "whatsapp status": "حالة الواتساب",
+ "sent": "تم الإرسال",
+ "not sent": "لم يتم الإرسال",
  "price range": "نطاق السعر",
+ "price range (kd)": "نطاق السعر (.د.ك)",
  "back to home page": "العودة إلى الصفحة الرئيسية",
+ "back to home": "العودة إلى الصفحة الرئيسية",
+ "by clicking “submit your order,” you agree to our": "بالنقر على \"إرسال طلبيتك\"، فإنك توافق على ",
+ "terms and conditions": "الشروط والأحكام",
+ "and": " و",
+ "privacy policy": "سياسة الخصوصية",
+ ".": " الخاصة بنا.",
+ "back to cart": "العودة إلى سلة التسوق",
+ "continue with your order": "تابع طلبك",
+ "please provide your delivery details.": "يرجى إدخال تفاصيل التوصيل الخاصة بك.",
  "products": "منتجات",
  "no products found.": "لم يتم العثور على أي منتجات.",
  "price: low to high": "السعر: من الأقل إلى الأعلى",
@@ -143,7 +156,7 @@ window.NASSIM_I18N = {
  "blue": "أزرق",
  "green": "أخضر",
  "black": "أسود",
- "grey": "رمادي",
+ "silver": "فضي",
  "red": "أحمر",
  "yellow": "أصفر",
  "brown": "بني",
@@ -192,7 +205,7 @@ window.NASSIM_I18N = {
  "professional forklifts & pallets": "رافعات شوكية ومنصات احترافية",
  "forklift": "رافعة شوكية",
  "pallet": "منصة تحميل",
- "heavy duty racks": "ارفف شديدة التحمل",
+ "heavy duty racks": "ستاندات و ارفف",
  "store more in less space with dependable heavy duty racking built for warehouses.": "خزّن المزيد في مساحة أقل مع رفوف متينة وموثوقة مصممة خصيصًا للمستودعات.",
  "packaging designed around your business.": "تغليف مصمم خصيصاً لأعمالكم.",
  "from concept to delivery, we create customized packaging solutions tailored to your requirements, blending heritage craftsmanship with industrial precision.": "من الفكرة إلى التسليم، نُنشئ حلول تغليف مخصصة وفق متطلباتكم، نجمع فيها بين حرفية أصيلة ودقة صناعية.",
@@ -213,7 +226,6 @@ window.NASSIM_I18N = {
  "total kd 25.000": "الإجمالي 25.000 د.ك",
  "proceed to checkout": "إتمام الشراء",
  "you may also like": "قد يعجبك أيضاً",
- "1 piece": "1 قطعة",
  "packaging manufacturer": "مصنع التغليف",
  "code/model :": "الكود/الموديل : ",
  "Order Sent": "تم إرسال الطلب",
@@ -285,7 +297,22 @@ window.NASSIM_I18N = {
  "thank you for your order with al-nassim golden group.": "نشكرك على طلبك من مجموعة النسيم الذهبية.",
  "your order has been received.": "تم استلام طلبكم.",
  "your order has been received!": "تم استلام طلبك!",
+ "your order has been sent": "تم إرسال طلبيتك",
+ "your order has been received.": "تم استلام طلبك.",
  "please click the link below to view your order and carefully read the important notice, which explain how your order will be processed and finalized.": "يرجى النقر على الرابط أدناه لرؤية طلبك وقراءة الإشعار المهم بعناية، والذي يشرح كيفية معالجة طلبك وإتمامه.",
+ "we only accept orders above 5 kd.": "نقبل فقط الطلبات التي تزيد قيمتها عن 5 د.ك.",
+ "your order will be delivered within the next 2 days.": "سيتم توصيل طلبك خلال اليومين القادمين.",
+ "note:": "ملاحظة:",
+ "Click “Send WhatsApp Message” to notify the customer that their order has been received.": "اضغط على «إرسال رسالة عبر واتساب» لإبلاغ العميل بأنه تم استلام طلبه.",
+ "send whatsapp message": "إرسال رسالة عبر واتساب",
+ "After preparing the order, issue the invoice through the POS system and hand it to the customer along with their purchases.": "بعد تجهيز الطلب، يُرجى إصدار الفاتورة من خلال نظام نقاط البيع (POS) وتسليمها للعميل مع مشترياته.",
+ "بعد تجهيز الطلب، يُرجى إصدار الفاتورة من خلال نظام نقاط البيع (POS) وتسليمها للعميل مع مشترياته.": [
+  "After preparing the order, issue the invoice through the POS system and hand it to the customer along with their purchases."
+ ],
+ "schedule delivery": "جدولة التوصيل",
+ "tomorrow": "غداً",
+ "day after tomorrow": "بعد غد",
+ "please choose a scheduled delivery day.": "يرجى اختيار يوم جدولة التوصيل.",
  "view your order": "عرض طلبك",
  "quantity": "الكمية",
  "payment method": "طريقة الدفع:",
@@ -298,16 +325,69 @@ window.NASSIM_I18N = {
  "edit shopping cart items": "تعديل عناصر عربة التسوق",
  "delivery": "التوصيل",
  "submit your order": "أرسل طلبك",
+ "submit your order": "أرسل طلبك",
  "piece": "قطعة",
  "delivery fee": "رسوم التوصيل",
  "unit price": "سعر الوحدة",
- "important notice: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store’s point of sale and provided with your goods upon delivery.": "معلومات هامة: سيتصل بك فريق المتجر لدينا لتأكيد توفر المنتجات وأي تغييرات مطلوبة في الطلب قبل إتمام طلبك، وبعد ذلك سيتم إصدار الفاتورة في نقطة البيع بالمتجر وتقديمها مع بضائعك عند التسليم.",
- "important notice:": "معلومات هامة:",
+ "important notice: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store’s point of sale and provided with your goods upon delivery.": "اشعار هام : سيتصل بك فريق المتجر لدينا لتأكيد توفر المنتجات وأي تغييرات مطلوبة في الطلب قبل إتمام طلبك، وبعد ذلك سيتم إصدار الفاتورة في نقطة البيع بالمتجر وتقديمها مع بضائعك عند التسليم.",
+ "important notice:": "اشعار هام:",
  "Contact Our Team: 00000000": "للتواصل مع فريقنا: 00000000",
  "Custom Packaging Manufacturing & Printing.": "تصنيع التغليف حسب الطلب والطباعة عليه",
  "We transform your ideas into high-quality packaging and precision printing solutions, from initial design to final delivery.": "نحن نحول أفكارك إلى حلول تغليف عالية الجودة وحلول طباعة دقيقة، بدءًا من التصميم الأولي وحتى التسليم النهائي."
+,
+ /* ===== STAFF ORDERS PAGE (internal-orders2.html) — consolidated from
+    the page's former inline var T dictionary. Approved Arabic preserved
+    EXACTLY as it existed on the page; entries whose English text was never
+    rendered by any t()/data-i18n call site (dead keys) were not migrated. */
+ "Could not load orders.": "تعذر تحميل الطلبات.",
+ "Customer": "العميل",
+ "Date & Time": "التاريخ والوقت",
+ "Day Before Yesterday": "أول أمس",
+ "Enable Notifications & Sound": "تفعيل الإشعارات والصوت",
+ "Enable Push Notifications": "تفعيل الإشعارات الفورية (Push)",
+ "Enabling…": "جارٍ التفعيل…",
+ "From": "من",
+ "Location": "المنطقة",
+ "NOT VIEWED": "لم تتم مشاهدته",
+ "Network error — could not load orders.": "خطأ في الشبكة — تعذر تحميل الطلبات.",
+ "New Order Received — ": "تم استلام طلب جديد —",
+ "Next →": "التالي →",
+ "No orders found for this range.": "لا توجد طلبات في هذا النطاق.",
+ "No orders found.": "لا توجد طلبات.",
+ "Notifications & Sound — OFF": "Notifications & Sound — OFF",
+ "Notifications & Sound — ON": "Notifications & Sound — ON",
+ "Order #": "رقم الطلب",
+ "Order Documents": "مستندات الطلبات",
+ "Orders": "الطلبات",
+ "Page": "صفحة",
+ "Phone": "الهاتف",
+ "Refresh": "تحديث",
+ "Search order number or customer name…": "ابحث برقم الطلب أو اسم العميل…",
+ "Search": "بحث",
+ "Sign Out": "تسجيل الخروج",
+ "Staff order document view": "صفحة موظف الطلبات",
+ "Status": "الحالة",
+ "To": "إلى",
+ "Today": "اليوم",
+ "VIEWED": "تم الاطلاع",
+ "View Order": "عرض الطلب",
+ "Yesterday": "أمس",
+ "order items (": "عدد الأصناف (",
+ "← Back to Orders": "عودة للطلبات ←",
+ "← Prev": "السابق ←",
+ "🔔 Push Notifications — ON": "🔔 الإشعارات الفورية — تشغيل",
+ "🔕 Push Notifications — OFF": "🔕 الإشعارات الفورية — إيقاف",
+ "🔕 Push blocked — allow notifications in browser settings": "الإشعارات الفورية محظورة من المتصفح — يرجى السماح بالإشعارات من إعدادات المتصفح.",
+ "🔕 push notifications: unavailable": "🔕 الإشعارات الفورية: غير متوفرة",
+ "🖨 Print Order": "🖨 طباعة الطلب",
 };
 window.NASSIM_I18N_REVERSE = {
+ "نقبل فقط الطلبات التي تزيد قيمتها عن 5 د.ك.": [
+  "We only accept orders above 5 KD."
+ ],
+ "سيتم توصيل طلبك خلال اليومين القادمين.": [
+  "Your order will be delivered within the next 2 days."
+ ],
  "2": [
   "2"
  ],
@@ -431,11 +511,11 @@ window.NASSIM_I18N_REVERSE = {
  "حلول لغرف باردة مُنفذة وفق متطلباتكم.": [
   "COLD ROOM SOLUTIONS BUILT ACCORDING TO YOUR REQUIREMENTS."
  ],
- "الاوقات في الخارج": [
-  "OUTDOOR MOMENTS"
+ "مستلزمات البر": [
+  "Camping Supplies"
  ],
- "ارتقِ بادواتك لخارج المنزل": [
-  "ELEVATE YOUR OUTDOORS"
+ "ارتقِ بمستوى ادواتك لخارج المنزل": [
+  "Upgrade Your Outdoor Gear"
  ],
  "للحكايات التي تُروى حول النار واللحظات التي تبقى.": [
   "For the stories told around the fire and the moments that linger."
@@ -611,14 +691,17 @@ window.NASSIM_I18N_REVERSE = {
  "نطاق السعر": [
   "Price Range"
  ],
+ "نطاق السعر (.د.ك)": [
+  "Price Range (KD)"
+ ],
  "أبيض": [
   "White"
  ],
  "أسود": [
   "Black"
  ],
- "رمادي": [
-  "Grey"
+ "فضي": [
+  "Silver"
  ],
  "أزرق": [
   "Blue"
@@ -649,6 +732,42 @@ window.NASSIM_I18N_REVERSE = {
  ],
  "العودة إلى الصفحة الرئيسية": [
   "Back to Home Page"
+ ],
+ "العودة إلى سلة التسوق": [
+  "Back To Cart"
+ ],
+ "تابع طلبك": [
+  "Continue with Your Order"
+ ],
+ "تم إرسال طلبيتك": [
+  "Your order has been sent"
+ ],
+ "يرجى النقر على الرابط أدناه لرؤية طلبك.": [
+  "Please click the link below to view your order."
+ ],
+ "الخاصة بنا.": [
+  "."
+ ],
+ "يرجى إدخال تفاصيل التوصيل الخاصة بك.": [
+  "Please provide your delivery details."
+ ],
+ "تم استلام طلبك.": [
+  "Your order has been received."
+ ],
+ "يرجى إدخال تفاصيل التوصيل الخاصة بك.": [
+  "Please provide your delivery details."
+ ],
+ "الشروط والأحكام": [
+  "Terms and Conditions"
+ ],
+ "سياسة الخصوصية": [
+  "Privacy Policy"
+ ],
+ " الخاصة بنا.": [
+  "."
+ ],
+ "بالنقر على \"إرسال طلبيتك\"، فإنك توافق على ": [
+  "By clicking “Submit Your Order,” you agree to our"
  ],
  "منتجات": [
   "products"
@@ -842,7 +961,7 @@ window.NASSIM_I18N_REVERSE = {
  "منصة تحميل": [
   "Pallet"
  ],
- "ارفف شديدة التحمل": [
+ "ستاندات و ارفف": [
   "Heavy Duty Racks"
  ],
  "خزّن المزيد في مساحة أقل مع رفوف متينة وموثوقة مصممة خصيصًا للمستودعات.": [
@@ -905,8 +1024,8 @@ window.NASSIM_I18N_REVERSE = {
  "قد يعجبك أيضاً": [
   "You May Also Like"
  ],
- "1 قطعة": [
-  "1 piece"
+ "قطعة": [
+  "Piece"
  ],
  "مصنّع التغليف": [
   "Packaging Manufacturer"
@@ -1031,10 +1150,10 @@ window.NASSIM_I18N_REVERSE = {
  "سيتم إصدار الفاتورة النهائية بواسطة نظام نقاط البيع لدينا. قد يختلف المبلغ الإجمالي بناءً على المنتجات التي سيتم تسليمها لكم فعلياً.": [
   "Final invoice is generated by our POS system. Total may vary based on actual delivered items."
  ],
- "معلومات هامة: سيتصل بك فريق المتجر لدينا لتأكيد توفر المنتجات وأي تغييرات مطلوبة في الطلب قبل إتمام طلبك، وبعد ذلك سيتم إصدار الفاتورة في نقطة البيع بالمتجر وتقديمها مع بضائعك عند التسليم.": [
+ "اشعار هام: سيتصل بك فريق المتجر لدينا لتأكيد توفر المنتجات وأي تغييرات مطلوبة في الطلب قبل إتمام طلبك، وبعد ذلك سيتم إصدار الفاتورة في نقطة البيع بالمتجر وتقديمها مع بضائعك عند التسليم.": [
   "Important Notice: our store team will contact you to confirm product availability and any required order changes before finalizing your order, after which the invoice will be issued at the store’s point of sale and provided with your goods upon delivery."
  ],
- "معلومات هامة:": [
+ "اشعار هام:": [
   "Important Notice:"
  ]
 };

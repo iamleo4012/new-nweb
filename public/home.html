@@ -9,7 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Signika&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<link rel="stylesheet" href="assets/css/dark-overrides.css">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
 <script src="assets/js/i18n-data.js" defer></script>
 <script src="assets/js/i18n.js" defer></script>
 </head><body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
@@ -151,6 +152,55 @@
             }
         }
     </style>
+<style>
+    /* ======================================================================
+       ARABIC (desktop only): scale every text size used on this page by
+       EXACTLY 15% (size × 1.15) when html.lang-ar is active. Line-heights of
+       the rem-based utilities scale with the same factor so the rhythm holds.
+       English is untouched (html.lang-ar is absent); mobile (<768px) is
+       untouched. Base classes first, then sm:/md: variants so the
+       higher-breakpoint utility keeps precedence at desktop widths.
+       ====================================================================== */
+    @media (min-width: 768px) {
+        html.lang-ar .text-xs { font-size: calc(0.75rem * 1.15); line-height: calc(1rem * 1.15); }
+        html.lang-ar .text-sm { font-size: calc(0.875rem * 1.15); line-height: calc(1.25rem * 1.15); }
+        html.lang-ar .text-lg { font-size: calc(1.125rem * 1.15); line-height: calc(1.75rem * 1.15); }
+        html.lang-ar .text-xl { font-size: calc(1.25rem * 1.15); line-height: calc(1.75rem * 1.15); }
+        html.lang-ar .text-2xl { font-size: calc(1.5rem * 1.15); line-height: calc(2rem * 1.15); }
+        html.lang-ar .text-3xl { font-size: calc(1.875rem * 1.15); line-height: calc(2.25rem * 1.15); }
+        html.lang-ar .text-4xl { font-size: calc(2.25rem * 1.15); line-height: calc(2.5rem * 1.15); }
+        html.lang-ar .text-6xl { font-size: calc(3.75rem * 1.15); line-height: 1.15; }
+        html.lang-ar .text-\[8px\] { font-size: calc(8px * 1.15); }
+        html.lang-ar .text-\[8\.96px\] { font-size: calc(8.96px * 1.15); }
+        html.lang-ar .text-\[9px\] { font-size: calc(9px * 1.15); }
+        html.lang-ar .text-\[10px\] { font-size: calc(10px * 1.15); }
+        html.lang-ar .text-\[10\.08px\] { font-size: calc(10.08px * 1.15); }
+        html.lang-ar .text-\[11px\] { font-size: calc(11px * 1.15); }
+        html.lang-ar .text-\[11\.2px\] { font-size: calc(11.2px * 1.15); }
+        html.lang-ar .text-\[13px\] { font-size: calc(13px * 1.15); }
+        html.lang-ar .text-\[14px\] { font-size: calc(14px * 1.15); }
+        html.lang-ar .text-\[15px\] { font-size: calc(15px * 1.15); }
+        html.lang-ar .text-\[16px\] { font-size: calc(16px * 1.15); }
+        html.lang-ar .text-\[18px\] { font-size: calc(18px * 1.15); }
+        html.lang-ar .text-\[22px\] { font-size: calc(22px * 1.15); }
+        html.lang-ar .text-\[23px\] { font-size: calc(23px * 1.15); }
+        html.lang-ar .text-\[27px\] { font-size: calc(27px * 1.15); }
+        html.lang-ar .text-\[31px\] { font-size: calc(31px * 1.15); }
+        html.lang-ar .sm\:text-xs { font-size: calc(0.75rem * 1.15); line-height: calc(1rem * 1.15); }
+        html.lang-ar .sm\:text-sm { font-size: calc(0.875rem * 1.15); line-height: calc(1.25rem * 1.15); }
+        html.lang-ar .sm\:text-3xl { font-size: calc(1.875rem * 1.15); line-height: calc(2.25rem * 1.15); }
+        html.lang-ar .sm\:text-\[10\.08px\] { font-size: calc(10.08px * 1.15); }
+        html.lang-ar .md\:text-lg { font-size: calc(1.125rem * 1.15); line-height: calc(1.75rem * 1.15); }
+        html.lang-ar .md\:text-3xl { font-size: calc(1.875rem * 1.15); line-height: calc(2.25rem * 1.15); }
+        html.lang-ar .md\:text-4xl { font-size: calc(2.25rem * 1.15); line-height: calc(2.5rem * 1.15); }
+        html.lang-ar .md\:text-\[10px\] { font-size: calc(10px * 1.15); }
+        html.lang-ar .md\:text-\[11\.2px\] { font-size: calc(11.2px * 1.15); }
+        html.lang-ar .md\:text-\[14px\] { font-size: calc(14px * 1.15); }
+        html.lang-ar .md\:text-\[16px\] { font-size: calc(16px * 1.15); }
+        html.lang-ar .md\:text-\[23px\] { font-size: calc(23px * 1.15); }
+        html.lang-ar .md\:text-\[31px\] { font-size: calc(31px * 1.15); }
+    }
+</style>
 <script>
 (function () {
     var splash = document.getElementById("loading-screen");
@@ -787,7 +837,7 @@
 
 <p class="text-white/90 text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Designed for seamless cooking and perfect results.</p>
 
-<a href="houseware-kitchenware.html" class="carousel-btn-left bg-secondary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl inline-block" data-product-wired="1">View Kitchenware</a>
+<a data-product-wired="1" href="houseware-kitchenware.html" class="carousel-btn-left bg-white text-black px-3 py-2 sm:px-4 sm:py-3.5 md:px-4 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold transition-all duration-500 shadow-2xl inline-block" style="border-radius: 12px">View Kitchenware</a>
 
 </div>
 
@@ -803,7 +853,7 @@
 <span class="font-label text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-secondary mb-2 md:mb-4 block"></span>
 <h2 class="font-headline text-[1.6rem] sm:text-3xl md:text-6xl font-extrabold text-primary tracking-tighter mb-2 md:mb-6 leading-[1.1]">MOPPING<br/>TROLLEY.</h2>
 <p class="text-on-surface-variant text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Efficiency in every swipe. The ultimate solution for a spotless environment.</p>
-<a href="houseware-cleaning-tools.html" class="carousel-btn-left bg-secondary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl inline-block" data-product-wired="1">View Cleaning Products</a>
+<a data-product-wired="1" href="houseware-cleaning-tools.html" class="carousel-btn-left bg-white text-black px-3 py-2 sm:px-4 sm:py-3.5 md:px-4 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold transition-all duration-500 shadow-2xl inline-block" style="border-radius: 12px">View Cleaning Products</a>
 </div>
 </div>
 </div>
@@ -816,7 +866,7 @@
 <span class="font-label text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-secondary mb-2 md:mb-4 block"></span>
 <h2 class="font-headline text-[1.6rem] sm:text-3xl md:text-6xl font-extrabold text-primary tracking-tighter mb-2 md:mb-6 leading-[1.1]">COLLAPSIBLE BASKET.</h2>
 <p class="text-on-surface-variant text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Push it down to fold flat or pull it up to fill it.</p>
-<button class="carousel-btn-left bg-secondary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl" data-product-id="shopping-basket-sy115">View Product</button>
+<button class="carousel-btn-left bg-white text-black px-3 py-2 sm:px-4 sm:py-3.5 md:px-4 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold transition-all duration-500 shadow-2xl inline-block" style="border-radius: 12px">View Product</button>
 </div>
 </div>
 </div>
@@ -829,7 +879,7 @@
 <span class="font-label text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-secondary mb-2 md:mb-4 block"></span>
 <h2 class="font-headline text-[1.6rem] sm:text-3xl md:text-6xl font-extrabold text-white tracking-tighter mb-2 md:mb-6 leading-[1.1]">GLASS<br/>FREEZER.</h2>
 <p class="text-white/90 text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Keep it frozen with powerful cooling. Maximum visibility for your best-selling products.</p>
-<a href="supermarket-cooling-appliances.html" class="carousel-btn-left bg-secondary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl inline-block" data-product-wired="1">View Freezer</a>
+<a data-product-wired="1" href="supermarket-cooling-appliances.html?sub=freezer" class="carousel-btn-left bg-white text-black px-3 py-2 sm:px-4 sm:py-3.5 md:px-4 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold transition-all duration-500 shadow-2xl inline-block" style="border-radius: 12px">View Freezer</a>
 </div>
 </div>
 </div>
@@ -842,7 +892,7 @@
 <span class="font-label text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-secondary mb-2 md:mb-4 block"></span>
 <h2 class="font-headline text-[1.6rem] sm:text-3xl md:text-6xl font-extrabold text-primary tracking-tighter mb-2 md:mb-6 leading-[1.1]">JUNIOR<br/>SHOPPING TROLLEY.</h2>
 <p class="text-on-surface-variant text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Engaging the next generation. Small-scale design for big-time family fun.</p>
-<a href="supermarket-trolleys-baskets.html" class="carousel-btn-left bg-secondary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl inline-block" data-product-wired="1">View Trollies</a>
+<a data-product-wired="1" href="supermarket-trolleys-baskets.html?sub=trolly" class="carousel-btn-left bg-white text-black px-3 py-2 sm:px-4 sm:py-3.5 md:px-4 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold transition-all duration-500 shadow-2xl inline-block" style="border-radius: 12px">View Trollies</a>
 </div>
 </div>
 </div>
@@ -855,7 +905,7 @@
 <span class="font-label text-[8px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-secondary mb-2 md:mb-4 block"></span>
 <h2 class="font-headline text-[1.6rem] sm:text-3xl md:text-6xl font-extrabold text-primary tracking-tighter mb-2 md:mb-6 leading-[1.1]">OUTDOOR<br/>PEDAL BIN.</h2>
 <p class="text-on-surface-variant text-xs sm:text-sm md:text-lg mb-4 md:mb-10 font-light leading-relaxed max-w-[200px] sm:max-w-sm md:max-w-none">Hands-free, rugged and durable for a clean environment.</p>
-<button class="carousel-btn-left bg-secondary text-white px-6 py-2 sm:px-10 sm:py-3.5 md:px-12 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold hover:bg-secondary transition-all duration-500 shadow-2xl" data-product-id="outdoor-pedal-bin">View Product</button>
+<button class="carousel-btn-left bg-white text-black px-3 py-2 sm:px-4 sm:py-3.5 md:px-4 md:py-5 font-label uppercase text-[8.96px] sm:text-[10.08px] md:text-[11.2px] tracking-[0.15em] md:tracking-[0.2em] font-bold transition-all duration-500 shadow-2xl inline-block" style="border-radius: 12px">View Product</button>
 </div>
 </div>
 </div>
@@ -1177,8 +1227,8 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
 <section class="outdoor-living pt-0 pb-10 md:pt-16 md:pb-20 bg-surface dark:bg-[#0a0f14]">
 <div class="max-w-screen-2xl mx-auto px-4 md:px-8">
 <div class="text-center reveal-on-scroll">
-<span class="font-label text-[22px] md:text-[31px] uppercase tracking-[0.22em] md:tracking-[0.4em] text-primary dark:text-white mb-1 md:mb-4 block">OUTDOOR MOMENTS</span>
-<h2 class="font-label text-[18px] md:text-[23px] text-secondary tracking-tighter inline-block">ELEVATE YOUR OUTDOORS</h2>
+<span class="font-label text-[22px] md:text-[31px] uppercase tracking-[0.22em] md:tracking-[0.4em] text-primary dark:text-white mb-1 md:mb-4 block">Camping Supplies</span>
+<h2 class="font-label text-[18px] md:text-[23px] text-secondary tracking-tighter inline-block">Upgrade Your Outdoor Gear</h2>
 <p class="font-body text-on-surface-variant dark:text-white/70 text-[14px] md:text-[16px] mt-2 md:mt-6 max-w-2xl mx-auto leading-relaxed"> For the stories told around the fire and the moments that linger.</p>
 </div>
 </div>

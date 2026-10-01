@@ -163,7 +163,7 @@
         }
     </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css">
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=4"/>
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
 </head>
 <body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased selection:bg-secondary-container selection:text-on-secondary-container">
 <div class="fixed top-28 left-1/2 -translate-x-1/2 z-[100] pointer-events-none" id="toast-container"></div>
@@ -988,7 +988,9 @@
                 if (!q) { closeMobileResults(); return; }
                 var terms = q.split(/\s+/);
                 var filtered = list.filter(function (p) {
-                    var hay = (p.name + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
+                    /* Name-only: the top-nav search qualifies products by
+                       name alone — description/SKU/line must never match. */
+                    var hay = String(p.name || '').toLowerCase();
                     return terms.every(function (t) { return hay.indexOf(t) !== -1; });
                 });
                 renderMobileResults(filtered);

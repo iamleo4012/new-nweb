@@ -173,13 +173,19 @@ html.lang-ar .subcat-sidebar .space-y-6 > div > h2,
 html.lang-ar .subcat-sidebar .space-y-6 > div:first-child h2 { direction: rtl; text-align: right !important; }
 html.lang-ar .subcat-sidebar input[type="text"] { direction: ltr; text-align: right; }
 html.lang-ar #active-filters { direction: rtl; }
-/* AR Filtered By bar: keep heading, active-filter chips and Clear All
-   GROUPED at the inline start (the RIGHT edge in RTL). EN keeps its
-   justify-between spread untouched — these rules only exist under
-   html.lang-ar. Natural flex flow, no absolute positioning or offsets;
-   multiple chips stay in the same right-side row. */
-html.lang-ar #active-filters > div:first-child { justify-content: flex-start; column-gap: 1.5rem; }
+/* AR Filtered By bar: heading (مُصنَّفٌ حسب) at the inline start = the RIGHT
+   edge, Clear All (مسح الكل) at the inline end = the LEFT edge — the same
+   row and the same spread the EN bar uses (justify-between), mirrored by the
+   container's direction:rtl. The chips row stays grouped at the inline start.
+   EN is untouched — these rules only exist under html.lang-ar. Natural flex
+   flow, no absolute positioning or offsets. */
+html.lang-ar #active-filters > div:first-child { justify-content: space-between; }
 html.lang-ar #active-filters #filter-tags { justify-content: flex-start; align-items: center; }
+/* AR-only label sizes: the EN utilities are text-[11px] (heading) and
+   text-[10px] (Clear All); Arabic renders each EXACTLY 15% larger
+   (11 × 1.15 = 12.65px, 10 × 1.15 = 11.5px). */
+html.lang-ar #active-filters > div:first-child h3 { font-size: 12.65px; }
+html.lang-ar #active-filters #clear-all-filters { font-size: 11.5px; }
 /* The i18n runtime marks each translated, content-sized element with
    .nassim-rtl-anchor (margin-left:auto). Inside the flex-row #filter-tags
    that auto margin eats free space PER CHIP, so with 2+ chips the row's
@@ -340,10 +346,83 @@ html.lang-ar .related-arrows .material-symbols-outlined { transform: scaleX(-1);
 .nps-values { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; font-size: 12px; color: #111827; }
 .dark .nps-values { color: #ffffff; }
 .nps-val { font-weight: 700; }
-.nps-track-wrap { position: relative; height: 18px; }
+/* KD prefix INSIDE the Min/Max boxes: the script wraps #price-min/#price-max
+   in .nps-box and prepends a non-interactive "KD" label. Logical properties
+   keep the prefix at the inline start in both EN and AR. The input keeps its
+   numeric value — only the presentation gains the currency prefix. */
+.nps-box { position: relative; flex: 1 1 0; min-width: 0; }
+.nps-box .nps-box-kd { position: absolute; inset-inline-start: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 700; pointer-events: none; color: #6b7280; }
+.dark .nps-box .nps-box-kd { color: rgba(255,255,255,0.7); }
+.nps-box input { padding-inline-start: 32px !important; }
+/* COMPACT PRICE ENTRY BOXES (EN + AR): smaller text and tighter vertical
+   padding than the default form-field sizing — the !important beats the
+   Tailwind forms reset ([type="text"] → 1rem / 0.5rem 0.75rem) and the
+   text-xs utility (which cascades after the text-[11px] utility). */
+.nps-box input { font-size: 11px !important; padding-top: 3px !important; padding-bottom: 3px !important; }
+/* ARABIC PRICE BOXES — same single-box structure as English, mirrored.
+   In English the bordered <input> carries the visuals and the "KD" label is
+   absolutely positioned inside its padding. Absolute layout collides in
+   Arabic, and a flex sibling label would sit OUTSIDE the bordered input, so
+   in Arabic only the WRAPPER (.nps-box) becomes the one visual box (flex):
+   value on the LEFT (isolated LTR run), د.ك on the RIGHT, both inside the
+   same border. The input itself goes transparent and borderless so the
+   wrapper is the single visual control. Box visuals replicate the input's
+   own Tailwind classes (bg-surface-container-low / border-outline-variant/30
+   / rounded-sm + the dark-mode variants). Inert in English (rules exist only
+   under html.lang-ar). */
+html.lang-ar .nps-box {
+  display: flex; align-items: center;
+  flex: 1 1 0; min-width: 0;
+  background-color: rgb(237 244 255 / 1);
+  border: 1px solid rgb(196 198 204 / 0.3);
+  border-radius: 0.125rem;
+}
+html.dark .lang-ar .nps-box {
+  background-color: rgb(26 31 46 / 1);
+  border-color: rgb(255 255 255 / 0.2);
+}
+html.lang-ar .nps-box .nps-box-kd {
+  position: static; transform: none;
+  padding: 8px 12px 8px 6px;   /* right slot: د.ك */
+}
+html.lang-ar .nps-box input,
+html.lang-ar .nps-box input[type="text"] {   /* 2nd selector out-specifies the generic sidebar input rule above */
+  flex: 1 1 0; min-width: 0;
+  padding: 3px 6px 3px 12px !important;   /* compact — matches the EN box height */
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  direction: ltr; unicode-bidi: isolate;  /* isolated LTR value: digits never reorder */
+  text-align: left;                        /* price on the LEFT, currency on the RIGHT */
+}
+/* Price Range CLEAR/APPLY buttons are intentionally NOT shown: the slider's
+   live-apply, the Min/Max Enter handler and the page filter callback all use
+   them purely as PROGRAMMATIC event targets (.click() on a display:none
+   element still dispatches events, so the pipeline is unchanged). The row
+   also carries an inline style="display:none" — this author-level rule is
+   the fallback, e.g. if the inline attribute is ever stripped. Tailwind's
+   .flex utility would otherwise override the plain [hidden] attribute. */
+#apply-price,
+#clear-price,
+div.flex.gap-2[hidden] { display: none !important; }
+.nps-track-wrap { position: relative; height: 18px; margin-top: 34px; }
 .nps-track { position: absolute; left: 0; right: 0; top: 50%; height: 4px; transform: translateY(-50%); background: rgba(0,3,8,0.15); border-radius: 999px; pointer-events: none; }
 .dark .nps-track { background: rgba(255,255,255,0.25); }
 .nps-fill { position: absolute; top: 50%; height: 4px; transform: translateY(-50%); background: #825335; border-radius: 999px; pointer-events: none; }
+/* Floating value bubbles — one per handle, showing ONLY the number (no
+   currency). Positioned by render() in price-range-slider.js: left = the
+   handle's pixel centre, translateX(-50%) keeps the number centred above
+   its handle; render() pushes overlapping bubbles apart around the pair's
+   midpoint. Site palette: white box, accent (#825335) border, dark text. */
+.nps-bubble {
+  position: absolute; top: -30px; transform: translateX(-50%);
+  background: #ffffff; border: 1.5px solid #825335; color: #0f172a;
+  border-radius: 8px; padding: 3px 9px;
+  font-family: inherit; font-size: 11.5px; font-weight: 800; line-height: 1.2;
+  white-space: nowrap; direction: ltr; text-align: center;
+  pointer-events: none; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12); z-index: 1;
+}
+.dark .nps-bubble { background: #141a22; color: #ffffff; border-color: rgba(255, 255, 255, 0.45); }
 .nps-range { position: absolute; left: 0; width: 100%; top: 50%; transform: translateY(-50%); margin: 0; -webkit-appearance: none; appearance: none; background: transparent; pointer-events: none; height: 18px; outline: none; }
 .nps-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; pointer-events: auto; width: 16px; height: 16px; border-radius: 50%; background: #ffffff; border: 2px solid #825335; box-shadow: 0 1px 4px rgba(15,23,42,.35); cursor: pointer; }
 .nps-range::-moz-range-thumb { pointer-events: auto; width: 16px; height: 16px; border-radius: 50%; background: #ffffff; border: 2px solid #825335; box-shadow: 0 1px 4px rgba(15,23,42,.35); cursor: pointer; }
@@ -376,4 +455,24 @@ html.lang-ar .carousel-btn-left {
 html.lang-ar .nassim-sort-bar {
     direction: ltr;
     flex-direction: row-reverse;
+}
+
+/* ---------- Sort By dropdown arrow — AR: physical LEFT ----------
+   The dropdown arrow is a background-image added by the Tailwind forms
+   reset (tailwind.css: background-position: right 0.5rem center) — a fixed
+   PHYSICAL right position that ignores direction. In AR the select's text
+   starts from the right (and the existing AR padding rule swaps the side
+   padding), so the right-pinned arrow sits ON the text. Mirror the arrow to
+   the physical LEFT in Arabic only; EN keeps the right arrow unchanged. */
+html.lang-ar .subcat-grid-header select,
+html.lang-ar .nassim-sort-bar .nsb-select {
+    background-position: left 0.5rem center;
+}
+/* JS-built bar variant (pages without a grid-header select): mirror the
+   select's internal writing mode so the Arabic text anchors to the RIGHT,
+   away from the left-side arrow, and swap the side padding to match. */
+html.lang-ar .nassim-sort-bar .nsb-select {
+    direction: rtl;
+    padding-left: 2.5rem !important;
+    padding-right: 1rem !important;
 }
