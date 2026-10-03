@@ -400,18 +400,15 @@
 <div class="lg:w-[30%]">
 <div class="sticky top-28 bg-surface-container-high dark:bg-surface-container border border-outline-variant/30 text-on-surface dark:text-white p-8 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.03)]">
 <h2 class="font-headline text-xl font-bold text-primary dark:text-white mb-6 pb-4 border-b-2 border-outline-variant/60">Order Summary</h2>
-<!-- Box 1: Subtotal -->
-<div class="bg-surface dark:bg-surface-container-low border border-outline-variant/30 rounded-xl shadow-md px-5 py-5 flex justify-between items-center">
+<!-- Box 1: Subtotal + Shipping (joined card) -->
+<div class="bg-surface dark:bg-surface-container-low border border-outline-variant/30 rounded-xl shadow-md px-5 py-5">
+<div class="flex justify-between items-center">
 <span class="font-headline text-sm font-black uppercase tracking-widest text-on-surface-variant dark:text-white/70">SUBTOTAL KD</span>
 <span class="font-headline text-xl font-black text-primary dark:text-white" id="summary-subtotal">0.000</span>
 </div>
-<!-- Box 2: Shipping -->
-<div class="bg-surface dark:bg-surface-container-low border border-outline-variant/30 rounded-xl shadow-md px-5 py-5 mt-5">
-<div class="font-headline text-sm font-black uppercase tracking-widest text-on-surface-variant dark:text-white/70">SHIPPING</div>
-<p class="font-body text-xs md:text-sm text-on-surface-variant dark:text-white/60 mt-3 max-w-[16rem] leading-relaxed">Below 10 KD Shipping charges will be added: 1.000 KD.</p>
 <div class="flex justify-between items-center mt-4 pt-4 border-t border-outline-variant/30">
 <span class="font-headline text-sm font-black uppercase tracking-widest text-on-surface-variant dark:text-white/70">Shipping</span>
-<span class="font-headline text-lg font-black text-primary dark:text-white" id="summary-shipping">1.000 KD</span>
+<span class="font-headline text-lg font-black text-primary dark:text-white" id="summary-shipping">0.000 KD</span>
 </div>
 </div>
 <!-- Box 3: Total -->
@@ -420,6 +417,8 @@
 <span class="font-headline text-3xl md:text-4xl font-black text-primary dark:text-white" id="summary-total">2.500</span>
 </div>
 <div class="space-y-4 mt-6"><a href="checkout2.html" style="border-radius:9999px" class="block text-center w-full bg-primary text-on-primary py-5 font-headline text-xs font-black uppercase tracking-[0.2em] hover:bg-secondary transition-all">Continue with Your Order</a></div>
+<!-- Minimum-order info: inside the summary container, beneath the Continue button -->
+<p class="min-order-info text-center font-body text-sm text-gray-600 dark:text-gray-300 mt-4">We only accept orders above 5 KD.</p>
 </div>
 <!-- Delivery notice: pill centered beneath the summary card -->
 <div role="note" aria-label="Your order will be delivered within the next 2 days." class="delivery-notice">
@@ -509,7 +508,7 @@
            from DB prices at order creation). Required rule: subtotal below
            10.000 KD pays a flat 1.000 KD fee; at or above 10.000 KD ships
            free. Fixed here so the summary always matches the announced rule. */
-        const SHIPPING_RULE = { threshold: 10, feeBelow: 1, feeAtOrAbove: 0 };
+        const SHIPPING_RULE = { threshold: 10, feeBelow: 0, feeAtOrAbove: 0 };
         const shippingFor = (subtotal) => subtotal < SHIPPING_RULE.threshold ? SHIPPING_RULE.feeBelow : SHIPPING_RULE.feeAtOrAbove;
 
         // Load cart items from localStorage
@@ -646,7 +645,7 @@
             if (window.NassimCartBadge) window.NassimCartBadge.update();
             const shipping = shippingFor(subtotal);
             if (summarySubtotal) summarySubtotal.textContent = subtotal.toFixed(3);
-            if (summaryShipping) summaryShipping.textContent = shipping === 0 ? 'Free' : `${shipping.toFixed(3)} KD`;
+            if (summaryShipping) summaryShipping.textContent = `${shipping.toFixed(3)} KD`;
             if (summaryTotal) summaryTotal.textContent = (subtotal + shipping).toFixed(3);
             // In AR, re-apply the APPROVED mapping to the freshly written
             // values (updateCart always writes the English base strings).
@@ -1438,5 +1437,40 @@
    navigates to checkout2.html regardless of the cart total. The note below
    the Order Summary stays visible purely as information; the pulse CSS is
    kept in case other UI needs it, but nothing triggers or blocks anymore. */
-</script></body>
+</script>
+<script>
+/* ===== 5 KD minimum-order gate =====
+   Blocks "Continue with Your Order" when the merchandise SUBTOTAL (not the
+   shipping-inclusive total) is below 5.000 KD. Reads the subtotal straight
+   from #summary-subtotal — the same value updateCart() writes on every
+   quantity change — so the gate is always in sync with the displayed cart.
+   Blocked clicks pulse the "We accept orders above 5 KD." note; allowed
+   clicks navigate normally. */
+(function () {
+    "use strict";
+    var MIN_SUBTOTAL = 5.000;
+    function currentSubtotal() {
+        var el = document.getElementById('summary-subtotal');
+        return parseFloat((el && el.textContent) || '0') || 0;
+    }
+    function pulseMinOrderNote() {
+        var note = document.querySelector('.min-order-info');
+        if (!note) return;
+        note.classList.remove('pulse');
+        void note.offsetWidth; /* restart the animation */
+        note.classList.add('pulse');
+        setTimeout(function () { note.classList.remove('pulse'); }, 1400);
+    }
+    document.querySelectorAll('a[href="checkout2.html"]').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            if (currentSubtotal() < MIN_SUBTOTAL) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                pulseMinOrderNote();
+            }
+        }, true);
+    });
+})();
+</script><script src="assets/js/secondary-nav.js" defer></script>
+</body>
 </html>

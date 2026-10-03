@@ -717,7 +717,7 @@
 <nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
 <div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
 <div class="flex items-center gap-12">
-<a href="home.html" class="flex items-center gap-2 group cursor-pointer shrink-0">
+<a href="home2.html" class="flex items-center gap-2 group cursor-pointer shrink-0">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/>
 </a>
 <div class="hidden md:flex gap-8">
@@ -1818,14 +1818,14 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
 
             // Active state — Home is active on the homepage.
             var path = (location.pathname.split('/').pop() || location.pathname || '').toLowerCase();
-            var onHome = (path === '' || path === 'home.html' || path === 'index.html');
+            var onHome = (path === '' || path === 'home.html' || path === 'home2.html' || path === 'index.html');
             var homeBtn = nav.querySelector('[data-mbnav="home"]');
             if (homeBtn && onHome) homeBtn.classList.add('mbnav-active');
 
             // Home -> home.html (no-op if already here)
             if (homeBtn) homeBtn.addEventListener('click', function () {
                 if (onHome) return;
-                window.location.href = 'home.html';
+                window.location.href = 'home2.html';
             });
 
             // Categories -> reuse the existing hamburger drawer toggle

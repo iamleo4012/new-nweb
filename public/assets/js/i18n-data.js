@@ -301,6 +301,7 @@ window.NASSIM_I18N = {
  "your order has been received.": "تم استلام طلبك.",
  "please click the link below to view your order and carefully read the important notice, which explain how your order will be processed and finalized.": "يرجى النقر على الرابط أدناه لرؤية طلبك وقراءة الإشعار المهم بعناية، والذي يشرح كيفية معالجة طلبك وإتمامه.",
  "we only accept orders above 5 kd.": "نقبل فقط الطلبات التي تزيد قيمتها عن 5 د.ك.",
+ "free delivery": "التوصيل مجاني",
  "your order will be delivered within the next 2 days.": "سيتم توصيل طلبك خلال اليومين القادمين.",
  "note:": "ملاحظة:",
  "Click “Send WhatsApp Message” to notify the customer that their order has been received.": "اضغط على «إرسال رسالة عبر واتساب» لإبلاغ العميل بأنه تم استلام طلبه.",
@@ -382,6 +383,10 @@ window.NASSIM_I18N = {
  "🖨 Print Order": "🖨 طباعة الطلب",
 };
 window.NASSIM_I18N_REVERSE = {
+ "التوصيل مجاني": [
+  "FREE DELIVERY"
+ ],
+
  "نقبل فقط الطلبات التي تزيد قيمتها عن 5 د.ك.": [
   "We only accept orders above 5 KD."
  ],
