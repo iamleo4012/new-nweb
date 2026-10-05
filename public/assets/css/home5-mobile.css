@@ -1,0 +1,288 @@
+/* home5.html ONLY — mobile layout for the experimental header design.
+   Loaded only by home5.html. Scoped to ≤767px; desktop presentation of
+   home1/home.html is untouched.
+
+   Header: the markup is home.html's exact header with ONE intentional
+   difference — the mobile search text box is removed and a Search ICON
+   button (bound by the existing search.js bindTriggers()) sits first in the
+   right-hand utility group. Download / EN | عربي / Moon are unhidden
+   statically in the markup; the cart stays hidden (bottom nav owns it).
+   Physical layout follows the page direction: ENGLISH = logo LEFT / icons
+   RIGHT (LTR); ARABIC = mirrored, logo RIGHT / icons LEFT (via the shared
+   rtl-overrides.css flip). */
+@media (max-width: 767px) {
+  :root { --h5-notice-h: 34px; }
+
+  /* MOBILE header controls (hidden md:* on desktop, revealed here only):
+     EN | عربي, Download, Moon, and the Search ICON button. No dividers,
+     no cart — the cart lives in the bottom navigation. */
+  #home5-lang-btn { display: flex !important; }
+  #download-btn-container { display: block !important; }
+  #theme-toggle { display: block !important; }
+  #home5-search-btn { display: flex !important; }
+
+  /* The shared nav scripts inject a duplicate download-button cluster
+     (#nassim-mobile-utils) into the header and also move #theme-toggle
+     into it. Hide only the cluster's duplicate Download button — the moon
+     stays visible (its own control). dark-overrides.css forces the cluster
+     visible with !important, so home1 uses higher-specificity selectors to
+     win without touching the shared file. */
+  nav.glass-nav #nassim-mobile-utils,
+  nav.glass-nav #nassim-mobile-utils .nassim-mu-btn {
+    display: none !important;
+  }
+
+  /* The utility group must stay on the physical right, never reordered. */
+  nav.glass-nav > div > div:last-child {
+    justify-content: flex-end !important;
+    flex-wrap: wrap !important;
+    row-gap: 2px !important;
+  }
+
+  /* Bottom navigation sits directly above the notice strip. */
+  #mobile-bottom-nav {
+    bottom: calc(var(--h5-notice-h) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Plain informational strip BELOW the navigation: page background,
+     centered text — no button/pill/card/border/shadow, not clickable. */
+  #home5-min5-notice {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(var(--h5-notice-h) + env(safe-area-inset-bottom, 0px));
+    padding: 0 12px calc(env(safe-area-inset-bottom, 0px));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 89; /* below the bottom nav (z-90): no overlap possible */
+    background: #f7f9ff; /* the site's page background */
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #111d27;
+    text-align: center;
+    pointer-events: none;
+  }
+  html.dark #home5-min5-notice { background: #0a0f14; color: #ffffff; }
+
+  /* Clearance for the white FREE DELIVERY bar (52px) below the fixed
+     header, on top of the mobile header padding from dark-overrides.css. */
+  body > main {
+    padding-top: calc(var(--mobile-header-height, 85px) + 52px) !important;
+  }
+
+  /* WhatsApp float: raised above the bottom nav + notice strip. */
+  a[aria-label="Chat on WhatsApp"] {
+    bottom: calc(64px + var(--h5-notice-h) + env(safe-area-inset-bottom, 0px) + 12px) !important;
+  }
+
+  /* Reserve end-of-page space for nav + notice. */
+  body {
+    padding-bottom: calc(64px + var(--h5-notice-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  }
+}
+
+/* Desktop: the 5 KD notice is mobile-only; desktop keeps home.html's pill in the glass bar. */
+@media (min-width: 768px) {
+  #home5-min5-notice { display: none !important; }
+}
+
+/* ==== DESKTOP (>767px): home.html-style top nav with icon search and the
+   5 KD pill moved into the top navigation. Loaded only by home5.html. ==== */
+@media (min-width: 768px) {
+  /* Textbox → icon: hide the desktop search input; the static search icon
+     button in the utility group opens the existing search overlay. */
+  #desktop-inline-search { display: none !important; }
+
+  /* The 5 KD pill lives in the TOP NAV on home5 — remove it from the glass
+     secondary bar (shared script's own pill). */
+  #nassim-secondary-nav .nssn-pill,
+  #nassim-secondary-nav .nassim-pill { display: none !important; }
+
+  /* Top-nav pill: same visual language as the secondary-bar pill had. */
+  #home5-min5-pill {
+    border: 1px solid #c4c6cc;
+    border-radius: 9999px;
+    padding: 8px 14px;
+    background: #ffffff;
+    color: #111d27;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 3, 8, 0.06);
+    pointer-events: none;
+  }
+  html.dark #home5-min5-pill { background: #141a22; border-color: rgba(255,255,255,0.2); color: #ffffff; }
+
+  /* Breathing room between the utility controls (Search / EN | عربي /
+     Download / Moon / Cart / 5 KD pill) — clean and balanced, not congested. */
+  nav.glass-nav > div > div:last-child {
+    gap: 18px !important;
+  }
+  nav.glass-nav #home5-desktop-search-btn .material-symbols-outlined { font-size: 24px; }
+  /* Slightly tighten the department links so the extended utility row fits. */
+  nav.glass-nav div.gap-8 { gap: 22px !important; }
+}
+
+/* ==== DESKTOP COMPRESSION LADDER (768–1240px) =====================
+   Progressive compaction of the desktop header so nothing overlaps or
+   overflows as the viewport narrows. Large desktop (>=1241px) is
+   untouched. Arabic RTL works identically (gaps/fonts are physical). ==== */
+
+/* --- Tier 1 (1024–1240px): medium desktop — single-line department
+   links, tighter gaps, slightly smaller fonts/pill. --- */
+@media (min-width: 1024px) and (max-width: 1240px) {
+  nav.glass-nav div.gap-8 a span.block { display: none !important; } /* one-line department names */
+  nav.glass-nav div.gap-8 { gap: 16px !important; }
+  nav.glass-nav div.gap-8 a { font-size: 12px !important; }
+  nav.glass-nav > div > div:last-child { gap: 14px !important; }
+  #home5-min5-pill { font-size: 12px !important; padding: 7px 12px !important; }
+}
+
+/* --- Tier 2 (900–1023px): smaller laptop — further compression. --- */
+@media (min-width: 900px) and (max-width: 1023px) {
+  nav.glass-nav div.gap-8 a span.block { display: none !important; }
+  nav.glass-nav div.gap-8 { gap: 10px !important; }
+  nav.glass-nav div.gap-8 a { font-size: 11px !important; }
+  nav.glass-nav > div > div:last-child { gap: 10px !important; }
+  #home5-min5-pill { font-size: 11px !important; padding: 6px 10px !important; }
+  #home5-lang-btn span { font-size: 12px !important; }
+  nav.glass-nav #home5-desktop-search-btn .material-symbols-outlined { font-size: 22px !important; }
+}
+
+/* --- Tier 3 (768–899px): narrowest desktop — maximum compression while
+   remaining a desktop navigation (single-line links, compact pill). --- */
+@media (min-width: 768px) and (max-width: 899px) {
+  nav.glass-nav div.gap-8 a span.block { display: none !important; }
+  nav.glass-nav div.gap-8 { gap: 6px !important; }
+  nav.glass-nav div.gap-8 a { font-size: 10px !important; }
+  nav.glass-nav > div > div:first-child { gap: 14px !important; }
+  nav.glass-nav > div > div:last-child { gap: 8px !important; }
+  #home5-min5-pill { font-size: 10px !important; padding: 5px 8px !important; }
+  #home5-lang-btn span { font-size: 11px !important; }
+  nav.glass-nav #home5-desktop-search-btn .material-symbols-outlined,
+  nav.glass-nav #download-btn .material-symbols-outlined,
+  nav.glass-nav #theme-toggle .material-symbols-outlined { font-size: 20px !important; }
+  #home5-desktop-search-btn .material-symbols-outlined { font-size: 20px !important; }
+}
+
+/* Safety: the header row never wraps horizontally. NOTE: no overflow:hidden
+   here — it would clip the department dropdowns, which must extend below
+   the header and stack ABOVE the secondary FREE DELIVERY bar. */
+@media (min-width: 768px) {
+  nav.glass-nav > div { flex-wrap: nowrap !important; }
+  nav.glass-nav div.gap-8 a { white-space: nowrap !important; }
+}
+
+/* ==== DESKTOP (>767px): floating GLASS search popup for the header search
+   icon — presentation only; the legacy overlay/search behavior from search.js
+   is untouched. Glass treatment matches the existing desktop navigation
+   (translucent surface + 20px backdrop blur), compact panel, pill input with
+   a left search glyph and a minimal round close button, and a gentle
+   180ms drop-in animation. ==== */
+@media (min-width: 768px) {
+  /* Subtle translucent page tint only — hero stays clearly visible. */
+  #nassim-search-overlay {
+    background: rgba(247, 249, 255, 0.15) !important;
+    padding-top: 92px !important;
+    animation: h5searchFade 180ms ease !important;
+  }
+  @keyframes h5searchFade { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Compact floating glass panel (collapses to ~68px tall when empty). */
+  #nassim-search-overlay > div {
+    background: rgba(248, 245, 240, 0.62) !important;
+    backdrop-filter: blur(22px) saturate(1.4) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(1.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.55) !important;
+    outline: 1px solid rgba(0, 3, 8, 0.05) !important;
+    border-radius: 22px !important;
+    box-shadow: 0 12px 36px rgba(0, 3, 8, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+    max-width: 600px !important;
+    animation: h5searchDrop 180ms ease !important;
+  }
+  @keyframes h5searchDrop { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Input row: search glyph on the left, pill input, round close on the right. */
+  #nassim-search-overlay > div > div:first-child {
+    position: relative !important;
+    border-bottom: none !important;
+    padding: 12px 14px !important;
+    gap: 10px !important;
+  }
+  #nassim-search-overlay > div > div:first-child::before {
+    content: 'search';
+    font-family: 'Material Symbols Outlined';
+    font-size: 20px;
+    line-height: 1;
+    color: #44474b;
+    position: absolute;
+    left: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  #nassim-search-overlay input {
+    border: 1px solid rgba(0, 3, 8, 0.08) !important;
+    outline: none !important;
+    border-radius: 9999px !important;
+    background: rgba(255, 255, 255, 0.65) !important;
+    height: 40px !important;
+    padding-left: 42px !important;
+    padding-right: 16px !important;
+    font-size: 14px !important;
+    color: #111d27 !important;
+    box-shadow: inset 0 1px 2px rgba(0, 3, 8, 0.03) !important;
+  }
+  #nassim-search-overlay input::placeholder { color: rgba(17, 29, 39, 0.45) !important; }
+  #nassim-search-overlay input:focus {
+    outline: none !important;
+    border-color: rgba(130, 83, 53, 0.35) !important;
+    box-shadow: 0 0 0 3px rgba(130, 83, 53, 0.12) !important;
+  }
+  /* Round minimal close button. */
+  #nassim-search-overlay > div > div:first-child > button {
+    border-radius: 9999px !important;
+    width: 30px !important;
+    height: 30px !important;
+    flex: 0 0 auto !important;
+    background: rgba(255, 255, 255, 0.65) !important;
+    color: #44474b !important;
+    font-size: 13px !important;
+    border: 1px solid rgba(0, 3, 8, 0.06) !important;
+  }
+  #nassim-search-overlay > div > div:first-child > button:hover {
+    background: #e4efff !important;
+    color: #111d27 !important;
+  }
+
+  /* ARABIC (html.lang-ar): mirror the popup row — search glyph on the
+     RIGHT, close button on the LEFT, input text space on the right.
+     Matches the row dir=rtl set by search.js for Arabic. */
+  html.lang-ar #nassim-search-overlay > div > div:first-child::before {
+    left: auto !important;
+    right: 28px;
+  }
+  html.lang-ar #nassim-search-overlay input {
+    padding-left: 16px !important;
+    padding-right: 42px !important;
+  }
+
+  /* Results list: transparent panel continues; items keep their separators. */
+  #nassim-search-overlay > div > div:last-child { border-top: none !important; }
+}
+
+/* ==== ARABIC desktop (768–1240px): Arabic department names are wider than
+   the English ones — compress them further so they never reach the utility
+   group. Physical layout stays RTL; only sizes/gaps shrink. ==== */
+@media (min-width: 768px) and (max-width: 1240px) {
+  html.lang-ar nav.glass-nav img[alt="AL-Nassim Logo"] { height: 34px !important; }
+  html.lang-ar nav.glass-nav div.gap-8 { gap: 10px !important; }
+  html.lang-ar nav.glass-nav div.gap-8 a,
+  html.lang-ar nav.glass-nav div.gap-8 a span { font-size: 11px !important; }
+  html.lang-ar nav.glass-nav > div > div:last-child { gap: 12px !important; }
+  html.lang-ar #home5-min5-pill { font-size: 11px !important; padding: 6px 10px !important; }
+  html.lang-ar #home5-lang-btn span { font-size: 11px !important; }
+}
