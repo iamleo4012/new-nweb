@@ -13,7 +13,7 @@ import {
   calculateBillableTotals,
 } from "@/lib/order-workflow";
 import { restoreOnlineStockForOrder, restoreStockForRemovedItems } from "@/lib/online-stock";
-import { orderShortPath } from "@/lib/order-link";
+import { orderShortPath, customerOrderBaseUrl } from "@/lib/order-link";
 import type { OrderStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -151,7 +151,7 @@ export async function GET(req: NextRequest) {
     success: true,
     data: {
       orders: orders.map(function (o) {
-        return { ...serializeOrder(o), shortPath: orderShortPath(o.id) };
+        return { ...serializeOrder(o), shortPath: orderShortPath(o.id), orderBaseUrl: customerOrderBaseUrl() || null };
       }),
       pagination: { page, limit, total, totalPages },
     },

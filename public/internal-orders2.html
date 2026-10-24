@@ -59,7 +59,8 @@
   .empty { padding:40px; text-align:center; color:var(--muted); background:#fff; border-radius:10px; }
   .detail-actions { display:flex; gap:8px; margin-bottom:14px; }
   /* WhatsApp button — sits next to the customer's phone number (list row and
-     detail sheet). Opens wa.me with a pre-filled bilingual message; the staff
+     detail sheet). Opens WhatsApp with a pre-filled bilingual message —
+     web.whatsapp.com/send on desktop, wa.me on mobile; the staff
      member still presses Send inside WhatsApp. */
   .wa-btn { display:inline-block; margin-inline-start:8px; padding:3px 10px; background:#25d366; color:#fff; border:0; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap; vertical-align:middle; font-family:inherit; }
   .wa-btn:hover { background:#1fb857; }
@@ -263,7 +264,7 @@
 <style>.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }</style>
 <script>/* keep the storefront i18n language in step with the staff toggle before the runtime initialises */
 try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang") === "ar" ? "ar" : "en"); } catch (e) {}</script>
-<script src="assets/js/i18n-data.js?v=4" defer></script>
+<script src="assets/js/i18n-data.js?v=5" defer></script>
 <script src="assets/js/i18n.js" defer></script>
 <script src="assets/js/nassim-locations-data.js" defer></script>
 <script src="assets/js/order-address.js" defer></script>
@@ -743,8 +744,13 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     // Signed short public link (/o/{id}-{signature}) from the staff orders
     // API: the server resolves the order, so NO token appears anywhere and
     // the link cannot be manipulated to reach another customer’s order.
-    if (o.shortPath) return window.location.origin + o.shortPath;
-    return window.location.origin + "/order-detail.html?number=" + encodeURIComponent(o.orderNumber);
+    // The HOST comes from the server-side APP_BASE_URL env var (delivered in
+    // the orders API payload as o.orderBaseUrl) because staff may open this
+    // page from a LAN/dev origin that the customer cannot reach. Falls back
+    // to this page's origin only when APP_BASE_URL is not configured.
+    var base = o.orderBaseUrl || window.location.origin;
+    if (o.shortPath) return base + o.shortPath;
+    return base + "/order-detail.html?number=" + encodeURIComponent(o.orderNumber);
   }
   function waMessage(o, orderUrl) {
     var url = orderUrl || waOrderUrl(o);
@@ -808,12 +814,20 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
         return;
       }
     }
-    var waTarget = waUrl({
+    var waArgs = {
       customerPhone: btn.getAttribute("data-wa-phone"),
       customerName: btn.getAttribute("data-wa-name"),
       orderNumber: btn.getAttribute("data-wa-number"),
       shortPath: btn.getAttribute("data-wa-path") || ""
-    });
+    };
+    var waMobile = window.matchMedia("(max-width: 767px), (orientation: portrait)").matches;
+    /* Desktop: web.whatsapp.com/send skips wa.me's "choose WhatsApp Web or
+       the desktop app" interstitial and opens the chat directly with the
+       message pre-filled (the staff member still presses Send). Mobile keeps
+       wa.me so the native WhatsApp app handles it. */
+    var waTarget = waMobile
+      ? waUrl(waArgs)
+      : "https://web.whatsapp.com/send?phone=" + waPhone(waArgs.customerPhone) + "&text=" + encodeURIComponent(waMessage(waArgs));
     /* Persist WhatsApp send-state for THIS order (independent of the order
        status state machine). keepalive survives the same-tab wa.me
        navigation on mobile. Idempotent - repeated clicks stay SENT. */
@@ -826,7 +840,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       keepalive: true
     }).catch(function () { /* best-effort - reload shows the true state */ });
     markWaSent(Number(waOrderId));
-    if (window.matchMedia("(max-width: 767px), (orientation: portrait)").matches) {
+    if (waMobile) {
       window.location.href = waTarget; // mobile: same tab, straight to WhatsApp
     } else {
       window.open(waTarget, "_blank"); // desktop: keep the staff page open

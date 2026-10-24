@@ -1,0 +1,146 @@
+/* ============================================================================
+   AL-NASSIM shared top-nav — mobile design for the "DOWNLOAD OUR APP" popover
+   ============================================================================
+   Matches the approved reference design (mobile only, <=767px or portrait —
+   the same scope home5-mobile.css uses):
+
+     - Compact blue rounded panel (min(265px, 100vw - 24px)) that opens just
+       below the top navigation, anchored to the download icon by
+       nav-popover-mobile.js (which also aims the caret at the icon).
+     - An upward-pointing caret (::before) bridging the nav and the panel,
+       horizontally aimed at the download icon via --pop-caret-x (set from the
+       icon's real bounding rect; falls back to 32px without JS).
+     - Centered heading + subtitle, thin divider, stacked centered badges.
+
+   Desktop (>=768px landscape) is untouched: none of these rules apply there.
+   Loaded by every page that carries the shared top navigation.
+   ============================================================================ */
+@media (max-width: 767px), (orientation: portrait) {
+  /* Un-anchor the icon container: the panel then positions against the nav
+     itself (position:fixed, full viewport width) and can never clip, even on
+     320px screens where the nav row overflows. */
+  #download-btn-container {
+    position: static !important;
+  }
+  #download-popup {
+    position: absolute !important;
+    top: 100% !important;
+    left: auto !important;
+    right: 12px !important;
+    --tw-translate-x: 0 !important;
+    margin-top: 10px !important;
+    z-index: 50 !important;
+    width: min(194px, calc(100vw - 24px)) !important;
+    max-width: min(194px, calc(100vw - 24px)) !important;
+  }
+  html.lang-ar #download-popup {
+    left: 12px !important;
+    right: auto !important;
+  }
+  /* Upward caret pointing at the download icon (--pop-caret-x is the caret
+     center, measured from the panel's left edge by nav-popover-mobile.js). */
+  #download-popup::before {
+    content: "";
+    position: absolute;
+    top: -9px;
+    left: var(--pop-caret-x, 32px);
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 9px solid #135bec;
+  }
+  /* Centered header. The "Upgrade Your Experience" subtitle is hidden on
+     mobile (desktop keeps it): the header shows only the localized
+     "DOWNLOAD OUR APP" / "حمّل تطبيقنا" heading above the divider. The
+     heading text itself is localized by i18n (key "download our app"). */
+  #download-popup .px-6.py-4 {
+    padding: 8px 10px 7px !important;
+    text-align: center !important;
+  }
+  #download-popup .px-6.py-4 p {
+    display: none !important;
+  }
+  #download-popup .px-6.py-4 h3 {
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+  }
+  /* Badges: stacked, centered, 155px wide (aspect ratio preserved via
+     height:auto), tight consistent gap. */
+  #download-popup .space-y-3 {
+    padding: 7px 7px 10px !important;
+  }
+  #download-popup .space-y-3 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 5px !important;
+  }
+  #download-popup .space-y-3 > a {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    padding: 3px !important;
+  }
+  #download-popup .space-y-3 > a img {
+    width: 138px !important;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+}
+
+/* ============================================================================
+   DESKTOP (>=768px landscape): compact centered popover
+   ============================================================================
+   Mirrors the approved mobile design: subtitle removed (markup), heading and
+   both store badges centered on one vertical axis, panel sized to its content
+   (194px), and a centered upward caret pointing at the download icon (the
+   desktop panel is centered on the icon, so a centered caret aims at it).
+   Nothing below applies on mobile — the mobile block above still owns <=767px
+   / portrait, and the h5-utils-menu burger fallback is unaffected.
+   ============================================================================ */
+@media (min-width: 768px) and (orientation: landscape) {
+  #download-popup {
+    width: 194px !important;
+    max-width: 194px !important;
+  }
+  #download-popup::before {
+    content: "";
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 9px solid #135bec;
+  }
+  #download-popup .px-6.py-4 {
+    padding: 9px 12px 8px !important;
+    text-align: center !important;
+  }
+  #download-popup .px-6.py-4 p {
+    display: none !important; /* subtitle removed; guard while markup rolls back */
+  }
+  #download-popup .px-6.py-4 h3 {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+  }
+  #download-popup .space-y-3 {
+    padding: 10px 12px 12px !important;
+  }
+  #download-popup .space-y-3 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 9px !important;
+  }
+  #download-popup .space-y-3 > a {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    padding: 4px !important;
+  }
+  #download-popup .space-y-3 > a img {
+    width: 155px !important;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+}

@@ -14,6 +14,7 @@ window.NASSIM_I18N = {
  "cleaning tools": "أدوات التنظيف",
  "home & outdoor": "مستلزمات المنزل والخارج",
  "kitchenware": "أدوات المطبخ",
+ "download our app": "حمّل تطبيقنا",
  "supermarket equipment": "معدات السوبر ماركت",
  "cooling appliances": "أجهزة التبريد",
  "trolleys & baskets": "عربات التسوق والسلال",

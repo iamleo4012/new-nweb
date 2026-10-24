@@ -43,6 +43,7 @@
 <link rel="preload" href="/assets/fonts/MaterialSymbolsOutlined-var.woff2" as="font" type="font/woff2" crossorigin/>
 <link rel="preload" href="/assets/fonts/Inter-400-UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2" as="font" type="font/woff2" crossorigin/>
 <link rel="preload" href="/assets/fonts/Manrope-800-xn7gYHE41ni1AdIRggexSg.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="image.webp" as="image" fetchpriority="high"/>
 <link rel="stylesheet" href="/assets/css/fonts-local.css?v=20261013"/>
 <!-- Google Fonts -->
 <!-- Material Symbols -->
@@ -248,12 +249,14 @@
     }
 </style>
 <link rel="stylesheet" href="/assets/css/tailwind.css?v=20261013c">
+<link rel="stylesheet" href="assets/css/nav-popover-mobile.css?v=10"/>
+<script src="assets/js/nav-popover-mobile.js?v=5" defer></script>
 <link rel="stylesheet" href="assets/css/home5-mobile.css?v=4">
 <link rel="stylesheet" href="assets/css/dark-overrides.css?v=20261013">
 <link rel="stylesheet" href="assets/css/rtl-overrides.css?v=6"/>
-<script src="assets/js/i18n-data.js?v=4" defer></script>
+<script src="assets/js/i18n-data.js?v=5" defer></script>
 <script src="assets/js/product-name.js?v=1"></script>
-<script src="assets/js/i18n.js" defer></script>
+<script src="assets/js/i18n.js?v=2" defer></script>
 <!-- TOP-NAV ENGINE + AR RULES (from houseware.html) — in <head> so the nav renders in its final state from the very first paint (prevents old-nav FOUC). -->
 <style>
 /* =====================================================================
@@ -879,7 +882,7 @@ html.dark #home5-burger-btn { color: #ffffff; }
      never visible on load or EN<->AR switch. Desktop: hard-hidden below. -->
 <div id="loading-screen" role="status" aria-label="Loading AL-NASSIM" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--splash-bg,#f7f9ff);display:flex;align-items:center;justify-content:center;z-index:9999;">
     <div class="loading-inner">
-        <img id="loading-logo" src="LOGO.png" alt="AL-Nassim" decoding="async"/>
+        <picture><source media="(max-width: 767px), (orientation: portrait)" srcset="LOGO-mobile.webp"/><img id="loading-logo" src="LOGO.webp" alt="AL-Nassim" decoding="async"/></picture>
         <div class="loading-dots">
             <div class="loading-dot"></div>
             <div class="loading-dot"></div>
@@ -1063,7 +1066,7 @@ setTimeout(function(){var l=document.getElementById("loading-screen");if(l){l.st
 <div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
 <div class="flex items-center gap-12">
 <a href="home5.html" class="flex items-center gap-2 group cursor-pointer shrink-0">
-<img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/>
+<img src="LOGO.webp" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/>
 </a>
 <div class="hidden md:flex gap-8">
 <div class="dropdown-trigger relative py-1">
@@ -1140,15 +1143,15 @@ setTimeout(function(){var l=document.getElementById("loading-screen");if(l){l.st
 <!-- Header -->
 <div class="px-6 py-4 border-b border-white/20" style="background-color: #135bec;">
 <h3 class="text-white font-headline font-bold text-sm uppercase tracking-wider">DOWNLOAD OUR APP</h3>
-<p class="text-white/80 text-xs mt-1 font-light">Upgrade Your Experience</p>
+
 </div>
 <!-- Download Options -->
 <div class="space-y-3 flex flex-col items-center bg-transparent">
 <a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
-<img loading="lazy" src="topcar/aple.png" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+<img loading="lazy" src="topcar/aple.webp" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg"/>
 </a>
 <a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
-<img loading="lazy" src="topcar/ggle.png" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg"/>
+<img loading="lazy" src="topcar/ggle.webp" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg"/>
 </a>
 </div>
 </div>
@@ -1205,11 +1208,11 @@ setTimeout(function(){var l=document.getElementById("loading-screen");if(l){l.st
 <!-- Main Content Canvas -->
 <main class="relative w-full mt-20 h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden">
 <!-- Cinematic Background Wrapper -->
-<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 z-0" style="background-color:#131e29">
     <img
         alt="Cold room construction"
         class="absolute inset-0 w-full h-full object-cover"
-        src="./image.png"
+        src="./image.webp"
         onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/aida-public/AB6AXuAPwN7q72kYAkNNT4XOGuUHgIXuIm08HD3WkcwhFRyUXtQIwYn4hMoHcC3ZxKHLrxGcM_csT9w-M1eMOvBPkfXs4PJiMbEs-55MfYb_zUU-Uv2__uT0GQGQkp_PlqFNX9_vAdvoUtZGqUhq0n0GgEetpc-Ea4npuj1x6vU9ChsVkW1WxBanY5JE9O72-_9aOLkox4dvSUO4XuOLCxdCfv8e0aRV4x7WAjurqUHADUxo-kxAE7UJHis3ycmBlNU0Ruxl_w'"
     >
     <div class="absolute inset-0 bg-primary/10 mix-blend-multiply z-10"></div>
@@ -1278,7 +1281,7 @@ setTimeout(function(){var l=document.getElementById("loading-screen");if(l){l.st
 <!-- Column 1 -->
 <div class="col-span-1">
 <a href="home5.html" class="flex items-center gap-2 mb-6">
-<img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
+<img src="LOGO.webp" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
 </a>
 <p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
 </div>
@@ -1335,7 +1338,7 @@ setTimeout(function(){var l=document.getElementById("loading-screen");if(l){l.st
 <p class="text-xs text-slate-500">© 2026 AL-Nassim Golden Group. All rights reserved.</p>
 <div class="flex items-center gap-6">
 <a class="text-slate-500 hover:text-primary transition-colors" href="https://www.facebook.com/Al.Nassim.Central.Market/" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/Facebook_icon.png" alt="Facebook" class="w-6 h-6 object-contain"/></a>
-<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/Instagram_icon.png" alt="Instagram" class="w-6 h-6 object-contain"/></a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/Instagram_icon.webp" alt="Instagram" class="w-6 h-6 object-contain"/></a>
 </div>
 </div>
 </div>

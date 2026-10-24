@@ -41,8 +41,11 @@
 <link rel="preload" href="/assets/fonts/MaterialSymbolsOutlined-var.woff2" as="font" type="font/woff2" crossorigin/>
 <link rel="preload" href="/assets/fonts/Inter-400-UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2" as="font" type="font/woff2" crossorigin/>
 <link rel="preload" href="/assets/fonts/Manrope-800-xn7gYHE41ni1AdIRggexSg.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="topcar/kitchenware-card.webp" as="image" media="(min-width: 768px)" fetchpriority="high"/>
 <link rel="stylesheet" href="/assets/css/fonts-local.css?v=20261013"/>
 <link rel="stylesheet" href="/assets/css/tailwind.css?v=20261013c">
+<link rel="stylesheet" href="assets/css/nav-popover-mobile.css?v=10"/>
+<script src="assets/js/nav-popover-mobile.js?v=5" defer></script>
 <link rel="stylesheet" href="assets/css/home5-mobile.css?v=4">
 <link rel="stylesheet" href="assets/css/dark-overrides.css?v=20261013">
 <link rel="stylesheet" href="assets/css/rtl-overrides.css?v=6"/>
@@ -59,8 +62,8 @@
      pressure is gone and only the critical subset keeps its head start.)
      Desktop is unaffected either way — it fetched these immediately. -->
 <link rel="preload" as="script" href="assets/js/theme.js"/>
-<link rel="preload" as="script" href="assets/js/i18n-data.js?v=4"/>
-<link rel="preload" as="script" href="assets/js/i18n.js"/>
+<link rel="preload" as="script" href="assets/js/i18n-data.js?v=5"/>
+<link rel="preload" as="script" href="assets/js/i18n.js?v=2"/>
 <link rel="preload" as="script" href="assets/js/dark-overrides.js?v=20261013"/>
 <link rel="preload" as="script" href="assets/js/cart-nav.js"/>
 <link rel="preload" as="script" href="assets/js/search.js"/>
@@ -73,7 +76,6 @@
      below-fold images. Mobile preloads the -mobile.webp variant it will
      actually display (media-gated); desktop fetches LOGO.png directly from
      the <img>, which already carries fetchpriority=high. -->
-<link rel="preload" as="image" href="LOGO-mobile.webp" media="(max-width: 767px), (orientation: portrait)" fetchpriority="high"/>
 <style>
 /* MOBILE ONLY (<=767px, light mode): the content section matches the top
    navigation / FREE DELIVERY bar white (rgb(255,255,255)) instead of the
@@ -92,7 +94,7 @@
     section.pizza-collection img[alt="Product Hover"] { display: none !important; }
   }
 </style>
-<script src="assets/js/i18n-data.js?v=4" defer></script>
+<script src="assets/js/i18n-data.js?v=5" defer></script>
 <script src="assets/js/product-name.js?v=1"></script>
 <script src="assets/js/i18n.js" defer></script>
 <style>
@@ -281,7 +283,7 @@
      page underneath can never be seen loading or restyling. -->
 <div id="loading-screen" role="status" aria-label="Loading AL-NASSIM" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--splash-bg,#f7f9ff);display:flex;align-items:center;justify-content:center;z-index:9999;">
     <div class="loading-inner">
-        <picture><source media="(max-width: 767px), (orientation: portrait)" srcset="LOGO-mobile.webp"/><img id="loading-logo" src="LOGO.png" alt="AL-Nassim" decoding="async"/></picture>
+        <picture><source media="(max-width: 767px), (orientation: portrait)" srcset="LOGO-mobile.webp"/><img id="loading-logo" src="LOGO.webp" alt="AL-Nassim" decoding="async"/></picture>
         <div class="loading-dots">
             <div class="loading-dot"></div>
             <div class="loading-dot"></div>
@@ -1410,7 +1412,7 @@
 <div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
 <div class="flex items-center gap-12">
 <a href="home5.html" class="flex items-center gap-2 group cursor-pointer shrink-0">
-<picture><source media="(max-width: 767px), (orientation: portrait)" srcset="LOGO-mobile.webp"/><img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/></picture>
+<img src="LOGO.webp" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/>
 </a>
 <div class="hidden md:flex gap-8">
 <div class="dropdown-trigger relative py-1">
@@ -1488,15 +1490,15 @@
 <!-- Header -->
 <div class="px-6 py-4 border-b border-white/20" style="background-color: #135bec;">
 <h3 class="text-white font-headline font-bold text-sm uppercase tracking-wider">DOWNLOAD OUR APP</h3>
-<p class="text-white/80 text-xs mt-1 font-light">Upgrade Your Experience</p>
+
 </div>
 <!-- Download Options -->
 <div class="space-y-3 flex flex-col items-center bg-transparent">
 <a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
-<picture><source media="(max-width: 767px), (orientation: portrait)" srcset="topcar/aple-mobile.webp"/><img loading="lazy" src="topcar/aple.png" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg" decoding="async"/></picture>
+<picture><source media="(max-width: 767px), (orientation: portrait)" srcset="topcar/aple-mobile.webp"/><img loading="lazy" src="topcar/aple.webp" alt="App Store" class="w-[75%] h-[70%] object-contain rounded-lg" decoding="async"/></picture>
 </a>
 <a href="#" class="flex items-center justify-center rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-900/30 transition-all duration-300 group/btn border-0 overflow-hidden w-fit p-2" style="background-color: #135bec;">
-<picture><source media="(max-width: 767px), (orientation: portrait)" srcset="topcar/ggle-mobile.webp"/><img loading="lazy" src="topcar/ggle.png" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg" decoding="async"/></picture>
+<picture><source media="(max-width: 767px), (orientation: portrait)" srcset="topcar/ggle-mobile.webp"/><img loading="lazy" src="topcar/ggle.webp" alt="Google Play" class="w-[75%] h-[70%] object-contain rounded-lg" decoding="async"/></picture>
 </a>
 </div>
 </div>
@@ -1688,9 +1690,9 @@
     </header>
     <div class="hw2-cards">
       <a class="hw2-card" href="houseware-kitchenware.html" aria-label="Shop Kitchenware">
-        <img src="topcar/kitchenware-card.png" alt="Kitchenware lifestyle" loading="eager" decoding="async" style="object-position: center top;"/>
-        <img class="hw2-mob-img hw2-mob-en" alt="Kitchenware lifestyle (mobile)" loading="lazy" decoding="async" width="1767" height="890" src="topcar/mob-cards/mob-kitchenware-en.webp" />
-        <img class="hw2-mob-img hw2-mob-ar" alt="Kitchenware lifestyle (mobile)" loading="lazy" decoding="async" width="1768" height="890" src="topcar/mob-cards/mob-kitchenware-ar.webp" />        <div class="hw2-shade" aria-hidden="true"></div>
+        <img data-src="topcar/kitchenware-card.webp" alt="Kitchenware lifestyle" loading="lazy" decoding="async" style="object-position: center top;"/>
+        <img class="hw2-mob-img hw2-mob-en" alt="Kitchenware lifestyle (mobile)" loading="lazy" decoding="async" width="1767" height="890" data-src="topcar/mob-cards/mob-kitchenware-en.webp" />
+        <img class="hw2-mob-img hw2-mob-ar" alt="Kitchenware lifestyle (mobile)" loading="lazy" decoding="async" width="1768" height="890" data-src="topcar/mob-cards/mob-kitchenware-ar.webp" />        <div class="hw2-shade" aria-hidden="true"></div>
         <div class="hw2-content">
           <div class="hw2-textblock">
             <p class="hw2-eyebrow">Made for everyday cooking</p>
@@ -1703,9 +1705,9 @@
         </div>
       </a>
       <a class="hw2-card" href="houseware-home-outdoor.html" aria-label="Shop Home and Outdoor">
-        <img src="topcar/home-outdoor-card.png" alt="Home and outdoor lifestyle" loading="eager" decoding="async" style="object-position: center top;"/>
-        <img class="hw2-mob-img hw2-mob-en" alt="Home and outdoor lifestyle (mobile)" loading="lazy" decoding="async" width="1768" height="890" src="topcar/mob-cards/mob-home-outdoor-en.webp" />
-        <img class="hw2-mob-img hw2-mob-ar" alt="Home and outdoor lifestyle (mobile)" loading="lazy" decoding="async" width="1768" height="890" src="topcar/mob-cards/mob-home-outdoor-ar.webp" />        <div class="hw2-shade" aria-hidden="true"></div>
+        <img data-src="topcar/home-outdoor-card.webp" alt="Home and outdoor lifestyle" loading="lazy" decoding="async" style="object-position: center top;"/>
+        <img class="hw2-mob-img hw2-mob-en" alt="Home and outdoor lifestyle (mobile)" loading="lazy" decoding="async" width="1768" height="890" data-src="topcar/mob-cards/mob-home-outdoor-en.webp" />
+        <img class="hw2-mob-img hw2-mob-ar" alt="Home and outdoor lifestyle (mobile)" loading="lazy" decoding="async" width="1768" height="890" data-src="topcar/mob-cards/mob-home-outdoor-ar.webp" />        <div class="hw2-shade" aria-hidden="true"></div>
         <div class="hw2-content">
           <div class="hw2-textblock">
             <p class="hw2-eyebrow">Comfort without limits</p>
@@ -1718,9 +1720,9 @@
         </div>
       </a>
       <a class="hw2-card" href="houseware-cleaning-tools.html" aria-label="Shop Cleaning Tools">
-        <img src="topcar/cleaning-tools-card.png" alt="Cleaning tools lifestyle" loading="eager" decoding="async" style="object-position: center top;"/>
-        <img class="hw2-mob-img hw2-mob-en" alt="Cleaning tools lifestyle (mobile)" loading="lazy" decoding="async" width="1716" height="860" src="topcar/mob-cards/mob-cleaning-en.webp" />
-        <img class="hw2-mob-img hw2-mob-ar" alt="Cleaning tools lifestyle (mobile)" loading="lazy" decoding="async" width="1716" height="860" src="topcar/mob-cards/mob-cleaning-ar.webp" />        <div class="hw2-shade" aria-hidden="true"></div>
+        <img data-src="topcar/cleaning-tools-card.webp" alt="Cleaning tools lifestyle" loading="lazy" decoding="async" style="object-position: center top;"/>
+        <img class="hw2-mob-img hw2-mob-en" alt="Cleaning tools lifestyle (mobile)" loading="lazy" decoding="async" width="1716" height="860" data-src="topcar/mob-cards/mob-cleaning-en.webp" />
+        <img class="hw2-mob-img hw2-mob-ar" alt="Cleaning tools lifestyle (mobile)" loading="lazy" decoding="async" width="1716" height="860" data-src="topcar/mob-cards/mob-cleaning-ar.webp" />        <div class="hw2-shade" aria-hidden="true"></div>
         <div class="hw2-content">
           <div class="hw2-textblock">
             <p class="hw2-eyebrow">Home Care</p>
@@ -1736,6 +1738,30 @@
   </div>
 </div>
 
+
+<!-- Card image loader: Chromium fetches loading=lazy images even when they are
+     display:none (they never intersect, so Chrome loads them immediately), so
+     the card image URLs live in data-src and are assigned only to the variant
+     that is actually visible: the desktop artwork on desktop/tablet, or the
+     active language's mobile artwork on mobile. Appearance is unchanged. -->
+<script>
+(function () {
+  var mq = window.matchMedia('(max-width: 767px), (orientation: portrait)');
+  function apply() {
+    var mobile = mq.matches;
+    var ar = document.documentElement.classList.contains('lang-ar');
+    document.querySelectorAll('.hw2-card').forEach(function (card) {
+      var img = mobile
+        ? card.querySelector('img.hw2-mob-' + (ar ? 'ar' : 'en'))
+        : card.querySelector('img:not(.hw2-mob-img)');
+      if (img && img.dataset.src) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
+    });
+  }
+  apply();
+  if (mq.addEventListener) mq.addEventListener('change', apply); else if (mq.addListener) mq.addListener(apply);
+  if (window.MutationObserver) new MutationObserver(apply).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>
 </main>
 
 <!-- Footer -->
@@ -1745,7 +1771,7 @@
 <!-- Column 1 -->
 <div class="col-span-1">
 <a href="home5.html" class="flex items-center gap-2 mb-6">
-<picture><source media="(max-width: 767px), (orientation: portrait)" srcset="LOGO-mobile.webp"/><img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high" loading="lazy" decoding="async"></picture>
+<picture><source media="(max-width: 767px), (orientation: portrait)" srcset="LOGO-mobile.webp"/><img src="LOGO.webp" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high" loading="lazy" decoding="async"></picture>
 </a>
 <p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
 </div>
@@ -1802,7 +1828,7 @@
 <p class="text-xs text-slate-500">© 2026 AL-Nassim Golden Group. All rights reserved.</p>
 <div class="flex items-center gap-6">
 <a class="text-slate-500 hover:text-primary transition-colors" href="https://www.facebook.com/Al.Nassim.Central.Market/" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="topcar/Facebook_icon.png" alt="Facebook" class="w-6 h-6 object-contain" decoding="async"/></a>
-<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==" target="_blank" rel="noopener noreferrer"><picture><source media="(max-width: 767px), (orientation: portrait)" srcset="topcar/Instagram_icon-mobile.webp"/><img loading="lazy" src="topcar/Instagram_icon.png" alt="Instagram" class="w-6 h-6 object-contain" decoding="async"/></picture></a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="https://www.instagram.com/alnassimgoldengroup?igsh=MXVxbWZhbDl1MjRxcw==" target="_blank" rel="noopener noreferrer"><picture><source media="(max-width: 767px), (orientation: portrait)" srcset="topcar/Instagram_icon-mobile.webp"/><img loading="lazy" src="topcar/Instagram_icon.webp" alt="Instagram" class="w-6 h-6 object-contain" decoding="async"/></picture></a>
 </div>
 </div>
 </div>
@@ -2523,7 +2549,7 @@ section.cp-hero {
 })();
 </script>
 <a aria-label="Chat on WhatsApp" class="fixed bottom-[5rem] right-4 md:bottom-6 md:right-6 z-[100] flex items-center justify-center w-14 h-14 text-white rounded-full hover:scale-110 transition-all duration-300 md:w-16 md:h-16 group" href="https://wa.me/96560900059" rel="noopener noreferrer" target="_blank">
-<picture><source media="(max-width: 767px), (orientation: portrait)" srcset="topcar/whatsapp-mobile.webp"/><img loading="lazy" src="topcar/whatsapp.png" alt="Chat on WhatsApp" class="w-full h-full object-contain" decoding="async"/></picture>
+<picture><source media="(max-width: 767px), (orientation: portrait)" srcset="topcar/whatsapp-mobile.webp"/><img loading="lazy" src="topcar/whatsapp.webp" alt="Chat on WhatsApp" class="w-full h-full object-contain" decoding="async"/></picture>
 </a>
 <script src="assets/js/theme.js" defer></script>
 <script src="assets/js/dark-overrides.js?v=20261013" defer></script>

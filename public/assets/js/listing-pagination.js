@@ -149,6 +149,16 @@
     function refresh(resetPage) {
       var list = cards();
       var totalPages = Math.max(1, Math.ceil(list.length / pageSize()));
+      /* Progressive grid (assets/js/progressive-grid.js): while batches are
+         still appending, the card count is partial. Never consume a ?page=N
+         deep link and never reset the page mid-fill — wait for the
+         renderComplete flag the helper sets on the final batch. */
+      var progressivePending =
+        grid.dataset.progressiveRender === "1" && grid.dataset.renderComplete !== "1";
+      if (resetPage && progressivePending) {
+        if (pendingPage > 1) return; // deep link: wait for the full render
+        resetPage = false; // normal load: keep the current slice while filling
+      }
       if (resetPage) {
         if (pendingPage > 1 && list.length > 0) {
           // First render after load/reload with ?page=N: restore it (clamped
