@@ -9,9 +9,13 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
   const { slug } = await params;
   const p = await prisma.product.findUnique({
     where: { slug },
+    // One JOINed SQL statement instead of one sequential query per relation —
+    // each separate query costs a full ~200ms Neon network round-trip.
+    relationLoadStrategy: "join",
     include: {
       category: { include: { department: true } },
       colors: { include: { color: { select: { name: true } } } },
+      subcategory: { select: { slug: true } },
       ...customFieldsInclude,
     },
   });
@@ -53,6 +57,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
       description: p.description,
       line: p.line,
       category: p.category.slug,
+      // Additive: catalog-parity identity fields so the storefront can build
+      // a catalog-shaped entry from this response alone (backward compatible —
+      // existing consumers keep reading the original fields).
+      categoryName: p.category.name,
+      categorySlug: p.category.slug,
+      departmentSlug: p.category.department.slug,
+      departmentName: p.category.department.name,
+      subcategorySlug: p.subcategory ? p.subcategory.slug : null,
       purchaseMode: p.category.department.purchaseMode,
       sku: p.sku,
       specs: p.specs,

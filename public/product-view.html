@@ -35,6 +35,15 @@
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .toast-animate { animation: slideUp 0.3s ease-out forwards; }
 
+        /* ---- Product image area: pure white in BOTH themes, ALL viewports ----
+           Must stay OUTSIDE the mobile @media block below: it applies to
+           desktop too. Overrides bg-surface-container-lowest /
+           dark:bg-surface-container (which dark-overrides.css resolves to a
+           dark color in dark mode) so no dark bands show around
+           object-contain images. Image sizing/object-fit untouched. */
+        #product-img-container { background-color: #FFFFFF !important; }
+        #thumbnail-gallery .thumbnail-item { background-color: #FFFFFF !important; }
+
         /* =====================================================================
            MOBILE PRODUCT VIEW (≤767px) — premium touch-friendly layout.
            Desktop (≥768px) and tablet are 100% untouched. Every rule below is
@@ -884,7 +893,7 @@
 <a aria-label="Chat on WhatsApp" class="fixed bottom-[5rem] right-4 md:bottom-6 md:right-6 z-[100] flex items-center justify-center w-14 h-14 text-white rounded-full hover:scale-110 transition-all duration-300 md:w-16 md:h-16 group" href="https://wa.me/96560900059" rel="noopener noreferrer" target="_blank">
 <img loading="lazy" src="topcar/whatsapp.png" alt="Chat on WhatsApp" class="w-full h-full object-contain"/>
 </a>
-<script src="/api/catalog"></script>
+<script src="/api/catalog" defer id="nassim-catalog-script" onload="document.dispatchEvent(new Event('nassim:catalog-loaded'))" onerror="window.NASSIM_CATALOG_FAILED=true;document.dispatchEvent(new Event('nassim:catalog-loaded'))"></script>
 <script src="assets/js/theme.js" defer></script>
 <script src="assets/js/dark-overrides.js?v=20261013" defer></script>
 <!-- Navigation scripts -->
@@ -1035,6 +1044,32 @@
     function showToast(message) { const container = document.getElementById('toast-container'); while (container.firstChild) container.removeChild(container.firstChild); if (toastTimeout) clearTimeout(toastTimeout); const toast = document.createElement('div'); toast.className = 'toast-animate bg-primary/90 text-on-primary px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest shadow-2xl backdrop-blur-md border border-white/10 flex items-center gap-2 mb-4 pointer-events-auto'; let iconName = 'check_circle'; if (message.includes('Removed')) iconName = 'heart_minus'; if (message.includes('Link copied')) iconName = 'content_copy'; toast.innerHTML = `<span class="material-symbols-outlined text-sm">${iconName}</span>${message}`; container.appendChild(toast); toastTimeout = setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(-20px)'; toast.style.transition = 'all 0.4s ease'; setTimeout(() => { if (toast.parentNode === container) toast.remove(); }, 400); }, 3000); }
 
     /* ===== Dynamic Product Loading ===== */
+
+    /* First paint: the selected product is fetched DIRECTLY by slug
+       (/api/products/<slug>) when the full catalog has not arrived, so the
+       page never waits for the whole catalog to render the product. */
+    function bootstrapProduct() {
+      var id = getQueryParam('id');
+      if (window.NASSIM_PRODUCTS) { loadProduct(); return; }
+      if (!id) { loadProduct(); return; }
+      fetch('/api/products/' + encodeURIComponent(id), { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.ok ? r.json() : { success: false }; })
+        .then(function (j) {
+          if (j && j.success && j.data && !window.NASSIM_PRODUCTS) {
+            var d = j.data;
+            window.__nassimDirectProduct = d;
+            // Pre-catalog resolver: answers for THIS product only; the catalog
+            // script overwrites NassimGetProduct with the full version on load.
+            window.NassimGetProduct = function (pid) {
+              if (pid === d.id) return d;
+              return null;
+            };
+          }
+          loadProduct();
+        })
+        .catch(function () { loadProduct(); });
+    }
+
     function getQueryParam(name) { var m = new RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search); return m ? decodeURIComponent(m[1].replace(/\\+/g, ' ')) : ''; }
     function escapeHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
@@ -1259,6 +1294,15 @@
       var hasDescriptionContent = !!descriptionText || customDescFields.length > 0 || standardSpecs.length > 0 || customSpecs.length > 0;
       var descSection = document.getElementById('description-section');
       if (descSection) descSection.style.display = hasDescriptionContent ? '' : 'none';
+      window.__nassimLoadedProduct = product;
+      renderRelatedProducts(product);
+    }
+
+    /* Related-products strip needs the FULL catalog (sibling lookups), so
+       it renders from the catalog when it has loaded; the main product
+       content above never waits for it. */
+    function renderRelatedProducts(product) {
+      if (!product || !window.NASSIM_PRODUCTS) return;
       // Related products priority: 1) admin-selected (relatedIds), 2) same section, 3) same department
       var related = [];
       // 1. Admin-selected related products
@@ -1297,10 +1341,13 @@
           '</div><h3 class="font-headline font-bold text-sm mb-1 text-on-surface dark:text-white group-hover:text-secondary transition-colors">' + escapeHtml(p.name) + '</h3><p class="text-secondary font-bold text-xs">' + (p.currency||'KD') + ' ' + p.price.toFixed(3) + '</p></a>';
       }).join('');
     }
+    document.addEventListener('nassim:catalog-loaded', function () {
+      renderRelatedProducts(window.__nassimLoadedProduct);
+    });
 
     /* ===== Magnifying Glass (init after product loads) ===== */
     document.addEventListener('DOMContentLoaded', () => {
-        loadProduct();
+        bootstrapProduct();
 
         /* Wishlist heart re-sync: mirrors the syncWishHearts pattern on
            subcategory listing pages. Re-evaluates isFavorite whenever the

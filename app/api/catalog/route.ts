@@ -1,12 +1,26 @@
 import { prisma } from "@/lib/db";
 import { customFieldsInclude, customFieldsPayload, loadCustomI18n } from "@/lib/custom-fields";
 import { variantOptionsFor, type VariantInput } from "@/lib/product-variants";
+import { getCachedCatalogBody, setCachedCatalogBody } from "@/lib/catalog-cache";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const cachedBody = getCachedCatalogBody();
+  if (cachedBody) {
+    return new Response(cachedBody, {
+      headers: {
+        "Content-Type": "application/javascript; charset=utf-8",
+        "Cache-Control": "public, max-age=10, stale-while-revalidate=30",
+      },
+    });
+  }
+
   const products = await prisma.product.findMany({
     where: { isActive: true },
+    // One JOINed SQL statement instead of one sequential query per relation —
+    // each separate query costs a full ~200ms Neon network round-trip.
+    relationLoadStrategy: "join",
     include: {
       category: { include: { department: { select: { slug: true, name: true } } } },
       subcategory: { select: { slug: true, name: true } },
@@ -87,10 +101,11 @@ window.NassimGetProduct = function (id) {
   }
   return null;
 };`;
+  setCachedCatalogBody(js);
   return new Response(js, {
     headers: {
       "Content-Type": "application/javascript; charset=utf-8",
-      "Cache-Control": "no-store",
+      "Cache-Control": "public, max-age=10, stale-while-revalidate=30",
     },
   });
 }

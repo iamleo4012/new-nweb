@@ -28,6 +28,9 @@ export async function GET(req: NextRequest) {
   const [total, products] = await Promise.all([
     prisma.product.count({ where }),
     prisma.product.findMany({
+      // One JOINed SQL statement instead of one sequential query per relation —
+      // each separate query costs a full ~200ms Neon network round-trip.
+      relationLoadStrategy: "join",
       where,
       include: { category: { include: { department: true } }, ...customFieldsInclude },
       orderBy: { id: "asc" },

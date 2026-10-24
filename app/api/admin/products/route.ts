@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { derivedStockStatus } from "@/lib/low-stock";
+import { invalidateCatalogCache } from "@/lib/catalog-cache";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -567,6 +568,7 @@ export async function POST(req: NextRequest) {
     await prisma.auditLog.create({
       data: { actorId: admin.id, action: "PRODUCT_CREATE", entity: "Product", entityId: String(created.id), detail: created.slug },
     });
+    invalidateCatalogCache();
     return NextResponse.json({ success: true, data: { product: await serializeFull(fresh ?? created) }, error: null });
   } catch (err) {
     console.error("product create failed:", err);
@@ -687,6 +689,7 @@ export async function PATCH(req: NextRequest) {
         }
       }
     }
+    invalidateCatalogCache();
     return NextResponse.json({ success: true, data: { product: await serializeFull(fresh ?? updated) }, error: null });
   } catch (err) {
     // Editing the slug to one that already exists violates the unique index.
@@ -715,5 +718,6 @@ export async function DELETE(req: NextRequest) {
   await prisma.auditLog.create({
     data: { actorId: admin.id, action: "PRODUCT_DEACTIVATE", entity: "Product", entityId: String(id), detail: existing.slug },
   });
+  invalidateCatalogCache();
   return NextResponse.json({ success: true, data: { product: listSerialize(updated) }, error: null });
 }
