@@ -9,7 +9,7 @@
   var style = document.createElement("style");
   style.id = "nassim-checkout-rtl-order";
   style.textContent =
-    "@media (min-width: 768px) {" +
+    "@media (min-width: 768px) and (orientation: landscape) {" +
     "  html.lang-ar div.grid:has(> div .nassim-dd #cust-governorate) { direction: rtl; }" +
     "}";
   function mount() { document.head.appendChild(style); }
@@ -63,7 +63,11 @@
     var def = document.createElement("option");
     def.value = ""; def.textContent = checkoutLang() === "ar" ? "-- اختر المحافظة --" : "-- Select Governorate --";
     govSel.appendChild(def);
-    (NASSIM_CHECKOUT_LOCATIONS.governorates || []).forEach(function (g) {
+    /* Display order only: sorted alphabetically by the ENGLISH name (the
+       same order in EN and AR); the dataset and its ids are untouched. */
+    (NASSIM_CHECKOUT_LOCATIONS.governorates || []).slice()
+      .sort(function (a, b) { return a.en < b.en ? -1 : a.en > b.en ? 1 : 0; })
+      .forEach(function (g) {
       var o = document.createElement("option");
       o.value = g.id; o.textContent = locationName(g);
       govSel.appendChild(o);
@@ -80,7 +84,10 @@
     def.value = ""; def.textContent = checkoutLang() === "ar" ? "-- اختر المنطقة --" : "-- Select Area --";
     areaSel.appendChild(def);
     var gov = findGovernorate(govId);
-    ((gov && gov.areas) || []).forEach(function (a) {
+    /* Same English-name display sort for the Area list, per governorate. */
+    ((gov && gov.areas) || []).slice()
+      .sort(function (a, b) { return a.en < b.en ? -1 : a.en > b.en ? 1 : 0; })
+      .forEach(function (a) {
       var o = document.createElement("option");
       o.value = a.id; o.textContent = locationName(a);
       areaSel.appendChild(o);
@@ -329,12 +336,17 @@
         '<span class="cs-total-value">' + formatKd(total) + '</span>' +
       '</div>' +
     '</div>';
+    var __langAr = false; try { __langAr = localStorage.getItem('nassim-lang') === 'ar'; } catch (e) {}
     html += items.map(function (i) {
       var qty = i.quantity || 1;
+      /* Arabic name when selected and present; graceful English fallback. */
+      var __ar = i.nameAr;
+      var dispName = (__langAr && typeof __ar === 'string' && __ar.trim()) ? __ar : String(i.name || '');
+      var dirAttr = (__langAr && dispName && /[؀-ۿ]/.test(dispName)) ? ' dir="rtl"' : '';
       return '<div class="cs-item">' +
         '<div class="cs-thumb">' + (i.image ? '<img src="' + esc(i.image) + '" alt="" loading="lazy"/>' : '') + '</div>' +
         '<div class="cs-info">' +
-          '<p class="cs-name">' + esc(i.name || '') + '</p>' +
+          '<p class="cs-name"' + dirAttr + '>' + esc(dispName) + '</p>' +
           '<p class="cs-qty">Quantity: ' + qty + '</p>' +
           '<p class="cs-unit">' + formatKd(i.price, i.currency) + '/<span>piece</span></p>' +
         '</div>' +
@@ -368,7 +380,7 @@
     if (items.length === 0) {
       var main = document.querySelector("main");
       if (main) {
-        main.innerHTML = '<div class="pt-32 pb-20 text-center max-w-md mx-auto"><div class="w-20 h-20 bg-surface-container dark:bg-surface-container-high rounded-full flex items-center justify-center mx-auto mb-6"><span class="material-symbols-outlined text-5xl text-on-surface-variant dark:text-white/70">shopping_cart</span></div><h1 class="font-headline text-2xl font-extrabold text-primary dark:text-white mb-4">Your cart is empty</h1><p class="text-on-surface-variant dark:text-white/70 mb-8">Add products before checking out.</p><a href="home.html" class="inline-block bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Continue Shopping</a></div>';
+        main.innerHTML = '<div class="pt-32 pb-20 text-center max-w-md mx-auto"><div class="w-20 h-20 bg-surface-container dark:bg-surface-container-high rounded-full flex items-center justify-center mx-auto mb-6"><span class="material-symbols-outlined text-5xl text-on-surface-variant dark:text-white/70">shopping_cart</span></div><h1 class="font-headline text-2xl font-extrabold text-primary dark:text-white mb-4">Your cart is empty</h1><p class="text-on-surface-variant dark:text-white/70 mb-8">Add products before checking out.</p><a href="home5.html" class="inline-block bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">Continue Shopping</a></div>';
       }
       return;
     }
@@ -384,8 +396,12 @@
     (function () {
       var phoneEl = document.getElementById("cust-phone");
       if (!phoneEl) return;
+      function currentDial() { return (phoneEl.dataset.dial || "965").replace(/\D/g, ""); }
       phoneEl.addEventListener("input", function () {
-        var digits = phoneEl.value.replace(/\D/g, "").replace(/^(?:965)+/, "").slice(0, 8);
+        var dial = currentDial();
+        var strip = new RegExp("^(?:" + dial + ")+");
+        var max = dial === "965" ? 8 : 12;
+        var digits = phoneEl.value.replace(/\D/g, "").replace(strip, "").slice(0, max);
         if (digits !== phoneEl.value) phoneEl.value = digits;
       });
     })();
@@ -399,7 +415,7 @@
           var banner = document.getElementById("logged-in-banner");
           if (banner) banner.classList.remove("hidden");
           var nameEl = document.getElementById("cust-name"); if (nameEl && !nameEl.value) nameEl.value = u.name || "";
-          var phoneEl = document.getElementById("cust-phone"); if (phoneEl && !phoneEl.value) phoneEl.value = (u.phone || "").replace(/\D/g, "").replace(/^(?:965)+/, "").slice(0, 8);
+          var phoneEl = document.getElementById("cust-phone"); if (phoneEl && !phoneEl.value) { var dial = (phoneEl.dataset.dial || "965").replace(/\D/g, ""); phoneEl.value = (u.phone || "").replace(/\D/g, "").replace(new RegExp("^(?:" + dial + ")+"), "").slice(0, dial === "965" ? 8 : 12); }
           var emailEl = document.getElementById("cust-email"); if (emailEl && !emailEl.value) emailEl.value = u.email || "";
           // Try to load default address
           fetch("/api/addresses", { credentials: "same-origin" })
@@ -436,15 +452,20 @@
         var street = (document.getElementById("cust-street") || {}).value || "";
 
         var email = (((document.getElementById("cust-email") || {}).value || "").trim());
-        // Field holds only the 8 local digits (+965 is a fixed prefix in the UI).
-        // If the customer pastes a full number, strip the country code first.
-        var phoneDigits = phone.replace(/\D/g, "").replace(/^(?:965)+/, "");
-        var phoneOk = /^\d{8}$/.test(phoneDigits);
-        var phoneNormalized = "+965" + phoneDigits;
+        var phoneEl = document.getElementById("cust-phone");
+        var dial = ((phoneEl && phoneEl.dataset.dial) || "965").replace(/\D/g, "");
+        var maxDigits = dial === "965" ? 8 : 12;
+        // Field holds only the local digits (the calling code lives in the
+        // country selector, surfaced via data-dial). If the customer pastes a
+        // full number, strip the selected country code first.
+        var phoneDigits = phone.replace(/\D/g, "").replace(new RegExp("^(?:" + dial + ")+"), "").slice(0, maxDigits);
+        if (phoneEl && phoneDigits !== phoneEl.value) phoneEl.value = phoneDigits;
+        var phoneOk = dial === "965" ? /^\d{8}$/.test(phoneDigits) : /^\d{6,12}$/.test(phoneDigits);
+        var phoneNormalized = "+" + dial + phoneDigits;
         var emailOk = !email || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 
         if (name.trim().length < 2) { showError("Please enter your full name.", document.getElementById("cust-name")); resetBtn(); return; }
-        if (!phoneOk) { showError("Please enter a valid Kuwaiti mobile number — exactly 8 digits after +965, e.g. 5512 3456.", document.getElementById("cust-phone")); resetBtn(); return; }
+        if (!phoneOk) { showError(dial === "965" ? "Please enter a valid Kuwaiti mobile number — exactly 8 digits after +965, e.g. 5512 3456." : "Please enter a valid mobile number for the selected country (+" + dial + ") — 6 to 12 digits.", phoneEl || document.getElementById("cust-phone")); resetBtn(); return; }
         if (!emailOk) { showError("Please enter a valid email address, or leave it empty.", document.getElementById("cust-email")); resetBtn(); return; }
         if (!governorate) { showError("Please select your Governorate.", document.getElementById("cust-governorate")); resetBtn(); return; }
         if (!area) { showError("Please select your Area.", document.getElementById("cust-area")); resetBtn(); return; }

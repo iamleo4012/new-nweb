@@ -5,10 +5,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Your Order | AL-NASSIM</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0.1&amp;display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/css/tailwind.css">
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
+<!-- Self-hosted fonts (Manrope/Inter/Signika + Material Symbols icons), same
+     asset every storefront page loads. This page previously loaded no font
+     stylesheet at all, so .material-symbols-outlined icons rendered as raw
+     ligature text and body typography fell back to system fonts. -->
+<link rel="stylesheet" href="/assets/css/fonts-local.css?v=20261013"/>
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=20261013c">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=6"/>
 <style>
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
 .glass-nav { background: rgba(247, 249, 255, 0.7); backdrop-filter: blur(20px); }
@@ -34,6 +37,7 @@
   #os-wrap .os-check { width: 26px; height: 26px; border-radius: 50%; background: #16a34a; color: #fff; display: flex; align-items: center; justify-content: center; }
   #os-wrap .os-check .material-symbols-outlined { font-size: 18px; }
   #os-wrap .os-label { font-size: 13px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: #64748b; }
+  #os-wrap .os-title .os-check { display: inline-flex; vertical-align: middle; margin-inline-end: 12px; }
   #os-wrap .os-title { font-size: 36px; font-weight: 800; color: #0f172a; margin: 14px 0 0; }
   #os-wrap .os-meta-row { margin-top: 16px; font-size: 18px; color: #0f172a; text-align: center; }
   #os-wrap .os-meta-row .material-symbols-outlined { font-size: 18px; vertical-align: -4px; color: #64748b; margin-right: 6px; }
@@ -108,7 +112,11 @@
    content, same ONE white document sheet, same "THIS IS NOT AN INVOICE"
    watermark reused verbatim. Only the container padding differs: the
    customer page HAS the fixed website header, so the sheet clears it. */
-  #os-wrap .os-container { padding: 40px 44px 48px; } /* staff sheet inner padding (same as internal-orders2 View Order) */
+  /* staff sheet inner padding — DESKTOP ONLY (>=768px). On mobile the sheet
+     must use order-send-modified2.html's own mobile container padding
+     (set in the MOBILE-ONLY REDESIGN block below), so this override must
+     not defeat it (same specificity, later order would win). */
+  @media (min-width: 768px) and (orientation: landscape) { #os-wrap .os-container { padding: 40px 44px 48px; } }
   .doc-stage { padding: 6px 0 40px; }
   .doc-paper {
     position: relative; background: #ffffff; color: #111827;
@@ -131,6 +139,60 @@
   html.lang-ar #os-wrap .os-addr-row { direction: rtl; text-align: right; overflow-wrap: break-word; }
   #os-wrap .os-addr-row { overflow-wrap: break-word; }
   .doc-paper > * { position: relative; z-index: 2; }
+  /* ==== MOBILE-ONLY REDESIGN (≤767px) ====================================
+     Copied from order-send-modified2.html (source of truth) so every
+     customer /o/{id}-{signature} order link renders the same mobile sheet:
+     centered confirmation header, date + order number centered, product
+     card with fixed image area + flexible info area (Arabic/English names
+     wrap by words — never character-by-character), price column right,
+     then Delivery Fee/Total above the Delivery Address card. The staff-page
+     chrome compensation (main px-4 + doc-paper border) keeps the mobile
+     card widths identical to the corrected internal-orders2.html sheet.
+     Desktop (≥768px) is untouched — every rule here is inside the media
+     query. ==== */
+  @media (max-width: 767px), (orientation: portrait) {
+    #os-wrap .os-container { padding: 104px 14px 56px; }
+    .doc-stage { padding: 0; margin-left: -16px; margin-right: -16px; }
+
+    /* confirmation header: centered, check icon on its own line above */
+    #os-wrap .os-title {
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      text-align: center; font-size: 25px; line-height: 1.3;
+      margin: 0; text-wrap: balance;
+    }
+    #os-wrap .os-title .os-check { display: inline-flex; margin-inline-end: 0; width: 46px; height: 46px; }
+    #os-wrap .os-check .material-symbols-outlined { font-size: 28px; }
+
+    /* date + order number: centered, stacked, comfortably spaced */
+    #os-wrap .os-date { margin-top: 18px; text-align: center; font-size: 14px; }
+    #os-wrap .os-meta-row { margin-top: 6px; text-align: center; font-size: 15px; }
+    #os-wrap .os-meta-row .material-symbols-outlined { font-size: 16px; vertical-align: -3px; margin-right: 5px; }
+    #os-wrap .os-date .material-symbols-outlined { font-size: 16px; vertical-align: -3px; margin-right: 5px; }
+
+    /* product card: fixed clean image area + flexible info area, price
+       column right-aligned and separated */
+    #os-wrap .os-card2 { padding: 14px; gap: 12px; min-height: 0; align-items: center; }
+    #os-wrap .os-img { width: 76px; height: 76px; }
+    #os-wrap .os-pname { font-size: 15px; line-height: 1.4; margin: 0 0 4px; }
+    #os-wrap .os-piece { font-size: 12.5px; color: #334155; margin: 0 0 4px; }
+    #os-wrap .os-pcode, #os-wrap .os-meta-qty { font-size: 12px; margin: 0; }
+    #os-wrap .os-meta { margin-left: auto; gap: 4px; padding-inline-start: 8px; }
+    #os-wrap .os-meta .os-total-top { font-size: 17px; white-space: nowrap; }
+
+    /* section order: items → totals → address (totals visually first
+       inside .os-bottom without touching the DOM order desktop uses) */
+    #os-wrap .os-bottom { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; }
+    #os-wrap .os-bottom .os-totals { order: -1; flex: 0 0 auto; width: 100%; max-width: 100%; padding: 14px 18px; }
+    #os-wrap .os-bottom .os-card-blue { order: 0; flex: 0 0 auto; width: 100%; max-width: 100%; margin-top: 0; padding: 18px; }
+    #os-wrap .os-trow { padding: 10px 0; font-size: 15px; }
+    #os-wrap .os-trow .os-tlabel { font-size: 12.5px; }
+    /* Total row emphasized, Delivery Fee regular */
+    #os-wrap .os-trow + .os-trow .os-tval { font-size: 19px; color: #0f172a; }
+
+    /* delivery address card: full width, comfortable padding, no clipping */
+    #os-wrap .os-card-blue h2 { font-size: 17px; margin: 0 0 10px; }
+    #os-wrap .os-card-blue .os-line { font-size: 14px; padding: 5px 0; }
+  }
   @media print {
     .no-print { display: none !important; }
     body { background: #fff; }
@@ -140,15 +202,35 @@
     body > nav, #mobile-bottom-nav { display: none !important; }
   }
 </style>
+<style>
+/* MOBILE ONLY (<=767px): the bottom navigation has a CONSTANT explicit
+   height (62.5px content + safe-area inset). It must never grow or shrink
+   when the browser's own toolbar appears/disappears and the visual/layout
+   viewport height changes — the browser may move the nav (it is fixed to
+   the bottom), but never resize it. Measured design height: 62.5px. */
+@media (max-width: 767px), (orientation: portrait) {
+  #mobile-bottom-nav {
+    height: calc(62.5px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(62.5px + env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box !important;
+  }
+  #mobile-bottom-nav > div {
+    height: 100% !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+</style>
+
 </head>
 <body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 <!-- ===== Shared Header (same as all storefront pages) ===== -->
 <nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
 <div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
 <div class="flex items-center gap-12">
-<a href="home.html" class="flex items-center gap-2 group cursor-pointer shrink-0"><img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/></a>
+<a href="home5.html" class="flex items-center gap-2 group cursor-pointer shrink-0"><img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/></a>
 <div class="hidden md:flex gap-8">
-<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-cleaning-tools.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-kitchenware.html">Kitchenware</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware2.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-cleaning-tools.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-kitchenware.html">Kitchenware</a></li></ul></div></div>
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-cooling-appliances.html">Cooling Appliances</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-shelves-stands.html">Shelves &amp; Stands</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-accessories.html">Accessories</a></li></ul></div></div>
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a>
 <div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
@@ -194,11 +276,7 @@
           <div id="os-loading" style="padding:40px 0;text-align:center;color:#64748b;">Loading order…</div>
           <div id="os-error" style="display:none;padding:40px 0;text-align:center;color:#dc2626;font-size:18px;font-weight:600;"></div>
           <div id="os-main" style="display:none;">
-            <div class="os-eyebrow">
-              <span class="os-check"><span class="material-symbols-outlined">check</span></span>
-              <span class="os-label">Order Sent</span>
-            </div>
-            <h1 class="os-title">Your order has been received!</h1>
+            <h1 class="os-title"><span class="os-check"><span class="material-symbols-outlined">check</span></span>YOUR ORDER HAS BEEN RECEIVED.</h1>
                         <div class="os-date"><span class="material-symbols-outlined">calendar_month</span>Date: <span id="os-date"></span></div>
             <div class="os-meta-row">
               <span class="material-symbols-outlined">receipt_long</span>Order Number : <b id="os-number"></b>
@@ -226,8 +304,8 @@
 <footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
-<div class="col-span-1"><a href="home.html" class="flex items-center gap-2 mb-6"><img src="LOGO.png" alt="Logo" class="h-[3.9rem] w-auto" fetchpriority="high"></a><p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p></div>
-<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse</a></li></ul></div>
+<div class="col-span-1"><a href="home5.html" class="flex items-center gap-2 mb-6"><img src="LOGO.png" alt="Logo" class="h-[3.9rem] w-auto" fetchpriority="high"></a><p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware2.html">Houseware</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse</a></li></ul></div>
 <div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Information</h4><ul class="space-y-4 text-sm"><li><span class="text-slate-400">Help</span></li><li><span class="text-slate-400">About</span></li><li><span class="text-slate-400">FAQ</span></li></ul></div>
 <div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Customer Service</h4><ul class="space-y-4 text-sm"><li><span class="text-slate-400">Returns</span></li><li><span class="text-slate-400">Shipping</span></li><li><span class="text-slate-400">Privacy</span></li></ul></div>
 <div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact</h4><p class="text-sm text-slate-400"></p><p class="text-sm text-slate-400"></p><p class="text-sm text-slate-400"></p></div>
@@ -240,7 +318,7 @@
 
 <!-- ==================== MOBILE BOTTOM NAVIGATION ====================
      Reuses existing systems — no duplication:
-       Home -> home.html, Categories -> existing mobile drawer (mobile-nav.js),
+       Home -> home5.html, Categories -> existing mobile drawer (mobile-nav.js),
        Account -> window.NassimAccount.openPanel(), Cart -> cart.html.
      Implemented as <div role="navigation"> (not <nav>) so the auto-wiring in
      cart-nav.js / account.js / search.js is NOT re-triggered here. -->
@@ -255,7 +333,7 @@
     .mbnav-item.mbnav-active .material-symbols-outlined {
         font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
-    @media (max-width: 767px) {
+    @media (max-width: 767px), (orientation: portrait) {
         body { padding-bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
     }
 </style>
@@ -267,7 +345,7 @@
         </button>
         <button type="button" data-mbnav="categories" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
             <span class="material-symbols-outlined" style="font-size:24px;">grid_view</span>
-            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Categories</span>
+            <span id="mbnav-categories-label" class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]" data-en="Categories" data-ar="فئات المنتجات">Categories</span>
         </button>
         <button type="button" data-mbnav="account" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
             <span class="material-symbols-outlined" style="font-size:24px;">person</span>
@@ -285,7 +363,7 @@
 
 <script>/* keep the storefront i18n language in step before the runtime initialises */
 try { localStorage.setItem("nassim-lang", localStorage.getItem("nassim-lang") === "ar" ? "ar" : "en"); } catch (e) {}</script>
-<script src="assets/js/i18n-data.js" defer></script>
+<script src="assets/js/i18n-data.js?v=4" defer></script>
 <script type="module">
   /* Page-local supplement for the Order Sent sheet: wording taken from
      EXISTING approved entries (same as the staff document view). Scoped to
@@ -298,7 +376,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassim-lang") ==
 <script src="assets/js/nassim-locations-data.js" defer></script>
 <script src="assets/js/order-address.js" defer></script>
 <script src="assets/js/theme.js" defer></script>
-<script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/dark-overrides.js?v=20261013" defer></script>
 <script src="assets/js/cart-nav.js" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js" defer></script>
@@ -319,7 +397,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassim-lang") ==
   }
   function renderDocument(o) {
     window.__lastOrderDoc = o;
-    document.getElementById("os-number").textContent = o.orderNumber || "";
+    document.getElementById("os-number").innerHTML = ltr(esc(o.orderNumber)) || "";
     var d = new Date(o.createdAt);
     var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     var pad = function (x) { return String(x).padStart(2, "0"); };
@@ -392,5 +470,6 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassim-lang") ==
 })();
 </script>
 <script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script>
+<script src="assets/js/mbnav-categories.js?v=2"></script>
 </body>
 </html>

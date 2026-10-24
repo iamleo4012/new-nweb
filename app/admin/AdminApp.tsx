@@ -472,7 +472,7 @@ function OrdersTab() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [filter, setFilter] = useState("");
-  // Invoice-number search (e.g. AN-2026-000001). Retrieves historical orders
+  // Invoice-number search (e.g. ORD-42). Retrieves historical orders
   // even after the original customer account has been deleted.
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");

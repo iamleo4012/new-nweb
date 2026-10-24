@@ -1,0 +1,81 @@
+/* home2.html ONLY — mobile layout for the experimental header design.
+   Loaded only by home2.html. FREE DELIVERY bar sits ABOVE the top nav.
+   Scoped to ≤767px; desktop presentation of
+   home1/home.html is untouched.
+
+   Header: the markup is home.html's exact header with ONE intentional
+   difference — the mobile search text box is removed and a Search ICON
+   button (bound by the existing search.js bindTriggers()) sits first in the
+   right-hand utility group. Download / EN | عربي / Moon are unhidden
+   statically in the markup; the cart stays hidden (bottom nav owns it).
+   Physical layout follows the page direction: ENGLISH = logo LEFT / icons
+   RIGHT (LTR); ARABIC = mirrored, logo RIGHT / icons LEFT (via the shared
+   rtl-overrides.css flip). */
+@media (max-width: 767px), (orientation: portrait) {
+  :root { --h1-notice-h: 34px; }
+
+  /* The shared nav scripts inject a duplicate download-button cluster
+     (#nassim-mobile-utils) into the header and also move #theme-toggle
+     into it. Hide only the cluster's duplicate Download button — the moon
+     stays visible (its own control). dark-overrides.css forces the cluster
+     visible with !important, so home1 uses higher-specificity selectors to
+     win without touching the shared file. */
+  nav.glass-nav #nassim-mobile-utils,
+  nav.glass-nav #nassim-mobile-utils .nassim-mu-btn {
+    display: none !important;
+  }
+
+  /* The utility group must stay on the physical right, never reordered. */
+  nav.glass-nav > div > div:last-child {
+    justify-content: flex-end !important;
+    flex-wrap: wrap !important;
+    row-gap: 2px !important;
+  }
+
+  /* Bottom navigation sits directly above the notice strip. */
+  #mobile-bottom-nav {
+    bottom: calc(var(--h1-notice-h) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Plain informational strip BELOW the navigation: page background,
+     centered text — no button/pill/card/border/shadow, not clickable. */
+  #home2-min5-notice {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(var(--h1-notice-h) + env(safe-area-inset-bottom, 0px));
+    padding: 0 12px calc(env(safe-area-inset-bottom, 0px));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 89; /* below the bottom nav (z-90): no overlap possible */
+    background: #f7f9ff; /* the site's page background */
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #111d27;
+    text-align: center;
+    pointer-events: none;
+  }
+  html.dark #home2-min5-notice { background: #0a0f14; color: #ffffff; }
+
+  /* FREE DELIVERY bar (52px) sits ABOVE the fixed header: push the nav down
+     and give main clearance for bar + header. */
+  nav.glass-nav {
+    top: 52px !important;
+  }
+  body > main {
+    padding-top: calc(var(--mobile-header-height, 85px) + 104px) !important;
+  }
+
+  /* WhatsApp float: raised above the bottom nav + notice strip. */
+  a[aria-label="Chat on WhatsApp"] {
+    bottom: calc(64px + var(--h1-notice-h) + env(safe-area-inset-bottom, 0px) + 12px) !important;
+  }
+
+  /* Reserve end-of-page space for nav + notice. */
+  body {
+    padding-bottom: calc(64px + var(--h1-notice-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  }
+}

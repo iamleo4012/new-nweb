@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
   const staff = await requireStaff();
   if (!staff) return forbidden();
   const status = req.nextUrl.searchParams.get("status");
-  // Search: matches the invoice number (e.g. "AN-2026-000001") OR the
+  // Search: matches the invoice number (e.g. "ORD-42") OR the
   // customer name, case-insensitively. Lets admin retrieve any historical
   // order even after the original customer account has been deleted
   // (orderNumber survives; customerName is snapshotted on the order).
@@ -195,6 +195,9 @@ export async function PATCH(req: NextRequest) {
   // Enforce the state machine.
   const fromStatus = existing.status;
   const toStatus = parsed.data.status;
+  if (!toStatus) {
+    return NextResponse.json({ success: false, data: null, error: "Missing status" }, { status: 400 });
+  }
   try {
     validateTransition(fromStatus, toStatus);
   } catch (e) {

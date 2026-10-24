@@ -34,6 +34,8 @@ export async function GET() {
   const catalog = products.map((p) => ({
     id: p.slug,
     name: p.name,
+    // Additive: Arabic display name ('' = not entered; storefront falls back to English)
+    nameAr: p.nameAr,
     price: Number(p.price),
     currency: p.currency,
     img: p.image,

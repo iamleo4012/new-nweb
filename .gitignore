@@ -62,3 +62,14 @@ gui-test-screenshots/
 # is a live private key trusted by the LAN's dev devices. Regenerate with
 # `npm run dev:https:certs` if lost.
 certs/
+
+# Deployment prep (2026-10-24): keep backups local, archive exists externally
+db-backups/
+_backup-pre-*/
+_nav-backup/
+code backup/
+rackingpage/
+*.bak-2026*
+public/topcar/*-old-backup.*
+public/topcar/homeware-check.png
+public/topcar/grid/*-old-backup.webp

@@ -38,9 +38,12 @@ const CSP = [
 ].join("; ");
 
 const nextConfig = {
+  // Allows a production build/test in an isolated directory while a dev
+  // server (which owns .next) is running: NEXT_DIST_DIR=.next-test next build
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   async rewrites() {
     return [
-      { source: "/", destination: "/home.html" },
+      { source: "/", destination: "/home5.html" },
       // Staff Order Page — the admin login redirects to the extensionless
       // path (it strips ".html"), so serve the page under both.
       { source: "/internal-orders", destination: "/internal-orders.html" },
@@ -95,6 +98,51 @@ const nextConfig = {
         source: "/((?:home\\.html)?)",
         headers: [
           { key: "Cache-Control", value: "no-cache, must-revalidate" },
+        ],
+      },
+      {
+        // EVERY HTML document (home5.html and all other public pages): always
+        // revalidate. Static public pages used to fall through to Next's
+        // default `public, max-age=0`, which mobile browsers (Chrome Android
+        // data-saver, scroll prefetch, some WebViews) treat as a licence to
+        // serve the cached copy WITHOUT revalidating — the reported "normal
+        // tab shows the old layout, private tab shows the new one". HTML may
+        // change at any deploy while its URL stays the same, so it must never
+        // be trusted from cache: the ETag/Last-Modified revalidation is a
+        // cheap 304, so repeat visits stay fast.
+        source: "/:path*.(html)",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, must-revalidate" },
+        ],
+      },
+      {
+        // Versioned storefront assets (CSS/JS). Pages bust caches with ?v=
+        // query strings when content changes, so a medium TTL + SWR keeps
+        // warm navigations (EN <-> AR, page to page) off the network. SWR is
+        // capped at ONE day: a CSS/JS file whose content changed without its
+        // URL changing (missed ?v= bump) can then never be served stale for
+        // more than a day. Changed ?v= URLs are always a fresh fetch.
+        source: "/assets/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=86400" },
+        ],
+      },
+      {
+        // Self-hosted font files: gstatic-derived content-hashed filenames
+        // plus one variable-icon font pinned by name — safe to cache forever.
+        source: "/assets/fonts/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        // Image payload. The -mobile.webp derivatives are content-fresh
+        // copies of their PNGs; 7 days + SWR keeps repeat mobile visits warm
+        // without risking long-lived staleness. (Never matches .html —
+        // order-detail/sw/home rules above keep their no-cache.)
+        source: "/:path*.(webp|png|jpg|jpeg|svg|ico)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=2592000" },
         ],
       },
       {

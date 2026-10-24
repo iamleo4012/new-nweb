@@ -83,7 +83,17 @@
     var list = window.NASSIM_PRODUCTS || window.allProducts || null;
     if (!list) return null;           // catalog not injected yet — keep waiting
     if (!list.length) return { min: 0, max: 0 };  // loaded but zero products
-    if (window.NASSIM_CATEGORY) {
+    /* Slug scoping first: two departments can share a category NAME
+       (“Trolleys & Baskets” exists under Supermarket AND Warehouse), so a
+       page built on the slug architecture publishes window.NASSIM_CATEGORY_SLUG
+       and the boundary must be computed ONLY from that category’s products.
+       Name-based scoping (window.NASSIM_CATEGORY) remains for the pages that
+       use it. A category with zero products yields { min: 0, max: 0 } below
+       (“loaded but zero products”) — never a fall back to the global dataset. */
+    if (window.NASSIM_CATEGORY_SLUG) {
+      list = list.filter(function (p) { return p && p.categorySlug === window.NASSIM_CATEGORY_SLUG; });
+    }
+    else if (window.NASSIM_CATEGORY) {
       list = list.filter(function (p) { return p && p.category === window.NASSIM_CATEGORY; });
     }
     var lo = Infinity, hi = 0, any = false;
@@ -456,6 +466,20 @@
         document.querySelectorAll("[data-price-slider]").forEach(render);
       }, 120);
     });
+    /* MOBILE DRAWER: the slider is built while the filter drawer is still
+       hidden (track width = 0), which pinned every bubble at the left edge.
+       A ResizeObserver on each track re-renders the moment the drawer opens
+       and the track gains its real width, so both bubbles snap above their
+       own handles (min LEFT, max RIGHT). */
+    if (window.ResizeObserver) {
+      var bubbleRO = new ResizeObserver(function () {
+        document.querySelectorAll("[data-price-slider]").forEach(render);
+      });
+      mounts.forEach(function (m) {
+        var tw = m.querySelector(".nps-track-wrap");
+        if (tw) bubbleRO.observe(tw);
+      });
+    }
   }
 
   ready(init);

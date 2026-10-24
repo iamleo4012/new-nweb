@@ -104,7 +104,7 @@
   .day-tab.active .tab-title, .day-tab.active .tab-date { color:#111827; }
   .day-list-box { background:#fff; border:1px solid var(--line); border-radius:10px; padding:6px 10px; box-shadow:0 1px 3px rgba(15,23,42,.08); }
   .day-list-box .empty { padding:14px; text-align:center; }
-  @media (max-width:767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     .day-tabs { overflow-x:auto; -webkit-overflow-scrolling:touch; }
     .day-tab { min-width:96px; padding:8px 6px; }
     .day-tab .tab-title { font-size:11px; }
@@ -116,16 +116,26 @@
   /* ===== Mobile: prevent keyboard auto-zoom on inputs =====================
      Mobile browsers zoom into any focused input whose font size is below
      16px. 16px inputs = no zoom, so the page never jumps or stays zoomed. */
-  @media (max-width:767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     .controls input[type="search"], .controls select,
     .range-field input, #from-date, #to-date { font-size:16px; }
   }
   /* ===== Mobile: wide orders table scrolls within its own box ============ */
-  @media (max-width:767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     table.orders { display:block !important; overflow-x:auto !important; -webkit-overflow-scrolling:touch; white-space:nowrap; }
+    /* STATUS (7th) and WHATSAPP STATUS (8th) columns: center the badge in
+       the middle of its cell — proper table-cell alignment, not offsets.
+       !important beats the base td text-align:left and the RTL
+       html.lang-ar td text-align:right. Only these two columns; ORDER # and
+       all hidden columns untouched; desktop unaffected (scoped ≤767px). */
+    table.orders th:nth-child(7), table.orders td:nth-child(7),
+    table.orders th:nth-child(8), table.orders td:nth-child(8) {
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
   }
   /* ===== Mobile header + controls polish ================================= */
-  @media (max-width: 767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     /* brand block centered on its own line */
     .topbar > div:first-child { width: 100%; text-align: center; }
     /* three equal columns: language | bell | hamburger (bell centered) */
@@ -138,12 +148,12 @@
      the previous nesting inside the max-width:767px block above could never
      match on desktop (nested media queries AND their conditions), which
      leaked the raw icon image onto desktop and broke the button row. */
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (orientation: landscape) {
     #detail-wa-btn img { display: none; }
     #detail-wa-btn { display: inline-flex; align-items: center; }
     .detail-actions { flex-wrap: wrap; }
   }
-  @media (max-width: 767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     /* mobile: WhatsApp ICON only — bigger, no container/background */
     #detail-wa-btn { background: transparent !important; border: 0 !important; padding: 0 !important; box-shadow: none !important; }
     #detail-wa-btn img { width: 44px !important; height: 44px !important; }
@@ -161,7 +171,7 @@
   .sheet-empty { font-size:12.5px; color:var(--muted); padding:6px 0; }
   .hb-btn { display:none; }
   #mobile-menu { display:none; }
-  @media (max-width:767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     #refresh-btn, #signout-btn, #push-enable-btn { display:none !important; }
     .hb-btn { display:inline-block; }
     #mobile-menu { display:block; background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:8px; }
@@ -214,7 +224,7 @@
     border-top: 1px solid rgba(148, 163, 184, .25);
   }
   .toolbar-row .lang-btn, .toolbar-row #notify-enable-btn, .toolbar-row .hb-btn { margin: 0; }
-  @media (max-width: 767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     .toolbar-row { display: grid; grid-template-columns: 1fr 1fr 1fr; justify-items: center; padding-top: 8px; }
     /* icon-only notification toggle on mobile */
     #notify-enable-btn { background: transparent; border: 0; padding: 4px 8px; font-size: 18px; }
@@ -244,12 +254,16 @@
     #order-sheet-frame { display:none !important; }
   }
 </style>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
+<!-- Self-hosted fonts (Manrope/Inter/Signika + Material Symbols icons), same
+     asset every storefront page loads. This page previously loaded no font
+     stylesheet at all, so .material-symbols-outlined icons rendered as raw
+     ligature text and body typography fell back to system fonts. -->
+<link rel="stylesheet" href="/assets/css/fonts-local.css?v=20261013"/>
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=6"/>
 <style>.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }</style>
 <script>/* keep the storefront i18n language in step with the staff toggle before the runtime initialises */
 try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang") === "ar" ? "ar" : "en"); } catch (e) {}</script>
-<script src="assets/js/i18n-data.js?v=3" defer></script>
+<script src="assets/js/i18n-data.js?v=4" defer></script>
 <script src="assets/js/i18n.js" defer></script>
 <script src="assets/js/nassim-locations-data.js" defer></script>
 <script src="assets/js/order-address.js" defer></script>
@@ -325,6 +339,72 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
      customer values stay LTR-isolated (see order-address.js). */
   html.lang-ar #os-wrap .os-addr-row { direction: rtl; text-align: right; overflow-wrap: break-word; }
   #os-wrap .os-addr-row { overflow-wrap: break-word; }
+  /* Order items rows — mirrored in AR exactly like the Staff View Order
+     (internal-orders2.html, where #os-items inherits direction:rtl from the
+     runtime's group marks): image RIGHT, product info middle, price/total
+     block LEFT. Values inside keep their own bidi; inert in English. */
+  html.lang-ar #os-wrap #os-items { direction: rtl; }
+
+  /* ==== MOBILE-ONLY REDESIGN (≤767px) ====================================
+     Matches the reference layout: centered confirmation header with the
+     check icon above it, date + order number centered under it, product
+     card with a clean fixed image area and a readable flexible info area,
+     then Delivery Fee/Total DIRECTLY BELOW the items and ABOVE the
+     Delivery Address card (flex order swap inside .os-bottom), everything
+     full-width within the mobile margins so nothing clips or overflows.
+     Desktop (≥768px) is untouched — every rule here is inside the media
+     query. No content is added or removed; values stay the page's own. */
+  @media (max-width: 767px), (orientation: portrait) {
+    #os-wrap .os-container { padding: 104px 16px 56px; }
+
+    /* confirmation header: centered, check icon on its own line above */
+    #os-wrap .os-title {
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      text-align: center; font-size: 25px; line-height: 1.3;
+      margin: 0; text-wrap: balance;
+    }
+    #os-wrap .os-title .os-check { display: inline-flex; margin-inline-end: 0; width: 46px; height: 46px; }
+    #os-wrap .os-check .material-symbols-outlined { font-size: 28px; }
+
+    /* date + order number: centered, stacked, comfortably spaced */
+    #os-wrap .os-date { margin-top: 18px; text-align: center; font-size: 14px; }
+    #os-wrap .os-meta-row { margin-top: 6px; text-align: center; font-size: 15px; }
+    #os-wrap .os-meta-row .material-symbols-outlined { font-size: 16px; vertical-align: -3px; margin-right: 5px; }
+    #os-wrap .os-date .material-symbols-outlined { font-size: 16px; vertical-align: -3px; margin-right: 5px; }
+
+    /* product card: fixed clean image area + flexible info area, price
+       column right-aligned and separated */
+    #os-wrap .os-card2 { padding: 14px; gap: 12px; min-height: 0; align-items: center; }
+    #os-wrap .os-img { width: 76px; height: 76px; }
+    #os-wrap .os-pname { font-size: 15px; line-height: 1.4; margin: 0 0 4px; }
+    #os-wrap .os-piece { font-size: 12.5px; color: #334155; margin: 0 0 4px; }
+    #os-wrap .os-pcode, #os-wrap .os-meta-qty { font-size: 12px; margin: 0; }
+    #os-wrap .os-meta { margin-left: auto; gap: 4px; padding-inline-start: 8px; }
+    #os-wrap .os-meta .os-total-top { font-size: 17px; white-space: nowrap; }
+
+    /* section order: items → totals → address (totals visually first
+       inside .os-bottom without touching the DOM order desktop uses) */
+    #os-wrap .os-bottom { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; }
+    #os-wrap .os-bottom .os-totals { order: -1; flex: 0 0 auto; width: 100%; max-width: 100%; padding: 14px 18px; }
+    #os-wrap .os-bottom .os-card-blue { order: 0; flex: 0 0 auto; width: 100%; max-width: 100%; margin-top: 0; padding: 18px; }
+    #os-wrap .os-trow { padding: 10px 0; font-size: 15px; }
+    #os-wrap .os-trow .os-tlabel { font-size: 12.5px; }
+    /* Total row emphasized, Delivery Fee regular */
+    #os-wrap .os-trow + .os-trow .os-tval { font-size: 19px; color: #0f172a; }
+
+    /* delivery address card: full width, comfortable padding, no clipping */
+    #os-wrap .os-card-blue h2 { font-size: 17px; margin: 0 0 10px; }
+    #os-wrap .os-card-blue .os-line { font-size: 14px; padding: 5px 0; }
+
+    /* ==== STAFF-PAGE CHROME COMPENSATION (mobile) =========================
+       The sheet sits inside the staff page main (16px side padding) and the
+       bordered .doc-paper. Neutralize that overhead so the mobile card
+       widths match order-send-modified2.html exactly (card = full viewport
+       width minus the container padding): pull .doc-stage full-bleed and
+       trim the container padding by the doc-paper border. ==== */
+    .doc-stage { padding: 0; margin-left: -16px; margin-right: -16px; }
+    #os-wrap .os-container { padding: 104px 14px 56px; }
+
 </style>
 <style>
 /* ===== Printed document sheet — staff order document view ==========
@@ -336,7 +416,11 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
    Only the container sizing differs (the os design is wider than the
    607px customer receipt), and the customer "Back to Home" button is
    omitted — staff navigation lives in the action bar above the sheet. */
-  #os-wrap .os-container { padding: 40px 44px 48px; } /* staff sheet: no fixed header to clear */
+  /* staff sheet padding — DESKTOP ONLY (>=768px). On mobile the sheet must
+     use order-send-modified2.html's own mobile container padding
+     (104px 16px 56px, set in the copied MOBILE-ONLY REDESIGN block), so this
+     override must not defeat it (same specificity, later order used to win). */
+  @media (min-width: 768px) and (orientation: landscape) { #os-wrap .os-container { padding: 40px 44px 48px; } }
   .doc-stage { padding: 6px 0 40px; }
   .doc-paper {
     position: relative; background: #ffffff; color: #111827;
@@ -742,7 +826,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       keepalive: true
     }).catch(function () { /* best-effort - reload shows the true state */ });
     markWaSent(Number(waOrderId));
-    if (window.matchMedia("(max-width: 767px)").matches) {
+    if (window.matchMedia("(max-width: 767px), (orientation: portrait)").matches) {
       window.location.href = waTarget; // mobile: same tab, straight to WhatsApp
     } else {
       window.open(waTarget, "_blank"); // desktop: keep the staff page open
@@ -1032,7 +1116,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       var tail = parts[parts.length - 1];
       return /[A-Za-z]-?\d/.test(tail) ? tail.trim() : "\u2014";
     }
-    document.getElementById("os-number").textContent = o.orderNumber || "";
+    document.getElementById("os-number").innerHTML = ltr(esc(o.orderNumber)) || "";
     var d = new Date(o.createdAt);
     var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     var pad = function (x) { return String(x).padStart(2, "0"); };
@@ -1222,7 +1306,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   document.getElementById("signout-btn").addEventListener("click", function () {
     fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
       .catch(function () {})
-      .finally(function () { window.location.href = "/home.html"; });
+      .finally(function () { window.location.href = "/home5.html"; });
   });
   document.getElementById("prev-btn").addEventListener("click", function () { if (state.page > 1) { state.page--; loadOrders(); } });
   document.getElementById("next-btn").addEventListener("click", function () { if (state.page < state.totalPages) { state.page++; loadOrders(); } });
@@ -1234,7 +1318,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   });
 
   /* ===== Push-notification deep links ====================================
-     /internal-orders.html?order=AN-2026-000282 is the Web Push tap target
+     /internal-orders.html?order=ORD-282 is the Web Push tap target
      (see public/sw.js): the list is searched for that order and its detail
      sheet auto-opens. The service worker posts the same shape when staff
      tap a system notification while this page is already open. */
@@ -1300,8 +1384,13 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
     seenInMemory = arr;
     try { sessionStorage.setItem(SS_SEEN, JSON.stringify(arr)); } catch (e) {}
   }
+  /* Sound defaults to ON when the staff member has never touched the
+     toggle (no preference stored): previously an unset preference read as
+     OFF, which silently killed the chime on any fresh origin/session
+     (new domain, cleared storage) even though detection kept working.
+     An explicit "0" still turns the sound off. */
   function enabled() {
-    try { return localStorage.getItem(LS_ENABLED) === "1"; } catch (e) { return false; }
+    try { var v = localStorage.getItem(LS_ENABLED); return v === null ? true : v === "1"; } catch (e) { return true; }
   }
   function setEnabled(v) {
     try { localStorage.setItem(LS_ENABLED, v ? "1" : "0"); } catch (e) {}
@@ -1389,6 +1478,18 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   }
   document.addEventListener("pointerdown", unlockAudioOnGesture, true);
   document.addEventListener("keydown", unlockAudioOnGesture, true);
+  /* ANDROID (Brave/Chrome): audio activation is granted on the TOUCH
+     lifecycle, not pointer events — some pages/capture handlers cancel the
+     pointer event, which cancels audio activation. Touchend is the event
+     Chromium Android reliably credits for unlocking Web Audio. Click adds
+     one more path. Harmless elsewhere. */
+  document.addEventListener("touchstart", unlockAudioOnGesture, true);
+  document.addEventListener("touchend", unlockAudioOnGesture, true);
+  document.addEventListener("click", unlockAudioOnGesture, true);
+  /* Diagnostic hook: records WHY a chime did not sound (or that it did) so
+     failures are never silently swallowed. View with:
+     window.__nassimChimeDebug in the console. */
+  window.__nassimChimeDebug = { lastAttempt: 0, lastResult: "", lastError: "", tones: 0 };
   function playTones() {
     var t0 = audioCtx.currentTime;
     [880, 1174.66].forEach(function (freq, i) {
@@ -1403,21 +1504,40 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       osc.connect(gain); gain.connect(audioCtx.destination);
       osc.start(start); osc.stop(start + 0.75);
     });
+    window.__nassimChimeDebug.tones += 2;
+    window.__nassimChimeDebug.lastResult = "played " + audioCtx.state + " @" + new Date().toLocaleTimeString();
   }
   function chime() {
+    var dbg = window.__nassimChimeDebug;
+    dbg.lastAttempt = Date.now();
     try {
       if (!audioCtx || audioCtx.state === "closed") audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === "running") { playTones(); return; }
-      // Still suspended — the page has never been interacted with, so the
-      // browser's autoplay policy rejects resume() from this poll callback.
-      // Remember the alert (60s window) and keep trying: it plays as soon as
-      // audio unlocks (first tap — unlockAudioOnGesture) or a later resume
-      // succeeds. The toast + notification still fire immediately either way.
+      // Not running (suspended, or "interrupted" as Android reports after a
+      // call/other app audio): resume() from the poll callback may be
+      // rejected OR may resolve while the context is STILL not running —
+      // Android Brave commonly needs a second resume + a real (re)warm-up.
+      // Retry once inside this callback before falling back to the
+      // next-gesture path below. Every outcome is recorded, never swallowed.
       pendingChime = Date.now();
-      audioCtx.resume().then(function () {
-        if (audioCtx.state === "running" && Date.now() - pendingChime < 60000) { pendingChime = 0; playTones(); }
-      }, function () {});
-    } catch (e) {}
+      dbg.lastResult = "resuming from " + audioCtx.state;
+      var attempt = function () {
+        try { ensureAudio(); } catch (e) { dbg.lastError = "ensureAudio: " + (e && e.message); }
+        var go = function () {
+          if (audioCtx.state === "running" && Date.now() - pendingChime < 60000) {
+            pendingChime = 0; dbg.lastError = ""; playTones();
+          } else {
+            dbg.lastResult = "still " + audioCtx.state + " after resume — waiting for next gesture";
+          }
+        };
+        var p = audioCtx.resume();
+        if (p && p.then) p.then(go, function (err) { dbg.lastError = "resume rejected: " + (err && err.message); go(); });
+        else go();
+      };
+      attempt();
+    } catch (e) {
+      dbg.lastError = "chime exception: " + (e && e.message);
+    }
   }
 
   function showToasts(orders) {
@@ -1441,7 +1561,17 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
 
   function poll() {
     fetch("/api/admin/orders?page=1&limit=50", { credentials: "same-origin" })
-      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (r) {
+        // Session gone (logged out here, in another tab, or expired):
+        // stop the 15s poll loop and go to the login page instead of
+        // hammering /api/admin/orders with 403s forever.
+        if (r.status === 401 || r.status === 403) {
+          stopPolling();
+          window.location.href = "/admin/login?redirect=/internal-orders2.html";
+          return null;
+        }
+        return r.ok ? r.json() : null;
+      })
       .then(function (d) {
         if (!d || !d.success) return;
         var orders = d.data.orders || [];
@@ -1564,9 +1694,11 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       btn.disabled = true;
       btn.textContent = tt("🔕 Push blocked — allow notifications in browser settings", "pushBlocked");
     } else if (s === "insecure") {
-      // Tappable (not dead): the tap pulses the button with the reason.
-      btn.hidden = false;
-      btn.textContent = tt("🔕 push notifications: unavailable", "pushInsecure");
+      // TEMPORARILY HIDDEN (was: tappable explanation button). The staff
+      // asked to remove the "🔕 push notifications: unavailable" button for
+      // now — restore this branch to `btn.hidden = false` (and the
+      // textContent assignment) to bring it back.
+      btn.hidden = true;
     } else {
       btn.hidden = true; // truly unsupported on this browser
     }
@@ -1754,7 +1886,11 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   poll();
   window.__nassimPollNow = poll; // debug/manual trigger
   window.__nassimAudioState = function () { return audioCtx ? audioCtx.state : "none"; }; // debug/verification hook
-  setInterval(poll, POLL_MS);
+  var pollTimer = setInterval(poll, POLL_MS);
+  // Stops the recurring order poll (used when the staff session is gone).
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
 })();
 </script>
 </body>

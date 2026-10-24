@@ -33,7 +33,7 @@
            order stable on the Arabic (RTL) page; the label/truck styling
            is untouched. Mobile (<=767px) never sees this: the glass bar is
            display:none there and the engine never starts. */
-        "@media (min-width:768px){#nassim-secondary-nav.h5conv .nssn-track{animation:none !important;direction:ltr !important;}#nassim-secondary-nav.h5conv .nssn-unit{margin:0 !important;}}",
+        "@media (min-width: 768px) and (orientation: landscape){#nassim-secondary-nav.h5conv .nssn-track{animation:none !important;direction:ltr !important;}#nassim-secondary-nav.h5conv .nssn-unit{margin:0 !important;}}",
         "html.dark #home5-secondary-nav{background:#0a0f14;border-bottom-color:rgba(255,255,255,0.08);}",
         /* MOBILE white bar: the SAME seamless looping technique as home.html
            (assets/js/secondary-nav.js) — TWO identical units, gap =
@@ -42,7 +42,7 @@
            wrap point: the exiting sentence is seamlessly replaced by the
            entering one, at most ONE complete unit visible, no gap, no reset.
            60px/s. Scoped strictly to <=767px; desktop untouched. */
-        "@media (max-width:767px){#home5-secondary-nav .h5sn-track{animation:h5mconv var(--h5sn-duration,14s) linear infinite;}@keyframes h5mconv{from{transform:translateX(calc(-1 * var(--h5sn-loop,0px)));}to{transform:translateX(0);}}}",
+        "@media (max-width: 767px), (orientation: portrait){#home5-secondary-nav .h5sn-track{animation:h5mconv var(--h5sn-duration,14s) linear infinite;}@keyframes h5mconv{from{transform:translateX(calc(-1 * var(--h5sn-loop,0px)));}to{transform:translateX(0);}}}",
         "#home5-secondary-nav .h5sn-unit{display:flex;align-items:center;gap:10px;flex-shrink:0;}",
         "#home5-secondary-nav .h5sn-track-area{position:relative;flex:1 1 auto;height:100%;overflow:hidden;pointer-events:none;}",
         "#home5-secondary-nav .h5sn-track{position:absolute;top:0;bottom:0;left:0;display:flex;align-items:center;will-change:transform;direction:ltr;}",
@@ -142,7 +142,7 @@
         /* Responsive switching: the home5 bar exists only in the mobile
            state; crossing the 767px breakpoint immediately swaps between the
            mobile white bar and the desktop glass bar — no reload needed. */
-        var mq = window.matchMedia("(max-width: 767px)");
+        var mq = window.matchMedia("(max-width: 767px), (orientation: portrait)");
         function sync() {
             var bar = document.getElementById(BAR_ID);
             if (mq.matches) {
@@ -341,7 +341,7 @@
         function cvStart() {
             cancelAnimationFrame(cv.raf);
             cv.running = false;
-            if (window.matchMedia("(max-width: 767px)").matches) return false;
+            if (window.matchMedia("(max-width: 767px), (orientation: portrait)").matches) return false;
             var bar = document.getElementById("nassim-secondary-nav");
             if (!bar) return false; /* shared script has not built it yet */
             if (bar !== cv.bar) {
@@ -370,7 +370,7 @@
             if (cv.running) cvMeasure(); else cvBoot();
         });
         window.addEventListener("pageshow", cvBoot);
-        var h5DeskMq = window.matchMedia("(min-width: 768px)");
+        var h5DeskMq = window.matchMedia("(min-width: 768px) and (orientation: landscape)");
         function h5DeskSwitch() {
             if (h5DeskMq.matches) {
                 cvBoot();

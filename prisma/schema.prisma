@@ -4,7 +4,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum PurchaseMode {
@@ -358,6 +359,10 @@ model Product {
   id             Int         @id @default(autoincrement())
   slug           String      @unique
   name           String
+  /// Arabic display name (additive, like classCode/depth). Empty = not yet
+  /// entered — the storefront falls back to the English `name`. The stored
+  /// string is NEVER reordered; RTL rendering is purely a display concern.
+  nameAr         String      @default("")
   description    String      @default("")
   longDescription String     @default("")
   price          Decimal     @db.Decimal(10, 3)

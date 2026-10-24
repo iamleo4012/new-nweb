@@ -1,0 +1,11 @@
+-- Order numbers move from the legacy `AN-YYYY-NNNNNN` format (derived from the
+-- autoincrement row id) to sequential `ORD-<n>` numbers backed by a dedicated
+-- Postgres sequence. The sequence is the concurrency-safe counter: nextval()
+-- is atomic, never blocks concurrent checkouts, and never reissues a number —
+-- even when orders are later deleted or cancelled.
+--
+-- Applied after the historical-order cleanup (all rows of "Order",
+-- "OrderItem", "OrderStatusEvent", "OrderSecurity" and order-linked
+-- "Notification" rows were removed), so START 1 makes the first new order
+-- ORD-1.
+CREATE SEQUENCE "order_number_seq" START 1;

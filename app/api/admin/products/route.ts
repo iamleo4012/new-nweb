@@ -78,6 +78,10 @@ const sharedFields = {
     .string()
     .min(2, "Name must contain at least 2 characters.")
     .max(200, "Name must be at most 200 characters."),
+  // Arabic display name — additive companion to `name`. Optional/defaulted
+  // so older clients that omit it keep working; empty = storefront falls
+  // back to English. Never reordered server-side; RTL is display-only.
+  nameAr: z.string().max(200, "Arabic name is too long (max 200 characters).").optional().default(""),
   description: z.string().max(8000, "Short description is too long (max 8000 characters)."),
   longDescription: z.string().max(20000, "Long description is too long (max 20000 characters)."),
   price: z
@@ -302,6 +306,7 @@ function serializeBase(p: FullProduct, customAttributes: unknown) {
     id: p.id,
     slug: p.slug,
     name: p.name,
+    nameAr: p.nameAr,
     description: p.description,
     longDescription: p.longDescription,
     price: Number(p.price),

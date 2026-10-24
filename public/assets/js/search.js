@@ -36,7 +36,7 @@
     var terms = q.toLowerCase().split(/\s+/);
     if (terms.length < 2) return q;
     for (var i = 0; i < (list || []).length; i++) {
-      var nl = String((list[i] && list[i].name) || '').toLowerCase();
+      var nl = String(((list[i] && list[i].name) || '') + ' ' + ((list[i] && list[i].nameAr) || '')).toLowerCase();
       var all = true;
       for (var j = 0; j < terms.length; j++) {
         if (nl.indexOf(terms[j]) === -1) { all = false; break; }
@@ -100,7 +100,7 @@
       var info = document.createElement('div');
       info.style.cssText = 'min-width:0;flex:1;';
       var name = document.createElement('div');
-      name.textContent = p.name;
+      if (window.NassimProductName) NassimProductName.apply(name, p); else name.textContent = p.name;
       name.style.cssText = 'font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
       var meta = document.createElement('div');
       meta.textContent = (p.line ? p.line + ' · ' : '') + Number(p.price).toFixed(3) + ' ' + (p.currency || 'KD');
@@ -147,7 +147,7 @@
     var seen = {}, out = [];
     list.forEach(function (p) {
       var dept = String(p.departmentName || "").trim();
-      String(p.name || '').split(/[^A-Za-z0-9\u0600-\u06FF]+/).forEach(function (w) {
+      String((p.name || '') + ' ' + (p.nameAr || '')).split(/[^A-Za-z0-9\u0600-\u06FF]+/).forEach(function (w) {
         if (w.length < 2) return;
         var lw = w.toLowerCase();
         if (lw.indexOf(ql) === -1) return;
@@ -307,7 +307,7 @@
       var scope = onListingPage() ? scopeToCurrentPage(list) : list;
       var effective = effectiveQuery(q, scope);
       var matching = scope.filter(function (p) {
-        return nameMatchesQuery(p.name, effective);
+        return nameMatchesQuery((p.name || '') + ' ' + (p.nameAr || ''), effective);
       });
       renderTerms(wordSuggestions(matching, q), scope, targetEl);
     });
@@ -324,9 +324,14 @@
 
     var bar = document.createElement('div');
     bar.style.cssText = 'display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid rgba(0,0,0,0.08);';
+    /* Arabic (html.lang-ar): mirror the input row — close button LEFT,
+       input with right-aligned text on the RIGHT. English stays LTR.
+       The home5 styling (home5-mobile.css) mirrors the glyph/padding to
+       match. Page direction is not changed — this row only. */
+    bar.dir = document.documentElement.classList.contains('lang-ar') ? 'rtl' : 'ltr';
     inputEl = document.createElement('input');
     inputEl.type = 'text';
-    inputEl.placeholder = 'Search products…';
+    inputEl.placeholder = 'Search products...'; // three dots — matches the existing i18n key ('search products...') so the shared mapping applies
     inputEl.setAttribute('aria-label', 'Search products');
     inputEl.style.cssText = 'flex:1;border:none;outline:none;font-size:16px;background:transparent;color:#111;';
     var closeBtn = document.createElement('button');
@@ -355,20 +360,159 @@
       clearTimeout(debounce);
       debounce = setTimeout(function () { search(inputEl.value); }, 150);
     });
+    /* Mobile keyboard dismissal ("Done", tap-outside, popup close all end
+       in a blur) → restore the pre-focus viewport once the keyboard has
+       actually closed. Never restores while the keyboard is still open. */
+    inputEl.addEventListener('blur', onSearchInputBlur);
+
+    /* Selecting a result navigates natively via the link's href. Close the
+       popup BEFORE that navigation happens, so returning via browser Back
+       (including from bfcache) finds the popup closed. Capture phase so it
+       runs before any default navigation work; the link's own behaviour
+       (href, ranking, target) is untouched. */
+    resultsEl.addEventListener('click', function (e) {
+      var link = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+      if (link && link.getAttribute('href') && link.getAttribute('href') !== '#') closeOverlay();
+    }, true);
 
     document.body.appendChild(overlay);
   }
+
+  /* Returning to this page via browser Back (often bfcache) must always find
+     the search popup closed, whatever state the snapshot froze. */
+  window.addEventListener('pageshow', function () {
+    if (overlay && overlay.style.display !== 'none') closeOverlay();
+  });
 
   function openOverlay() {
     if (!overlay) buildOverlay();
     overlay.style.display = 'flex';
     inputEl.value = '';
     search('');
+    /* Capture the pre-focus viewport state (mobile only) so the natural
+       input zoom can be undone after the keyboard is dismissed. Must run
+       BEFORE the focus below — after focus the browser has already zoomed. */
+    armMobileZoomRestore();
     setTimeout(function () { inputEl.focus(); }, 50);
   }
 
   function closeOverlay() {
     if (overlay) overlay.style.display = 'none';
+    if (inputEl && document.activeElement === inputEl) inputEl.blur();
+    /* If the keyboard is already gone, restore the original viewport as
+       part of the close; if it is still open, this defers to the blur /
+       viewport-resize lifecycle and completes once the keyboard closes. */
+    requestMobileZoomRestore();
+  }
+
+  /* ---- Mobile input-zoom restoration (shared popup input) ----
+     On mobile, focusing the search input lets the browser zoom in naturally
+     while typing — this is NEVER prevented. Some mobile browsers keep that
+     zoom and/or a shifted scroll position after the keyboard is dismissed,
+     so the pre-focus state (visualViewport scale/offset + window scroll) is
+     captured immediately before focus and restored exactly once, after the
+     keyboard has actually closed. Desktop and non-touch browsers are never
+     touched. No CSS transforms, no manual scaling, no meta-tag changes. */
+  var zoomRestore = null; // active search interaction's captured state
+
+  function isMobileZoomContext() {
+    return window.matchMedia('(max-width: 767px), (orientation: portrait)').matches &&
+      (('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0);
+  }
+
+  function armMobileZoomRestore() {
+    if (!isMobileZoomContext()) return;
+    var v = window.visualViewport;
+    zoomRestore = {
+      scale: v ? v.scale : 1,
+      offsetTop: v ? v.offsetTop : 0,
+      offsetLeft: v ? v.offsetLeft : 0,
+      scrollX: window.scrollX || window.pageXOffset || 0,
+      scrollY: window.scrollY || window.pageYOffset || 0,
+      innerHeight: window.innerHeight,
+      vvHeight: v ? v.height : window.innerHeight,
+      blurred: false,
+      restored: false,
+      fallbackTimer: null
+    };
+    attachViewportWatchers();
+  }
+
+  var vvWatchersAttached = false;
+  function attachViewportWatchers() {
+    var v = window.visualViewport;
+    if (!v || vvWatchersAttached) return;
+    vvWatchersAttached = true;
+    v.addEventListener('resize', onViewportSettled);
+    v.addEventListener('scroll', onViewportSettled);
+  }
+
+  function detachViewportWatchers() {
+    var v = window.visualViewport;
+    if (!v || !vvWatchersAttached) return;
+    vvWatchersAttached = false;
+    v.removeEventListener('resize', onViewportSettled);
+    v.removeEventListener('scroll', onViewportSettled);
+  }
+
+  function onViewportSettled() {
+    /* The keyboard closing fires a visualViewport resize; only then may the
+       pre-focus state be restored. While the keyboard is still open this
+       is a no-op, so typing zoom is never fought mid-interaction. */
+    if (zoomRestore && zoomRestore.blurred) requestMobileZoomRestore();
+  }
+
+  function onSearchInputBlur() {
+    var s = zoomRestore;
+    if (!s) return;
+    s.blurred = true;
+    requestMobileZoomRestore(s);
+    /* Browsers that fire no visualViewport events after the keyboard closes
+       would otherwise never trigger the resize path above. One short,
+       bounded re-check — not a repeated zoom hack. */
+    clearTimeout(s.fallbackTimer);
+    s.fallbackTimer = setTimeout(function () { requestMobileZoomRestore(s); }, 250);
+  }
+
+  function requestMobileZoomRestore(s) {
+    s = s || zoomRestore;
+    if (!s || s.restored) return;
+    var s = zoomRestore;
+    var v = window.visualViewport;
+    /* Keyboard must actually be gone: visual viewport back near its
+       pre-focus height. Otherwise stay out of the way (keyboard still up). */
+    var keyboardClosed = !v ||
+      v.height >= Math.min(s.vvHeight, s.innerHeight) - 2;
+    if (!keyboardClosed) return;
+    s.restored = true;
+    clearTimeout(s.fallbackTimer);
+    /* Teardown must only clear THIS interaction's state: a previous
+       restore finishing asynchronously must never null a newer capture. */
+    var finish = function () {
+      if (zoomRestore === s) {
+        detachViewportWatchers();
+        zoomRestore = null;
+      }
+    };
+    requestAnimationFrame(function () {
+      window.scrollTo(s.scrollX, s.scrollY);
+      if (v && Math.abs(v.scale - s.scale) > 0.01) {
+        /* The browser resets the pinch/input scale asynchronously after
+           blur; keep the scroll pinned until it settles (bounded to 1s). */
+        var deadline = Date.now() + 1000;
+        var watch = function () {
+          window.scrollTo(s.scrollX, s.scrollY);
+          if (!v || Math.abs(v.scale - s.scale) <= 0.01 || Date.now() > deadline) {
+            finish();
+            return;
+          }
+          requestAnimationFrame(watch);
+        };
+        requestAnimationFrame(watch);
+      } else {
+        finish();
+      }
+    });
   }
 
   /* ---- Shared search state (ONE search bar for the whole site) ----

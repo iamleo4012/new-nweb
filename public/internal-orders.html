@@ -75,7 +75,7 @@
   .day-tab.active .tab-title, .day-tab.active .tab-date { color:#111827; }
   .day-list-box { background:#fff; border:1px solid var(--line); border-radius:10px; padding:6px 10px; box-shadow:0 1px 3px rgba(15,23,42,.08); }
   .day-list-box .empty { padding:14px; text-align:center; }
-  @media (max-width:767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     .day-tabs { overflow-x:auto; -webkit-overflow-scrolling:touch; }
     .day-tab { min-width:96px; padding:8px 6px; }
     .day-tab .tab-title { font-size:11px; }
@@ -87,16 +87,16 @@
   /* ===== Mobile: prevent keyboard auto-zoom on inputs =====================
      Mobile browsers zoom into any focused input whose font size is below
      16px. 16px inputs = no zoom, so the page never jumps or stays zoomed. */
-  @media (max-width:767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     .controls input[type="search"], .controls select,
     .range-field input, #from-date, #to-date { font-size:16px; }
   }
   /* ===== Mobile: wide orders table scrolls within its own box ============ */
-  @media (max-width:767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     table.orders { display:block !important; overflow-x:auto !important; -webkit-overflow-scrolling:touch; white-space:nowrap; }
   }
   /* ===== Mobile header + controls polish ================================= */
-  @media (max-width: 767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     /* brand block centered on its own line */
     .topbar > div:first-child { width: 100%; text-align: center; }
     /* three equal columns: language | bell | hamburger (bell centered) */
@@ -109,12 +109,12 @@
      the previous nesting inside the max-width:767px block above could never
      match on desktop (nested media queries AND their conditions), which
      leaked the raw icon image onto desktop and broke the button row. */
-  @media (min-width: 768px) {
+  @media (min-width: 768px) and (orientation: landscape) {
     #detail-wa-btn img { display: none; }
     #detail-wa-btn { display: inline-flex; align-items: center; }
     .detail-actions { flex-wrap: wrap; }
   }
-  @media (max-width: 767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     /* mobile: WhatsApp ICON only — bigger, no container/background */
     #detail-wa-btn { background: transparent !important; border: 0 !important; padding: 0 !important; box-shadow: none !important; }
     #detail-wa-btn img { width: 44px !important; height: 44px !important; }
@@ -132,7 +132,7 @@
   .sheet-empty { font-size:12.5px; color:var(--muted); padding:6px 0; }
   .hb-btn { display:none; }
   #mobile-menu { display:none; }
-  @media (max-width:767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     #refresh-btn, #signout-btn, #push-enable-btn { display:none !important; }
     .hb-btn { display:inline-block; }
     #mobile-menu { display:block; background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:8px; }
@@ -185,7 +185,7 @@
     border-top: 1px solid rgba(148, 163, 184, .25);
   }
   .toolbar-row .lang-btn, .toolbar-row #notify-enable-btn, .toolbar-row .hb-btn { margin: 0; }
-  @media (max-width: 767px) {
+  @media (max-width: 767px), (orientation: portrait) {
     .toolbar-row { display: grid; grid-template-columns: 1fr 1fr 1fr; justify-items: center; padding-top: 8px; }
     /* icon-only notification toggle on mobile */
     #notify-enable-btn { background: transparent; border: 0; padding: 4px 8px; font-size: 18px; }
@@ -215,12 +215,16 @@
     #order-sheet-frame { display:none !important; }
   }
 </style>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
+<!-- Self-hosted fonts (Manrope/Inter/Signika + Material Symbols icons), same
+     asset every storefront page loads. This page previously loaded no font
+     stylesheet at all, so .material-symbols-outlined icons rendered as raw
+     ligature text and body typography fell back to system fonts. -->
+<link rel="stylesheet" href="/assets/css/fonts-local.css?v=20261013"/>
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=6"/>
 <style>.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }</style>
 <script>/* keep the storefront i18n language in step with the staff toggle before the runtime initialises */
 try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang") === "ar" ? "ar" : "en"); } catch (e) {}</script>
-<script src="assets/js/i18n-data.js" defer></script>
+<script src="assets/js/i18n-data.js?v=4" defer></script>
 <script src="assets/js/i18n.js" defer></script>
 <script src="assets/js/nassim-locations-data.js" defer></script>
 <script src="assets/js/order-address.js" defer></script>
@@ -672,7 +676,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       orderNumber: btn.getAttribute("data-wa-number"),
       shortPath: btn.getAttribute("data-wa-path") || ""
     });
-    if (window.matchMedia("(max-width: 767px)").matches) {
+    if (window.matchMedia("(max-width: 767px), (orientation: portrait)").matches) {
       window.location.href = waTarget; // mobile: same tab, straight to WhatsApp
     } else {
       window.open(waTarget, "_blank"); // desktop: keep the staff page open
@@ -887,7 +891,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
       var tail = parts[parts.length - 1];
       return /[A-Za-z]-?\d/.test(tail) ? tail.trim() : "\u2014";
     }
-    document.getElementById("os-number").textContent = o.orderNumber || "";
+    document.getElementById("os-number").innerHTML = ltr(esc(o.orderNumber)) || "";
     var d = new Date(o.createdAt);
     var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     var pad = function (x) { return String(x).padStart(2, "0"); };
@@ -1072,7 +1076,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   document.getElementById("signout-btn").addEventListener("click", function () {
     fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
       .catch(function () {})
-      .finally(function () { window.location.href = "/home.html"; });
+      .finally(function () { window.location.href = "/home5.html"; });
   });
   document.getElementById("prev-btn").addEventListener("click", function () { if (state.page > 1) { state.page--; loadOrders(); } });
   document.getElementById("next-btn").addEventListener("click", function () { if (state.page < state.totalPages) { state.page++; loadOrders(); } });
@@ -1084,7 +1088,7 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   });
 
   /* ===== Push-notification deep links ====================================
-     /internal-orders.html?order=AN-2026-000282 is the Web Push tap target
+     /internal-orders.html?order=ORD-282 is the Web Push tap target
      (see public/sw.js): the list is searched for that order and its detail
      sheet auto-opens. The service worker posts the same shape when staff
      tap a system notification while this page is already open. */
@@ -1290,7 +1294,17 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
 
   function poll() {
     fetch("/api/admin/orders?page=1&limit=50", { credentials: "same-origin" })
-      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (r) {
+        // Session gone (logged out here, in another tab, or expired):
+        // stop the 15s poll loop and go to the login page instead of
+        // hammering /api/admin/orders with 403s forever.
+        if (r.status === 401 || r.status === 403) {
+          stopPolling();
+          window.location.href = "/admin/login?redirect=/internal-orders.html";
+          return null;
+        }
+        return r.ok ? r.json() : null;
+      })
       .then(function (d) {
         if (!d || !d.success) return;
         var orders = d.data.orders || [];
@@ -1603,7 +1617,11 @@ try { localStorage.setItem("nassim-lang", localStorage.getItem("nassimStaffLang"
   poll();
   window.__nassimPollNow = poll; // debug/manual trigger
   window.__nassimAudioState = function () { return audioCtx ? audioCtx.state : "none"; }; // debug/verification hook
-  setInterval(poll, POLL_MS);
+  var pollTimer = setInterval(poll, POLL_MS);
+  // Stops the recurring order poll (used when the staff session is gone).
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
 })();
 </script>
 </body>

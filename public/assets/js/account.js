@@ -32,7 +32,7 @@
      Home | Categories | Cart sit as three balanced columns with no empty
      fourth slot.
      wishlist.html / password-reset.html additionally redirect direct
-     visits to home.html (guest-mode guard at the top of those pages).
+     visits to home5.html (guest-mode guard at the top of those pages).
      Customers keep the full guest flow: browse → cart → checkout → order.
      Staff continue to use /admin/login (unaffected). */
   (function guestOnlyStorefront() {
@@ -326,7 +326,7 @@
       var orders = data.orders || data.data || [];
       var list = document.getElementById("orders-list");
       if (!list) return;
-      if (!orders.length) { list.innerHTML = '<div class="text-center py-12"><span class="material-symbols-outlined text-5xl text-on-surface-variant/40 mb-4 block">receipt_long</span><p class="text-on-surface-variant dark:text-white/70 text-sm mb-4">No orders yet.</p><a href="home.html" class="text-secondary font-bold text-xs uppercase tracking-widest hover:underline">Start Shopping</a></div>'; return; }
+      if (!orders.length) { list.innerHTML = '<div class="text-center py-12"><span class="material-symbols-outlined text-5xl text-on-surface-variant/40 mb-4 block">receipt_long</span><p class="text-on-surface-variant dark:text-white/70 text-sm mb-4">No orders yet.</p><a href="home5.html" class="text-secondary font-bold text-xs uppercase tracking-widest hover:underline">Start Shopping</a></div>'; return; }
       var statusColors = { PENDING: "#f59e0b", UNDER_REVIEW: "#3b82f6", READY_FOR_CONFIRMATION: "#6366f1", CONFIRMED: "#22c55e", PACKING: "#8b5cf6", READY_FOR_DELIVERY: "#06b6d4", OUT_FOR_DELIVERY: "#f97316", DELIVERED: "#14b8a6", COMPLETED: "#64748b", CANCELLED_BY_CUSTOMER: "#ef4444", CANCELLED_BY_STAFF: "#ef4444" };
       list.innerHTML = orders.map(function (o) {
         var items = o.items || [];
@@ -422,7 +422,7 @@
           } else {
             closePanel();
             showAuthToast("Signed in — welcome back!");
-            setTimeout(function () { window.location.href = "home.html"; }, 400);
+            setTimeout(function () { window.location.href = "home5.html"; }, 400);
           }
         }).catch(function () {
           btn.textContent = "Sign In"; btn.disabled = false;
@@ -454,7 +454,7 @@
           mergeGuestCart(); // Merge guest cart into new account
           closePanel();
           showAuthToast("Account created — welcome!");
-          setTimeout(function () { window.location.href = "home.html"; }, 400);
+          setTimeout(function () { window.location.href = "home5.html"; }, 400);
         }).catch(function () {
           btn.textContent = "Create Account"; btn.disabled = false;
           showError(errEl, "Network error. Please try again.");
@@ -662,7 +662,7 @@
       } catch (e) {}
       updateAccountButton();
       closePanel();
-      window.location.href = "/home.html";
+      window.location.href = "/home5.html";
     });
   }
 
@@ -687,7 +687,7 @@
     btn.style.alignItems = "center";
     btn.style.gap = "8px";
     // Only override display if the responsive hidden class is not active (i.e. desktop)
-    if (window.innerWidth >= 768) {
+    if (window.innerWidth >= 768 && window.matchMedia("(orientation: landscape)").matches) {
       btn.style.display = "flex";
     }
     if (user) {

@@ -257,7 +257,7 @@
     drawer.className = "fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white dark:bg-gray-900 z-[80] shadow-2xl translate-x-full transition-transform duration-300 overflow-y-auto md:hidden";
     drawer.innerHTML =
       '<div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800">' +
-      '  <img src="LOGO.png" alt="AL-NASSIM" class="h-10 w-auto"/>' +
+      '  <img src="LOGO-mobile.webp" alt="AL-NASSIM" class="h-10 w-auto"/>' +
       '  <button id="mobile-nav-close" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Close menu">' +
       '    <span class="material-symbols-outlined text-gray-600 dark:text-gray-300">close</span>' +
       '  </button>' +

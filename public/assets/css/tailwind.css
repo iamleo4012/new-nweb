@@ -767,7 +767,7 @@ select {
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
   .\!container {
     max-width: 768px !important;
   }
@@ -777,7 +777,7 @@ select {
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) and (orientation: landscape) {
   .\!container {
     max-width: 1024px !important;
   }
@@ -5460,7 +5460,7 @@ select {
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
   .md\:inset-x-12 {
     left: 3rem;
     right: 3rem;
@@ -5979,7 +5979,7 @@ select {
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1024px) and (orientation: landscape) {
   .lg\:sticky {
     position: sticky;
   }
@@ -6185,4 +6185,33 @@ select {
 .\[\&\:\:-webkit-outer-spin-button\]\:appearance-none::-webkit-outer-spin-button {
   -webkit-appearance: none;
           appearance: none;
+}
+
+/* ==== Product listing cards: show the complete product ==================
+   Tall, wide, or unusually shaped products were cropped by object-fit:cover.
+   Product images now letterbox (contain) on a uniform #F6F7FE backdrop,
+   centered, never cropped or distorted, at every breakpoint. Dark mode keeps
+   its own backdrop. ================================================ */
+#product-grid article.group img {
+  object-fit: contain !important;
+  object-position: center !important;
+}
+#product-grid article.group > div:first-of-type {
+  background-color: #F6F7FE !important;
+}
+html.dark #product-grid article.group > div:first-of-type {
+  background-color: #1a1f2e;
+}
+
+/* ==== Product image backdrop on MOBILE only =============================
+   Same letterboxed (contain) presentation, but the empty space around the
+   product uses #FEFDFE on mobile viewports (≤767px). Desktop/tablet keep
+   #F6F7FE. !important also wins over the inline container backgrounds. */
+@media (max-width: 767px) {
+  #product-grid article.group > div:first-of-type {
+    background-color: #FEFDFE !important;
+  }
+  html.dark #product-grid article.group > div:first-of-type {
+    background-color: #1a1f2e;
+  }
 }

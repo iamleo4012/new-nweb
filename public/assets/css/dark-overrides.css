@@ -180,7 +180,7 @@ html.dark #page-numbers button.text-primary:not(.bg-primary) {
    - overflow-wrap guard: pages without <main> still get scroll-padding-top.
    Desktop/tablet (≥768px) see none of this — their original paddings remain.
    ========================================================================== */
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: portrait) {
   html {
     /* Fallback of 0px; dark-overrides.js overrides with the measured value. */
     scroll-padding-top: var(--mobile-header-height, 0px);
@@ -227,7 +227,7 @@ html.dark #page-numbers button.text-primary:not(.bg-primary) {
    <html> flips to the dark palette. Nothing is hard-coded to white
    permanently — the dark override below takes precedence when dark mode is on.
    ========================================================================== */
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: portrait) {
   /* ---- Top fixed header: solid white (light) / solid dark (dark) ---- */
   nav.fixed.top-0.glass-nav {
     background-color: #ffffff !important;
@@ -318,7 +318,7 @@ html.dark #page-numbers button.text-primary:not(.bg-primary) {
    .mbnav-item colour, in both themes. (These mirror the values already used
    across the inline per-page <style> blocks, centralised here so the new
    solid-white background reads correctly on every page.) */
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: portrait) {
   #mobile-bottom-nav .mbnav-item:hover { color: #825335 !important; }
   html.dark #mobile-bottom-nav .mbnav-item:hover { color: #f7b994 !important; }
   #mobile-bottom-nav .mbnav-item.mbnav-active { color: #825335 !important; }
@@ -348,7 +348,7 @@ html.dark #page-numbers button.text-primary:not(.bg-primary) {
    Loaded via dark-overrides.css (auto-injected on every page AFTER the inline
    per-page <style>), so it overrides the inline `background: transparent` by
    source order. Scoped to max-width:767px → desktop/tablet untouched. Desktop
-   keeps its original transparent card (the inline `@media (min-width:768px)`
+   keeps its original transparent card (the inline `@media (min-width: 768px) and (orientation: landscape)`
    rule already hides .sc-atc/.sc-wish there).
 
    Reuses theme tokens: #ffffff / var(--color-surface) for the card surface,
@@ -356,7 +356,7 @@ html.dark #page-numbers button.text-primary:not(.bg-primary) {
    radius + comfortable internal padding. Card dimensions, aspect ratio, grid
    layout and all JS behaviour are unchanged — pure presentation.
    ========================================================================== */
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: portrait) {
   /* The card container itself: solid elevated surface wrapping everything. */
   #product-grid > article.group {
     background-color: #ffffff !important;
@@ -457,7 +457,7 @@ html.dark #page-numbers button.text-primary:not(.bg-primary) {
    Scoped to max-width:767px → desktop/tablet untouched. No layout, no JS, no
    selector the existing cart/wishlist/YML logic depends on is changed.
    ========================================================================== */
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: portrait) {
   /* ---- WISHLIST CARD ----
      Was `background: transparent` (image/name/ATC detached). Now one elevated
      card containing the image, un-heart button, name, price and Add to Cart. */
@@ -663,7 +663,7 @@ footer .text-primary.material-symbols-outlined {
       white, so no blank gap is ever visible.
    This block is loaded site-wide via dark-overrides.js (no per-page edits).
    ============================================================================ */
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: portrait) {
   html {
     /* solid backdrop so overscroll can never reveal white (light + dark) */
     background-color: #f7f9ff;
@@ -720,8 +720,8 @@ footer .text-primary.material-symbols-outlined {
   }
   /* Logo group: row 1, left. Enlarge the logo vs. the old mobile h-9 (2.25rem);
      use 2.5rem so branding is the primary visual element without crowding row 1. */
-  nav.fixed.top-0 .flex.items-center.gap-12 > a[href="home.html"] img,
-  nav.fixed.top-0 a[href="home.html"] > img {
+  nav.fixed.top-0 .flex.items-center.gap-12 > a[href="home5.html"] img,
+  nav.fixed.top-0 a[href="home5.html"] > img {
     height: 2.5rem !important;
   }
   /* The desktop department-links wrapper (hidden md:flex) stays hidden on mobile */
@@ -765,9 +765,10 @@ footer .text-primary.material-symbols-outlined {
   /* EN|AR selector */
   #nassim-mobile-utils .nassim-mu-lang {
     font-family: 'Inter', sans-serif !important;
-    font-size: 0.8rem !important;
+    font-size: 13px !important;
+    line-height: 19.5px !important;
     font-weight: 700 !important;
-    letter-spacing: 0.04em !important;
+    letter-spacing: 0.1em !important;
     user-select: none !important;
   }
   #nassim-mobile-utils .nassim-mu-lang .nassim-mu-sep { opacity: 0.35 !important; margin: 0 0.15rem !important; font-weight: 400 !important; }
@@ -788,7 +789,7 @@ footer .text-primary.material-symbols-outlined {
 button[data-lang-wired] span[data-lang] { cursor: pointer !important; }
 button[data-lang-wired] span[data-lang].nassim-lang-on { opacity: 1 !important; }
 button[data-lang-wired] span[data-lang].nassim-lang-off { opacity: 0.45 !important; }
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
   /* The injected mobile utility row is mobile-only — never show on desktop/tablet */
   #nassim-mobile-utils { display: none !important; }
 }
@@ -810,7 +811,7 @@ button[data-lang-wired] span[data-lang].nassim-lang-off { opacity: 0.45 !importa
    regardless of minor class/markup differences between templates. This file is
    auto-injected on all storefront pages by assets/js/dark-overrides.js.
    ============================================================================ */
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: portrait) {
   a[href*="wa.me"] {
     /* Lift the button so its bottom edge clears the entire fixed bottom nav
        (3.75rem tall) + a ~20px gap (1.25rem) + the iOS safe-area inset.
@@ -821,7 +822,7 @@ button[data-lang-wired] span[data-lang].nassim-lang-off { opacity: 0.45 !importa
     z-index: 100 !important;
   }
 }
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
   /* Desktop/tablet: ensure the original `md:bottom-6` (1.5rem) is honored and
      the mobile override never leaks up. */
   a[href*="wa.me"] {
@@ -830,3 +831,54 @@ button[data-lang-wired] span[data-lang].nassim-lang-off { opacity: 0.45 !importa
 }
 
 
+
+/* ============================================================================
+   GLOBAL LANGUAGE TOGGLE STANDARD (home5.html reference):
+     English label "ENG"  = 13px
+     Arabic  label "عربي" = 18.2px  (13 × 1.40 — 40% larger than English)
+   Applied per displayed language via the existing data-lang attributes
+   (set by the shared NassimLang sync on every wired toggle), and via the
+   page-language class for the desktop direct-switch label. Line-height
+   pinned to 19.5px so the navigation height never changes. ==== */
+button[data-lang-wired] span[data-lang="ar"],
+.nassim-mu-opt[data-lang="ar"] {
+  font-size: 18.2px !important;
+  line-height: 19.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+}
+button[data-lang-wired] span[data-lang="en"],
+.nassim-mu-opt[data-lang="en"] {
+  font-size: 13px !important;
+  line-height: 19.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+}
+/* home5-style mobile toggle (id-specific tier rules in home5-mobile.css
+   need the id-specific override to hold at every width): */
+#home5-lang-btn span[data-lang="ar"] { font-size: 18.2px !important; line-height: 19.5px !important; }
+#home5-lang-btn span[data-lang="en"] { font-size: 13px !important; line-height: 19.5px !important; }
+/* Desktop direct-switch label (#home5-lang-cur): shows عربي on English
+   pages, ENG on Arabic pages. */
+#home5-lang-cur { font-size: 13px !important; line-height: 19.5px !important; }
+html:not(.lang-ar) #home5-lang-cur { font-size: 18.2px !important; }
+/* Engine burger label: same language-dependent sizing. */
+html:not(.lang-ar) #h5-b-langval { font-size: 18.2px !important; line-height: 19.5px !important; }
+/* Engine-injected scaling (runtime stylesheet, higher cascade position) is
+   beaten with an id-chain selector so AR-page ENG stays 13px and EN-page
+   عربي stays 18.2px at every desktop width. */
+html.lang-ar #home5-lang-dd #home5-lang-cur { font-size: 13px !important; line-height: 19.5px !important; }
+html:not(.lang-ar) #home5-lang-dd #home5-lang-cur { font-size: 18.2px !important; line-height: 19.5px !important; }
+html.lang-ar #h5-b-langval { font-size: 13px !important; line-height: 19.5px !important; }
+
+
+/* ==== MOBILE ONLY (<=767px): Price Range (KD) filter — hide the manual
+   "KD min / KD max" input boxes so only the floating value bubbles and the
+   slider remain (desktop already hides them via each page's inline CSS).
+   The hidden #price-min/#price-max inputs stay in the DOM and keep working
+   (the slider writes its values into them); only their visible boxes are
+   removed. ==== */
+@media (max-width: 767px), (orientation: portrait) {
+  .js-price-manual { display: none !important; }
+  .js-price-manual .nps-box { display: none !important; }
+}

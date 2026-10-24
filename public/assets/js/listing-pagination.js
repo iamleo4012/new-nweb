@@ -27,7 +27,7 @@
 (function () {
   "use strict";
 
-  var PAGE_SIZE = 12;   // product cards per page
+  var MIN_PER_PAGE = 20; // smallest acceptable number of products per page
   var MAX_BUTTONS = 7;  // page buttons shown before ellipsis windows kick in
 
   var BTN_BASE =
@@ -48,6 +48,54 @@
     grid.dataset.paginationBound = "1";
 
     var currentPage = 1;
+    /* Page requested in the URL (?page=N). Consumed once the catalogue has
+       actually rendered cards (the initial refresh runs against the loading
+       skeleton, where nothing can be shown yet). Invalid values fall back to
+       page 1; out-of-range values are clamped to the last page in refresh(). */
+    function readPageParam() {
+      try {
+        var v = parseInt(new URLSearchParams(window.location.search).get("page"), 10);
+        return v >= 1 ? v : 1;
+      } catch (e) { return 1; }
+    }
+    var pendingPage = readPageParam();
+
+    /* Page size = (actual rendered grid columns) × (smallest whole row count
+       that reaches MIN_PER_PAGE). Columns are read from the LIVE computed
+       grid layout, so each responsive breakpoint gets its own uniform page:
+       1 col → 20, 2 → 20, 3 → 21, 4 → 20, 5 → 20, 6 → 24, 7 → 21 …
+       Recomputed on every refresh, so viewport changes re-slice cleanly. */
+    var cachedCols = 0;
+    function pageSize() {
+      var cols = cachedCols;
+      if (!cols) {
+        try {
+          var tmpl = getComputedStyle(grid).gridTemplateColumns;
+          if (tmpl && tmpl.trim() && tmpl.trim() !== "none") {
+            cols = tmpl.trim().split(/\s+/).length;
+          }
+        } catch (e) { /* older engines */ }
+        if (!(cols >= 1)) cols = 1;
+        cachedCols = cols;
+      }
+      return cols * Math.max(1, Math.ceil(MIN_PER_PAGE / cols));
+    }
+    /* Card count at the moment a ?page=N restore happened — lets refresh()
+       tell a duplicate render of the same content apart from a real
+       filter/sort change (which must reset to page 1). */
+    var restoredCount = 0;
+
+    /* Rewrite ?page=N while preserving every other query parameter
+       (category path, search, filters …). push=false uses replaceState so
+       programmatic resets (filter change → page 1) don't spam history. */
+    function writePageParam(page, push) {
+      try {
+        var u = new URL(window.location.href);
+        u.searchParams.set("page", String(page));
+        if (push) window.history.pushState({ nassimPage: page }, "", u);
+        else window.history.replaceState({ nassimPage: page }, "", u);
+      } catch (e) { /* older engines: pagination still works, URL just stays */ }
+    }
 
     function cards() {
       return Array.prototype.slice.call(grid.querySelectorAll("article"));
@@ -90,6 +138,7 @@
         if (n === currentPage) b.setAttribute("aria-current", "page");
         b.addEventListener("click", function () {
           currentPage = n;
+          writePageParam(currentPage, true);
           refresh(false);
           scrollToGridTop();
         });
@@ -99,9 +148,30 @@
 
     function refresh(resetPage) {
       var list = cards();
-      var totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
-      if (resetPage) currentPage = 1;
-      if (currentPage > totalPages) currentPage = totalPages;
+      var totalPages = Math.max(1, Math.ceil(list.length / pageSize()));
+      if (resetPage) {
+        if (pendingPage > 1 && list.length > 0) {
+          // First render after load/reload with ?page=N: restore it (clamped
+          // below if the catalogue shrank). Consumed once, so later
+          // filter/sort re-renders still behave as before (back to page 1).
+          currentPage = pendingPage;
+          pendingPage = 1;
+          restoredCount = list.length;
+        } else if (restoredCount && list.length === restoredCount) {
+          // Duplicate observer fire after the restore (e.g. a second render
+          // pass with identical content): keep the restored page instead of
+          // kicking the user back to page 1.
+        } else {
+          currentPage = 1;
+          if (list.length > 0) writePageParam(1, false);
+        }
+      }
+      if (currentPage > totalPages) {
+        // Requested page exceeds the catalogue (e.g. ?page=99): show the last
+        // page and normalize the URL so a reload lands on the same place.
+        currentPage = totalPages;
+        writePageParam(currentPage, false);
+      }
 
       var wrapper = rowWrapper();
       if (list.length === 0 || totalPages <= 1) {
@@ -114,7 +184,7 @@
 
       if (wrapper) wrapper.style.display = "";
       list.forEach(function (a, idx) {
-        a.style.display = Math.floor(idx / PAGE_SIZE) + 1 === currentPage ? "" : "none";
+        a.style.display = Math.floor(idx / pageSize()) + 1 === currentPage ? "" : "none";
       });
       renderNumbers(totalPages);
       prev.disabled = currentPage === 1;
@@ -122,12 +192,34 @@
     }
 
     prev.addEventListener("click", function () {
-      if (currentPage > 1) { currentPage--; refresh(false); scrollToGridTop(); }
+      if (currentPage > 1) {
+        currentPage--; writePageParam(currentPage, true);
+        refresh(false); scrollToGridTop();
+      }
     });
     next.addEventListener("click", function () {
-      if (currentPage < Math.ceil(cards().length / PAGE_SIZE)) {
-        currentPage++; refresh(false); scrollToGridTop();
+      if (currentPage < Math.ceil(cards().length / pageSize())) {
+        currentPage++; writePageParam(currentPage, true);
+        refresh(false); scrollToGridTop();
       }
+    });
+
+    // Back / Forward: re-read ?page=N from the URL the browser navigated to
+    // and show that page. pendingPage mechanism does the clamping; filters
+    // are not part of the URL, so the grid content itself is untouched.
+    window.addEventListener("popstate", function () {
+      pendingPage = readPageParam();
+      refresh(true);
+      scrollToGridTop();
+    });
+
+    // Viewport changes alter the grid's column count (breakpoint change), so
+    // the page size is recomputed and the page re-sliced. The current page is
+    // kept and clamped inside refresh() — no reset, no refetch.
+    var resizeTimer = null;
+    window.addEventListener("resize", function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () { cachedCols = 0; refresh(false); }, 200);
     });
 
     // Re-render detection: filter/search/sort changes and catalogue loads all

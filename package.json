@@ -22,6 +22,8 @@
     "seed": "node prisma/seed.mjs"
   },
   "dependencies": {
+    "@neon/config": "^1.9.3",
+    "@neon/env": "^1.6.4",
     "@prisma/client": "^6.3.0",
     "bcryptjs": "^2.4.3",
     "exceljs": "^4.4.0",

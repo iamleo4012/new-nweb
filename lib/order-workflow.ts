@@ -87,7 +87,10 @@ export function isBillable(itemStatus: string): boolean {
  * Valid transitions. Each key maps to the set of statuses that may
  * follow it. Any transition not listed here is rejected.
  */
-const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+// Partial: "SEEN" is a store-page display state whose transitions live in
+// SEEN_TRANSITIONS below and are concatenated in allowedTransitions(); the
+// base map intentionally omits it.
+const TRANSITIONS: Partial<Record<OrderStatus, OrderStatus[]>> = {
   PENDING: ["UNDER_REVIEW", "CANCELLED_BY_STAFF"],
   UNDER_REVIEW: ["READY_FOR_CONFIRMATION", "CANCELLED_BY_STAFF"],
   READY_FOR_CONFIRMATION: ["CONFIRMED", "CANCELLED_BY_CUSTOMER", "CANCELLED_BY_STAFF"],
@@ -122,6 +125,7 @@ function allowedTransitions(from: OrderStatus): OrderStatus[] {
  */
 export const STATUS_LABELS: Record<OrderStatus, string> = {
   PENDING: "Pending",
+  SEEN: "Seen",
   UNDER_REVIEW: "Under Review",
   READY_FOR_CONFIRMATION: "Ready for Confirmation",
   CONFIRMED: "Confirmed",
@@ -147,6 +151,7 @@ export const ITEM_STATUS_LABELS: Record<OrderItemStatus, string> = {
  */
 export const STATUS_COLORS: Record<OrderStatus, string> = {
   PENDING: "bg-yellow-100 text-yellow-800",
+  SEEN: "bg-sky-100 text-sky-800",
   UNDER_REVIEW: "bg-blue-100 text-blue-800",
   READY_FOR_CONFIRMATION: "bg-indigo-100 text-indigo-800",
   CONFIRMED: "bg-green-100 text-green-800",

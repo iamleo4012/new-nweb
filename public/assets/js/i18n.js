@@ -401,6 +401,20 @@
     return ar + ': ' + m[1];
   }
 
+  /* ORDER-SHEET QUANTITY PATTERN: order pages render the product-row label
+     as one composed text node ("Quantity: 3"), which can never exact-match
+     the approved "quantity: 1" key (exact match still wins for quantity 1).
+     Compose from the approved mapping ("quantity" -> "الكمية") + the live
+     number, following the same pattern as itemsCountAr above. */
+  var QUANTITY_RE = /^quantity:\s*(\d+)$/i;
+  function quantityAr(v) {
+    var m = QUANTITY_RE.exec(String(v).replace(/\s+/g, ' ').trim());
+    if (!m) return null;
+    var ar = lookup['quantity'];
+    if (ar == null) return null;
+    return ar + ': ' + m[1];
+  }
+
   function translateTextNode(node) {
     if (node.nodeType !== 3) return;
     var v = node.nodeValue;
@@ -416,6 +430,7 @@
     if (ar == null) ar = emptyStateAr(v); // shared "No [Category] products found." composition
     if (ar == null) ar = productsCountAr(v); // composed "N products" count label
     if (ar == null) ar = itemsCountAr(v); // composed "number of items: N" listing count
+    if (ar == null) ar = quantityAr(v); // composed "Quantity: N" order-sheet label
     /* TRAILING-COLON FALLBACK: sidebar headings render as "FILTER BY :" while
        the approved key is "filter by". On an exact miss, retry the text
        without its trailing " :" and append the colon to the approved Arabic

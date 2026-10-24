@@ -63,7 +63,7 @@
         "#nassim-secondary-nav .nssn-pill{flex:0 0 auto;margin-left:16px;margin-right:16px;background:#ffffff;border:1px solid #c4c6cc;border-radius:9999px;padding:10px 18px;color:#111d27;font-size:13px;font-weight:600;white-space:nowrap;pointer-events:none;box-shadow:0 2px 8px rgba(0,3,8,0.06);}",
         "html.dark #nassim-secondary-nav .nssn-pill{background:#141a22;border-color:rgba(255,255,255,0.2);color:#ffffff;}",
         /* Mobile: shorter bar, smaller truck/text/pill. */
-        "@media (max-width:767px){",
+        "@media (max-width: 767px), (orientation: portrait){",
         "  #nassim-secondary-nav{height:52px;}",
         "  #nassim-secondary-nav .nssn-unit{margin-right:120px;}",
         "  #nassim-secondary-nav .nssn-truck{font-size:22px !important;}",

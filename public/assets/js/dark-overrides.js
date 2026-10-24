@@ -7,8 +7,11 @@
 (function () {
   /* Skip injection when the stylesheet is already linked in <head> as a
      render-blocking <link> (preferred loading path) — never load it twice. */
+  // [href*=] (not [href$=]) so versioned links like
+  // dark-overrides.css?v=20261013 also count as "already linked" — a query
+  // string must not cause a second, unversioned copy to be injected.
   var existing = document.querySelector(
-    'link[rel="stylesheet"][href$="dark-overrides.css"]'
+    'link[rel="stylesheet"][href*="dark-overrides.css"]'
   );
   if (existing) return;
   var link = document.createElement("link");
@@ -75,7 +78,7 @@ window.addEventListener("pageshow", function () {
   }
 
   function isMobile() {
-    return window.matchMedia("(max-width: 767px)").matches;
+    return window.matchMedia("(max-width: 767px), (orientation: portrait)").matches;
   }
 
   function buildUtils() {
@@ -142,6 +145,10 @@ window.addEventListener("pageshow", function () {
   function inject() {
     if (!isMobile()) return;
     if (document.getElementById("nassim-mobile-utils")) return; // already injected
+    /* Pages can opt out of the legacy injected utility row by setting
+       data-nassim-no-mobile-utils on <html> (standardized pages build their
+       own mobile header utilities). */
+    if (document.documentElement.getAttribute("data-nassim-no-mobile-utils") === "1") return;
     var nav = document.querySelector("nav.fixed.top-0");
     if (!nav) return;
     var container = nav.querySelector(".flex.justify-between");
@@ -149,7 +156,7 @@ window.addEventListener("pageshow", function () {
     // Insert the utility row right AFTER the logo group (the first child), so the
     // DOM order is [logo-group][mobile-utils][search]. With the search forced to
     // 100% width (CSS), row 1 = logo + utils, and the search wraps onto row 2.
-    var logoGroup = container.querySelector("a[href=\"home.html\"]");
+    var logoGroup = container.querySelector("a[href=\"home5.html\"]");
     var anchor = logoGroup ? logoGroup.parentElement : container.firstChild;
     container.insertBefore(buildUtils(), anchor ? anchor.nextSibling : null);
     // theme.js may have run before this button existed — re-trigger its init so
@@ -178,7 +185,7 @@ window.addEventListener("pageshow", function () {
 
   ready(inject);
   // Re-inject when crossing into the mobile breakpoint (e.g. desktop resize)
-  var mq = window.matchMedia("(max-width: 767px)");
+  var mq = window.matchMedia("(max-width: 767px), (orientation: portrait)");
   if (mq.addEventListener) mq.addEventListener("change", function () { if (isMobile()) inject(); else { var e = document.getElementById("nassim-mobile-utils"); if (e) e.remove(); } });
   else if (mq.addListener) mq.addListener(function () { if (isMobile()) inject(); else { var e = document.getElementById("nassim-mobile-utils"); if (e) e.remove(); } });
 
@@ -324,6 +331,149 @@ window.addEventListener("pageshow", function () {
 })();
 
 /* ============================================================================
+   MOBILE LANGUAGE SELECTOR — OPPOSITE-LANGUAGE DROPDOWN (mobile only)
+   ----------------------------------------------------------------------------
+   The mobile top-nav selector (#home5-lang-btn, shown <=767px) previously
+   toggled the language on a single tap. Mirroring the DESKTOP selector's
+   behavior (which shows the current language and offers ONLY the other one
+   in its dropdown), a tap on the mobile selector now opens a compact
+   dropdown containing ONLY the opposite language:
+
+     English selected →  ENG  → tap → [ عربي ]
+     Arabic selected  →  عربي → tap → [ ENG  ]
+
+   The dropdown reuses the existing dropdown/option classes for its look
+   (.dark-glass-dropdown / .h5-lang-opt visual language) at mobile scale,
+   anchored under the selector, clamped to the viewport, and direction-aware
+   (works in LTR English and RTL Arabic). Switching still uses the EXISTING
+   window.NassimLang.toggle() — localStorage('nassim-lang') + reload — so
+   persistence and the i18n system are untouched, no new translations are
+   added, and desktop (>=768px) is never affected: the interceptor no-ops
+   there and the desktop #home5-lang-dd keeps its own wiring. */
+(function () {
+  var MENU_ID = "nassim-m-lang-menu";
+  function isMobileLangCtx() {
+    return window.matchMedia("(max-width: 767px), (orientation: portrait)").matches;
+  }
+  function currentLang() {
+    return window.NassimLang && window.NassimLang.get
+      ? window.NassimLang.get()
+      : "en";
+  }
+  function menu() {
+    return document.getElementById(MENU_ID);
+  }
+  function closeMenu() {
+    var m = menu();
+    if (m) m.remove();
+    var btn = document.getElementById("home5-lang-btn");
+    if (btn) btn.setAttribute("aria-expanded", "false");
+  }
+  function openMenu(btn) {
+    closeMenu();
+    var ar = currentLang() !== "ar";
+    var m = document.createElement("div");
+    m.id = MENU_ID;
+    m.setAttribute("role", "menu");
+    m.setAttribute("aria-label", "Language");
+    /* Mobile-scale version of the existing dropdown look: same rounded
+       border/shadow/glass language, compact for the mobile top nav. */
+    var dark = document.documentElement.classList.contains("dark");
+    m.style.cssText =
+      "position:fixed;z-index:99990;min-width:72px;padding:4px;border-radius:12px;" +
+      "box-shadow:0 8px 24px rgba(0,0,0,0.18);border:1px solid " +
+      (dark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.08)") + ";" +
+      "background:" + (dark ? "rgba(17,29,39,0.97)" : "rgba(247,249,255,0.97)") + ";" +
+      "backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);";
+
+    var opt = document.createElement("button");
+    opt.type = "button";
+    opt.className = "h5-lang-opt";
+    opt.setAttribute("role", "menuitem");
+    opt.setAttribute("data-h5-lang", ar ? "ar" : "en");
+    opt.textContent = ar ? "عربي" : "ENG";
+    opt.style.cssText =
+      "display:flex;align-items:center;justify-content:center;width:100%;" +
+      "padding:8px 14px;border:none;background:none;cursor:pointer;" +
+      "border-radius:8px;font-size:13px;font-weight:700;letter-spacing:0.08em;" +
+      "font-family:inherit;color:" + (dark ? "#fff" : "#111d27") + ";";
+    opt.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeMenu();
+      /* EXISTING switch mechanism: saves 'nassim-lang' and reloads. */
+      if (window.NassimLang && window.NassimLang.toggle) window.NassimLang.toggle();
+    });
+    opt.addEventListener("mouseenter", function () {
+      opt.style.background = dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)";
+    });
+    opt.addEventListener("mouseleave", function () {
+      opt.style.background = "none";
+    });
+    m.appendChild(opt);
+
+    /* Anchor under the selector, clamped inside the viewport. Using the
+       button's live rect keeps it correct in RTL (where the selector sits
+       further left) and on every page/width. */
+    var r = btn.getBoundingClientRect();
+    m.style.visibility = "hidden";
+    document.body.appendChild(m);
+    var mw = m.offsetWidth, mh = m.offsetHeight;
+    var x = Math.min(Math.max(8, r.left + r.width / 2 - mw / 2),
+      window.innerWidth - mw - 8);
+    var y = Math.min(r.bottom + 6, window.innerHeight - mh - 8);
+    m.style.left = x + "px";
+    m.style.top = y + "px";
+    m.style.visibility = "";
+    btn.setAttribute("aria-expanded", "true");
+  }
+
+  /* Capture phase: runs BEFORE the button's own NassimLang toggle listener,
+     so on mobile the whole selector becomes the dropdown trigger instead of
+     an instant toggle. Desktop never enters this branch. */
+  document.addEventListener("click", function (e) {
+    if (!e.target || !e.target.closest) return;
+    var m = menu();
+    var btn = e.target.closest("#home5-lang-btn");
+    if (btn) {
+      if (!isMobileLangCtx()) return; // desktop: existing behavior untouched
+      e.preventDefault();
+      e.stopPropagation();
+      if (m) closeMenu();
+      else openMenu(btn);
+      return;
+    }
+    /* Tap anywhere outside an open dropdown closes it. */
+    if (m && !m.contains(e.target)) closeMenu();
+  }, true);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeMenu();
+  });
+
+  /* The mobile trigger shows the CURRENT language ("ENG" / "عربي") — the
+     same label the desktop selector uses. Mobile only; desktop markup is
+     never touched. Idempotent. */
+  function syncMobileLangLabel() {
+    if (!isMobileLangCtx()) return;
+    var btn = document.getElementById("home5-lang-btn");
+    if (!btn) return;
+    var en = btn.querySelector('[data-lang="en"]');
+    if (en && en.textContent !== "ENG") en.textContent = "ENG";
+    var ar = btn.querySelector('[data-lang="ar"]');
+    if (ar && ar.textContent !== "عربي") ar.textContent = "عربي";
+  }
+  function ready(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  }
+  ready(syncMobileLangLabel);
+  window.addEventListener("load", syncMobileLangLabel);
+  var langMq = window.matchMedia("(max-width: 767px), (orientation: portrait)");
+  if (langMq.addEventListener) langMq.addEventListener("change", syncMobileLangLabel);
+  else if (langMq.addListener) langMq.addListener(syncMobileLangLabel);
+})();
+
+/* ============================================================================
    MOBILE HEADER-HEIGHT SYNC — global, dynamic, no hard-coded pixels
    ----------------------------------------------------------------------------
    The fixed mobile header (<nav class="fixed w-full z-50 ... top-0">) is shared
@@ -356,7 +506,7 @@ window.addEventListener("pageshow", function () {
 
     function apply() {
       if (!nav) return;
-      if (window.matchMedia("(max-width: 767px)").matches) {
+      if (window.matchMedia("(max-width: 767px), (orientation: portrait)").matches) {
         // offsetHeight includes the logo + utility row + wrapped search row,
         // i.e. the true on-screen header height the page content must clear.
         html.style.setProperty("--mobile-header-height", nav.offsetHeight + "px");

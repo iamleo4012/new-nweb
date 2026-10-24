@@ -5,14 +5,54 @@
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <link rel="icon" href="/LOGO.png" type="image/png"/>
 <title>AL-NASSIM</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Signika&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/css/tailwind.css">
-<link rel="stylesheet" href="assets/css/dark-overrides.css">
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
-<script src="assets/js/i18n-data.js" defer></script>
+<link rel="preload" href="/assets/fonts/MaterialSymbolsOutlined-var.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="/assets/fonts/Inter-400-UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="/assets/fonts/Manrope-800-xn7gYHE41ni1AdIRggexSg.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="stylesheet" href="/assets/css/fonts-local.css?v=20261013"/>
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=20261013c">
+<link rel="stylesheet" href="assets/css/dark-overrides.css?v=20261013">
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=6"/>
+<script src="assets/js/i18n-data.js?v=4" defer></script>
+<script src="assets/js/product-name.js?v=1"></script>
 <script src="assets/js/i18n.js" defer></script>
+<style>
+/* MOBILE ONLY (<=767px): body bottom clearance equals the EXACT height of
+   this page's fixed bottom UI, so no trailing blank strip is scrollable
+   past the last content. Desktop unaffected (scoped <=767px). */
+@media (max-width: 767px), (orientation: portrait) {
+  body { padding-bottom: calc(63 + env(safe-area-inset-bottom, 0px)) !important; }
+}
+
+  /* Pizza Collection: the hover image swap is a desktop affordance —
+     mobile (<=767px) shows ONLY the base product image, so touch devices
+     never reveal the second photo. */
+  @media (max-width: 767px), (orientation: portrait) {
+    section.pizza-collection img[alt="Product Hover"] { display: none !important; }
+  }
+</style>
+<style>
+/* MOBILE ONLY (<=767px): the bottom navigation has a CONSTANT explicit
+   height (62.5px content + safe-area inset). It must never grow or shrink
+   when the browser's own toolbar appears/disappears and the visual/layout
+   viewport height changes — the browser may move the nav (it is fixed to
+   the bottom), but never resize it. Measured design height: 62.5px. */
+@media (max-width: 767px), (orientation: portrait) {
+  #mobile-bottom-nav {
+    height: calc(62.5px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(62.5px + env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box !important;
+  }
+  #mobile-bottom-nav > div {
+    height: 100% !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+</style>
+<style>/* Arabic desktop: widen the Warehouse Equipment dropdown so the longest
+   Arabic item fits inside without overflow (same fix as supermarket.html). */
+@media (min-width: 768px) and (orientation: landscape) { html.lang-ar .dd-warehouse-wide { width: 19rem; } }</style>
+
 </head><body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 
     <!-- Theme must be resolved BEFORE the splash first paints so its solid
@@ -22,7 +62,7 @@
     <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
  document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);document.documentElement.style.setProperty("--splash-bg",d?"#0a0f14":"#f7f9ff");}catch(e){document.documentElement.classList.add("light");document.documentElement.style.setProperty("--splash-bg","#f7f9ff");}}__nassimThemeInit();</script>
 <!-- Loading Screen — logo + dots, shown until the page fully loads, then a
-     smooth logo-zoom reveal (mobile + desktop, home.html only).
+     smooth logo-zoom reveal (mobile + desktop, home5.html only).
 
      SELF-CONTAINED UNIT: markup + ALL its CSS + its orchestration script sit
      together at the very top of <body>, BEFORE every blocking external
@@ -46,9 +86,9 @@
            unique to the carousel buttons; breakpoints mirror sm/md. */
         .text-\[8\.96px\] { font-size: 8.96px; }
         @media (min-width: 640px) { .sm\:text-\[10\.08px\] { font-size: 10.08px; } }
-        @media (min-width: 768px) { .md\:text-\[11\.2px\] { font-size: 11.2px; } }
+        @media (min-width: 768px) and (orientation: landscape) { .md\:text-\[11\.2px\] { font-size: 11.2px; } }
         /* Loading Screen Styles — logo + dots until FULL page load, then a
-           smooth logo-zoom reveal (mobile + desktop, home.html only).
+           smooth logo-zoom reveal (mobile + desktop, home5.html only).
            Backgrounds are SOLID (not rgba + backdrop-filter): nothing under
            the splash can ever show through, in any theme. */
         #loading-screen {
@@ -124,15 +164,15 @@
             transform: scale(1.22);
             opacity: 0;
             transition:
-                transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-                opacity 0.4s ease-in;
+                transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.25s ease-in;
         }
         /* STAGE 2 (logo gone): only now does the overlay fade away and open
            the fully-settled page. */
         #loading-screen.open {
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.35s ease-out;
+            transition: opacity 0.28s ease-out;
         }
         @media (prefers-reduced-motion: reduce) {
             #loading-logo, .loading-dots, #loading-screen {
@@ -161,7 +201,7 @@
        untouched. Base classes first, then sm:/md: variants so the
        higher-breakpoint utility keeps precedence at desktop widths.
        ====================================================================== */
-    @media (min-width: 768px) {
+    @media (min-width: 768px) and (orientation: landscape) {
         html.lang-ar .text-xs { font-size: calc(0.75rem * 1.15); line-height: calc(1rem * 1.15); }
         html.lang-ar .text-sm { font-size: calc(0.875rem * 1.15); line-height: calc(1.25rem * 1.15); }
         html.lang-ar .text-lg { font-size: calc(1.125rem * 1.15); line-height: calc(1.75rem * 1.15); }
@@ -201,64 +241,95 @@
         html.lang-ar .md\:text-\[31px\] { font-size: calc(31px * 1.15); }
     }
 </style>
+<script>window.__CTRL_EXEC=performance.now();console.log("PROBE-SCRIPT-RAN");</script>
 <script>
 (function () {
     var splash = document.getElementById("loading-screen");
+    console.log("CONTROLLER-EXEC at "+performance.now().toFixed(0)+"ms, readyState="+document.readyState);
     if (!splash) return;
     var start = performance.now();
     var revealed = false;
 
-    // Gentle logo entrance while loading.
     requestAnimationFrame(function () {
         requestAnimationFrame(function () { splash.classList.add("logo-in"); });
     });
 
-    // Lock scrolling while the splash is up (released on open). Set here, at
-    // the top of <body>, so the not-yet-styled page can never be scrolled
-    // under the splash either.
+    // Lock scrolling while the splash is up (released on open).
     document.body.style.overflow = "hidden";
 
     function cleanup() {
+        console.log("SPLASH-HIDDEN(display:none) at "+performance.now().toFixed(0)+"ms");
         splash.style.display = "none";
         document.body.style.overflow = "";
     }
 
-    // The page must be FULLY settled before it is shown: the carousel and
-    // hero alignment visibly reflow after 'load' while webfonts and the
-    // Tailwind runtime finish applying styles. So "ready" = window load AND
-    // webfonts ready AND a short settle delay — never just DOMContentLoaded.
-    function pageReady() {
-        var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
-        Promise.all([
-            new Promise(function (r) { if (document.readyState === "complete") r(); else window.addEventListener("load", r); }),
-            fontsReady,
-        ]).then(function () {
-            setTimeout(reveal, 300); // settle beat: late layout/fonts apply here, behind the splash
-        });
-    }
-
-    function reveal() {
+    function reveal(label) {
+        console.log("REVEAL-REQUEST ["+(label||"?")+"] at "+performance.now().toFixed(0)+"ms");
         if (revealed) return;
+        console.log("SPLASH-HIDE-START ["+label+"] at "+performance.now().toFixed(0)+"ms");
         revealed = true;
         // Minimum splash display so the entrance is never a flash.
-        var wait = Math.max(0, 700 - (performance.now() - start));
+        var wait = Math.max(0, 250 - (performance.now() - start));
         setTimeout(function () {
-            // STAGE 1: dots vanish instantly, logo zooms away — overlay still
-            // fully opaque, so the page is NEVER visible at the same time as
-            // the dots.
+            // STAGE 1: dots vanish instantly, logo zooms away — overlay still opaque.
             splash.classList.add("reveal");
-            // STAGE 2: only after the logo is gone does the overlay open the
-            // (now fully settled) page.
+            // STAGE 2: only after the logo is gone does the overlay open the page.
             setTimeout(function () {
                 splash.classList.add("open");
-                setTimeout(cleanup, 400);
-            }, 480);
+                setTimeout(cleanup, 320);
+            }, 300);
         }, wait);
     }
 
-    pageReady();
-    // Failsafe: never trap the user behind the splash.
-    setTimeout(function () { reveal(); }, 5000);
+    /* The splash exists ONLY to protect the critical visual state: applied CSS,
+       resolved theme, LTR/RTL direction, and the icon/text fonts. It must NEVER
+       wait for window load, deferred scripts, or images — those keep loading
+       after the splash is gone.
+       Ready = DOM parsed ('interactive', NOT DOMContentLoaded — DCL waits for
+       every deferred script) AND critical fonts loaded, with the fonts gated
+       by a 700ms cap so one slow font can never hold the page hostage. */
+    function pageReady() {
+        var domReady = (document.readyState !== "loading")
+            ? Promise.resolve()
+            : new Promise(function (r) {
+                document.addEventListener("readystatechange", function chk() {
+                    if (document.readyState !== "loading") { document.removeEventListener("readystatechange", chk); r(); }
+                });
+            });
+        var fontWaits = [];
+        if (document.fonts && document.fonts.load) {
+            fontWaits = [
+                document.fonts.load('24px "Material Symbols Outlined"').catch(function () {}),
+                document.fonts.load('400 16px Inter').catch(function () {}),
+                document.fonts.load('800 16px Manrope').catch(function () {})
+            ];
+        }
+        var fontsGate = Promise.race([
+            Promise.all(fontWaits),
+            new Promise(function (r) { setTimeout(r, 700); })
+        ]);
+        /* If the i18n layer hides the body until Arabic is applied
+           (html.lang-pending), reveal must wait for it — but never past the
+           normal cap. */
+        var langGate = new Promise(function (r) {
+            var el = document.documentElement;
+            if (!el.classList.contains("lang-pending")) return r();
+            var mo = new MutationObserver(function () {
+                if (!el.classList.contains("lang-pending")) { mo.disconnect(); r(); }
+            });
+            mo.observe(el, { attributes: true, attributeFilter: ["class"] });
+            setTimeout(function () { mo.disconnect(); r(); }, 1000);
+        });
+        Promise.all([domReady, fontsGate, langGate]).then(function () {
+            setTimeout(()=>reveal("pageReady-path"), 80); // settle beat
+        });
+    }
+
+    console.log("CAP-SCHEDULED");pageReady();
+    // NORMAL cap: the splash can never exceed ~1s even if readiness stalls.
+    setTimeout(()=>reveal("cap-1000"), 1000);
+    // Emergency failsafe only, for a genuinely broken/stuck page.
+    setTimeout(()=>reveal("failsafe-4500"), 4500);
     // bfcache: returning to this page via Back must never show the splash.
     window.addEventListener("pageshow", function (e) {
         if (e.persisted) { revealed = true; cleanup(); }
@@ -266,7 +337,7 @@
 })();
 </script>
 <!-- fail-safe loader removal (aligned with the reveal script above) -->
-<script>setTimeout(function(){var l=document.getElementById("loading-screen");if(l){l.style.display="none";document.body.style.overflow="";}},5000);</script>
+<script>setTimeout(function(){var l=document.getElementById("loading-screen");if(l){console.log("LEGACY-FAILSAFE-5000 fired at "+performance.now().toFixed(0)+"ms");l.style.display="none";document.body.style.overflow="";}},5000);</script>
 
 <!-- Spotlight Overlay -->
 <div id="spotlight-overlay"></div>
@@ -354,7 +425,7 @@
             background-size: contain;
             background-position: center top;
         }
-        @media (min-width: 768px) {
+        @media (min-width: 768px) and (orientation: landscape) {
             .slide-bg {
                 background-size: cover;
                 background-position: center;
@@ -471,14 +542,14 @@
        desktop padding-top. Clear it with a fixed offset sized to the header.
        Mobile (<768px) is untouched — dark-overrides.css already pads <main>
        there, and the blocks above govern the mobile carousel sizing. */
-    @media (min-width: 768px) {
+    @media (min-width: 768px) and (orientation: landscape) {
         /* +64px: clear the fixed secondary nav bar beneath the header. */
         #featured-carousel { margin-top: calc(5.5rem + 64px); }
     }
     /* Mobile-only: force vertical centering of all header row children.
        Browsers may apply default margins/padding to <form> and <button>
        elements that shift the search bar off-centre. */
-    @media (max-width: 767px) {
+    @media (max-width: 767px), (orientation: portrait) {
         #mobile-inline-search { margin: 0 !important; align-self: center !important; }
         #mobile-inline-search-input { box-sizing: border-box !important; }
         #hamburger-slot { align-self: center !important; }
@@ -504,7 +575,7 @@
        sits at the BOTTOM-LEFT, so all values anchor the bottom (y=100%) to keep
        that text fully visible. The x value differs per image to frame each
        subject without ever cutting the left edge. */
-    @media (max-width: 767px) {
+    @media (max-width: 767px), (orientation: portrait) {
         /* Houseware — PORTRAIT image (0.667) in a taller portrait card (0.523)
            => object-fit:cover crops HORIZONTALLY (left/right). x=0% pins the LEFT
            edge so it is never cut; y=100% protects the bottom-left text. */
@@ -717,12 +788,12 @@
 <nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
 <div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
 <div class="flex items-center gap-12">
-<a href="home.html" class="flex items-center gap-2 group cursor-pointer shrink-0">
+<a href="home5.html" class="flex items-center gap-2 group cursor-pointer shrink-0">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/>
 </a>
 <div class="hidden md:flex gap-8">
 <div class="dropdown-trigger relative py-1">
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a>
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware2.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a>
 <div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
 <ul class="space-y-4">
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-cleaning-tools.html">Cleaning Tools</a></li>
@@ -745,7 +816,7 @@
 </div>
 <div class="dropdown-trigger relative py-1">
 <a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a>
-<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 dd-warehouse-wide z-[60]">
 <ul class="space-y-4">
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-trolleys-baskets.html">Trolleys & Baskets</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-forklifts-pallets.html">Forklifts & Pallets</a></li>
@@ -1014,7 +1085,7 @@
 #featured-carousel .carousel-edge {
     display: none;                      /* mobile: swipe/dots only — no arrows, no edge zones */
 }
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
     #featured-carousel .carousel-edge {
         display: flex;
         position: absolute;
@@ -1051,7 +1122,7 @@
     pointer-events: none;               /* the button owns the hit area */
     transition: background-color 0.2s ease, color 0.2s ease;
 }
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
     #featured-carousel .carousel-edge:hover .carousel-edge-icon { background: #000308; color: #ffffff; }
     #featured-carousel .carousel-edge:active .carousel-edge-icon { background: #825335; color: #ffffff; }
     #featured-carousel .carousel-edge:focus-visible { outline: 2px solid #825335; outline-offset: -6px; }
@@ -1079,7 +1150,7 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
 <div class="absolute inset-x-3 bottom-3 p-4 bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out flex flex-col items-start hidden">
 <h3 class="font-headline text-2xl font-extrabold text-white tracking-tighter uppercase mb-2 leading-none">Houseware</h3>
 <p class="font-headline text-[11px] text-white/60 font-light max-w-[150px] mb-4 leading-relaxed uppercase tracking-[0.2em]">Simple tools for everyday home tasks</p>
-<a class="flex items-center gap-2 font-headline text-[10px] text-white uppercase tracking-[0.2em] group/link" href="houseware.html">
+<a class="flex items-center gap-2 font-headline text-[10px] text-white uppercase tracking-[0.2em] group/link" href="houseware2.html">
 <span class="border-b border-white/30 pb-1 group-hover/link:border-secondary transition-all">Explore</span>
 <span class="material-symbols-outlined text-xs group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
 </a>
@@ -1147,7 +1218,7 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
 <div class="houseware-card-overlay absolute inset-x-6 bottom-6 md:inset-x-12 md:bottom-12 p-10 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out flex flex-col items-start">
 <h3 class="font-headline text-4xl font-extrabold text-white tracking-tighter uppercase mb-4 leading-none">Houseware</h3>
 <p class="font-headline text-[16px] text-white/60 font-light max-w-xs mb-10 leading-relaxed uppercase tracking-[0.25em]">Simple tools to make everyday home tasks easier</p>
-<a class="flex items-center gap-4 font-headline text-[13px] text-white uppercase tracking-[0.3em] group/link" href="houseware.html">
+<a class="flex items-center gap-4 font-headline text-[13px] text-white uppercase tracking-[0.3em] group/link" href="houseware2.html">
 <span class="border-b border-white/30 pb-1 group-hover/link:border-secondary transition-all">Explore Items</span>
 <span class="material-symbols-outlined text-sm group-hover/link:translate-x-2 transition-transform">arrow_forward</span>
 </a>
@@ -1361,7 +1432,7 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
 <div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
 <!-- Column 1 -->
 <div class="col-span-1">
-<a href="home.html" class="flex items-center gap-2 mb-6">
+<a href="home5.html" class="flex items-center gap-2 mb-6">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
 </a>
 <p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
@@ -1370,7 +1441,7 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
 <div>
 <h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4>
 <ul class="space-y-4 text-sm font-medium">
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware2.html">Houseware Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Packaging Manufacturer</a></li>
@@ -1384,7 +1455,7 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="home.html">Terms & Conditions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="home5.html">Terms & Conditions</a></li>
 </ul>
 </div>
 <!-- Column 4 -->
@@ -1482,7 +1553,7 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
                         if (txt) name += (name ? ' ' : '') + txt;
                     }
                 }
-                if (name && link.href) map[name.toLowerCase()] = link.getAttribute('href');
+                if (name && link.href) { map[name.toLowerCase()] = link.getAttribute('href'); hrefOrder.push(link.getAttribute('href')); }
             });
             // Plain nav links that follow the last dropdown-trigger (Packaging/Cold Rooms)
             if (triggers.length > 0) {
@@ -1507,22 +1578,27 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
         }
 
         var hrefMap = {};
+        var hrefOrder = []; /* desktop trigger hrefs in DOM order (positional fallback) */
 
         function hrefForName(rawName) {
             if (!rawName) return null;
-            // Drawer name spans have NO whitespace between words (e.g.
-            // <span>Houseware</span><span>Equipment</span> -> "HousewareEquipment"),
-            // so collapse to alphanumeric-only for matching.
-            var norm = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
-            // Build a parallel normalised view of the map for comparison.
+            /* ARABIC-SAFE MATCH: the old code stripped [^a-z0-9], which deleted
+               every Arabic letter — an Arabic department name collapsed to ""
+               and matched the first (also empty) map key, sending EVERY Arabic
+               department to houseware.html. Match in two passes and never
+               compare against an empty normalization. */
+            var alnum = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            var spaced = rawName.toLowerCase().replace(/\s+/g, ' ').trim();
             var keys = Object.keys(hrefMap);
-            for (var i = 0; i < keys.length; i++) {
-                if (keys[i].replace(/[^a-z0-9]/g, '') === norm) return hrefMap[keys[i]];
+            if (alnum) {
+                for (var i = 0; i < keys.length; i++) {
+                    if (keys[i].replace(/[^a-z0-9]/g, '') === alnum) return hrefMap[keys[i]];
+                }
             }
-            // First-word fallback
-            var firstWord = rawName.toLowerCase().trim().split(/\s+/)[0];
-            for (var j = 0; j < keys.length; j++) {
-                if (keys[j].replace(/[^a-z0-9]/g, '') === firstWord.replace(/[^a-z0-9]/g, '')) return hrefMap[keys[j]];
+            if (spaced) {
+                for (var j = 0; j < keys.length; j++) {
+                    if (keys[j].toLowerCase().replace(/\s+/g, ' ').trim() === spaced) return hrefMap[keys[j]];
+                }
             }
             return null;
         }
@@ -1540,6 +1616,14 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
 
                 var deptName = nameSpan.textContent.replace(/\s+/g, ' ').trim();
                 var href = hrefForName(deptName);
+                /* positional fallback: drawer departments are built from the
+                   desktop triggers in the same DOM order, so data-index
+                   resolves the right department page even if the name match
+                   fails on a language-timing edge case. */
+                if (!href) {
+                    var idx = parseInt(trigger.getAttribute('data-index'), 10);
+                    if (!isNaN(idx) && hrefOrder[idx]) href = hrefOrder[idx];
+                }
                 if (!href) { trigger.setAttribute('data-name-linked', '1'); return; }
 
                 // Replace the name <span> with an <a> that keeps the same
@@ -1680,7 +1764,7 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
                 var info = document.createElement('div');
                 info.style.cssText = 'min-width:0;flex:1;';
                 var name = document.createElement('div');
-                name.textContent = p.name;
+                if (window.NassimProductName) NassimProductName.apply(name, p); else name.textContent = p.name;
                 name.style.cssText = 'font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
                 var meta = document.createElement('div');
                 meta.textContent = (p.line ? p.line + ' · ' : '') + Number(p.price).toFixed(3) + ' ' + (p.currency || 'KD');
@@ -1707,7 +1791,7 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
                 if (!q) { closeMobileResults(); return; }
                 var terms = q.split(/\s+/);
                 var filtered = list.filter(function (p) {
-                    var hay = (p.name + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
+                    var hay = ((p.name || '') + ' ' + (p.nameAr || '') + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
                     return terms.every(function (t) { return hay.indexOf(t) !== -1; });
                 });
                 renderMobileResults(filtered);
@@ -1756,9 +1840,9 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
         else bind();
     })();
 </script>
-<!-- ==================== MOBILE BOTTOM NAVIGATION (home.html only) ====================
+<!-- ==================== MOBILE BOTTOM NAVIGATION (home5.html only) ====================
      Reuses existing systems — no duplication:
-       Home       -> home.html (no-op if already here)
+       Home       -> home5.html (no-op if already here)
        Categories -> #hamburger-slot.click()  (existing mobile drawer, mobile-nav.js)
        Account    -> window.NassimAccount.openPanel()  (Login if guest / Profile if logged in)
        Cart       -> cart.html (existing Cart page); badge #header-cart-count is
@@ -1778,7 +1862,7 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
         font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
     /* Keep page content (footer) clear of the fixed bar on mobile only. */
-    @media (max-width: 767px) {
+    @media (max-width: 767px), (orientation: portrait) {
         body { padding-bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
     }
 </style>
@@ -1790,7 +1874,7 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
         </button>
         <button type="button" data-mbnav="categories" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
             <span class="material-symbols-outlined" style="font-size:24px;">grid_view</span>
-            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Categories</span>
+            <span id="mbnav-categories-label" class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]" data-en="Categories" data-ar="فئات المنتجات">Categories</span>
         </button>
         <button type="button" data-mbnav="account" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
             <span class="material-symbols-outlined" style="font-size:24px;">person</span>
@@ -1818,14 +1902,14 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
 
             // Active state — Home is active on the homepage.
             var path = (location.pathname.split('/').pop() || location.pathname || '').toLowerCase();
-            var onHome = (path === '' || path === 'home.html' || path === 'index.html');
+            var onHome = (path === '' || path === 'home5.html' || path === 'index.html');
             var homeBtn = nav.querySelector('[data-mbnav="home"]');
             if (homeBtn && onHome) homeBtn.classList.add('mbnav-active');
 
-            // Home -> home.html (no-op if already here)
+            // Home -> home5.html (no-op if already here)
             if (homeBtn) homeBtn.addEventListener('click', function () {
                 if (onHome) return;
-                window.location.href = 'home.html';
+                window.location.href = 'home5.html';
             });
 
             // Categories -> reuse the existing hamburger drawer toggle
@@ -1869,15 +1953,15 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
 <img loading="lazy" src="topcar/whatsapp.png" alt="Chat on WhatsApp" class="w-full h-full object-contain"/>
 </a>
 <script src="assets/js/theme.js" defer></script>
-<script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/dark-overrides.js?v=20261013" defer></script>
 <script src="assets/js/cart-nav.js" defer></script>
 <script src="assets/js/product-nav.js" defer></script>
-<script src="assets/js/listing-pagination.js" defer></script>
+<script src="assets/js/listing-pagination.js?v=4" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js" defer></script>
 <script src="assets/js/nav-submenu.js" defer></script>
 <script src="assets/js/mobile-nav.js" defer></script>
-<!-- ==================== MOBILE DRAWER CONTENT SPLIT (home.html only) ====================
+<!-- ==================== MOBILE DRAWER CONTENT SPLIT (home5.html only) ====================
      Splits the single shared mobile drawer (owned by mobile-nav.js) so the two
      mobile triggers serve different purposes, WITHOUT duplicating JS:
        • Hamburger (#hamburger-slot, top-right) -> utilities ONLY
@@ -2109,6 +2193,7 @@ html.lang-ar #featured-carousel .carousel-edge .material-symbols-outlined { tran
 /* Home page: mirror the secondary nav for Arabic (text, direction, pill side). */
 <script>window.NASSIM_SECONDARY_NAV_ARABIC_MIRROR=true;</script>
 <script src="assets/js/secondary-nav.js" defer></script>
+<script src="assets/js/mbnav-categories.js?v=2"></script>
 </body></html>
 
 

@@ -9,8 +9,6 @@
 <link rel="icon" href="/LOGO.png" type="image/png"/>
 <title>Order Details | AL-NASSIM</title>
 <script></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0.1&amp;display=swap" rel="stylesheet"/>
 <style>
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
 .glass-nav { background: rgba(247, 249, 255, 0.7); backdrop-filter: blur(20px); }
@@ -72,7 +70,7 @@
         .app-modal-btn--solid:hover { background: #825335; }
         .dark .app-modal-btn--solid { background: #825335; }
         /* MOBILE BREADCRUMB HIDE (≤767px) */
-        @media (max-width: 767px) {
+        @media (max-width: 767px), (orientation: portrait) {
             #order-detail-root > nav { display: none !important; margin: 0 !important; padding: 0 !important; height: 0 !important; }
         }
 
@@ -169,7 +167,33 @@
             html, body { background: #fff !important; }
         }
     </style>
-<link rel="stylesheet" href="/assets/css/tailwind.css">
+<!-- Self-hosted fonts (Manrope/Inter/Signika + Material Symbols icons), same
+     asset every storefront page loads. This page previously loaded no font
+     stylesheet at all, so .material-symbols-outlined icons rendered as raw
+     ligature text and body typography fell back to system fonts. -->
+<link rel="stylesheet" href="/assets/css/fonts-local.css?v=20261013"/>
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=20261013c">
+<style>
+/* MOBILE ONLY (<=767px): the bottom navigation has a CONSTANT explicit
+   height (62.5px content + safe-area inset). It must never grow or shrink
+   when the browser's own toolbar appears/disappears and the visual/layout
+   viewport height changes — the browser may move the nav (it is fixed to
+   the bottom), but never resize it. Measured design height: 62.5px. */
+@media (max-width: 767px), (orientation: portrait) {
+  #mobile-bottom-nav {
+    height: calc(62.5px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(62.5px + env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box !important;
+  }
+  #mobile-bottom-nav > div {
+    height: 100% !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+</style>
+
+<script src="assets/js/product-name.js?v=1"></script>
 </head>
 <body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 
@@ -179,9 +203,9 @@
 <nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
 <div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
 <div class="flex items-center gap-12">
-<a href="home.html" class="flex items-center gap-2 group cursor-pointer shrink-0"><img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/></a>
+<a href="home5.html" class="flex items-center gap-2 group cursor-pointer shrink-0"><img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/></a>
 <div class="hidden md:flex gap-8">
-<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-cleaning-tools.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-kitchenware.html">Kitchenware</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware2.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-cleaning-tools.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-kitchenware.html">Kitchenware</a></li></ul></div></div>
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-cooling-appliances.html">Cooling Appliances</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-shelves-stands.html">Shelves &amp; Stands</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="supermarket-accessories.html">Accessories</a></li></ul></div></div>
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a></div>
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Packaging<br/><span class="block text-[11px]">Manufacturer</span></a></div>
@@ -221,8 +245,8 @@
 <footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
-<div class="col-span-1"><a href="home.html" class="flex items-center gap-2 mb-6"><img src="LOGO.png" alt="Logo" class="h-[3.9rem] w-auto" fetchpriority="high"></a><p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p></div>
-<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse</a></li></ul></div>
+<div class="col-span-1"><a href="home5.html" class="flex items-center gap-2 mb-6"><img src="LOGO.png" alt="Logo" class="h-[3.9rem] w-auto" fetchpriority="high"></a><p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p></div>
+<div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4><ul class="space-y-4 text-sm"><li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware2.html">Houseware</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket</a></li><li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse</a></li></ul></div>
 <div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Information</h4><ul class="space-y-4 text-sm"><li><span class="text-slate-400">Help</span></li><li><span class="text-slate-400">About</span></li><li><span class="text-slate-400">FAQ</span></li></ul></div>
 <div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Customer Service</h4><ul class="space-y-4 text-sm"><li><span class="text-slate-400">Returns</span></li><li><span class="text-slate-400">Shipping</span></li><li><span class="text-slate-400">Privacy</span></li></ul></div>
 <div><h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Contact</h4><p class="text-sm text-slate-400"></p><p class="text-sm text-slate-400"></p><p class="text-sm text-slate-400"></p></div>
@@ -236,7 +260,7 @@
 <!-- Shared scripts -->
 <!-- ==================== MOBILE BOTTOM NAVIGATION ====================
      Reuses existing systems — no duplication:
-       Home -> home.html, Categories -> existing mobile drawer (mobile-nav.js),
+       Home -> home5.html, Categories -> existing mobile drawer (mobile-nav.js),
        Account -> window.NassimAccount.openPanel(), Cart -> cart.html.
      Implemented as <div role="navigation"> (not <nav>) so the auto-wiring in
      cart-nav.js / account.js / search.js is NOT re-triggered here. -->
@@ -251,7 +275,7 @@
     .mbnav-item.mbnav-active .material-symbols-outlined {
         font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
-    @media (max-width: 767px) {
+    @media (max-width: 767px), (orientation: portrait) {
         body { padding-bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
     }
 </style>
@@ -263,7 +287,7 @@
         </button>
         <button type="button" data-mbnav="categories" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
             <span class="material-symbols-outlined" style="font-size:24px;">grid_view</span>
-            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Categories</span>
+            <span id="mbnav-categories-label" class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]" data-en="Categories" data-ar="فئات المنتجات">Categories</span>
         </button>
         <button type="button" data-mbnav="account" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
             <span class="material-symbols-outlined" style="font-size:24px;">person</span>
@@ -290,13 +314,13 @@
             nav.dataset.bound = '1';
 
             var path = (location.pathname.split('/').pop() || location.pathname || '').toLowerCase();
-            var onHome = (path === '' || path === 'home.html' || path === 'index.html');
+            var onHome = (path === '' || path === 'home5.html' || path === 'index.html');
             var homeBtn = nav.querySelector('[data-mbnav="home"]');
             if (homeBtn && onHome) homeBtn.classList.add('mbnav-active');
 
             if (homeBtn) homeBtn.addEventListener('click', function () {
                 if (onHome) return;
-                window.location.href = 'home.html';
+                window.location.href = 'home5.html';
             });
 
             var catBtn = nav.querySelector('[data-mbnav="categories"]');
@@ -331,7 +355,7 @@
     })();
 </script>
 <script src="assets/js/theme.js" defer></script>
-<script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/dark-overrides.js?v=20261013" defer></script>
 <script src="assets/js/cart-nav.js" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js" defer></script>
@@ -480,7 +504,7 @@
     } else if (ORDER_ID) {
       url = '/api/orders/' + encodeURIComponent(ORDER_ID);
     } else {
-      root.innerHTML = '<div class="text-center py-20"><p class="text-red-600 text-lg font-semibold">' + t('No order specified.', 'noOrder') + '</p><p class="text-on-surface-variant dark:text-white/70 mt-2">' + t('Please use the link from your order confirmation.', 'useLink') + '</p><a href="home.html" class="inline-block mt-6 bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">' + t('BACK TO HOME PAGE', 'backHome') + '</a></div>';
+      root.innerHTML = '<div class="text-center py-20"><p class="text-red-600 text-lg font-semibold">' + t('No order specified.', 'noOrder') + '</p><p class="text-on-surface-variant dark:text-white/70 mt-2">' + t('Please use the link from your order confirmation.', 'useLink') + '</p><a href="home5.html" class="inline-block mt-6 bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">' + t('BACK TO HOME PAGE', 'backHome') + '</a></div>';
       return;
     }
     if (ORDER_TOKEN) url += (url.indexOf('?') === -1 ? '?' : '&') + 'token=' + encodeURIComponent(ORDER_TOKEN);
@@ -489,7 +513,7 @@
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (!data.success) {
-          root.innerHTML = '<div class="text-center py-20"><p class="text-red-600 text-lg font-semibold">' + esc(data.error && /sign in/i.test(data.error) ? t('This order link is not valid. Please contact the store.', 'linkInvalid') : (data.error || t('Order not found', 'notFound'))) + '</p><a href="home.html" class="inline-block mt-6 text-secondary hover:underline text-sm">' + t('BACK TO HOME PAGE', 'backHome') + '</a></div>';
+          root.innerHTML = '<div class="text-center py-20"><p class="text-red-600 text-lg font-semibold">' + esc(data.error && /sign in/i.test(data.error) ? t('This order link is not valid. Please contact the store.', 'linkInvalid') : (data.error || t('Order not found', 'notFound'))) + '</p><a href="home5.html" class="inline-block mt-6 text-secondary hover:underline text-sm">' + t('BACK TO HOME PAGE', 'backHome') + '</a></div>';
           return;
         }
         renderOrder(data.data.order);
@@ -619,7 +643,7 @@
 
     // BACK TO HOME PAGE button (screen only — never printed)
     html += '<div class="mt-8 text-center no-print">';
-    html += '  <a href="home.html" class="inline-block bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">' + t('BACK TO HOME PAGE', 'backHome') + '</a>';
+    html += '  <a href="home5.html" class="inline-block bg-primary text-on-primary px-8 py-4 font-headline text-xs font-black uppercase tracking-[0.2em] rounded-sm hover:bg-secondary transition-all">' + t('BACK TO HOME PAGE', 'backHome') + '</a>';
     html += '</div>';
 
     root.innerHTML = html;
@@ -780,7 +804,7 @@
                 var info = document.createElement('div');
                 info.style.cssText = 'min-width:0;flex:1;';
                 var name = document.createElement('div');
-                name.textContent = p.name;
+                if (window.NassimProductName) NassimProductName.apply(name, p); else name.textContent = p.name;
                 name.style.cssText = 'font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
                 var meta = document.createElement('div');
                 meta.textContent = (p.line ? p.line + ' · ' : '') + Number(p.price).toFixed(3) + ' ' + (p.currency || 'KD');
@@ -807,7 +831,7 @@
                 if (!q) { closeMobileResults(); return; }
                 var terms = q.split(/\s+/);
                 var filtered = list.filter(function (p) {
-                    var hay = (p.name + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
+                    var hay = ((p.name || '') + ' ' + (p.nameAr || '') + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
                     return terms.every(function (t) { return hay.indexOf(t) !== -1; });
                 });
                 renderMobileResults(filtered);
@@ -876,7 +900,7 @@
                         if (txt) name += (name ? ' ' : '') + txt;
                     }
                 }
-                if (name && link.href) map[name.toLowerCase()] = link.getAttribute('href');
+                if (name && link.href) { map[name.toLowerCase()] = link.getAttribute('href'); hrefOrder.push(link.getAttribute('href')); }
             });
             if (triggers.length > 0) {
                 var sib = triggers[triggers.length - 1].nextElementSibling;
@@ -900,17 +924,27 @@
         }
 
         var hrefMap = {};
+        var hrefOrder = []; /* desktop trigger hrefs in DOM order (positional fallback) */
 
         function hrefForName(rawName) {
             if (!rawName) return null;
-            var norm = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            /* ARABIC-SAFE MATCH: the old code stripped [^a-z0-9], which deleted
+               every Arabic letter — an Arabic department name collapsed to ""
+               and matched the first (also empty) map key, sending EVERY Arabic
+               department to houseware.html. Match in two passes and never
+               compare against an empty normalization. */
+            var alnum = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            var spaced = rawName.toLowerCase().replace(/\s+/g, ' ').trim();
             var keys = Object.keys(hrefMap);
-            for (var i = 0; i < keys.length; i++) {
-                if (keys[i].replace(/[^a-z0-9]/g, '') === norm) return hrefMap[keys[i]];
+            if (alnum) {
+                for (var i = 0; i < keys.length; i++) {
+                    if (keys[i].replace(/[^a-z0-9]/g, '') === alnum) return hrefMap[keys[i]];
+                }
             }
-            var firstWord = rawName.toLowerCase().trim().split(/\s+/)[0];
-            for (var j = 0; j < keys.length; j++) {
-                if (keys[j].replace(/[^a-z0-9]/g, '') === firstWord.replace(/[^a-z0-9]/g, '')) return hrefMap[keys[j]];
+            if (spaced) {
+                for (var j = 0; j < keys.length; j++) {
+                    if (keys[j].toLowerCase().replace(/\s+/g, ' ').trim() === spaced) return hrefMap[keys[j]];
+                }
             }
             return null;
         }
@@ -925,6 +959,14 @@
                 if (!nameSpan) { trigger.setAttribute('data-name-linked', '1'); return; }
                 var deptName = nameSpan.textContent.replace(/\s+/g, ' ').trim();
                 var href = hrefForName(deptName);
+                /* positional fallback: drawer departments are built from the
+                   desktop triggers in the same DOM order, so data-index
+                   resolves the right department page even if the name match
+                   fails on a language-timing edge case. */
+                if (!href) {
+                    var idx = parseInt(trigger.getAttribute('data-index'), 10);
+                    if (!isNaN(idx) && hrefOrder[idx]) href = hrefOrder[idx];
+                }
                 if (!href) { trigger.setAttribute('data-name-linked', '1'); return; }
                 var a = document.createElement('a');
                 a.href = href;
@@ -1123,5 +1165,6 @@
   });
 })();
 </script>
-<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script></body>
+<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script><script src="assets/js/mbnav-categories.js?v=2"></script>
+</body>
 </html>

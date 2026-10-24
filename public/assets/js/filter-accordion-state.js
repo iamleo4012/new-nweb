@@ -1,12 +1,10 @@
 /* ========================================================================
    NASSIM Filter sidebar accordion DEFAULT STATE (shared across listing pages)
    ------------------------------------------------------------------------
-   DESKTOP (≥768px): Price Range / Color / Unit accordions start OPEN so the
-   customer sees every filter value immediately. Other sections keep their
-   authored state. Collapse/expand still works as before.
-   MOBILE (≤767px): ALL sidebar accordions start CLOSED (the customer taps a
-   section to open it). The state is applied per viewport, so resizing or
-   rotating re-evaluates instead of carrying one fixed state over.
+   ALL WIDTHS: the Price Range / Color / Unit filter sections start OPEN so
+   customers see every filter value immediately (no hidden-behind-the-arrow
+   sections). Other sections keep their authored state. Collapse/expand by
+   tapping a section header still works as before.
    Pure presentation: no filter inputs, logic, or data are touched.
    ======================================================================== */
 (function () {
@@ -15,7 +13,7 @@
   var DESKTOP_OPEN_PREFIXES = ["price range", "color", "unit"];
 
   function isMobile() {
-    return window.matchMedia("(max-width: 767px)").matches;
+    return window.matchMedia("(max-width: 767px), (orientation: portrait)").matches;
   }
 
   function headerText(details) {
@@ -32,10 +30,11 @@
     var sidebar = document.querySelector(".subcat-sidebar");
     if (!sidebar) return;
     sidebar.querySelectorAll("details").forEach(function (d) {
-      if (isMobile()) {
-        d.open = false; // mobile: everything closed until tapped
-      } else if (shouldOpenOnDesktop(d)) {
-        d.open = true; // desktop: Price Range / Color / Unit open
+      /* ALL widths: the main filter sections start OPEN so customers see the
+         values immediately instead of having to find the arrow. Collapse is
+         still available by tapping the section header. */
+      if (shouldOpenOnDesktop(d)) {
+        d.open = true;
       }
     });
   }

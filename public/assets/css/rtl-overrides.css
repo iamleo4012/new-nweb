@@ -199,7 +199,7 @@ html.lang-ar #product-grid { direction: rtl; }
 html.lang-ar #product-grid > article.group h2,
 html.lang-ar #product-grid > article.group p { direction: rtl; text-align: right; }
 html.lang-ar .subcat-listing-header { direction: rtl; text-align: right; }
-@media (min-width: 1024px) {
+@media (min-width: 1024px) and (orientation: landscape) {
     html.lang-ar .subcat-pagination-row {
         padding-left: 0;
         padding-right: calc(var(--subcat-sidebar-w) + var(--subcat-browse-gap));
@@ -248,7 +248,7 @@ html.lang-ar .carousel-slide .max-w-xs {
     max-width: 100%;
     margin-left: 0 !important;
 }
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
     html.lang-ar .carousel-slide .max-w-xs { width: 36rem; }
 }
 
@@ -259,7 +259,7 @@ html.lang-ar .carousel-slide .max-w-xs {
    wrapper to the design's OWN mobile text cap (the paragraph's existing
    max-w-[200px]), responsive via min(), right-aligned within it — the
    English mobile wrapper (shrink-to-fit, same 20rem max) is untouched. */
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: portrait) {
     html.lang-ar .carousel-slide .max-w-xs { width: min(100%, 12.5rem); }
 }
 
@@ -304,7 +304,7 @@ html.lang-ar #categories-grid a .material-symbols-outlined { scale: -1 1; }
    sits above the form column. English is unaffected (rules are inert
    without html.lang-ar), and the toggle is live because the rules key off
    the html.lang-ar class that the language switch flips instantly. */
-@media (min-width: 1024px) {
+@media (min-width: 1024px) and (orientation: landscape) {
   html.lang-ar main.checkout-page .lg\:grid-cols-3 > .lg\:col-span-2 { order: 2; }
   html.lang-ar main.checkout-page .lg\:grid-cols-3 > .lg\:col-span-1 { order: 1; }
 }
@@ -475,4 +475,17 @@ html.lang-ar .nassim-sort-bar .nsb-select {
     direction: rtl;
     padding-left: 2.5rem !important;
     padding-right: 1rem !important;
+}
+
+/* ==== MOBILE BOTTOM NAV: keep LTR on every page (2026-10-13) ====
+   The i18n runtime can tag #mobile-bottom-nav-inner with .nassim-rtl-dir,
+   which sets direction:rtl and reverses the button order (Home | Categories |
+   Cart flip right-to-left). home5.html keeps LTR because its labels are
+   swapped by page-local scripts that never trigger that class. This rule
+   pins the bar's direction to LTR on ALL pages so it always matches
+   home5.html. Arabic label text inside is unaffected (each label span is
+   already isolated by its own .nassim-rtl / dir=rtl wrapper). */
+html.lang-ar #mobile-bottom-nav,
+html.lang-ar #mobile-bottom-nav #mobile-bottom-nav-inner {
+  direction: ltr;
 }

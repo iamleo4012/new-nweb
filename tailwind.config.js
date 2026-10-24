@@ -35,6 +35,13 @@ module.exports = {
   ],
   theme: {
     extend: {
+      // iPad fix: md/lg require landscape so tablet portrait (768-1024px wide)
+      // stays on the mobile layout. Must match the inline @media rules in
+      // public/ pages: desktop = (min-width: 768px) and (orientation: landscape).
+      screens: {
+        md: { raw: "(min-width: 768px) and (orientation: landscape)" },
+        lg: { raw: "(min-width: 1024px) and (orientation: landscape)" },
+      },
       colors: {
         "outline": "#74777c", "surface-variant": "#d8e4f3", "on-surface-variant": "#44474b",
         "on-background": "#111d27", "surface-container-low": "#edf4ff", "primary-container": "#131e29",

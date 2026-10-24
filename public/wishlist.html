@@ -5,7 +5,7 @@
 <!-- GUEST-ONLY STOREFRONT (temporary test strategy): customers have no
      wishlist. Direct visits are redirected to the home page. Delete this
      block to restore the wishlist page. -->
-<script>location.replace("home.html");</script>
+<script>location.replace("home5.html");</script>
 <script>function __nassimThemeInit(){try{var s=localStorage.getItem("color-theme");var d=s==="dark"; // default is ALWAYS light unless the visitor explicitly saved dark
  document.documentElement.classList.toggle("dark",d);document.documentElement.classList.toggle("light",!d);}catch(e){document.documentElement.classList.add("light");}}__nassimThemeInit();</script>
 <meta charset="utf-8"/>
@@ -13,8 +13,6 @@
 <link rel="icon" href="/LOGO.png" type="image/png"/>
 <title>Your Wishlist | AL-NASSIM</title>
 <script></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 
 <style>
         .material-symbols-outlined {
@@ -75,17 +73,46 @@
         }
         /* Skeleton grid mirrors the production grid (1 / 3 / 6 cols; 2 on mobile) */
         #wishlist-skeleton { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
-        @media (min-width: 768px) { #wishlist-skeleton { grid-template-columns: repeat(3, 1fr); padding: 0 2rem; } }
-        @media (min-width: 1024px) { #wishlist-skeleton { grid-template-columns: repeat(6, 1fr); padding: 0 3rem; } }
-        @media (max-width: 767px) {
+        @media (min-width: 768px) and (orientation: landscape) { #wishlist-skeleton { grid-template-columns: repeat(3, 1fr); padding: 0 2rem; } }
+        @media (min-width: 1024px) and (orientation: landscape) { #wishlist-skeleton { grid-template-columns: repeat(6, 1fr); padding: 0 3rem; } }
+        @media (max-width: 767px), (orientation: portrait) {
             #wishlist-skeleton { grid-template-columns: repeat(2, 1fr) !important; gap: 0.75rem !important; padding: 0.5rem 1rem 1.5rem !important; }
         }
         .ws-card .ws-img { aspect-ratio: 4 / 5; border-radius: 0.625rem; margin-bottom: 0.45rem; }
         .ws-card .ws-line { height: 0.74rem; border-radius: 0.25rem; margin-bottom: 0.2rem; }
         .ws-card .ws-price { height: 0.82rem; width: 45%; border-radius: 0.25rem; margin-top: 0.1rem; }
-        @media (max-width: 767px) { .ws-card .ws-img { aspect-ratio: 1 / 1 !important; } }
+        @media (max-width: 767px), (orientation: portrait) { .ws-card .ws-img { aspect-ratio: 1 / 1 !important; } }
     </style>
-<link rel="stylesheet" href="/assets/css/tailwind.css">
+<!-- Self-hosted fonts (Manrope/Inter/Signika + Material Symbols icons), same
+     asset every storefront page loads. This page previously loaded no font
+     stylesheet at all, so .material-symbols-outlined icons rendered as raw
+     ligature text and body typography fell back to system fonts. -->
+<link rel="stylesheet" href="/assets/css/fonts-local.css?v=20261013"/>
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=20261013c">
+<style>
+/* MOBILE ONLY (<=767px): the bottom navigation has a CONSTANT explicit
+   height (62.5px content + safe-area inset). It must never grow or shrink
+   when the browser's own toolbar appears/disappears and the visual/layout
+   viewport height changes — the browser may move the nav (it is fixed to
+   the bottom), but never resize it. Measured design height: 62.5px. */
+@media (max-width: 767px), (orientation: portrait) {
+  #mobile-bottom-nav {
+    height: calc(62.5px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(62.5px + env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box !important;
+  }
+  #mobile-bottom-nav > div {
+    height: 100% !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+</style>
+<style>/* Arabic desktop: widen the Warehouse Equipment dropdown so the longest
+   Arabic item fits inside without overflow (same fix as supermarket.html). */
+@media (min-width: 768px) and (orientation: landscape) { html.lang-ar .dd-warehouse-wide { width: 20rem; } }</style>
+
+<script src="assets/js/product-name.js?v=1"></script>
 </head>
 <body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 
@@ -93,13 +120,13 @@
 <nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 top-0">
 <div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
 <div class="flex items-center gap-12">
-<a href="home.html" class="flex items-center gap-2 group cursor-pointer shrink-0">
+<a href="home5.html" class="flex items-center gap-2 group cursor-pointer shrink-0">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/>
 </a>
 <div class="hidden md:flex gap-8">
 <!-- Nav Items with Dropdowns -->
 <div class="dropdown-trigger relative py-1">
-<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a>
+<a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware2.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a>
 <div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
 <ul class="space-y-4">
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="houseware-cleaning-tools.html">Cleaning Tools</a></li>
@@ -122,7 +149,7 @@
 </div>
 <div class="dropdown-trigger relative py-1">
 <a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a>
-<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]">
+<div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 dd-warehouse-wide z-[60]">
 <ul class="space-y-4">
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-trolleys-baskets.html">Trolleys & Baskets</a></li>
 <li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary transition-colors" href="warehouse-forklifts-pallets.html">Forklifts & Pallets</a></li>
@@ -220,16 +247,16 @@
 <span class="material-symbols-outlined text-outline-variant text-7xl mb-8 font-light">auto_awesome</span>
 <h2 class="font-headline text-3xl font-bold tracking-tight text-primary dark:text-white mb-4">Your collection is empty</h2>
 <p class="text-on-surface-variant/60 dark:text-white/60 mb-12 max-w-sm text-center">Discover architecturally inspired pieces crafted for the modern manor.</p>
-<a href="home.html" class="px-12 py-5 bg-primary text-on-primary font-label text-[12px] uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300">Continue Exploring</a>
+<a href="home5.html" class="px-12 py-5 bg-primary text-on-primary font-label text-[12px] uppercase tracking-[0.2em] hover:bg-secondary transition-all duration-300">Continue Exploring</a>
 </div>
 </main>
 
-<!-- ===== Shared Footer (same as home.html) ===== -->
+<!-- ===== Shared Footer (same as home5.html) ===== -->
 <footer class="bg-[#0f172a] border-t border-white/5 pt-16 pb-12 transition-colors">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
 <div class="col-span-1">
-<a href="home.html" class="flex items-center gap-2 mb-6">
+<a href="home5.html" class="flex items-center gap-2 mb-6">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
 </a>
 <p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
@@ -237,7 +264,7 @@
 <div>
 <h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4>
 <ul class="space-y-4 text-sm font-medium">
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware2.html">Houseware Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Packaging Manufacturer</a></li>
@@ -250,7 +277,7 @@
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="home.html">Terms & Conditions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="home5.html">Terms & Conditions</a></li>
 </ul>
 </div>
 <div>
@@ -297,7 +324,7 @@
    large square image, 2-line clamped name, prominent price, full-width
    always-visible Add to Cart, 36px filled-heart remove button (pinned top-right).
    Desktop/tablet untouched (keeps the original wishlist card). */
-@media (max-width: 767px) {
+@media (max-width: 767px), (orientation: portrait) {
     body { padding-bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
     /* Compact page header */
     #wishlist-main > div:first-child { padding-top: 1rem !important; margin-bottom: 1.25rem !important; }
@@ -380,7 +407,7 @@
     html.dark #wishlist-container .wl-atc { background: #fff; color: #000308; }
     html.dark #wishlist-container .wl-atc:active { background: #825335; color: #fff; }
 }
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
     /* On desktop the wishlist renders its OWN card (the X remove etc.), so the
        mobile-only wl-* buttons are hidden there. */
     #wishlist-container .wl-atc { display: none !important; }
@@ -403,17 +430,17 @@
 
 /* Horizontal breathing room for the desktop wishlist grid so the first and
    last cards match the page's overall horizontal rhythm (nav uses px-8 at md). */
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
     #wishlist-container { padding: 0 2rem; }
 }
-@media (min-width: 1024px) {
+@media (min-width: 1024px) and (orientation: landscape) {
     #wishlist-container { padding: 0 3rem; }
 }
 </style>
 
 <!-- ==================== MOBILE BOTTOM NAVIGATION ====================
      Reuses existing systems — no duplication:
-       Home -> home.html, Categories -> existing mobile drawer (mobile-nav.js),
+       Home -> home5.html, Categories -> existing mobile drawer (mobile-nav.js),
        Account -> window.NassimAccount.openPanel(), Cart -> cart.html.
      Implemented as <div role="navigation"> (not <nav>) so the auto-wiring in
      cart-nav.js / account.js / search.js is NOT re-triggered here. -->
@@ -428,7 +455,7 @@
     .mbnav-item.mbnav-active .material-symbols-outlined {
         font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
-    @media (max-width: 767px) {
+    @media (max-width: 767px), (orientation: portrait) {
         body { padding-bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
     }
 </style>
@@ -440,7 +467,7 @@
         </button>
         <button type="button" data-mbnav="categories" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
             <span class="material-symbols-outlined" style="font-size:24px;">grid_view</span>
-            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Categories</span>
+            <span id="mbnav-categories-label" class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]" data-en="Categories" data-ar="فئات المنتجات">Categories</span>
         </button>
         <button type="button" data-mbnav="account" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
             <span class="material-symbols-outlined" style="font-size:24px;">person</span>
@@ -466,13 +493,13 @@
             nav.dataset.bound = '1';
 
             var path = (location.pathname.split('/').pop() || location.pathname || '').toLowerCase();
-            var onHome = (path === '' || path === 'home.html' || path === 'index.html');
+            var onHome = (path === '' || path === 'home5.html' || path === 'index.html');
             var homeBtn = nav.querySelector('[data-mbnav="home"]');
             if (homeBtn && onHome) homeBtn.classList.add('mbnav-active');
 
             if (homeBtn) homeBtn.addEventListener('click', function () {
                 if (onHome) return;
-                window.location.href = 'home.html';
+                window.location.href = 'home5.html';
             });
 
             var catBtn = nav.querySelector('[data-mbnav="categories"]');
@@ -563,7 +590,7 @@
                         if (txt) name += (name ? ' ' : '') + txt;
                     }
                 }
-                if (name && link.href) map[name.toLowerCase()] = link.getAttribute('href');
+                if (name && link.href) { map[name.toLowerCase()] = link.getAttribute('href'); hrefOrder.push(link.getAttribute('href')); }
             });
             if (triggers.length > 0) {
                 var sib = triggers[triggers.length - 1].nextElementSibling;
@@ -587,17 +614,27 @@
         }
 
         var hrefMap = {};
+        var hrefOrder = []; /* desktop trigger hrefs in DOM order (positional fallback) */
 
         function hrefForName(rawName) {
             if (!rawName) return null;
-            var norm = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            /* ARABIC-SAFE MATCH: the old code stripped [^a-z0-9], which deleted
+               every Arabic letter — an Arabic department name collapsed to ""
+               and matched the first (also empty) map key, sending EVERY Arabic
+               department to houseware.html. Match in two passes and never
+               compare against an empty normalization. */
+            var alnum = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            var spaced = rawName.toLowerCase().replace(/\s+/g, ' ').trim();
             var keys = Object.keys(hrefMap);
-            for (var i = 0; i < keys.length; i++) {
-                if (keys[i].replace(/[^a-z0-9]/g, '') === norm) return hrefMap[keys[i]];
+            if (alnum) {
+                for (var i = 0; i < keys.length; i++) {
+                    if (keys[i].replace(/[^a-z0-9]/g, '') === alnum) return hrefMap[keys[i]];
+                }
             }
-            var firstWord = rawName.toLowerCase().trim().split(/\s+/)[0];
-            for (var j = 0; j < keys.length; j++) {
-                if (keys[j].replace(/[^a-z0-9]/g, '') === firstWord.replace(/[^a-z0-9]/g, '')) return hrefMap[keys[j]];
+            if (spaced) {
+                for (var j = 0; j < keys.length; j++) {
+                    if (keys[j].toLowerCase().replace(/\s+/g, ' ').trim() === spaced) return hrefMap[keys[j]];
+                }
             }
             return null;
         }
@@ -612,6 +649,14 @@
                 if (!nameSpan) { trigger.setAttribute('data-name-linked', '1'); return; }
                 var deptName = nameSpan.textContent.replace(/\s+/g, ' ').trim();
                 var href = hrefForName(deptName);
+                /* positional fallback: drawer departments are built from the
+                   desktop triggers in the same DOM order, so data-index
+                   resolves the right department page even if the name match
+                   fails on a language-timing edge case. */
+                if (!href) {
+                    var idx = parseInt(trigger.getAttribute('data-index'), 10);
+                    if (!isNaN(idx) && hrefOrder[idx]) href = hrefOrder[idx];
+                }
                 if (!href) { trigger.setAttribute('data-name-linked', '1'); return; }
                 var a = document.createElement('a');
                 a.href = href;
@@ -959,7 +1004,7 @@
                 var info = document.createElement('div');
                 info.style.cssText = 'min-width:0;flex:1;';
                 var name = document.createElement('div');
-                name.textContent = p.name;
+                if (window.NassimProductName) NassimProductName.apply(name, p); else name.textContent = p.name;
                 name.style.cssText = 'font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
                 var meta = document.createElement('div');
                 meta.textContent = (p.line ? p.line + ' · ' : '') + Number(p.price).toFixed(3) + ' ' + (p.currency || 'KD');
@@ -986,7 +1031,7 @@
                 if (!q) { closeMobileResults(); return; }
                 var terms = q.split(/\s+/);
                 var filtered = list.filter(function (p) {
-                    var hay = (p.name + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
+                    var hay = ((p.name || '') + ' ' + (p.nameAr || '') + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
                     return terms.every(function (t) { return hay.indexOf(t) !== -1; });
                 });
                 renderMobileResults(filtered);
@@ -1100,7 +1145,7 @@
         // Mobile uses the approved subcategory card (filled-heart remove + always-
         // visible ATC). Desktop keeps its ORIGINAL card unchanged. Feature-detect once
         // per render so a viewport resize re-renders correctly.
-        var isMobile = window.matchMedia('(max-width: 767px)').matches;
+        var isMobile = window.matchMedia('(max-width: 767px), (orientation: portrait)').matches;
 
         container.innerHTML = items.map(function(item) {
             if (!isMobile) {
@@ -1305,14 +1350,15 @@
     });
 </script>
 <script src="assets/js/theme.js" defer></script>
-<script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/dark-overrides.js?v=20261013" defer></script>
 <script src="assets/js/cart-nav.js" defer></script>
 <script src="assets/js/product-nav.js" defer></script>
-<script src="assets/js/listing-pagination.js" defer></script>
+<script src="assets/js/listing-pagination.js?v=4" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/account.js" defer></script>
 <script src="assets/js/nav-submenu.js" defer></script>
 <script src="assets/js/mobile-nav.js" defer></script>
 <script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script><script src="assets/js/secondary-nav.js" defer></script>
+<script src="assets/js/mbnav-categories.js?v=2"></script>
 </body>
 </html>

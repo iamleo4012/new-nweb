@@ -23,6 +23,7 @@ async function cartPayload(userId: number) {
   return items.map((i) => ({
     id: i.product.slug,
     name: i.product.name,
+    nameAr: i.product.nameAr,
     image: i.product.image,
     price: Number(i.product.price),
     currency: i.product.currency,

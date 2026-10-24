@@ -9,10 +9,14 @@
 <link rel="icon" href="/LOGO.png" type="image/png"/>
 <title>Checkout | AL-NASSIM</title>
 <script></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=5"/>
-<script src="assets/js/i18n-data.js" defer></script>
+<!-- Self-hosted fonts (Manrope/Inter/Signika + Material Symbols icons), same
+     asset every storefront page loads. This page previously loaded no font
+     stylesheet at all, so .material-symbols-outlined icons rendered as raw
+     ligature text and body typography fell back to system fonts. -->
+<link rel="stylesheet" href="/assets/css/fonts-local.css?v=20261013"/>
+<link rel="stylesheet" href="assets/css/rtl-overrides.css?v=6"/>
+<script src="assets/js/i18n-data.js?v=4" defer></script>
+<script src="assets/js/product-name.js?v=1"></script>
 <script src="assets/js/i18n.js" defer></script>
 
 <style>
@@ -27,7 +31,7 @@
 .dropdown-menu{opacity:0;visibility:hidden;transform:translateY(10px);}
 
 </style>
-<link rel="stylesheet" href="/assets/css/tailwind.css">
+<link rel="stylesheet" href="/assets/css/tailwind.css?v=20261013c">
 <style>
 /* ==================== CHECKOUT ORDER SUMMARY (scoped redesign) ====================
    Visual-only restyle of the Order Summary markup rendered by
@@ -185,15 +189,35 @@ html.lang-ar .nassim-dd-toggle, html.lang-ar .nassim-dd-panel,
 html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
 
 </style>
+<style>
+/* MOBILE ONLY (<=767px): the bottom navigation has a CONSTANT explicit
+   height (62.5px content + safe-area inset). It must never grow or shrink
+   when the browser's own toolbar appears/disappears and the visual/layout
+   viewport height changes — the browser may move the nav (it is fixed to
+   the bottom), but never resize it. Measured design height: 62.5px. */
+@media (max-width: 767px), (orientation: portrait) {
+  #mobile-bottom-nav {
+    height: calc(62.5px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(62.5px + env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box !important;
+  }
+  #mobile-bottom-nav > div {
+    height: 100% !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+</style>
+
 </head>
 <body class="bg-surface dark:bg-[#0a0f14] font-body text-on-surface dark:text-white antialiased">
 <!-- Shared Header -->
 <nav class="fixed w-full z-50 glass-nav dark:bg-[#0a0f14]/90 shadow-[0_40px_60px_rgba(0,3,8,0.04)] top-0">
 <div class="flex justify-between items-center w-full px-3 sm:px-4 md:px-8 py-2 max-w-screen-2xl mx-auto">
 <div class="flex items-center gap-12">
-<a href="home.html" class="flex items-center gap-2 shrink-0"><img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/></a>
+<a href="home5.html" class="flex items-center gap-2 shrink-0"><img src="LOGO.png" alt="AL-Nassim Logo" class="h-9 w-auto md:h-[4.3rem]" fetchpriority="high"/></a>
 <div class="hidden md:flex gap-8">
-<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="houseware-cleaning-tools.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="houseware-home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="houseware-kitchenware.html">Kitchenware</a></li></ul></div></div>
+<div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="houseware2.html">Houseware<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="houseware-cleaning-tools.html">Cleaning Tools</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="houseware-home-outdoor.html">Home &amp; Outdoor</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="houseware-kitchenware.html">Kitchenware</a></li></ul></div></div>
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="supermarket.html">Supermarket<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="supermarket-cooling-appliances.html">Cooling Appliances</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="supermarket-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="supermarket-shelves-stands.html">Shelves &amp; Stands</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="supermarket-checkout-solutions.html">Counters and Scales</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="supermarket-accessories.html">Accessories</a></li></ul></div></div>
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="warehouse.html">Warehouse<br/><span class="block text-[11px]">Equipment</span></a><div class="dropdown-menu absolute top-full -left-24 mt-1 w-64 dark-glass-dropdown p-6 z-[60]"><ul class="space-y-4"><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="warehouse-trolleys-baskets.html">Trolleys &amp; Baskets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="warehouse-forklifts-pallets.html">Forklifts &amp; Pallets</a></li><li><a class="text-[13px] uppercase tracking-widest text-on-surface-variant dark:text-white/70 hover:text-secondary" href="warehouse-heavy-duty-racking.html">Heavy Duty Racks</a></li></ul></div></div>
 <div class="dropdown-trigger relative py-1"><a class="font-headline tracking-tight font-bold uppercase text-[14px] text-on-background dark:text-white hover:text-secondary transition-colors duration-300 inline-block" href="customized-packaging.html">Packaging<br/><span class="block text-[11px]">Manufacturer</span></a></div>
@@ -242,7 +266,7 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
 <h2 class="font-headline text-lg font-bold text-primary dark:text-white mb-2">Customer Information</h2>
 <div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Full Name *</label><input id="cust-name" type="text" required class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Your full name"/></div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Mobile Number *</label><div dir="ltr" class="flex items-stretch w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 rounded-sm focus-within:ring-1 focus-within:ring-secondary"><span class="flex items-center px-4 py-3 text-sm text-on-surface-variant dark:text-white/70 bg-black/5 dark:bg-white/5 border-r border-outline-variant/40 dark:border-outline-variant/50 select-none" aria-hidden="true">+965</span><input id="cust-phone" type="tel" inputmode="numeric" maxlength="8" autocomplete="tel-national" required dir="ltr" class="flex-1 min-w-0 bg-transparent border-0 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none" placeholder="0000 0000"/></div></div>
+<div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Mobile Number *</label><div dir="ltr" class="flex items-stretch w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 rounded-sm focus-within:ring-1 focus-within:ring-secondary"><span class="flex items-center px-4 py-3 text-sm text-on-surface-variant dark:text-white/70 bg-black/5 dark:bg-white/5 border-r border-outline-variant/40 dark:border-outline-variant/50 select-none" aria-hidden="true">+965</span><input id="cust-phone" type="tel" inputmode="numeric" maxlength="8" autocomplete="tel-national" required dir="ltr" class="flex-1 min-w-0 bg-transparent border-0 text-on-surface dark:text-white text-sm px-4 py-3 focus:outline-none" placeholder="0000 0000"/></div></div>
 <div><label class="block text-xs font-bold text-on-surface-variant dark:text-white/70 mb-1">Email (optional)</label><input id="cust-email" type="email" class="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/40 dark:border-outline-variant/50 text-on-surface dark:text-white text-sm px-4 py-3 rounded-sm focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="you@example.com"/></div>
 </div>
 </div>
@@ -280,7 +304,7 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
 <div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
 <!-- Column 1 -->
 <div class="col-span-1">
-<a href="home.html" class="flex items-center gap-2 mb-6">
+<a href="home5.html" class="flex items-center gap-2 mb-6">
 <img src="LOGO.png" alt="AL-Nassim Logo" class="h-[3.9rem] w-auto" fetchpriority="high">
 </a>
 <p class="text-sm text-slate-400 leading-relaxed">The premier destination for professional retail and houseware equipment in the heart of Kuwait.</p>
@@ -289,7 +313,7 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
 <div>
 <h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Quick Links</h4>
 <ul class="space-y-4 text-sm font-medium">
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware.html">Houseware Equipment</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="houseware2.html">Houseware Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="supermarket.html">Supermarket Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="warehouse.html">Warehouse Equipment</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="customized-packaging.html">Packaging Manufacturer</a></li>
@@ -303,7 +327,7 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="contact.html">Contact Us</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">About</a></li>
 <li><a class="text-slate-400 hover:text-primary transition-colors" href="#">Frequently Asked Questions</a></li>
-<li><a class="text-slate-400 hover:text-primary transition-colors" href="home.html">Terms & Conditions</a></li>
+<li><a class="text-slate-400 hover:text-primary transition-colors" href="home5.html">Terms & Conditions</a></li>
 </ul>
 </div>
 <!-- Column 4 -->
@@ -348,7 +372,7 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
 
 <!-- ==================== MOBILE BOTTOM NAVIGATION ====================
      Reuses existing systems — no duplication:
-       Home -> home.html, Categories -> existing mobile drawer (mobile-nav.js),
+       Home -> home5.html, Categories -> existing mobile drawer (mobile-nav.js),
        Account -> window.NassimAccount.openPanel(), Cart -> cart.html.
      Implemented as <div role="navigation"> (not <nav>) so the auto-wiring in
      cart-nav.js / account.js / search.js is NOT re-triggered here. -->
@@ -363,7 +387,7 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
     .mbnav-item.mbnav-active .material-symbols-outlined {
         font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
-    @media (max-width: 767px) {
+    @media (max-width: 767px), (orientation: portrait) {
         body { padding-bottom: calc(3.75rem + env(safe-area-inset-bottom)); }
     }
 </style>
@@ -375,7 +399,7 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
         </button>
         <button type="button" data-mbnav="categories" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
             <span class="material-symbols-outlined" style="font-size:24px;">grid_view</span>
-            <span class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]">Categories</span>
+            <span id="mbnav-categories-label" class="font-headline text-[9px] font-bold uppercase tracking-[0.15em]" data-en="Categories" data-ar="فئات المنتجات">Categories</span>
         </button>
         <button type="button" data-mbnav="account" class="mbnav-item flex flex-col items-center justify-center gap-1 py-2.5 transition-colors">
             <span class="material-symbols-outlined" style="font-size:24px;">person</span>
@@ -402,13 +426,13 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
             nav.dataset.bound = '1';
 
             var path = (location.pathname.split('/').pop() || location.pathname || '').toLowerCase();
-            var onHome = (path === '' || path === 'home.html' || path === 'index.html');
+            var onHome = (path === '' || path === 'home5.html' || path === 'index.html');
             var homeBtn = nav.querySelector('[data-mbnav="home"]');
             if (homeBtn && onHome) homeBtn.classList.add('mbnav-active');
 
             if (homeBtn) homeBtn.addEventListener('click', function () {
                 if (onHome) return;
-                window.location.href = 'home.html';
+                window.location.href = 'home5.html';
             });
 
             var catBtn = nav.querySelector('[data-mbnav="categories"]');
@@ -443,7 +467,7 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
     })();
 </script>
 <script src="assets/js/theme.js" defer></script>
-<script src="assets/js/dark-overrides.js" defer></script>
+<script src="assets/js/dark-overrides.js?v=20261013" defer></script>
 <script src="assets/js/nassim-locations-data.js?v=1"></script>
 <script src="assets/js/checkout.js"></script>
 <script src="assets/js/cart-nav.js" defer></script>
@@ -496,7 +520,7 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
                 var info = document.createElement('div');
                 info.style.cssText = 'min-width:0;flex:1;';
                 var name = document.createElement('div');
-                name.textContent = p.name;
+                if (window.NassimProductName) NassimProductName.apply(name, p); else name.textContent = p.name;
                 name.style.cssText = 'font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
                 var meta = document.createElement('div');
                 meta.textContent = (p.line ? p.line + ' · ' : '') + Number(p.price).toFixed(3) + ' ' + (p.currency || 'KD');
@@ -523,7 +547,7 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
                 if (!q) { closeMobileResults(); return; }
                 var terms = q.split(/\s+/);
                 var filtered = list.filter(function (p) {
-                    var hay = (p.name + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
+                    var hay = ((p.name || '') + ' ' + (p.nameAr || '') + ' ' + (p.line || '') + ' ' + (p.sku || '') + ' ' + (p.description || '')).toLowerCase();
                     return terms.every(function (t) { return hay.indexOf(t) !== -1; });
                 });
                 renderMobileResults(filtered);
@@ -592,7 +616,7 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
                         if (txt) name += (name ? ' ' : '') + txt;
                     }
                 }
-                if (name && link.href) map[name.toLowerCase()] = link.getAttribute('href');
+                if (name && link.href) { map[name.toLowerCase()] = link.getAttribute('href'); hrefOrder.push(link.getAttribute('href')); }
             });
             if (triggers.length > 0) {
                 var sib = triggers[triggers.length - 1].nextElementSibling;
@@ -616,17 +640,27 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
         }
 
         var hrefMap = {};
+        var hrefOrder = []; /* desktop trigger hrefs in DOM order (positional fallback) */
 
         function hrefForName(rawName) {
             if (!rawName) return null;
-            var norm = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            /* ARABIC-SAFE MATCH: the old code stripped [^a-z0-9], which deleted
+               every Arabic letter — an Arabic department name collapsed to ""
+               and matched the first (also empty) map key, sending EVERY Arabic
+               department to houseware.html. Match in two passes and never
+               compare against an empty normalization. */
+            var alnum = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            var spaced = rawName.toLowerCase().replace(/\s+/g, ' ').trim();
             var keys = Object.keys(hrefMap);
-            for (var i = 0; i < keys.length; i++) {
-                if (keys[i].replace(/[^a-z0-9]/g, '') === norm) return hrefMap[keys[i]];
+            if (alnum) {
+                for (var i = 0; i < keys.length; i++) {
+                    if (keys[i].replace(/[^a-z0-9]/g, '') === alnum) return hrefMap[keys[i]];
+                }
             }
-            var firstWord = rawName.toLowerCase().trim().split(/\s+/)[0];
-            for (var j = 0; j < keys.length; j++) {
-                if (keys[j].replace(/[^a-z0-9]/g, '') === firstWord.replace(/[^a-z0-9]/g, '')) return hrefMap[keys[j]];
+            if (spaced) {
+                for (var j = 0; j < keys.length; j++) {
+                    if (keys[j].toLowerCase().replace(/\s+/g, ' ').trim() === spaced) return hrefMap[keys[j]];
+                }
             }
             return null;
         }
@@ -641,6 +675,14 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
                 if (!nameSpan) { trigger.setAttribute('data-name-linked', '1'); return; }
                 var deptName = nameSpan.textContent.replace(/\s+/g, ' ').trim();
                 var href = hrefForName(deptName);
+                /* positional fallback: drawer departments are built from the
+                   desktop triggers in the same DOM order, so data-index
+                   resolves the right department page even if the name match
+                   fails on a language-timing edge case. */
+                if (!href) {
+                    var idx = parseInt(trigger.getAttribute('data-index'), 10);
+                    if (!isNaN(idx) && hrefOrder[idx]) href = hrefOrder[idx];
+                }
                 if (!href) { trigger.setAttribute('data-name-linked', '1'); return; }
                 var a = document.createElement('a');
                 a.href = href;
@@ -839,5 +881,6 @@ html.lang-ar .nassim-dd-option { direction: rtl; text-align: right; }
   });
 })();
 </script>
-<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script></body>
+<script>(function(){var timer=null,active=null,inside=false;function show(m){m.style.opacity="1";m.style.visibility="visible";m.style.transform="translateY(0)"}function hide(m){m.style.opacity="0";m.style.visibility="hidden";m.style.transform="translateY(10px)";if(active===m)active=null}function scheduleClose(){inside=false;timer=setTimeout(function(){if(!inside&&active)hide(active)},250)}document.querySelectorAll(".dropdown-trigger").forEach(function(tr){var menu=tr.querySelector(".dropdown-menu");if(!menu)return;tr.addEventListener("mouseenter",function(){if(active&&active!==menu)hide(active);clearTimeout(timer);inside=true;show(menu);active=menu});menu.addEventListener("mouseenter",function(){clearTimeout(timer);inside=true});tr.addEventListener("mouseleave",scheduleClose);menu.addEventListener("mouseleave",scheduleClose)})})();</script><script src="assets/js/mbnav-categories.js?v=2"></script>
+</body>
 </html>

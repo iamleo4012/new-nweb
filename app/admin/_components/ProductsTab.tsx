@@ -5,6 +5,7 @@ import { CustomFieldsSection, type CustomAttributeItem, type CustomFieldValue } 
 import { RelatedProductsPicker } from "@/app/admin/_components/RelatedProductsPicker";
 import { SpecsEditor } from "@/app/admin/_components/SpecsEditor";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { ReportDialog } from "./ReportDialog";
 
 interface MasterItem {
   id: number;
@@ -48,6 +49,7 @@ interface ProductItem {
   id: number;
   slug: string;
   name: string;
+  nameAr?: string;
   sku: string;
   price: number;
   stock: number;
@@ -99,6 +101,8 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
   const [statusFilter, setStatusFilter] = useState("");
   const [reactivating, setReactivating] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
+  // Print Report / Export PDF configuration dialog.
+  const [showReportDialog, setShowReportDialog] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [pendingDelete, setPendingDelete] = useState<ProductItem | null>(null);
@@ -185,7 +189,7 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
     setMessage("");
     setFieldErrors({});
     setF({
-      slug: "", name: "", description: "", longDescription: "",
+      slug: "", name: "", nameAr: "", description: "", longDescription: "",
       price: "0",
       stock: "0", minStock: "10",
       image: "", line: "", sku: "", barcode: "", ndNumber: "", internalCode: "", classCode: "",
@@ -227,7 +231,7 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
     setCaptureBaseline(true);
     // Start from the list row so the form is usable immediately…
     setF({
-      slug: p.slug, name: p.name, description: "", longDescription: "",
+      slug: p.slug, name: p.name, nameAr: "", description: "", longDescription: "",
       price: String(p.price),
       stock: String(p.stock), minStock: "10",
       image: p.image, line: "", sku: p.sku, barcode: "", ndNumber: "", internalCode: "", classCode: (p as { classCode?: string }).classCode ?? "",
@@ -258,7 +262,7 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
       const str = (v: unknown) => (v === null || v === undefined ? "" : String(v));
       setF((prev) => ({
         ...prev,
-        slug: full.slug, name: full.name,
+        slug: full.slug, name: full.name, nameAr: full.nameAr ?? "",
         description: full.description ?? "", longDescription: full.longDescription ?? "",
         price: String(full.price),
         stock: String(full.stock), minStock: String(full.minStock),
@@ -511,7 +515,7 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
   const filtered = products.filter(
     (p) =>
       (!statusFilter || (statusFilter === "active" ? p.isActive : !p.isActive)) &&
-      (!query || p.name.toLowerCase().includes(query.toLowerCase()) || p.slug.includes(query.toLowerCase()) || p.sku.toLowerCase().includes(query.toLowerCase()))
+      (!query || p.name.toLowerCase().includes(query.toLowerCase()) || (p.nameAr ?? "").toLowerCase().includes(query.toLowerCase()) || p.slug.includes(query.toLowerCase()) || p.sku.toLowerCase().includes(query.toLowerCase()))
   );
   const hiddenCount = products.filter((p) => !p.isActive).length;
 
@@ -645,6 +649,7 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
     const payload: Record<string, unknown> = {
       slug: f.slug,
       name: f.name,
+      nameAr: String(f.nameAr ?? "").trim(),
       description: f.description,
       longDescription: f.longDescription,
       price: num(f.price),
@@ -880,22 +885,36 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
             <option value="hidden">Hidden ({hiddenCount})</option>
           </select>
         </div>
-        <button
-          onClick={() => {
-            if (showForm && formDirty) {
-              setConfirmDiscard(true);
-              return;
-            }
-            setShowForm((v) => !v);
-            if (!showForm) resetForm();
-          }}
-          className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold"
-        >
-          {showForm ? "Close" : "+ New Product"}
-        </button>
-        {editingId !== null && showForm && (
-          <span className="text-xs text-blue-600 font-semibold ml-2">Editing product #{editingId}</span>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setShowReportDialog(true)}
+            className="border border-gray-300 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm font-semibold"
+          >
+            Print Report / Export PDF
+          </button>
+          <ReportDialog
+            open={showReportDialog}
+            onClose={() => setShowReportDialog(false)}
+            categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+            onOpened={setMessage}
+          />
+          <button
+            onClick={() => {
+              if (showForm && formDirty) {
+                setConfirmDiscard(true);
+                return;
+              }
+              setShowForm((v) => !v);
+              if (!showForm) resetForm();
+            }}
+            className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+          >
+            {showForm ? "Close" : "+ New Product"}
+          </button>
+          {editingId !== null && showForm && (
+            <span className="text-xs text-blue-600 font-semibold ml-2">Editing product #{editingId}</span>
+          )}
+        </div>
       </div>
       {error && <p className="text-red-600 text-sm">{error}</p>}
       {message && <p className="text-green-700 text-sm">{message}</p>}
@@ -906,6 +925,25 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
           <h3 className="font-semibold text-gray-900 border-b pb-2">1. Basic Information</h3>
           <div className="grid md:grid-cols-3 gap-3">
             {renderInput("name", "Name *")}
+            {/* Arabic product name — RTL input; mixed Arabic/English is fine
+                (the bidi algorithm keeps Latin brand text and codes like
+                ND-6223 in their natural order). Stored as typed, never
+                reordered. */}
+            <label className="text-sm">
+              <span className="block text-gray-600 mb-1">Arabic Name — الاسم بالعربي</span>
+              <input
+                type="text"
+                dir="rtl"
+                lang="ar"
+                value={String(f.nameAr ?? "")}
+                onChange={(e) => update("nameAr", e.target.value)}
+                placeholder="مثال: ولاعة مسدس غاز اسود Al-nassim-ND-5733"
+                className="border border-gray-300 rounded-lg px-3 py-2 w-full text-right"
+              />
+              <span className="block mt-1 text-xs text-gray-400 leading-snug">
+                Optional — the storefront shows the English name until this is filled. English brand text and product codes (e.g. ND-6223) keep their correct order.
+              </span>
+            </label>
             {renderInput("slug", "Slug *")}
             {renderInput("sku", "SKU / Product Code")}
             {renderInput("line", "Model / Product Line")}
@@ -1161,6 +1199,7 @@ export function ProductsTab({ onDirtyChange }: { onDirtyChange?: (dirty: boolean
               <tr key={p.id} className="border-b last:border-0 hover:bg-gray-50">
                 <td className="px-4 py-2">
                   <div className="font-medium text-gray-900">{p.name}</div>
+                  {p.nameAr ? <div className="text-xs text-gray-500" dir="rtl">{p.nameAr}</div> : null}
                   <div className="text-xs text-gray-500 font-mono">{p.slug}</div>
                 </td>
                 <td className="px-4 py-2 text-gray-600 font-mono text-xs">{p.sku || "—"}</td>

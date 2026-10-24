@@ -189,9 +189,18 @@ export async function POST(req: NextRequest) {
       const shipping = computeShipping(subtotal, shippingRule);
       const total = subtotal + shipping;
 
+      // Order number: ORD-<n> from the dedicated Postgres sequence. nextval()
+      // is atomic, so concurrent checkouts each get a distinct number without
+      // lock contention on the Order table, and deleted/cancelled orders never
+      // cause a number to be reused.
+      const seqRows = await tx.$queryRaw<{ next_num: bigint }[]>(
+        Prisma.sql`SELECT nextval('order_number_seq') AS next_num`
+      );
+      const orderNumber = `ORD-${Number(seqRows[0].next_num)}`;
+
       const created = await tx.order.create({
         data: {
-          orderNumber: `AN-${new Date().getFullYear()}-PENDING`,
+          orderNumber,
           userId: user?.id ?? null,
           // Permanent ownership snapshot — captured once at checkout and never
           // mutated, even if the placing account is later deleted. This is the
@@ -216,8 +225,6 @@ export async function POST(req: NextRequest) {
         },
         include: { items: true },
       });
-
-      const orderNumber = `AN-${new Date().getFullYear()}-${String(created.id).padStart(6, "0")}`;
 
       // Security metadata (capability-token hash + idempotency key) commits
       // atomically with the order. A concurrent duplicate submission with the
@@ -246,13 +253,7 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      const updated = await tx.order.update({
-        where: { id: created.id },
-        data: { orderNumber },
-        include: { items: true },
-      });
-
-      return updated;
+      return created;
     });
 
     // Web Push to staff devices — fired ONLY for a genuinely NEW order (this

@@ -12,7 +12,7 @@ window.NASSIM_I18N = {
  "156": "156",
  "houseware equipment": "الأدوات المنزلية",
  "cleaning tools": "أدوات التنظيف",
- "home & outdoor": "المنزل والخارج",
+ "home & outdoor": "مستلزمات المنزل والخارج",
  "kitchenware": "أدوات المطبخ",
  "supermarket equipment": "معدات السوبر ماركت",
  "cooling appliances": "أجهزة التبريد",
@@ -48,11 +48,15 @@ window.NASSIM_I18N = {
  "view trollies": "تصفح العربات",
  "outdoor pedal bin.": "سلة مهملات خارجية بمضغط قدمي.",
  "hands-free, rugged and durable for a clean environment.": "جهاز بدون استخدام اليدين، متين وقوي لضمان بيئة نظيفة.",
- "our categories": "الفيئات",
+ "our categories": "فئات المنتجات",
+ "home": "الرئيسية",
+ "categories": "فئات المنتجات",
+ "cart": "السلة",
  "explore collection": "استكشف التشكيلة",
  "houseware": "الأدوات المنزلية",
  "simple tools to make everyday home tasks easier": "أدوات بسيطة لتسهيل مهام المنزل اليومية",
  "everything needed to run a smart store": "كل ما تحتاجه لإدارة متجر ذكي",
+ "everything you need to equip your store": "كل ما تحتاجه لتجهيز متجرك",
  "custom packaging solutions tailored to your requirements.": "حلول تغليف وفق متطلباتكم.",
  "explore": "استكشف",
  "cold room solutions built according to your requirements.": "حلول لغرف باردة مُنفذة وفق متطلباتكم.",
@@ -61,16 +65,19 @@ window.NASSIM_I18N = {
  "for the stories told around the fire and the moments that linger.": "للحكايات التي تُروى حول النار واللحظات التي تبقى.",
  "weekend": "عطلة نهاية الأسبوع",
  "fire.": "النار.",
- "built for outdoor moments that matter. from grilling to gathering — everything you need to cook, serve, and enjoy.": "صُممت للحظاتك المميزة في الهواء الطلق؛ فمن الشواء إلى اللقاءات، ستجد كل ما يلزمك للطهي والتقديم والاستمتاع.",
+ "Designed for your special outdoor moments; from barbecues to gatherings, you'll find everything you need.": "صُممت للحظاتك المميزة في الهواء الطلق؛ فمن الشواء إلى اللقاءات، ستجد كل ما يلزمك.",
  "explore the collection": "استكشف المجموعة",
  "outdoor essentials": "مستلزمات الخارج",
+ "kitchen supplies": "مستلزمات المطبخ",
  "kitchen": "المطبخ",
  "essentials.": "الأساسيات.",
  "display": "العرض",
  "promotion rack": "ستاند لعرض المنتجات",
+ "stands to showcase your products": "ستاندات لعرض منتجاتك",
  "smart shopping products at 1 kd & under": "تسوق ذكي: منتجات بـ 1 دينار وأقل",
  "explore all": "استكشف الكل",
- "the pizza collection": "مجموعة مستلزمات البيتزا",
+ "pizza supply collection": "مجموعة مستلزمات البيتزا",
+ "our featured collections": "مجموعاتنا المميزة",
  "tools made for every perfect slice.": "أدوات مصنوعة لكل شريحة مثالية.",
  "measuring cups": "أكواب القياس",
  "kitchen essentials": "أساسيات المطبخ",
@@ -98,14 +105,17 @@ window.NASSIM_I18N = {
  "© 2026 al-nassim golden group. all rights reserved.": "© 2026 .مجموعة النسيم الذهبية. جميع الحقوق محفوظة",
  "search products...": "ابحث عن المنتجات...",
  "the houseware collection": "مجموعة الأدوات المنزلية",
- "home & outdoor • kitchenware • cleaning tools": "المنزل والخارج • أدوات المطبخ • أدوات التنظيف",
+ "home & outdoor • kitchenware • cleaning tools": " مستلزمات المنزل والخارج • أدوات المطبخ • أدوات التنظيف",
  "everything you need, all in one place.": "كل ما تحتاجه في مكان واحد.",
  "comfort without limits": "راحة بلا حدود",
- "view products": "تصفح المنتجات",
+ "view products": "عرض المنتجات",
+ "Display stands": "ستاندات للعرض",
+ "view stands": "ستاندات للعرض",
  "discover products built for comfort, function, and lasting quality, whether at home or beyond your walls, featuring smart storage, laundry solutions, and outdoor essentials for every setting.": "اكتشف منتجات صُممت لتجمع بين الراحة والكفاءة العملية والجودة المتينة، سواء داخل المنزل أو خارجه؛ حيث تشمل حلولاً ذكية للتخزين، ومستلزمات العناية بالملابس،  وضروريات الاستخدام الخارجي التي تناسب كافة الأماكن.",
  "explore home & outdoor": "استكشف ادوات المنزل والخارج",
  "made for everyday cooking": "مصنوعة للطهي اليومي",
- "built to last, kitchen essentials that make cooking easier and enjoyable.": "مصنوعة لتدوم، أساسيات مطبخ تجعل الطهي أسهل وأكثر متعة.",
+ "built to last kitchen essentials that make cooking easier and enjoyable.": "مصنوعة لتدوم\nأساسيات مطبخ تجعل الطهي أسهل وأكثر متعة.",
+ "built to last, kitchen essentials that make cooking easier and enjoyable.": "مصنوعة لتدوم\nأساسيات مطبخ تجعل الطهي أسهل وأكثر متعة.",
  "explore kitchenware": "استكشف أدوات المطبخ",
  "home care": "العناية بالمنزل",
  "keep your home fresh and spotless with reliable cleaning tools and essentials designed to simplify everyday upkeep.": "حافظي على منزلك منتعشاً ونظيفاً تماماً باستخدام أدوات ومستلزمات تنظيف موثوقة، صُممت خصيصاً لتبسيط المهام المنزلية اليومية.",
@@ -174,8 +184,8 @@ window.NASSIM_I18N = {
  "care for every space inside and outside your house with dependable home equipment designed for household and professional use. from laundry essentials and practical storage to the picnic collection.": "اعتنِ بكافة أرجاء منزلك، داخلياً وخارجياً، باستخدام معدات منزلية موثوقة صُممت لتلائم الاستخدامين المنزلي والمهني. وسواء تعلق الأمر بمستلزمات الغسيل وحلول التخزين العملية أو بمجموعة النزهات.",
  "all home & outdoor": "كل أدوات المنزل والخارج",
  "laundry essentials": "مستلزمات الغسيل",
- "storage and packaging": "التخزين والتغليف",
- "picnic collection": "ادوات البر",
+ "storage and packaging": "مستلزمات التخزين والتغليف ",
+ "Camping Supplies": "مستلزمات البر",
  "professional kitchen equipment": "معدات مطبخ احترافية",
  "equip your kitchen with dependable professional kitchenware built for expert use. from cutlery, cleavers and cooking utensils to drinkware, our collection combines practical performance, durability and clean, efficient design.": "جهّز مطبخك بأدوات مطبخ احترافية موثوقة مصممة للاستخدام الاحترافي. من أدوات المائدة والسكاكين وأدوات الطبخ إلى أكواب الشرب، تجمع مجموعتنا بين الأداء العملي والمتانة والتصميم الأنيق .",
  "all kitchenware": "كل أدوات المطبخ",
@@ -210,7 +220,7 @@ window.NASSIM_I18N = {
  "packaging designed around your business.": "تغليف مصمم خصيصاً لأعمالكم.",
  "from concept to delivery, we create customized packaging solutions tailored to your requirements, blending heritage craftsmanship with industrial precision.": "من الفكرة إلى التسليم، نُنشئ حلول تغليف مخصصة وفق متطلباتكم، نجمع فيها بين حرفية أصيلة ودقة صناعية.",
  "call our packaging experts: 00000000": "اتصل بخبراء التغليف لدينا: 00000000",
- "built to your specifications": "مُصممة حسب مواصفاتك",
+ "Designed according to your requirements": "مصممة حسب متطلباتك",
  "architectural integrity & thermal precision": "سلامة معمارية ودقة حرارية",
  "02": "02",
  "shopping cart": "سلة التسوق",
@@ -230,7 +240,7 @@ window.NASSIM_I18N = {
  "code/model :": "الكود/الموديل : ",
  "Order Sent": "تم إرسال الطلب",
  "Date/Time :": "التاريخ / الوقت",
- "Order Number :": "رقم الطلب",
+ "Order Number :": "رقم الطلب : ",
  "Your order has been received; our store team will contact you to confirm product availability and the final order, after which the official invoice will be issued at the store’s point of sale and provided with your delivered order, with the final total based on the items actually delivered.": "تم استلام طلبك؛ سيتصل بك فريق المتجر لدينا لتأكيد توفر المنتج وأي تغييرات مطلوبة في الطلب قبل إتمام طلبك، وبعد ذلك سيتم إصدار الفاتورة في نقطة البيع بالمتجر وتقديمها مع بضائعك عند التسليم.",
  "Code": "الرمز",
  "Qty": "الكمية",
@@ -253,7 +263,7 @@ window.NASSIM_I18N = {
  "add to cart": "أضف إلى السلة",
  "1-pc": "قطعة واحدة",
  "equip your kitchen with dependable professional kitchenware built for expert use. from cutlery, cleavers and cooking utensils to drinkware, our collection combines practical performance, durability and efficient design.": "جهّز مطبخك بأدوات مطبخ احترافية موثوقة مصممة للاستخدام الاحترافي. من أدوات المائدة والسكاكين وأدوات الطبخ إلى أكواب الشرب، تجمع مجموعتنا بين الأداء العملي والمتانة والتصميم الأنيق .",
- "STORE AND MOVE YOUR MERCHANDISE EFFICIENTLY.": "قم بتخزين ونقل بضائعك بكفاءة.",
+ "STORE AND MOVE YOUR MERCHANDISE EFFICIENTLY.": "قم بتخزين وتحريك بضائعك بكفاءة.",
  "forklifts": "رافعات شوكية",
  "pallets": "منصات التحميل",
  "heavy duty rack": "رف حديد شديد التحمل",
@@ -269,6 +279,7 @@ window.NASSIM_I18N = {
  "mobile number *": "رقم الهاتف *",
  "email (optional)": "البريد الإلكتروني (اختياري)",
  "delivery address": "عنوان التوصيل",
+ "kuwait": "الكويت",
  "area *": "المنطقة *",
  "governorate *": "المحافظة *",
  "governorate": "المحافظة",
@@ -411,7 +422,7 @@ window.NASSIM_I18N_REVERSE = {
  "أدوات التنظيف": [
   "CLEANING TOOLS"
  ],
- "المنزل والخارج": [
+ "مستلزمات المنزل والخارج": [
   "HOME & OUTDOOR"
  ],
  "أدوات المطبخ": [
@@ -495,7 +506,7 @@ window.NASSIM_I18N_REVERSE = {
  "جهاز بدون استخدام اليدين، متين وقوي لضمان بيئة نظيفة.": [
   "Hands-free, rugged and durable for a clean environment."
  ],
- "الفيئات": [
+ "فئات المنتجات": [
   "OUR CATEGORIES"
  ],
  "استكشف التشكيلة": [
@@ -531,8 +542,8 @@ window.NASSIM_I18N_REVERSE = {
  "النار.": [
   "FIRE."
  ],
- "صُممت للحظاتك المميزة في الهواء الطلق؛ فمن الشواء إلى اللقاءات، ستجد كل ما يلزمك للطهي والتقديم والاستمتاع.": [
-  "Built for outdoor moments that matter. From grilling to gathering — everything you need to cook, serve, and enjoy."
+ "صُممت للحظاتك المميزة في الهواء الطلق؛ فمن الشواء إلى اللقاءات، ستجد كل ما يلزمك.": [
+  "Designed for your special outdoor moments; from barbecues to gatherings, you'll find everything you need."
  ],
  "استكشف المجموعة": [
   "EXPLORE THE COLLECTION"
@@ -543,6 +554,9 @@ window.NASSIM_I18N_REVERSE = {
  "المطبخ": [
   "KITCHEN"
  ],
+  "مستلزمات المطبخ": [
+  "Kitchen supplies"
+ ],
  "الأساسيات.": [
   "ESSENTIALS."
  ],
@@ -552,6 +566,9 @@ window.NASSIM_I18N_REVERSE = {
  "ستاند لعرض المنتجات": [
   "PROMOTION RACK"
  ],
+ "ستاندات لعرض منتجاتك": [
+  "Stands to showcase your products"
+ ],
  "تسوق ذكي: منتجات بـ 1 دينار وأقل": [
   "Smart Shopping Products at 1 KD & Under"
  ],
@@ -559,7 +576,10 @@ window.NASSIM_I18N_REVERSE = {
   "EXPLORE ALL"
  ],
  "مجموعة مستلزمات البيتزا": [
-  "THE PIZZA COLLECTION"
+  "PIZZA SUPPLY COLLECTION"
+ ],
+ "مجموعاتنا المميزة": [
+  "Our Featured Collections"
  ],
  "أدوات مصنوعة لكل شريحة مثالية.": [
   "Tools made for every perfect slice."
@@ -599,6 +619,9 @@ window.NASSIM_I18N_REVERSE = {
  ],
  "0.400 د.ك": [
   "0.400 KD"
+ ],
+ "الكويت": [
+  "Kuwait"
  ],
  "الوجهة الأولى لمعدات البيع بالتجزئة الاحترافية والأدوات المنزلية في قلب الكويت.": [
   "The premier destination for professional retail and houseware equipment in the heart of Kuwait."
@@ -642,7 +665,7 @@ window.NASSIM_I18N_REVERSE = {
  "مجموعة الأدوات المنزلية": [
   "The Houseware Collection"
  ],
- "المنزل والخارج • أدوات المطبخ • أدوات التنظيف": [
+ " مستلزمات المنزل والخارج • أدوات المطبخ • أدوات التنظيف": [
   "HOME & OUTDOOR • KITCHENWARE • CLEANING TOOLS"
  ],
  "كل ما تحتاجه في مكان واحد.": [
@@ -651,8 +674,14 @@ window.NASSIM_I18N_REVERSE = {
  "راحة بلا حدود": [
   "COMFORT WITHOUT LIMITS"
  ],
- "تصفح المنتجات": [
+ "عرض المنتجات": [
   "View Products"
+ ],
+ "ستاندات للعرض": [
+  "View stands"
+ ],
+ "ستاندات للعرض": [
+  "Display stands"
  ],
  "اكتشف منتجات صُممت لتجمع بين الراحة والكفاءة العملية والجودة المتينة، سواء داخل المنزل أو خارجه؛ حيث تشمل حلولاً ذكية للتخزين، ومستلزمات العناية بالملابس،  وضروريات الاستخدام الخارجي التي تناسب كافة الأماكن.": [
   "Discover products built for comfort, function, and lasting quality, whether at home or beyond your walls, featuring smart storage, laundry solutions,  and outdoor essentials for every setting."
@@ -663,8 +692,8 @@ window.NASSIM_I18N_REVERSE = {
  "مصنوعة للطهي اليومي": [
   "MADE FOR EVERYDAY COOKING"
  ],
- "مصنوعة لتدوم، أساسيات مطبخ تجعل الطهي أسهل وأكثر متعة.": [
-  "Built to last, kitchen essentials that make cooking easier and enjoyable."
+ "مصنوعة لتدوم أساسيات مطبخ تجعل الطهي أسهل وأكثر متعة.": [
+  "Built to last kitchen essentials that make cooking easier and enjoyable."
  ],
  "استكشف أدوات المطبخ": [
   "EXPLORE KITCHENWARE"
@@ -876,11 +905,11 @@ window.NASSIM_I18N_REVERSE = {
  "مستلزمات الغسيل": [
   "Laundry Essentials"
  ],
- "التخزين والتغليف": [
+ "مستلزمات التخزين والتغليف ": [
   "Storage and Packaging"
  ],
- "ادوات البر": [
-  "Picnic Collection"
+ "مستلزمات البر": [
+  "Camping Supplies"
  ],
  "معدات مطبخ احترافية": [
   "PROFESSIONAL KITCHEN EQUIPMENT"
@@ -981,8 +1010,8 @@ window.NASSIM_I18N_REVERSE = {
  "اتصل بخبراء التغليف لدينا: 00000000": [
   "CALL OUR PACKAGING EXPERTS: 00000000"
  ],
- "مُصممة حسب مواصفاتك": [
-  "Built to Your Specifications"
+ "مصممة حسب متطلباتك": [
+  "Designed according to your requirements"
  ],
  "سلامة معمارية ودقة حرارية": [
   "ARCHITECTURAL INTEGRITY & THERMAL PRECISION"
@@ -1044,7 +1073,7 @@ window.NASSIM_I18N_REVERSE = {
  "الاستاندات": [
   "Stands"
  ],
- "قم بتخزين ونقل بضائعك بكفاءة.": [
+ "قم بتخزين وتحريك بضائعك بكفاءة.": [
   "STORE AND MOVE YOUR MERCHANDISE EFFICIENTLY."
  ],
  "رافعات شوكية ومنصات تحميل احترافية": [
